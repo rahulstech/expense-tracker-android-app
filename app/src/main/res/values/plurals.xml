@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="warning_delete_accounts">
+        <item quantity="one">This account and its all transactions will be DELETED PERMANENTLY. Are you sure?</item>
+        <item quantity="many">You are going to DELETE some accounts PERMANENTLY. Are you sure?</item>
+    </plurals>
+    <plurals name="warning_delete_persons">
+        <item quantity="one">This person and its all transactions will be DELETED PERMANENTLY. Are you sure?</item>
+        <item quantity="many">You are going to DELETE some persons PERMANENTLY. Are you sure?</item>
+    </plurals>
+    <plurals name="warning_delete_transactions">
+        <item quantity="one">This transaction will be DELETED PERMANENTLY. Are you sure?</item>
+        <item quantity="many">You are going to DELETE some transactions PERMANENTLY. Are you sure?</item>
+    </plurals>
+</resources>

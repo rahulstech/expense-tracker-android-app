@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Expense Tracker</string>
+	<string name="backup_activity">Backup And Restore</string>
+	<string name="work_action_service_name">WorkActionService</string>
+	<string name="work_action_service_description">Service to handle different action in backup and restore notification</string>
+    
+    <string name="label_accounts">Accounts</string>
+    <string name="label_insert_account">Create Account</string>
+    <string name="label_update_account">Edit Account</string>
+    <string name="label_persons_list">Persons</string>
+    <string name="label_insert_person">Add Person</string>
+    <string name="label_update_person">Edit Person</string>
+    <string name="label_transactions_list">Transactions</string>
+	<string name="label_money_transfer">Money Transfer</string>
+	<string name="label_total_balance">Total Balance</string>
+	<string name="label_total_due">Total Due</string>
+	<string name="label_count_balance_accounts">From %d accounts</string>
+	<string name="label_count_due_people">From %d people</string>
+
+	<string name="label_insert_transaction">Insert Transaction</string>
+    <string name="label_update_transaction">Edit Transaction</string>
+	<string name="label_filter_transaction">Filter Transactions</string>
+	<string name="label_loading">Loading</string>
+	
+    <string name="account_name">Account Name</string>
+    <string name="person_name">Person Name</string>
+    <string name="amount">Amount</string>
+    <string name="account">Account</string>
+    <string name="person">Person</string>
+	<string name="item_none">None</string>
+    <string name="description">Description</string>
+    <string name="date">Date</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
+	<string name="retry">Retry</string>
+    <string name="add_debit">Add Debit</string>
+    <string name="add_credit">Add Credit</string>
+    <string name="no_account">No Account</string>
+    <string name="no_person">No Person</string>
+    <string name="no_transaction">No Transaction</string>
+    <string name="balance">Balance</string>
+    <string name="due_payment">Due</string>
+	<string name="advanced_payment">Advanced</string>
+	<string name="credit">Credit</string>
+	<string name="debit">Debit</string>
+    <string name="min_date">From Date</string>
+	<string name="max_date">To Date</string>
+    <string name="search_account">Search Account</string>
+	<string name="search_person">Search Person</string>
+	<string name="dates_and_types">Dates And Types</string>
+
+	<string name="filter">Filter</string>
+	<string name="reset">Reset</string>
+	<string name="today">Today</string>
+	<string name="tomorrow">Tomorrow</string>
+	<string name="yesterday">Yesterday</string>
+	<string name="account_from">From</string>
+	<string name="account_to">To</string>
+	<string name="backup">Backup</string>
+	<string name="restore">Restore</string>
+
+	<!-- strings related to filter transaction screens -->
+	<string name="screen_account">Accounts</string>
+	<string name="screen_people">People</string>
+	<string name="screen_dates">Dates</string>
+	<string name="screen_miscellaneous">Miscellaneous</string>
+
+	<string name="max_amount">Max Amount</string>
+	<string name="min_amount">Min Amount</string>
+
+	<!-- strings for date filter options -->
+	<string name="filter_date_all">All</string>
+	<string name="filter_date_today">Today</string>
+	<string name="filter_date_yesterday">Yesterday</string>
+	<string name="filter_date_specific">On Date</string>
+	<string name="filter_date_this_week">This Week</string>
+	<string name="filter_date_last_week">Last Week</string>
+	<string name="filter_date_this_month">This Month</string>
+	<string name="filter_date_last_month">Last Month</string>
+	<string name="filter_date_custom_range">Custom Range</string>
+
+	<!-- messages related to define operation status -->
+    <string name="error_empty_account_name">no account name provided</string>
+	<string name="account_save_successful">account saved</string>
+    <string name="account_save_unsuccessful">account not saved</string>
+	<string name="error_empty_person_name">no person name provided</string>
+	<string name="person_save_successful">person saved</string>
+    <string name="person_save_unsuccessful">person not saved</string>
+	<string name="error_invalid_amount">invalid amount</string>
+	<string name="error_negative_amount">negative amount not allowed</string>
+    <string name="error_same_account_money_transfer">can not transfer money between same accounts</string>
+	<string name="transaction_save_successful">transaction saved</string>
+	<string name="transaction_save_unsuccessful">transaction not saved</string>
+	<string name="money_transfer_successful">money transferred successfully</string>
+	<string name="money_transfer_unsuccessful">fail to transfer money</string>
+    <string name="message_money_transfer_accounts_not_enough">
+		At least two accounts are required for money transfer.
+	</string>
+	<string name="message_no_account_for_transaction">
+		There is no account for transaction. Please add at least one account.
+	</string>
+
+	<!-- messages related to backupNow / restore displayed in notification -->
+	<string name="description_open_settings_allow_permission">
+		Permission to use external storage is disabled which is required for backup and restore operations.
+		Please enable this permission in System\'s App Settings under the App\'s permission section.
+	</string>
+	<string name="open_settings">Open Settings</string>
+	<string name="description_backup">
+		Backup your data into your external storage . Backup File(s) can be found under Expensetracker > backup directory.
+		Keep the latest backup file safe to restore the data after reinstall . Never forget to make a backup before uninstall.
+	</string>
+	<string name="description_restore" formatted="false">
+		Restore your data from your local storage. Click the button and choose a file to restore.
+		Restore does not check for duplicate data.
+		To avoid data duplication restore just after reinstall or when all your data wiped out.
+	</string>
+
+	<string name="last_backup_date">Last Backup: </string>
+	<string name="backup_never">Never</string>
+	<string name="notification_title_backup">Backup</string>
+	<string name="notification_title_restore">Restore</string>
+	<string name="title_choose_restore_file">Restore File</string>
+
+	<string name="schedule_auto_backup">Schedule Auto Backup</string>
+	<string name="schedule_never">Never</string>
+	<string name="schedule_daily">Daily</string>
+	<string name="schedule_weekly">Weekly</string>
+	<string name="schedule_monthly">Monthly</string>
+
+	<string name="message_local_backup_start">Starting Local Backup</string>
+	<string name="message_backup_canceled">Backup Canceled</string>
+	<string name="message_local_backup_successful">Local Backup Successful</string>
+	<string name="message_backup_fail">Backup Fail</string>
+	<string name="message_fail_no_data">No data found.</string>
+	<string name="message_backup_fail_unknown">Backup fail due to some error, please try again</string>
+
+	<string name="message_local_restore_start">Starting Local Restore</string>
+	<string name="message_restore_canceled">Restore Canceled</string>
+	<string name="message_local_restore_successful">Restore Successful</string>
+	<string name="message_restore_fail_invalid">Selected file contains invalid data</string>
+	<string name="message_restore_fail_unknown">Some internal error occurred during restore, please try again.</string>
+	<string name="message_backup_progress_accounts">Retrieving account(s) %1$d/%2$d</string>
+	<string name="message_backup_progress_people">Retrieving person(s) %1$d/%2$d</string>
+	<string name="message_backup_progress_transactions">Retrieving transaction(s) %1$d/%2$d</string>
+	<string name="message_restore_progress">Restoring from \"%1$s\" %2$d%%</string>
+	<string name="message_restore_non_empty_database">Restore canceled. Database is not empty. Clear the database first and try again</string>
+	<string name="message_restore_file_not_selected">No file selected to restore</string>
+
+	<string name="message_error_file_access">
+		Read and write to external storage is not allowed for this app. Open setting and allow permission now.
+	</string>
+
+	<!-- strings related to menu -->
+	<string name="menu_edit">Edit</string>
+	<string name="menu_delete">Delete</string>
+    <string name="menu_new_transaction">New Transaction</string>
+	<string name="menu_send_money">Send Money</string>
+	<string name="menu_receive_money">Receive Money</string>
+	<string name="menu_backup_restore">Backup And Restore</string>
+	<string name="menu_filter">Filter</string>
+</resources>
