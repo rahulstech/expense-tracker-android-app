@@ -33,6 +33,7 @@ public class TransactionsList extends BaseListFragment<BaseListFragment.ListFrag
 
     private TransactionsViewModel viewModel;
     private TransactionsAdapter adapter;
+    private NavController navController;
     private OperationCallback transactionDeleteCallback = new OperationCallback(){
         @Override
         public void onCompleteDelete(boolean success) {
@@ -44,7 +45,7 @@ public class TransactionsList extends BaseListFragment<BaseListFragment.ListFrag
 
     public TransactionsList(){ super(); }
 
-    public NavController getNavController() { return ((MainActivity) getActivity()).getNavController(); }
+    public NavController getNavController() { return navController; }
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -74,6 +75,7 @@ public class TransactionsList extends BaseListFragment<BaseListFragment.ListFrag
 
     @Override
     protected void onBindFragmentViewHolder(@NonNull ListFragmentViewHolder vh) {
+        navController = Navigation.findNavController(vh.getRoot());
         viewModel.setOperationCallback(transactionDeleteCallback);
     }
 
@@ -95,7 +97,7 @@ public class TransactionsList extends BaseListFragment<BaseListFragment.ListFrag
 
     @Override
     public void onItemChildClicked(TransactionsAdapter transactionsAdapter, TransactionsAdapter.TransactionsViewHolder vh, View childView) {
-        final TransactionDetails transaction = adapter.getItem(vh.getAdapterPosition());
+        final TransactionDetails transaction = adapter.getItem(vh.getAbsoluteAdapterPosition());
         switch (childView.getId()){
             case R.id.options:{
                 PopupMenu menu = new PopupMenu(getContext(), childView);
@@ -117,11 +119,11 @@ public class TransactionsList extends BaseListFragment<BaseListFragment.ListFrag
                 menu.show();
             }
             break;
-            case R.id.account_name:{
+            case R.id.from_account:{
                 viewModel.loadTransactionsForAccount(transaction.getAccount());
             }
             break;
-            case R.id.person_name:{
+            case R.id.to_account:{
                 viewModel.loadTransactionsForPerson(transaction.getPerson());
             }
         }
@@ -133,8 +135,8 @@ public class TransactionsList extends BaseListFragment<BaseListFragment.ListFrag
     }
 
     private void onAddTransaction(){
-        viewModel.countAccounts(r -> {
-            if (r > 0) {
+        viewModel.hasAnyAccount(r -> {
+            if (r) {
                 viewModel.setWorkingTransaction(new Transaction());
                 getNavController().navigate(R.id.action_transactionsList_to_inputTransaction);
             }

@@ -40,6 +40,10 @@ import static dreammaker.android.expensetracker.util.Date.ISO_DATE_PATTERN;
 @Dao
 public abstract class ExpensesDao {
 
+    ////////////////////////////////////////////////////////////////////////////////////
+    ///                                 Account                                     ///
+    //////////////////////////////////////////////////////////////////////////////////
+
     @Insert
     public abstract long insertAccount(Account account);
 
@@ -49,14 +53,26 @@ public abstract class ExpensesDao {
     @Query("SELECT COUNT("+ ExpensesContract.AccountsColumns._ID +") FROM "+ACCOUNTS_TABLE)
     public abstract long countAccounts();
 
-    @Query("SELECT "+ ExpensesContract.AccountsColumns._ID+","+ACCOUNT_NAME+", 0 AS "+BALANCE+" FROM "+ACCOUNTS_TABLE)
-    public abstract LiveData<List<Account>> getAllAccountsNameAndId();
+    @Query("SELECT * FROM `accounts` WHERE `balance` > 0;")
+    public abstract LiveData<List<Account>> getAllAccounts();
 
     @Update
     public abstract int updateAccount(Account account);
 
+    @Query("UPDATE "+ACCOUNTS_TABLE+" SET "+
+            BALANCE+" = CASE :type WHEN "+TYPE_CREDIT+" THEN "+BALANCE+" - :amount ELSE "+BALANCE+" + :amount END " +
+            "WHERE "+ ExpensesContract.AccountsColumns._ID+" = :accountId")
+    abstract void setAccountBalance(long accountId, int type, float amount);
+
     @Delete
     public abstract int deleteAccounts(Account... accounts);
+
+    @Query("DELETE FROM `accounts`;")
+     abstract void clearAccounts();
+
+    ////////////////////////////////////////////////////////////////////////////////////
+    ///                                 Person                                      ///
+    //////////////////////////////////////////////////////////////////////////////////
 
     @Insert
     public abstract long insertPerson(Person person);
@@ -70,114 +86,69 @@ public abstract class ExpensesDao {
     @Update
     public abstract int updatePerson(Person person);
 
+    @Query("UPDATE "+PERSONS_TABLE+" SET "+
+            DUE_PAYMENT+" = CASE :type WHEN "+TYPE_CREDIT+" THEN "+DUE_PAYMENT+" + :amount ELSE "+DUE_PAYMENT+" - :amount END " +
+            "WHERE "+ ExpensesContract.PersonsColumns._ID+" = :personId")
+    abstract void setPersonDue(long personId, int type, float amount);
+
     @Delete
     public abstract int deletePersons(Person... persons);
 
+    @Query("DELETE FROM `persons`")
+    abstract void clearPeople();
+
+    ////////////////////////////////////////////////////////////////////////////////////
+    ///                              Transaction                                    ///
+    //////////////////////////////////////////////////////////////////////////////////
 
     public long insertTransaction(Transaction t) {
         long _id = insert_transaction_internal(t);
         if (_id > 0) {
-            float newAmount = TYPE_CREDIT == t.getType() ? -t.getAmount() : t.getAmount();
-            long accountId = t.getAccountId();
-            Long personId = t.getPersonId();
-            float oldBalance = getAccountBalance(accountId);
-            float newBalance = oldBalance+newAmount;
-            setAccountBalance(accountId,newBalance);
-            if (null != personId) {
-                float oldDue = getPersonDue(personId);
-                float newDue = oldDue-newAmount;
-                setPersonDue(personId,newDue);
+            setAccountBalance(t.getAccountId(),t.getType(),t.getAmount());
+            if (null != t.getPersonId()) {
+                setPersonDue(t.getPersonId(),t.getType(),t.getAmount());
             }
         }
         return _id;
     }
 
-    @Query("SELECT * FROM " +
-            "(SELECT SUM("+BALANCE+") AS "+TOTAL_BALANCE+", COUNT("+ ExpensesContract.AccountsColumns._ID+") AS "+COUNT_ACCOUNTS+
-            " FROM "+ACCOUNTS_TABLE+" WHERE "+BALANCE+" > 0), " +
-            "(SELECT SUM("+DUE_PAYMENT+") AS "+TOTAL_DUE+", COUNT("+ ExpensesContract.PersonsColumns._ID+") AS "+COUNT_PEOPLE+
-            " FROM "+PERSONS_TABLE+" WHERE "+DUE_PAYMENT+" > 0);")
-    public abstract LiveData<BalanceAndDueSummary> getBalanceAndDueSummary();
-
     @androidx.room.Transaction
     @RawQuery(observedEntities = {TransactionDetails.class})
     public abstract DataSource.Factory<Integer, TransactionDetails> filterTransactionPaged(SupportSQLiteQuery query);
-
 
     public int updateTransaction(Transaction newT) {
         Transaction oldT = getTransactionById(newT.getTransactionId());
         int changes = update_transaction_internal(newT);
         if (changes > 0) {
-            float oldAmount = TYPE_CREDIT == oldT.getType() ? -oldT.getAmount() : oldT.getAmount();
-            long oldAccountId = oldT.getAccountId();
-            Long oldPersonId = oldT.getPersonId();
-            float newAmount = TYPE_CREDIT == newT.getType() ? -newT.getAmount() : newT.getAmount();
-            long newAccountId = newT.getAccountId();
-            Long newPersonId = newT.getPersonId();
-            if (oldAccountId == newAccountId) {
-                float oldBalance = getAccountBalance(oldAccountId);
-                float newBalance = oldBalance - oldAmount + newAmount;
-                setAccountBalance(newAccountId,newBalance);
+            setAccountBalance(oldT.getAccountId(),TYPE_CREDIT == oldT.getType() ? TYPE_DEBIT : TYPE_CREDIT,oldT.getAmount());
+            setAccountBalance(newT.getAccountId(),newT.getType(),newT.getAmount());
+            if (null != oldT.getPersonId()) {
+                setPersonDue(oldT.getPersonId(),TYPE_CREDIT == oldT.getType() ? TYPE_DEBIT : TYPE_CREDIT, oldT.getAmount());
             }
-            else {
-                float oldAccountOldBalance = getAccountBalance(oldAccountId);
-                float oldAccountNewBalance = oldAccountOldBalance - oldAmount;
-                float newAccountOldBalance = getAccountBalance(newAccountId);
-                float newAccountNewBalance = newAccountOldBalance + newAmount;
-                setAccountBalance(oldAccountId,oldAccountNewBalance);
-                setAccountBalance(newAccountId,newAccountNewBalance);
-            }
-            if (oldPersonId == newPersonId && null != oldPersonId) {
-                float oldDue = getPersonDue(oldPersonId);
-                float newDue = oldDue+oldAmount-newAmount;
-                setPersonDue(newPersonId,newDue);
-            }
-            else {
-                if (null != oldPersonId) {
-                    float oldPersonOldDue = getPersonDue(oldPersonId);
-                    float oldPersonNewDue = oldPersonOldDue+oldAmount;
-                    setPersonDue(oldPersonId,oldPersonNewDue);
-                }
-                if (null != newPersonId) {
-                    float newPersonOldDue = getPersonDue(newPersonId);
-                    float newPersonNewDue = newPersonOldDue-newAmount;
-                    setPersonDue(newPersonId,newPersonNewDue);
-                }
+            if (null != newT.getPersonId()) {
+                setPersonDue(newT.getPersonId(),newT.getType(),newT.getAmount());
             }
         }
         return changes;
     }
-
 
     public int deleteTransactions(Transaction t) {
-        int changes = delete_transaction_internal(t);
+        t.setDeleted(true);
+        int changes = update_transaction_internal(t);
         if (changes > 0) {
-            float oldAmount = TYPE_CREDIT == t.getType() ? -t.getAmount() : t.getAmount();
-            long accountId = t.getAccountId();
-            Long personId = t.getPersonId();
-            float oldBalance = getAccountBalance(accountId);
-            float newBalance = oldBalance - oldAmount;
-            setAccountBalance(accountId, newBalance);
-            if (null != personId) {
-                float oldDue = getPersonDue(personId);
-                float newDue = oldDue + oldAmount;
-                setPersonDue(personId, newDue);
+            setAccountBalance(t.getAccountId(),TYPE_CREDIT == t.getType() ? TYPE_DEBIT : TYPE_CREDIT,t.getAmount());
+            if (null != t.getPersonId()) {
+                setPersonDue(t.getPersonId(),TYPE_CREDIT == t.getType() ? TYPE_DEBIT : TYPE_CREDIT, t.getAmount());
             }
         }
         return changes;
     }
 
-    @Query("SELECT "+BALANCE+" FROM "+ACCOUNTS_TABLE+" WHERE "+ ExpensesContract.AccountsColumns._ID+" = :accountId")
-    abstract float getAccountBalance(long accountId);
+    @Query("UPDATE `transactions` SET `deleted` = 1 WHERE `date` < :date")
+    public abstract void markTransactionDeletedOlderThan(Date date);
 
-    @Query("UPDATE "+ACCOUNTS_TABLE+" SET "+BALANCE+" = :newBalance WHERE "+ ExpensesContract.AccountsColumns._ID+" = :accountId")
-    abstract void setAccountBalance(long accountId, float newBalance);
-
-    @Query("SELECT "+DUE_PAYMENT+" FROM "+PERSONS_TABLE+" WHERE "+ ExpensesContract.PersonsColumns._ID+" = :personId")
-    abstract float getPersonDue(long personId);
-
-    @Query("UPDATE "+PERSONS_TABLE+" SET "+DUE_PAYMENT+" = :newDue WHERE "+ ExpensesContract.PersonsColumns._ID+" = :personId")
-    abstract void setPersonDue(long personId, float newDue);
+    @Query("DELETE FROM `transactions` WHERE `deleted` = 1;")
+    public abstract void removeTransactionsMarkedDeleted();
 
     @Query("SELECT * FROM "+TRANSACTIONS_TABLE+" WHERE "+ ExpensesContract.TransactionsColumns._ID+" = :transactionId;")
     abstract Transaction getTransactionById(long transactionId);
@@ -188,8 +159,77 @@ public abstract class ExpensesDao {
     @Update
     abstract int update_transaction_internal(Transaction transaction);
 
+    ////////////////////////////////////////////////////////////////////////////////////
+    ///                             Money Transfer                                  ///
+    //////////////////////////////////////////////////////////////////////////////////
+
+    public long insertMoneyTransfer(MoneyTransfer mt) {
+        long id = insert_money_transfer_internal(mt);
+        if (id > 0) {
+            setAccountBalance(mt.getPayee_account_id(), TYPE_DEBIT, mt.getAmount());
+            setAccountBalance(mt.getPayer_account_id(),TYPE_CREDIT,mt.getAmount());
+        }
+        return id;
+    }
+
+    @androidx.room.Transaction
+    @Query("SELECT * FROM `money_transfers`;")
+    public abstract LiveData<List<MoneyTransferDetails>> getMoneyTransferHistory();
+
+    public int updateMoneyTransfer(MoneyTransfer newMT) {
+        MoneyTransfer oldMT = getMoneyTransferById(newMT.getId());
+        int changes = update_money_transfer_internal(newMT);
+        if (changes > 0) {
+            setAccountBalance(oldMT.getPayee_account_id(),TYPE_CREDIT,oldMT.getAmount());
+            setAccountBalance(oldMT.getPayer_account_id(),TYPE_DEBIT,oldMT.getAmount());
+            setAccountBalance(newMT.getPayee_account_id(),TYPE_DEBIT,newMT.getAmount());
+            setAccountBalance(newMT.getPayer_account_id(),TYPE_CREDIT,newMT.getAmount());
+        }
+        return changes;
+    }
+
+    public int deleteMoneyTransfer(MoneyTransfer mt) {
+        MoneyTransfer oldMT = getMoneyTransferById(mt.getId());
+        int changes = delete_money_transfer_internal(mt);
+        if (changes > 0) {
+            setAccountBalance(oldMT.getPayee_account_id(),TYPE_CREDIT,oldMT.getAmount());
+            setAccountBalance(oldMT.getPayer_account_id(),TYPE_DEBIT,oldMT.getAmount());
+        }
+        return changes;
+    }
+
+    @Query("DELETE FROM `money_transfers` WHERE `when` < :date;")
+    public abstract void deleteMoneyTransfersOlderThan(Date date);
+
+    @Insert
+    abstract long insert_money_transfer_internal(MoneyTransfer mt);
+
+    @Query("SELECT * FROM `money_transfers` WHERE `id` = :id;")
+    abstract MoneyTransfer getMoneyTransferById(long id);
+
+    @Update
+    abstract int update_money_transfer_internal(MoneyTransfer mt);
+
     @Delete
-    abstract int delete_transaction_internal(Transaction transaction);
+    abstract int delete_money_transfer_internal(MoneyTransfer mt);
+
+    ////////////////////////////////////////////////////////////////////////////////////
+    ///                              Miscellaneous                                  ///
+    //////////////////////////////////////////////////////////////////////////////////
+
+    @Query("SELECT * FROM " +
+            "(SELECT SUM("+BALANCE+") AS "+TOTAL_BALANCE+", COUNT("+ ExpensesContract.AccountsColumns._ID+") AS "+COUNT_ACCOUNTS+
+            " FROM "+ACCOUNTS_TABLE+" WHERE "+BALANCE+" > 0), " +
+            "(SELECT SUM("+DUE_PAYMENT+") AS "+TOTAL_DUE+", COUNT("+ ExpensesContract.PersonsColumns._ID+") AS "+COUNT_PEOPLE+
+            " FROM "+PERSONS_TABLE+" WHERE "+DUE_PAYMENT+" > 0);")
+    public abstract LiveData<BalanceAndDueSummary> getBalanceAndDueSummary();
+
+    @androidx.room.Transaction
+    public void clearAll() {
+        clearAccounts();
+        clearPeople();
+    }
+
 
     public static class TransactionDetailsQueryBuilder{
         private static final String TAG = "TransactionDetailsQB";
@@ -255,6 +295,7 @@ public abstract class ExpensesDao {
             ArrayList<String> parts = new ArrayList<>();
             StringBuilder selection = new StringBuilder();
             int i;
+            parts.add("deleted = 0");
             if (null != minDate) {
                 parts.add(DATE+" >= \""+minDate.format(ISO_DATE_PATTERN)+"\"");
             }
@@ -292,7 +333,7 @@ public abstract class ExpensesDao {
                 ListIterator<Person> it = people.listIterator();
                 if (it.hasNext()) {
                     Person p = it.next();
-                    if (null == p  || null == p.getPersonId()) {
+                    if (null == p  || p.getPersonId() <= 0) {
                         hasNull = true;
                         it.remove();
                     }

@@ -1,5 +1,7 @@
 package dreammaker.android.expensetracker.database;
 
+import com.google.gson.annotations.SerializedName;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
@@ -38,7 +40,7 @@ foreignKeys = {@ForeignKey(
 indices = {@Index(name = TRANSACTIONS_ACCOUNT_ID_INDEX, value = {ACCOUNT_ID}),
         @Index(name = TRANSACTIONS_PERSON_ID_INDEX, value = {PERSON_ID})
 })
-public class Transaction {
+public class Transaction implements Cloneable {
 
     public static final int TYPE_CREDIT = ExpensesContract.TransactionsColumns.TYPE_CREDIT;
 
@@ -47,43 +49,55 @@ public class Transaction {
     @ColumnInfo(name = _ID, typeAffinity = ColumnInfo.INTEGER)
     @PrimaryKey(autoGenerate = true)
     @NonNull
+    @SerializedName(_ID)
     private long transactionId;
 
     @ColumnInfo(name = ACCOUNT_ID, typeAffinity = ColumnInfo.INTEGER)
     @NonNull
+    @SerializedName(ACCOUNT_ID)
     private long accountId;
 
     @ColumnInfo(name = PERSON_ID, typeAffinity = ColumnInfo.INTEGER)
     @Nullable
+    @SerializedName(PERSON_ID)
     private Long personId;
 
     @ColumnInfo(name = AMOUNT, typeAffinity = ColumnInfo.REAL, defaultValue = "0")
     @NonNull
+    @SerializedName(AMOUNT)
     private float amount;
 
     @ColumnInfo(name = TYPE, typeAffinity = ColumnInfo.INTEGER)
     @NonNull
+    @SerializedName(TYPE)
     private int type;
 
     @ColumnInfo(name = DATE, typeAffinity = ColumnInfo.TEXT)
     @NonNull
     @TypeConverters(Converters.class)
+    @SerializedName(DATE)
     private Date date;
 
+    @NonNull
+    private boolean deleted = false;
+
     @ColumnInfo(name = DESCRIPTION, typeAffinity = ColumnInfo.TEXT)
+    @SerializedName(DESCRIPTION)
     private String description;
 
-    public Transaction(long transactionId, long accountId, Long personId, float amount, int type, @NonNull Date date, String description) {
+    public Transaction(long transactionId, long accountId, Long personId, float amount, int type, @NonNull Date date, boolean deleted, String description) {
         this.transactionId = transactionId;
         this.accountId = accountId;
         this.personId = personId;
         this.amount = amount;
         this.type = type;
         this.date = date;
+        this.deleted = deleted;
         this.description = description;
     }
 
     @Ignore
+    @Deprecated
     public Transaction(long accountId, @Nullable Long personId, float amount, int type, @NonNull Date date, String description) {
         this.accountId = accountId;
         this.personId = personId;
@@ -95,7 +109,7 @@ public class Transaction {
 
     @Ignore
     public Transaction() {
-        this(0,0,null,0,TYPE_DEBIT,new Date(),null);
+        this(0,0,null,0,TYPE_DEBIT,new Date(),false,null);
     }
 
     public long getTransactionId() {
@@ -121,6 +135,10 @@ public class Transaction {
 
     @NonNull
     public Date getDate() { return date; }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
 
     @Nullable
     public String getDescription() {
@@ -151,6 +169,10 @@ public class Transaction {
         this.date = date;
     }
 
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
+
     public void setDescription(String description) {
         this.description = description;
     }
@@ -170,6 +192,7 @@ public class Transaction {
                     && this.getAmount() == t.getAmount()
                     && this.getType() == t.getType()
                     && Check.isEquals(this.date,t.getDate())
+                    && this.deleted == t.deleted
                     && Check.isEqualString(this.getDescription(),t.getDescription());
         }
         return false;
@@ -184,6 +207,7 @@ public class Transaction {
                 ", amount=" + amount +
                 ", type=" + type +
                 ", date=" + date +
+                ", deleted = "+ deleted +
                 ", description='" + description + '\'' +
                 '}';
     }
@@ -191,6 +215,6 @@ public class Transaction {
     @NonNull
     @Override
     public Transaction clone() {
-        return new Transaction(transactionId,accountId,personId,amount,type,date,description);
+        return new Transaction(transactionId,accountId,personId,amount,type,date,deleted,description);
     }
 }

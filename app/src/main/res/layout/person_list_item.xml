@@ -21,10 +21,10 @@
 			android:background="?android:selectableItemBackground"
 			app:srcCompat="@drawable/ic_vertical_three_dots"
 			app:layout_constraintTop_toTopOf="parent"
-			app:layout_constraintEnd_toEndOf="parent"/>
+			app:layout_constraintEnd_toEndOf="parent" />
 
 		<TextView
-			android:id="@+id/person_name"
+			android:id="@+id/to_account"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:padding="@dimen/padding_vertical_extra_small"
@@ -44,7 +44,7 @@
 			android:text="@string/due_payment"
 			android:layout_margin="@dimen/padding_vertical_extra_small"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@id/person_name"/>
+			app:layout_constraintTop_toBottomOf="@id/to_account"/>
 
 		<!-- app:layout_constraintEnd_toStartOf="@id/label_advanced_payment" -->
 		<TextView
@@ -58,7 +58,7 @@
 			android:singleLine="true"
 			android:ellipsize="marquee"
 			tools:text="200"
-			app:layout_constraintTop_toBottomOf="@id/person_name"
+			app:layout_constraintTop_toBottomOf="@id/to_account"
 			app:layout_constraintStart_toEndOf="@id/label_due_payment"
 			app:layout_constraintEnd_toEndOf="parent"/>
 
@@ -71,7 +71,7 @@
 			android:text="@string/advanced_payment"
 			android:layout_margin="@dimen/padding_vertical_extra_small"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@id/person_name"
+			app:layout_constraintTop_toBottomOf="@id/to_account"
 			app:layout_constraintEnd_toStartOf="@id/advanced_payment"
 			android:visibility="gone"/>
 
@@ -87,7 +87,7 @@
 			android:textStyle="bold"
 			app:layout_constraintEnd_toEndOf="@+id/options"
 			app:layout_constraintStart_toEndOf="@id/label_advanced_payment"
-			app:layout_constraintTop_toBottomOf="@id/person_name"
+			app:layout_constraintTop_toBottomOf="@id/to_account"
 			tools:text="17"
 			android:visibility="gone"/>
 	</androidx.constraintlayout.widget.ConstraintLayout>

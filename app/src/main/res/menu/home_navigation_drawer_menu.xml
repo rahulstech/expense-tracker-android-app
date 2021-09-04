@@ -7,4 +7,10 @@
         android:title="@string/menu_backup_restore"
         android:icon="@drawable/backup_restore"
         app:showAsAction="always"/>
+    <item
+        android:id="@+id/settings"
+        android:icon="@drawable/ic_baseline_settings"
+        android:title="@string/menu_settings"
+        app:showAsAction="always" />
+
 </menu>

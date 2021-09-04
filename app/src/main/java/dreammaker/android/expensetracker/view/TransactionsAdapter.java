@@ -4,7 +4,6 @@ import android.content.Context;
 import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -19,10 +18,11 @@ import dreammaker.android.expensetracker.util.Check;
 import dreammaker.android.expensetracker.util.Date;
 import dreammaker.android.expensetracker.util.Helper;
 
+import static dreammaker.android.expensetracker.database.Transaction.TYPE_CREDIT;
 import static dreammaker.android.expensetracker.database.TransactionDetails.TYPE_DEBIT;
-import static dreammaker.android.expensetracker.util.Helper.CATEGORY_TRANSACTION;
 
-public class TransactionsAdapter extends BaseRecyclerViewPagedListAdapter<TransactionDetails, TransactionsAdapter.TransactionsViewHolder> implements RVAViewHolder.OnChildClickListener {
+public class TransactionsAdapter extends BaseRecyclerViewPagedListAdapter<TransactionDetails, TransactionsAdapter.TransactionsViewHolder>
+        implements RVAViewHolder.OnChildClickListener {
 
     private static final String TAG = "TransactionsAdapter";
 
@@ -39,16 +39,9 @@ public class TransactionsAdapter extends BaseRecyclerViewPagedListAdapter<Transa
         }
     };
 
-    private int category;
 
     public TransactionsAdapter(@NonNull Context context){
-        this(context, CATEGORY_TRANSACTION);
-    }
-
-    @Deprecated
-    public TransactionsAdapter(@NonNull Context context, int category) {
         super(context, DIFF_CALLBACK);
-        this.category = category;
     }
 
     @Override
@@ -60,7 +53,7 @@ public class TransactionsAdapter extends BaseRecyclerViewPagedListAdapter<Transa
     @Override
     public TransactionsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         TransactionsViewHolder vh = new TransactionsViewHolder(getLayoutInflater()
-                .inflate(R.layout.transaction_list_item, parent, false), category);
+                .inflate(R.layout.transaction_list_item, parent, false));
         vh.setOnChildClickListener(this);
         return vh;
     }
@@ -89,22 +82,18 @@ public class TransactionsAdapter extends BaseRecyclerViewPagedListAdapter<Transa
         TextView person;
         TextView description;
 
-        public TransactionsViewHolder(View itemView, int category) {
+        public TransactionsViewHolder(View itemView) {
             super(itemView);
             contentTransactionDetails = findViewById(R.id.content_transaction_details);
             contentLoading = findViewById(R.id.content_loading);
             amount = findViewById(R.id.amount);
-            date = findViewById(R.id.date);
-            account = findViewById(R.id.account_name);
-            person = findViewById(R.id.person_name);
+            date = findViewById(R.id.when);
+            account = findViewById(R.id.from_account);
+            person = findViewById(R.id.to_account);
             account.setMovementMethod(new LinkMovementMethod());
             person.setMovementMethod(new LinkMovementMethod());
             description = findViewById(R.id.description);
-            findViewById(R.id.options).setOnClickListener(v -> {
-                if (hasOnChildClickListener()){
-                    getOnChildClickListener().onChildClick(TransactionsViewHolder.this, v);
-                }
-            });
+            bindChildForClick(findViewById(R.id.options));
         }
 
         public void bind(TransactionDetails t){
@@ -126,8 +115,9 @@ public class TransactionsAdapter extends BaseRecyclerViewPagedListAdapter<Transa
 
         private void setAmount(float amountValue, int type){
             CharSequence cs = Helper.floatToString(amountValue);
-            if (TYPE_DEBIT == type) amount.setText("+"+cs);
-            else amount.setText("-"+cs);
+            if (TYPE_DEBIT == type) cs = "+"+cs;
+            else cs = "-"+cs;
+            amount.setText(cs);
         }
 
         private void setDateText(Date v){

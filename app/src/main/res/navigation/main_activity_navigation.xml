@@ -50,27 +50,45 @@
             app:popEnterAnim="@anim/slide_in_right"
             app:popExitAnim="@anim/slide_out_left"
             app:popUpTo="@id/home" />
+        <action
+            android:id="@+id/action_home_to_moneyTransferHistory"
+            app:destination="@id/moneyTransferHistory"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:popEnterAnim="@anim/slide_in_right"
+            app:popExitAnim="@anim/slide_out_left" />
     </fragment>
 
     <!-- Fragment Input Transaction -->
     <fragment
         android:id="@+id/inputTransaction"
         android:name="dreammaker.android.expensetracker.fragment.InputTransaction"
-        android:label="input_transaction"
+        android:label="@string/label_insert_transaction"
         tools:layout="@layout/input_transaction" />
 
     <!-- Fragment Money Transfer -->
     <fragment
         android:id="@+id/moneyTransfer"
-        android:name="dreammaker.android.expensetracker.fragment.MoneyTransfer"
-        android:label="MoneyTransfer"
-        tools:layout="@layout/money_transfer"/>
+        android:name="dreammaker.android.expensetracker.fragment.InputMoneyTransfer"
+        android:label="@string/label_new_money_transfer" />
+    <fragment
+        android:id="@+id/moneyTransferHistory"
+        android:name="dreammaker.android.expensetracker.fragment.MoneyTransferHistory"
+        android:label="@string/label_money_transfer_history">
+        <action
+            android:id="@+id/action_moneyTransferHistory_to_moneyTransfer"
+            app:destination="@id/moneyTransfer"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:popEnterAnim="@anim/slide_in_right"
+            app:popExitAnim="@anim/slide_out_left" />
+    </fragment>
 
     <!-- Fragment Accounts List -->
     <fragment
         android:id="@+id/accountsList"
         android:name="dreammaker.android.expensetracker.fragment.AccountsList"
-        android:label="AccountsList"
+        android:label="@string/label_accounts"
         tools:layout="@layout/list_content">
         <action
             android:id="@+id/action_accountsList_to_inputAccount"
@@ -182,5 +200,6 @@
         android:name="dreammaker.android.expensetracker.fragment.FilterTransaction2"
         android:label="@string/label_filter_transaction"
         tools:layout="@layout/layout_filter_transaction"/>
+
 
 </navigation>

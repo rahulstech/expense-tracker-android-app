@@ -4,13 +4,14 @@ import android.os.Handler;
 import android.os.Looper;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class AppExecutor {
-    private static Executor diskOperationsExecutor = null;
+    private static ExecutorService diskOperationsExecutor = null;
     private static MainThreadExecutor mainThreadExecutor;
 
-    public static Executor getDiskOperationsExecutor(){
+    public static ExecutorService getDiskOperationsExecutor(){
         if(null == diskOperationsExecutor){
             diskOperationsExecutor = Executors.newFixedThreadPool(3);
         }

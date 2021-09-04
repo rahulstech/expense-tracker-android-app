@@ -1,7 +1,6 @@
 package dreammaker.android.expensetracker.fragment;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,10 +14,7 @@ import androidx.annotation.StringRes;
 import androidx.fragment.app.Fragment;
 import dreammaker.android.expensetracker.activity.BaseActivity;
 import dreammaker.android.expensetracker.util.Check;
-import dreammaker.android.expensetracker.util.Helper;
 import dreammaker.android.expensetracker.util.OnBackPressListener;
-
-import static dreammaker.android.expensetracker.BuildConfig.DEBUG;
 
 public abstract class BaseFragment<VH extends BaseFragment.FragmentViewHolder> extends Fragment
         implements OnBackPressListener, SearchView.OnQueryTextListener {
@@ -125,9 +121,6 @@ public abstract class BaseFragment<VH extends BaseFragment.FragmentViewHolder> e
     }
 
     private void bindFragmentViewHolder(){
-        Helper.setTitleAndSubTitle(getActivity(),getFragmentTitle(), getFragmentSubTitle());
-        if (DEBUG) Log.d(TAG,"bindFragmentViewHolder -> title="+getFragmentTitle()+
-                    " | subTitle="+getFragmentSubTitle());
         if (isViewHolderCreated()) {
             onBindFragmentViewHolder(viewHolder);
         }

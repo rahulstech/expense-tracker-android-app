@@ -8,9 +8,17 @@ import dreammaker.android.expensetracker.util.Check;
 public class RVAViewHolder extends RecyclerView.ViewHolder {
 
     private OnChildClickListener onChildClickListener;
+    private View.OnClickListener clickListener = v -> {
+        if (hasOnChildClickListener())
+            getOnChildClickListener().onChildClick(this,v);
+    };
 
     public RVAViewHolder(View itemView){
 		super(itemView);
+    }
+
+    public void bindChildForClick(View child) {
+        child.setOnClickListener(clickListener);
     }
 
     public View getRoot(){

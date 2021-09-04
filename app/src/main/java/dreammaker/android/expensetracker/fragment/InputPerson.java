@@ -1,13 +1,12 @@
 package dreammaker.android.expensetracker.fragment;
 
 import android.content.Context;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
 
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -25,7 +24,6 @@ import dreammaker.android.expensetracker.util.Check;
 import dreammaker.android.expensetracker.util.Helper;
 import dreammaker.android.expensetracker.viewmodel.OperationCallback;
 import dreammaker.android.expensetracker.viewmodel.PersonsViewModel;
-
 
 public class InputPerson extends BaseFragment<InputPerson.InputPersonViewHolder> implements View.OnClickListener {
 
@@ -58,18 +56,6 @@ public class InputPerson extends BaseFragment<InputPerson.InputPersonViewHolder>
     @Override
     protected void onFragmentViewHolderCreated(@NonNull InputPersonViewHolder vh) {
         calculatorKeyboard = getCalculatorKeyboard();
-        vh.personName.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                viewModel.getSelectedPerson().setPersonName(s.toString());
-            }
-        });
         vh.cancel.setOnClickListener(this);
         vh.save.setOnClickListener(this);
         viewModel.setOperationCallback(callback);
@@ -79,13 +65,18 @@ public class InputPerson extends BaseFragment<InputPerson.InputPersonViewHolder>
     @Override
     protected void onBindFragmentViewHolder(@NonNull InputPersonViewHolder vh) {
         navController = Navigation.findNavController(vh.getRoot());
-        calculatorKeyboard.registerEditText(vh.due);
     }
 
     @Override
     public void onPause() {
-        calculatorKeyboard.unregisterEditText(getViewHolder().due);
+        calculatorKeyboard.hideCalculatorKeyboard();
         super.onPause();
+    }
+
+    @Override
+    public boolean onBackPressed() {
+        if (calculatorKeyboard.onBackPressed()) return true;
+        return super.onBackPressed();
     }
 
     @Override
@@ -103,23 +94,29 @@ public class InputPerson extends BaseFragment<InputPerson.InputPersonViewHolder>
     private void onSave() {
         getViewHolder().personNameInput.setError(null);
         getViewHolder().dueInput.setError(null);
+        boolean isDue = getViewHolder().typeDue.isChecked();
 
         final Person person = viewModel.getSelectedPerson();
+        float _due;
         try{
-            float _due = calculatorKeyboard.calculate(getViewHolder().due.getEditableText());
-            person.setDue(_due);
+            _due = calculatorKeyboard.calculate(getViewHolder().due.getEditableText());
+            if (_due < 0) {
+                throw new IllegalArgumentException("negative due");
+            }
         }
         catch (Exception e){
             getViewHolder().dueInput.setError(getString(R.string.error_invalid_amount));
             return;
         }
-        String name = person.getPersonName();
+        String name = getViewHolder().personName.getText().toString();
         if(Check.isEmptyString(name)){
             getViewHolder().personNameInput.setError(getString(R.string.error_empty_person_name));
             return;
         }
+        person.setPersonName(name);
+        person.setDue(isDue ? _due : -_due);
 
-        if (person.getPersonId() == null || person.getPersonId() <= 0)
+        if (person.getPersonId() <= 0)
             viewModel.insertPerson(person);
         else
             viewModel.updatePerson(person);
@@ -127,7 +124,12 @@ public class InputPerson extends BaseFragment<InputPerson.InputPersonViewHolder>
 
     private void populateWithInitialValue(InputPersonViewHolder vh, Person person) {
         vh.personName.setText(person.getPersonName());
-        vh.due.setText(Helper.floatToString(person.getDue()));
+        float amount = person.getDue();
+        vh.due.setText(Helper.floatToString(Math.abs(amount)));
+        if (amount >= 0)
+            vh.typeDue.setChecked(true);
+        else
+            vh.typeAdvanced.setChecked(true);
         if (person.getPersonId() <= 0)
             Helper.setTitle(getActivity(), R.string.label_insert_person);
         else
@@ -144,7 +146,7 @@ public class InputPerson extends BaseFragment<InputPerson.InputPersonViewHolder>
     }
 
     private CalculatorKeyboard getCalculatorKeyboard() {
-        return ((MainActivity) getActivity()).getCalculatorKeyboard();
+        return new CalculatorKeyboard(getActivity(),getViewHolder().due);
     }
 
     private OperationCallback callback = new OperationCallback(){
@@ -156,7 +158,9 @@ public class InputPerson extends BaseFragment<InputPerson.InputPersonViewHolder>
         @Override
         public void onCompleteUpdate(boolean success) {
             onCompleteSave(success);
-            navController.popBackStack();
+            if (success) {
+                navController.popBackStack();
+            }
         }
     };
 
@@ -168,15 +172,19 @@ public class InputPerson extends BaseFragment<InputPerson.InputPersonViewHolder>
         EditText due;
         Button cancel;
         Button save;
+        RadioButton typeDue;
+        RadioButton typeAdvanced;
 
         public InputPersonViewHolder(@NonNull View root) {
             super(root);
             personNameInput = findViewById(R.id.person_name_input);
-            personName = findViewById(R.id.person_name);
+            personName = findViewById(R.id.to_account);
             cancel = findViewById(R.id.cancel);
-            save = findViewById(R.id.save);
+            save = findViewById(R.id.btn_restore);
             dueInput = findViewById(R.id.due_input);
             due = findViewById(R.id.due);
+            typeDue = findViewById(R.id.type_due);
+            typeAdvanced = findViewById(R.id.type_advanced);
         }
     }
 }

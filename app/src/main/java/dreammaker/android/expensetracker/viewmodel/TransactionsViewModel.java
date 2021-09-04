@@ -56,7 +56,7 @@ public class TransactionsViewModel extends BaseViewModel {
     public TransactionsViewModel(@NonNull Application application) {
         super(application);
         balanceAndDueSummaryLiveData = getDao().getBalanceAndDueSummary();
-        accountNameIdLiveData = getDao().getAllAccountsNameAndId();
+        accountNameIdLiveData = getDao().getAllAccounts();
         personNameIdLiveDate = getDao().getAllPersonsNameAndId();
         transactionDetailsQueryBuilderLiveData = new MutableLiveData<>();
         transactionsPaged = Transformations.switchMap(transactionDetailsQueryBuilderLiveData, input -> new LivePagedListBuilder<>(
@@ -220,14 +220,14 @@ public class TransactionsViewModel extends BaseViewModel {
         });
     }
 
-    public void deleteTransaction(final Transaction transactions){
+    public void deleteTransaction(final Transaction transactions) {
         if (Check.isNonNull(transactions)) {
             AppExecutor.getDiskOperationsExecutor().execute(() -> {
                 int changes = 0;
                 try {
                     changes = getDao().deleteTransactions(transactions);
                 } catch (Exception e) {
-                    Log.e(TAG, "error on delete transaction(s) with message: "+e.getMessage());
+                    Log.e(TAG, "error on delete transaction(s) with message: " + e.getMessage());
                 } finally {
                     notifyOperationCallback(ACTION_DELETE, changes > 0, changes);
                 }
@@ -235,40 +235,24 @@ public class TransactionsViewModel extends BaseViewModel {
         }
     }
 
-    public void transferMoney(Transaction from, Transaction to) {
-        AppExecutor.getDiskOperationsExecutor().execute(() -> {
-            boolean success = false;
-            try {
-                success = getDao().insertTransaction(from) > 0
-                        && getDao().insertTransaction(to) > 0;
-            }
-            catch (Exception e) {
-                Log.e(TAG, "error on money transfer with message: "+e.getMessage());
-            }
-            finally {
-                notifyOperationCallback(ACTION_INSERT, success);
-            }
-        });
-    }
-
 
     /////////////////////////////////////////////////////////////////////////////////////////////////
     ///                                   Misc Methods                                           ///
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    public void countAccounts(@NonNull ResultCallback<Long> callback) {
+    public void hasAnyAccount(@NonNull ResultCallback<Boolean> callback) {
         AppExecutor.getDiskOperationsExecutor().execute(() -> {
-            long count = 0;
+            boolean hasAdequateAccounts = false;
             try {
-                count = getDao().countAccounts();
+                hasAdequateAccounts = getDao().countAccounts() > 0;
             }
             catch (Exception e) {
                 Log.e(TAG, "Error occurred during countAccounts operation: "+e.getMessage());
             }
             finally {
-                long finalCount = count;
+                final boolean result = hasAdequateAccounts;
                 AppExecutor.getMainThreadExecutor().execute(() -> {
-                    callback.onResult(finalCount);
+                    callback.onResult(result);
                 });
             }
         });
@@ -286,11 +270,10 @@ public class TransactionsViewModel extends BaseViewModel {
 
     public LiveData<FilterTransactionParams> getWorkingFilterParamsLiveData() { return workingFilterParamLiveData; }
 
-    public LiveData<Transaction> getWorkingTransactionLiveData() { return workingTransactionLiveData; };
+    public LiveData<Transaction> getWorkingTransactionLiveData() { return workingTransactionLiveData; }
 
     public void setWorkingTransaction(Transaction transaction) {
-        Check.isNonNull(transaction, "working transaction must be non null");
-        final Transaction t = transaction.clone();
+        final Transaction t = null == transaction ? new Transaction() : transaction.clone();
         if (OPERATION_SHOW_TRANSACTION_FOR_ACCOUNT == showOperationCode) {
             t.setAccountId(((Account) extraData).getAccountId());
         }

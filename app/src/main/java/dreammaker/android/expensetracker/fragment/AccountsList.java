@@ -16,6 +16,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.activity.MainActivity;
@@ -39,11 +40,12 @@ public class AccountsList extends BaseListFragment<BaseListFragment.ListFragment
     private AccountsViewModel viewModel;
     private TransactionsViewModel transactionsViewModel;
     private AccountListSaveData saveData;
+    private NavController navController;
 
     public AccountsList() { super(); }
 
     public NavController getNavController() {
-        return ((MainActivity) getActivity()).getNavController();
+        return navController;
     }
 
     @Override
@@ -99,6 +101,11 @@ public class AccountsList extends BaseListFragment<BaseListFragment.ListFragment
     }
 
     @Override
+    protected void onBindFragmentViewHolder(@NonNull ListFragmentViewHolder vh) {
+        navController = Navigation.findNavController(vh.getRoot());
+    }
+
+    @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.account_list_menu, menu);
@@ -126,7 +133,7 @@ public class AccountsList extends BaseListFragment<BaseListFragment.ListFragment
     @Override
     public void onItemChildClicked(AccountsAdapter accountsAdapter, final AccountsAdapter.AccountViewHolder vh, View v) {
         if (null == getContext()) return;
-        final Account account = adapter.getItem(vh.getAdapterPosition());
+        final Account account = adapter.getItem(vh.getAbsoluteAdapterPosition());
         if (vh.options == v){
             PopupMenu menu = new PopupMenu(getContext(), v);
             menu.inflate(R.menu.account_list_item_options_menu);
@@ -156,7 +163,7 @@ public class AccountsList extends BaseListFragment<BaseListFragment.ListFragment
     }
 
     private void onAddAccount(){
-        viewModel.setSelectedAccount(new Account());
+        viewModel.setSelectedAccount(null);
         getNavController().navigate(R.id.action_accountsList_to_inputAccount);
     }
 
@@ -171,7 +178,7 @@ public class AccountsList extends BaseListFragment<BaseListFragment.ListFragment
                 .setMessage(getResources().getQuantityString(R.plurals.warning_delete_accounts, 1))
                 .setPositiveButton(android.R.string.cancel, null)
                 .setNegativeButton(android.R.string.ok, (di, which) -> {
-                    viewModel.setSelectedAccount(account);
+                    viewModel.setSelectedAccount(null);
                     viewModel.deleteAccount(account);
                 })
                 .show();

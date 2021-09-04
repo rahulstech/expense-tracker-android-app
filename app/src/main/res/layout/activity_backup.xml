@@ -11,17 +11,6 @@
         tools:context=".activity.BackupRestoreActivity">
 
         <TextView
-            android:id="@+id/label_backup"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/backup"
-            android:layout_marginBottom="@dimen/margin_vertical_small"
-            android:textStyle="bold"
-            android:textSize="@dimen/text_size_large"
-            android:textColor="@android:color/black"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"/>
-        <TextView
             android:id="@+id/description_backup"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -30,7 +19,7 @@
             android:textSize="@dimen/text_size_medium"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/label_backup" />
+            app:layout_constraintTop_toTopOf="parent" />
         <TextView
             android:id="@+id/label_last_backup"
             android:layout_width="wrap_content"
@@ -52,7 +41,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/label_last_backup"
             tools:text="12-May-2020"/>
-
         <Button
             android:id="@+id/backup"
             android:layout_width="0dp"
@@ -61,29 +49,7 @@
             android:text="@string/backup"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/backup_progress_section" />
-
-        <TextView
-            android:id="@+id/label_restore"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="13dp"
-            android:text="@string/restore"
-            android:textColor="@android:color/black"
-            android:textSize="@dimen/text_size_large"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/backup_auto_schedule_container" />
-        <TextView
-            android:id="@+id/description_restore"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="@string/description_restore"
-            android:textSize="@dimen/text_size_medium"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/label_restore" />
-
+            app:layout_constraintTop_toBottomOf="@+id/last_backup" />
         <LinearLayout
             android:id="@+id/backup_auto_schedule_container"
             android:layout_width="match_parent"
@@ -112,103 +78,6 @@
                 android:layout_margin="@dimen/margin_vertical_small"/>
 
         </LinearLayout>
-
-        <Button
-            android:id="@+id/restore"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/margin_vertical_medium"
-            android:text="@string/restore"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/restore_progress_section" />
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/backup_progress_section"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_marginTop="@dimen/margin_vertical_medium"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/last_backup">
-
-            <ImageButton
-                android:id="@+id/btn_cancel_backup"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:visibility="visible"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/backup_progress_message"
-                app:srcCompat="@drawable/ic_baseline_close" />
-
-            <ProgressBar
-                android:id="@+id/backup_progress"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_margin="@dimen/padding_horizontal_small"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/btn_cancel_backup"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/backup_progress_message" />
-
-            <TextView
-                android:id="@+id/backup_progress_message"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:padding="@dimen/margin_vertical_small"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/restore_progress_section"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_marginTop="@dimen/margin_vertical_small"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/description_restore">
-
-            <ImageButton
-                android:id="@+id/btn_cancel_restore"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:visibility="visible"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/restore_progress_message"
-                app:srcCompat="@drawable/ic_baseline_close" />
-
-            <ProgressBar
-                android:id="@+id/restore_progress"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_margin="@dimen/padding_horizontal_small"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/btn_cancel_restore"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/restore_progress_message" />
-
-            <TextView
-                android:id="@+id/restore_progress_message"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:padding="@dimen/margin_vertical_small"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:text="Restore in progress... 25%" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

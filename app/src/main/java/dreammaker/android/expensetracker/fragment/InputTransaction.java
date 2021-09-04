@@ -2,6 +2,7 @@ package dreammaker.android.expensetracker.fragment;
 
 import android.app.DatePickerDialog;
 import android.content.Context;
+import android.text.Editable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,6 +37,7 @@ import dreammaker.android.expensetracker.viewmodel.OperationCallback;
 import dreammaker.android.expensetracker.viewmodel.TransactionsViewModel;
 
 import static dreammaker.android.expensetracker.BuildConfig.DEBUG;
+import static dreammaker.android.expensetracker.database.Transaction.TYPE_CREDIT;
 
 public class InputTransaction extends BaseFragment<InputTransaction.InputTransactionViewHolder> implements View.OnClickListener {
 
@@ -48,23 +50,6 @@ public class InputTransaction extends BaseFragment<InputTransaction.InputTransac
     private PersonsSpinnerAdapter personsAdapter;
     private NavController navController;
     private CalculatorKeyboard calculatorKeyboard;
-
-    private final CalculatorKeyboard.SimpleCallback calculatorCallback = new CalculatorKeyboard.SimpleCallback() {
-        @Override
-        public void onAfterCalculate(EditText which, String text, float result) {
-            if (result < 0){
-                getViewHolder().amountInput.setError(getString(R.string.error_negative_amount));
-            }
-            else {
-                viewModel.getWorkingTransaction().setAmount(result);
-            }
-        }
-
-        @Override
-        public void onError(EditText which, String text, Throwable error) {
-            getViewHolder().amountInput.setError(getString(R.string.error_invalid_amount));
-        }
-    };
 
     public InputTransaction() { super(); }
 
@@ -90,7 +75,6 @@ public class InputTransaction extends BaseFragment<InputTransaction.InputTransac
         accountsAdapter = new AccountsSpinnerAdapter(getContext());
         personsAdapter = new PersonsSpinnerAdapter(getContext());
         calculatorKeyboard = getCalculatorKeyboard();
-
         vh.date.setOnClickListener(this);
         vh.account.setAdapter(accountsAdapter);
         vh.account.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -124,15 +108,18 @@ public class InputTransaction extends BaseFragment<InputTransaction.InputTransac
     @Override
     protected void onBindFragmentViewHolder(@NonNull InputTransactionViewHolder vh) {
         navController = Navigation.findNavController(vh.getRoot());
-        calculatorKeyboard.registerEditText(vh.amount);
-        calculatorKeyboard.registerCallback(calculatorCallback);
     }
 
     @Override
     public void onPause() {
-        calculatorKeyboard.unregisterEditText(getViewHolder().amount);
-        calculatorKeyboard.unregisterCallback(calculatorCallback);
+        calculatorKeyboard.hideCalculatorKeyboard();
         super.onPause();
+    }
+
+    @Override
+    public boolean onBackPressed() {
+        if (calculatorKeyboard.onBackPressed()) return true;
+        return super.onBackPressed();
     }
 
     @Override
@@ -142,7 +129,7 @@ public class InputTransaction extends BaseFragment<InputTransaction.InputTransac
         else if (v == getViewHolder().cancel)
             onCancel();
         else if (v == getViewHolder().addCredit)
-            onSave(Transaction.TYPE_CREDIT);
+            onSave(TYPE_CREDIT);
         else if (v == getViewHolder().addDebit)
             onSave(Transaction.TYPE_DEBIT);
     }
@@ -209,19 +196,26 @@ public class InputTransaction extends BaseFragment<InputTransaction.InputTransac
     private void onSave(int transactionType){
         getViewHolder().amountInput.setError(null);
 
-        final Transaction transaction = viewModel.getWorkingTransaction();
+        float _amount;
         try{
-            float _amount = calculatorKeyboard.calculate(getViewHolder().amount.getEditableText());
+            Editable editable = getViewHolder().amount.getText();
+            _amount = calculatorKeyboard.calculate(editable);
             if (_amount < 0){
                 getViewHolder().amountInput.setError(getString(R.string.error_negative_amount));
                 return;
             }
-            transaction.setAmount(_amount);
         }
         catch (Exception e){
             getViewHolder().amountInput.setError(getString(R.string.error_invalid_amount));
             return;
         }
+        Account account = (Account) getViewHolder().account.getSelectedItem();
+        if (transactionType == TYPE_CREDIT && account.getBalance() < _amount) {
+            showQuickMessage(R.string.error_insufficient_balance);
+            return;
+        }
+        final Transaction transaction = viewModel.getWorkingTransaction();
+        transaction.setAmount(_amount);
         transaction.setType(transactionType);
         transaction.setDescription(getViewHolder().description.getText().toString());
         if (transaction.getTransactionId() > 0) {
@@ -249,7 +243,9 @@ public class InputTransaction extends BaseFragment<InputTransaction.InputTransac
         @Override
         public void onCompleteUpdate(boolean success) {
             onCompleteSave(success);
-            navController.popBackStack();
+            if (success) {
+                navController.popBackStack();
+            }
         }
     };
 
@@ -258,7 +254,7 @@ public class InputTransaction extends BaseFragment<InputTransaction.InputTransac
     }
 
     private CalculatorKeyboard getCalculatorKeyboard() {
-        return ((MainActivity) getActivity()).getCalculatorKeyboard();
+        return new CalculatorKeyboard(getActivity(),getViewHolder().amount);
     }
 
     public static class InputTransactionViewHolder extends BaseFragment.FragmentViewHolder{
@@ -275,7 +271,7 @@ public class InputTransaction extends BaseFragment<InputTransaction.InputTransac
         public InputTransactionViewHolder(@NonNull View root) {
             super(root);amountInput = findViewById(R.id.amount_input);
             amount = findViewById(R.id.amount);
-            date = findViewById(R.id.date);
+            date = findViewById(R.id.when);
             account = findViewById(R.id.account);
             person = findViewById(R.id.person);
             description = findViewById(R.id.description);

@@ -1,17 +1,25 @@
 package dreammaker.android.expensetracker.backup;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.TypeAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import androidx.annotation.NonNull;
+import androidx.preference.PreferenceManager;
 import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
@@ -32,12 +40,12 @@ public class BackupRestoreHelper {
 
     public static final int VERSION_5 = 5;
     public static final int VERSION_6 = 6;
+    public static final int VERSION_7 = 7;
 
-    public static final int CURRENT_BACKUP_FILE_SCHEMA_VERSION = VERSION_6;
+    public static final int CURRENT_BACKUP_FILE_SCHEMA_VERSION = VERSION_7;
 
     public static final String BACKUP_WORK_TAG = "backup";
     public static final String RESTORE_WORK_TAG = "restore";
-    public static final int RESTORE_NOTIFICATION_ID = 1453;
     public static final int BACKUP_NOTIFICATION_ID = 2058;
     public static final String DIRECTORY_BACKUP = "ExpenseTracker/backup";
 
@@ -46,6 +54,7 @@ public class BackupRestoreHelper {
     public static final String KEY_FAILURE_CODE = "failure_code";
     public static final String KEY_PROGRESS_MAX = "progress_max";
     public static final String KEY_PROGRESS_CURRENT = "progress_current";
+    public static final String KEY_RETRY = "retry";
 
     public static final int FAIL_FILE_ACCESS = 1;
     public static final int FAIL_NO_DATA = 2;
@@ -53,67 +62,67 @@ public class BackupRestoreHelper {
     public static final int FAIL_UNKNOWN = 4;
     public static final int FAIL_NO_FILE = 5;
 
-    public static final String KEY_ID = "_id";
-    public static final String KEY_ACCOUNT_NAME = "account_name";
-    public static final String KEY_BALANCE = "balance";
-    public static final String KEY_PERSON_NAME = "person_name";
-    public static final String KEY_DUE = "due";
-    public static final String KEY_ACCOUNT_ID = "account_id";
-    public static final String KEY_PERSON_ID = "person_id";
-    public static final String KEY_AMOUNT = "amount";
-    public static final String KEY_TYPE = "type";
-    public static final String KEY_DATE = "date";
-    public static final String KEY_DESCRIPTION = "description";
-    public static final String KEY_VERSION = "version";
-    public static final String KEY_ACCOUNTS = "accounts";
-    public static final String KEY_PEOPLE = "people";
-    public static final String KEY_TRANSACTIONS = "transactions";
-
     public static final int SCHEDULE_NEVER = 0;
     public static final int SCHEDULE_DAILY = 1;
     public static final int SCHEDULE_WEEKLY = 2;
     public static final int SCHEDULE_MONTHLY = 3;
 
-    private static final String KEY_FIRST_RESTORE_ASKED = "first_restore_asked";
-    private static final String SHARED_PREFERENCE_NAME = "sp_backup_restore";
-    private static final String KEY_LAST_LOCAL_BACKUP_DATE = "last_local_backup_date";
-    private static final String KEY_BACKUP_AUTO_SCHEDULE_DURATION = "backup_auto_schedule_duration";
+    public static final String KEY_FIRST_RESTORE_ASKED = "first_restore_asked";
+    public static final String KEY_LAST_LOCAL_BACKUP_DATE = "last_local_backup_date";
+    public static final String KEY_BACKUP_AUTO_SCHEDULE_DURATION = "backup_auto_schedule_duration";
 
+    public static Gson createNewGSONInstance() {
+        return new GsonBuilder()
+                .serializeNulls()
+                .registerTypeHierarchyAdapter(Date.class,new TypeAdapter<Date>() {
+                    @Override
+                    public void write(JsonWriter out, Date value) throws IOException {
+                        out.value(value.format(Date.ISO_DATE_PATTERN));
+                    }
 
-    public static Date getLastLocalBackDate(Context context) {
-        String date = context.getSharedPreferences(SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE)
-                .getString(KEY_LAST_LOCAL_BACKUP_DATE, null);
+                    @Override
+                    public Date read(JsonReader in) throws IOException {
+                        return Date.valueOf(in.nextString(),Date.ISO_DATE_PATTERN);
+                    }
+                })
+                .create();
+    }
+
+    public static Date getLastLocalBackDate(@NonNull Context context) {
+        String date = PreferenceManager.getDefaultSharedPreferences(context)
+                .getString(KEY_LAST_LOCAL_BACKUP_DATE,null);
         return Check.isNull(date) ? null : Date.valueOf(date);
     }
 
-    public static void setLastLocalBackupDate(Context context, Date date) {
-        SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE).edit();
+    public static void setLastLocalBackupDate(@NonNull Context context, Date date) {
+        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
         if (null == date)
             editor.remove(KEY_LAST_LOCAL_BACKUP_DATE);
         else
-            editor.putString(KEY_LAST_LOCAL_BACKUP_DATE,date.toString());
+            editor.putString(KEY_LAST_LOCAL_BACKUP_DATE,date.format(Date.ISO_DATE_PATTERN));
         editor.apply();
     }
 
     public static boolean isFirstRestoreAsked(@NonNull Context context) {
-        return context.getSharedPreferences(SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE)
+        return PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean(KEY_FIRST_RESTORE_ASKED,false);
     }
 
-    public static void setFirstRestoreAsked(@NonNull Context context) {
-        context.getSharedPreferences(SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE).edit()
-                .putBoolean(KEY_FIRST_RESTORE_ASKED,true).apply();
+    public static void setFirstRestoreAsked(@NonNull Context context, boolean asked) {
+        PreferenceManager.getDefaultSharedPreferences(context).edit()
+                .putBoolean(KEY_FIRST_RESTORE_ASKED,asked).apply();
     }
 
     public static int getBackupAutoScheduleDuration(@NonNull Context context) {
-        return context.getSharedPreferences(SHARED_PREFERENCE_NAME,Context.MODE_PRIVATE)
-                .getInt(KEY_BACKUP_AUTO_SCHEDULE_DURATION,SCHEDULE_NEVER);
+        return PreferenceManager.getDefaultSharedPreferences(context).getInt(KEY_BACKUP_AUTO_SCHEDULE_DURATION,SCHEDULE_NEVER);
     }
 
     public static void setBackupAutoScheduleDuration(@NonNull Context context, int value) {
-        context.getSharedPreferences(SHARED_PREFERENCE_NAME,Context.MODE_PRIVATE)
+        if (PreferenceManager.getDefaultSharedPreferences(context)
                 .edit().putInt(KEY_BACKUP_AUTO_SCHEDULE_DURATION,value)
-                .apply();
+                .commit()) {
+            backupNext(context);
+        }
     }
 
     public static void checkAppFirstRestoreRequired(@NonNull Context context, @NonNull ResultCallback<Boolean> callback) {
@@ -124,16 +133,20 @@ public class BackupRestoreHelper {
                 final boolean isRequired = dao.isDatabaseEmpty();
                 AppExecutor.getMainThreadExecutor().execute(() -> {
                     if (null != callback) callback.onResult(isRequired);
-                    setFirstRestoreAsked(appContext);
+                    setFirstRestoreAsked(appContext, true);
                 });
             });
         }
     }
 
     public static void backupNow(@NonNull Context context) {
+        backupNow(context,false);
+    }
+
+    public static void backupNow(@NonNull Context context, boolean isRetry) {
         Context appContext = context.getApplicationContext();
         WorkManager workManager = WorkManager.getInstance(appContext);
-        backup(appContext,workManager,false);
+        backup(appContext,workManager,false, isRetry);
     }
 
     public static void backupNext(@NonNull Context context) {
@@ -141,14 +154,14 @@ public class BackupRestoreHelper {
         WorkManager workManager = WorkManager.getInstance(appContext);
         int code = getBackupAutoScheduleDuration(context);
         if (SCHEDULE_NEVER != code)
-            backup(appContext,workManager,true);
+            backup(appContext,workManager,true, false);
         else
             workManager.cancelUniqueWork(BACKUP_WORK_TAG);
     }
 
     private static void backup(@NonNull Context appContext,
                                @NonNull WorkManager workManager,
-                               boolean scheduled) {
+                               boolean scheduled, boolean isRetry) {
         ListenableFuture<List<WorkInfo>> future = workManager.getWorkInfos(
                 WorkQuery.Builder.fromTags(Arrays.asList(BACKUP_WORK_TAG))
                 .addStates(Arrays.asList(WorkInfo.State.ENQUEUED)).build());
@@ -161,38 +174,32 @@ public class BackupRestoreHelper {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            enqueueNewBackupRequest(appContext,workManager,scheduled);
+            enqueueNewBackupRequest(appContext,workManager,scheduled,isRetry);
         },AppExecutor.getMainThreadExecutor());
     }
 
     private static void enqueueNewBackupRequest(@NonNull Context appContext,
                                                 @NonNull WorkManager workManager,
-                                                final boolean scheduled
+                                                boolean scheduled,
+                                                boolean isRetry
                                                 ) {
+        Data input = new Data.Builder().putBoolean(KEY_RETRY, isRetry).build();
             OneTimeWorkRequest.Builder request = new OneTimeWorkRequest.Builder(LocalBackupWork.class)
-                    .addTag(BACKUP_WORK_TAG);
+                    .addTag(BACKUP_WORK_TAG).setInputData(input);
             if (scheduled) {
                 long initialDelay = calculateInitialDelayForNextScheduledBackup(appContext);
                 request.setInitialDelay(initialDelay, TimeUnit.MILLISECONDS);
             }
-            Operation operation = workManager.enqueueUniqueWork(BACKUP_WORK_TAG, ExistingWorkPolicy.KEEP,request.build());
-            ListenableFuture<Operation.State.SUCCESS> resultFuture = operation.getResult();
-            resultFuture.addListener(() -> onBackupSuccessful(appContext),
-                    AppExecutor.getMainThreadExecutor());
+        workManager.enqueueUniqueWork(BACKUP_WORK_TAG, ExistingWorkPolicy.KEEP,request.build());
     }
 
-    private static void onBackupSuccessful(@NonNull Context appContext) {
+    public static void onBackupSuccessful(@NonNull Context appContext) {
         setLastLocalBackupDate(appContext, new Date());
     }
 
     public static void restore(@NonNull Context context, @NonNull Uri from) {
-        final Context appContext = context.getApplicationContext();
-        WorkManager workManager = WorkManager.getInstance(appContext);
-        OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(LocalRestoreWork.class)
-                .addTag(RESTORE_WORK_TAG)
-                .setInputData(new Data.Builder().putString(KEY_BACKUP_FILE,from.toString()).build())
-                .build();
-        workManager.enqueueUniqueWork(RESTORE_WORK_TAG, ExistingWorkPolicy.KEEP,request);
+        context.startService(new Intent(context,WorkActionService.class)
+                .setAction(WorkActionService.ACTION_LOCAL_RESTORE_START).setData(from));
     }
 
     private static long calculateInitialDelayForNextScheduledBackup(@NonNull Context context) {
@@ -226,7 +233,6 @@ public class BackupRestoreHelper {
         else {
             throw new IllegalArgumentException("unknown code="+code);
         }
-
         return difference+todayScheduledBackupStartMillis-System.currentTimeMillis();
     }
 }

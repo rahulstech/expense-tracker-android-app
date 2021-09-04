@@ -31,8 +31,7 @@ public class AccountsViewModel extends BaseViewModel {
     }
 
     public void setSelectedAccount(Account account) {
-        Check.isNonNull(account, "selected account must be non null");
-        selectedAccountLiveData.setValue(account.clone());
+        selectedAccountLiveData.setValue(null == account ? new Account() : account.clone());
     }
 
     public LiveData<Account> getSelectedAccountLiveData() {

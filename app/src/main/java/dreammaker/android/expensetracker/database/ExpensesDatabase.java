@@ -4,7 +4,6 @@ import android.content.Context;
 import android.database.Cursor;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
@@ -27,7 +26,7 @@ import static dreammaker.android.expensetracker.database.ExpensesContract.Views.
 import static dreammaker.android.expensetracker.database.ExpensesContract.Views.ABOUT_PERSONS_VIEW;
 import static dreammaker.android.expensetracker.database.ExpensesContract.Views.TRANSACTION_DETAILS_VIEW;
 
-@Database(entities = {Account.class, Person.class, Transaction.class},
+@Database(entities = {Account.class, Person.class, Transaction.class,MoneyTransfer.class},
 		version = ExpensesDatabase.DB_VERSION)
 @TypeConverters({Converters.class})
 public abstract class ExpensesDatabase extends RoomDatabase
@@ -39,9 +38,10 @@ public abstract class ExpensesDatabase extends RoomDatabase
     private static final int VERSION_3 = 3;
     private static final int VERSION_4 = 4;
     private static final int VERSION_5 = 5;
+    private static final int VERSION_6 = 6;
 
     static final String DB_NAME = "expenses.db3";
-    static final int DB_VERSION = VERSION_5;
+    static final int DB_VERSION = VERSION_6;
     
     private static ExpensesDatabase mExpensesDB;
     
@@ -55,7 +55,7 @@ public abstract class ExpensesDatabase extends RoomDatabase
                             db.setForeignKeyConstraintsEnabled(true);
                         }
                     })
-                    .addMigrations(MIGRATION_1_2,MIGRATION_2_3,MIGRATION_3_4,MIGRATION_4_5)
+                    .addMigrations(MIGRATION_1_2,MIGRATION_2_3,MIGRATION_3_4,MIGRATION_4_5,MIGRATION_5_6)
 					.build();
         }
         return mExpensesDB;
@@ -122,7 +122,6 @@ public abstract class ExpensesDatabase extends RoomDatabase
                     DUE_PAYMENT+" = "+DUE_PAYMENT+" + (CASE old."+TYPE+" WHEN "+TYPE_CREDIT+" THEN -old."+AMOUNT+" WHEN "+TYPE_DEBIT+" THEN old."+AMOUNT+" ELSE 0 END)" +
                     "WHERE "+PERSONS_TABLE+"."+ ExpensesContract.PersonsColumns._ID+" = old."+PERSON_ID+";" +
                     "END; ");
-
             recalculate_account_balance_and_person_due(db);
         }
     };
@@ -134,6 +133,21 @@ public abstract class ExpensesDatabase extends RoomDatabase
             db.execSQL("DROP TRIGGER IF EXISTS update_after_update_transaction;");
             db.execSQL("DROP TRIGGER IF EXISTS update_after_delete_transaction;");
             recalculate_account_balance_and_person_due(db);
+        }
+    };
+
+    private static final Migration MIGRATION_5_6 = new Migration(VERSION_5,VERSION_6) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            db.execSQL("CREATE TABLE IF NOT EXISTS `money_transfers` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
+                    " `amount` REAL NOT NULL DEFAULT 0, " +
+                    "`when` TEXT NOT NULL, `payee_account_id` INTEGER NOT NULL," +
+                    " `payer_account_id` INTEGER NOT NULL, `description` TEXT, " +
+                    "FOREIGN KEY(`payee_account_id`) REFERENCES `accounts`(`_id`) ON UPDATE NO ACTION ON DELETE CASCADE," +
+                    "FOREIGN KEY(`payer_account_id`) REFERENCES `accounts`(`_id`) ON UPDATE NO ACTION ON DELETE CASCADE)");
+            db.execSQL("CREATE INDEX IF NOT EXISTS `money_transfer_payee_account_id_index` ON `money_transfers` (`payee_account_id`)");
+            db.execSQL("CREATE INDEX IF NOT EXISTS `money_transfer_payer_account_id_index` ON `money_transfers` (`payer_account_id`)");
+            db.execSQL("ALTER TABLE `"+TRANSACTIONS_TABLE+"` ADD COLUMN `deleted` INTEGER NOT NULL DEFAULT 0;");
         }
     };
 

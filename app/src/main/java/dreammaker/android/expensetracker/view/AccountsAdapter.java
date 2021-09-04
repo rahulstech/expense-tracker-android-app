@@ -15,7 +15,7 @@ import dreammaker.android.expensetracker.database.AboutAccount;
 import dreammaker.android.expensetracker.util.Check;
 import dreammaker.android.expensetracker.util.Helper;
 
-public class AccountsAdapter extends BaseRecyclerViewListAdapterFilterable<AboutAccount, AccountsAdapter.AccountViewHolder> implements RVAViewHolder.OnChildClickListener {
+public class AccountsAdapter extends BaseRecyclerViewListAdapterFilterable<AboutAccount, AccountsAdapter.AccountViewHolder> {
     private static DiffUtil.ItemCallback<AboutAccount> DIFF_CALLBACK = new DiffUtil.ItemCallback<AboutAccount>() {
         @Override
         public boolean areItemsTheSame(@NonNull AboutAccount oldItem, @NonNull AboutAccount newItem) {
@@ -50,13 +50,6 @@ public class AccountsAdapter extends BaseRecyclerViewListAdapterFilterable<About
     }
 
     @Override
-    public void onChildClick(RecyclerView.ViewHolder vh, View child) {
-        if (hasOnItemChildClickListener()){
-            getOnItemChildClickListener().onItemChildClicked(this, (AccountViewHolder) vh, child);
-        }
-    }
-
-    @Override
     public boolean onMatch(@Nullable AboutAccount item, @NonNull String key) {
         return item.getAccountName().toLowerCase().contains(key.toLowerCase());
     }
@@ -68,16 +61,11 @@ public class AccountsAdapter extends BaseRecyclerViewListAdapterFilterable<About
 
         AccountViewHolder(View root){
             super(root);
-            account_name = findViewById(R.id.account_name);
+            account_name = findViewById(R.id.from_account);
             balance = findViewById(R.id.balance);
             options = findViewById(R.id.options);
-            View.OnClickListener clickListener = v -> {
-                if(hasOnChildClickListener()){
-                    getOnChildClickListener().onChildClick(AccountViewHolder.this, v);
-                }
-            };
-            options.setOnClickListener(clickListener);
-            root.setOnClickListener(clickListener);
+            bindChildForClick(options);
+            bindChildForClick(root);
         }
 
         public void bind(AboutAccount account){

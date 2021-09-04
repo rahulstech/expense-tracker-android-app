@@ -2,7 +2,6 @@ package dreammaker.android.expensetracker.activity;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.inputmethodservice.KeyboardView;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -11,14 +10,17 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.ui.NavigationUI;
 import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.backup.BackupRestoreHelper;
+import dreammaker.android.expensetracker.backup.WorkActionService;
 import dreammaker.android.expensetracker.util.CalculatorKeyboard;
 import dreammaker.android.expensetracker.util.Check;
 
@@ -30,18 +32,12 @@ public class MainActivity extends BaseActivity {
     private Toolbar toolbar;
     private NavHostFragment navHostFragment;
     private Snackbar current;
-    private KeyboardView keyboardView;
-    private CalculatorKeyboard calculatorKeyboard;
 
     public static void showQuickMessage(Activity activity, @StringRes int messageID, @StringRes int actionID) {
         if (activity instanceof MainActivity) {
             ((MainActivity) activity).showQuickMessage(activity.getString(messageID), activity.getString(actionID),
                     v -> ((MainActivity) activity).dismissQuickMessage());
         }
-    }
-
-    public NavController getNavController() {
-        return navHostFragment.getNavController();
     }
 
     @Override
@@ -53,39 +49,42 @@ public class MainActivity extends BaseActivity {
         drawerLayout = findViewById(R.id.drawer_layout);
         toolbar = findViewById(R.id.toolbar);
         drawer = findViewById(R.id.drawer);
-        keyboardView = findViewById(R.id.calculator_keyboard);
-        calculatorKeyboard = new CalculatorKeyboard(keyboardView);
 
         setSupportActionBar(toolbar);
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout,
                 toolbar, 0, 0);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        drawerToggle.setDrawerIndicatorEnabled(false);
         drawerToggle.setDrawerSlideAnimationEnabled(true);
-        drawerToggle.setHomeAsUpIndicator(R.drawable.hamburger);
-        drawerToggle.setToolbarNavigationClickListener(v -> drawerLayout.openDrawer(drawer, true));
-        drawer.setNavigationItemSelectedListener(item ->
-                onClickLeftDrawerItem(item));
-        onCheckFirstBackupRequired();
+        drawer.setNavigationItemSelectedListener(this::onClickLeftDrawerItem);
+        NavigationUI.setupWithNavController(toolbar,navHostFragment.getNavController(),drawerLayout);
     }
 
-    private void onCheckFirstBackupRequired() {
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        checkFirstRestoreRequired();
+        checkForAutoDelete();
+    }
+
+    private void checkFirstRestoreRequired() {
         BackupRestoreHelper.checkAppFirstRestoreRequired(this, isRequired -> {
-            // TODO: implement this
+            if (isRequired)
+                startActivity(new Intent(MainActivity.this,RestoreActivity.class));
         });
+    }
+
+    private void checkForAutoDelete() {
+        startService(new Intent(this, WorkActionService.class)
+                .setAction(WorkActionService.ACTION_AUTO_DELETE_START));
     }
 
     @Override
     public void onBackPressed() {
         if (!dismissQuickMessage()) {
-            if (!calculatorKeyboard.onBackPressed()) {
-                if (drawerLayout.isDrawerOpen(drawer))
-                    drawerLayout.closeDrawer(drawer);
-                else
-                    super.onBackPressed();
-            }
+            if (drawerLayout.isDrawerOpen(drawer))
+                drawerLayout.closeDrawer(drawer);
+            else
+                super.onBackPressed();
         }
-        return;
     }
 
     @Override
@@ -102,6 +101,10 @@ public class MainActivity extends BaseActivity {
         int id = item.getItemId();
         if (R.id.backup_restore == id) {
             startActivity(new Intent(MainActivity.this, BackupRestoreActivity.class));
+            return true;
+        }
+        else if (R.id.settings == id) {
+            startActivity(new Intent(this,SettingsActivity.class));
             return true;
         }
         return false;
@@ -125,9 +128,5 @@ public class MainActivity extends BaseActivity {
             return true;
         }
         return false;
-    }
-
-    public CalculatorKeyboard getCalculatorKeyboard() {
-        return calculatorKeyboard;
     }
 }

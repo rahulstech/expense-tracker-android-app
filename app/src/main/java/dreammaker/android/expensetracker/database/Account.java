@@ -1,5 +1,7 @@
 package dreammaker.android.expensetracker.database;
 
+import com.google.gson.annotations.SerializedName;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
@@ -18,16 +20,19 @@ public class Account {
 
     @ColumnInfo(name = ACCOUNT_NAME, typeAffinity = ColumnInfo.TEXT)
     @NonNull
+    @SerializedName(ACCOUNT_NAME)
     private String accountName;
 
     @ColumnInfo(name = _ID, typeAffinity = ColumnInfo.INTEGER)
     @PrimaryKey(autoGenerate = true)
     @NonNull
+    @SerializedName(_ID)
     private long accountId;
 
 
     @ColumnInfo(name = BALANCE, typeAffinity = ColumnInfo.REAL, defaultValue = "0")
     @NonNull
+    @SerializedName(BALANCE)
     private float balance;
 
     public Account(long accountId, String accountName, float balance) {

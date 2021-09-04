@@ -2,7 +2,7 @@ package dreammaker.android.expensetracker.fragment;
 
 import android.app.DatePickerDialog;
 import android.content.Context;
-import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,36 +23,27 @@ import androidx.navigation.Navigation;
 import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.activity.MainActivity;
 import dreammaker.android.expensetracker.database.Account;
-import dreammaker.android.expensetracker.database.Transaction;
+import dreammaker.android.expensetracker.database.MoneyTransfer;
 import dreammaker.android.expensetracker.util.CalculatorKeyboard;
 import dreammaker.android.expensetracker.util.Check;
 import dreammaker.android.expensetracker.util.Date;
 import dreammaker.android.expensetracker.util.Helper;
 import dreammaker.android.expensetracker.view.AccountsSpinnerAdapter;
+import dreammaker.android.expensetracker.viewmodel.MoneyTransferViewModel;
 import dreammaker.android.expensetracker.viewmodel.OperationCallback;
-import dreammaker.android.expensetracker.viewmodel.TransactionsViewModel;
 
-import static dreammaker.android.expensetracker.database.Transaction.TYPE_CREDIT;
-import static dreammaker.android.expensetracker.database.Transaction.TYPE_DEBIT;
-import static dreammaker.android.expensetracker.util.Helper.CATEGORY;
-import static dreammaker.android.expensetracker.util.Helper.CATEGORY_RECEIVE_MONEY;
-import static dreammaker.android.expensetracker.util.Helper.CATEGORY_SEND_MONEY;
-import static dreammaker.android.expensetracker.util.Helper.EXTRA_ID;
+public class InputMoneyTransfer extends BaseFragment<InputMoneyTransfer.MoneyTransferViewHolder> implements View.OnClickListener {
 
-public class MoneyTransfer extends BaseFragment<MoneyTransfer.MoneyTransferViewHolder> implements View.OnClickListener {
-
-    private static final String TAG = "MoneyTransfer";
+    private static final String TAG = "InputMoneyTransfer";
     private static final String DATE_FORMAT = "dd-MMMM-yyyy";
-    private static final int ID_SAVED_DATA = 1755;
-    
-    private TransactionsViewModel viewModel;
+
+    private MoneyTransferViewModel viewModel;
     private AccountsSpinnerAdapter accountsFromAdapter;
     private AccountsSpinnerAdapter accountsToAdapter;
     private NavController navController;
     private CalculatorKeyboard calculatorKeyboard;
-    private Date date;
 
-    public MoneyTransfer() { super(); }
+    public InputMoneyTransfer() { super(); }
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -60,15 +51,8 @@ public class MoneyTransfer extends BaseFragment<MoneyTransfer.MoneyTransferViewH
         if (Check.isNonNull(getActivity())) {
             viewModel = new ViewModelProvider(getActivity(),
                     new ViewModelProvider.AndroidViewModelFactory(getActivity().getApplication()))
-                    .get(TransactionsViewModel.class);
-            date = viewModel.getSavedData(ID_SAVED_DATA, new Date());
+                    .get(MoneyTransferViewModel.class);
         }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        viewModel.putSavedData(ID_SAVED_DATA, date);
     }
 
     @NonNull
@@ -89,21 +73,25 @@ public class MoneyTransfer extends BaseFragment<MoneyTransfer.MoneyTransferViewH
         vh.cancel.setOnClickListener(this);
         vh.save.setOnClickListener(this);
         viewModel.setOperationCallback(callback);
-        viewModel.getAllAccountsNameAndId().observe(this, this::onAccountsFetched);
+        viewModel.getSelectedMoneyTransferLiveData().observe(this, mt -> populateWithInitialValues(vh,mt));
+        viewModel.getAccounts().observe(this, this::onAccountsFetched);
     }
 
     @Override
     protected void onBindFragmentViewHolder(@NonNull MoneyTransferViewHolder vh) {
         navController = Navigation.findNavController(vh.getRoot());
-        calculatorKeyboard.registerEditText(vh.amount);
-        Helper.setTitle(getActivity(), R.string.label_money_transfer);
-        updateDateText();
     }
 
     @Override
     public void onPause() {
-        calculatorKeyboard.unregisterEditText(getViewHolder().amount);
+        calculatorKeyboard.hideCalculatorKeyboard();
         super.onPause();
+    }
+
+    @Override
+    public boolean onBackPressed() {
+        if (calculatorKeyboard.onBackPressed()) return true;
+        return super.onBackPressed();
     }
 
     @Override
@@ -119,29 +107,19 @@ public class MoneyTransfer extends BaseFragment<MoneyTransfer.MoneyTransferViewH
     private void onAccountsFetched(List<Account> accounts) {
         accountsFromAdapter.changeList(accounts);
         accountsToAdapter.changeList(accounts);
-        if (hasArguments()) {
-            Bundle args = getArguments();
-            int category = args.getInt(CATEGORY, 0);
-            long id = args.getLong(EXTRA_ID, 0);
-            if (CATEGORY_SEND_MONEY == category)
-                setInitialAccount(category, accountsFromAdapter.getPositionForId(id));
-            else if (CATEGORY_RECEIVE_MONEY == category)
-                setInitialAccount(category, accountsToAdapter.getPositionForId(id));
-        }
-    }
-
-    private void setInitialAccount(int category, int selection) {
-        if (AccountsSpinnerAdapter.NO_POSITION == selection) return;
-        if (CATEGORY_SEND_MONEY == category)
-            getViewHolder().accountFrom.setSelection(selection);
-        else
-            getViewHolder().accountTo.setSelection(selection);
+        MoneyTransfer mt = viewModel.getSelectedMoneyTransfer();
+        int posFromAcc = accountsFromAdapter.getPositionForId(mt.getPayer_account_id());
+        int posToAcc = accountsToAdapter.getPositionForId(mt.getPayee_account_id());
+        Log.d(TAG,"posFromAcc: "+posFromAcc+" posToAcc: "+posFromAcc);
+        getViewHolder().accountFrom.setSelection(posFromAcc);
+        getViewHolder().accountTo.setSelection(posToAcc);
     }
 
     private void onChooseDate(){
         if (null == getContext()) return;
+        Date date = viewModel.getSelectedMoneyTransfer().getWhen();
         new DatePickerDialog(getContext(), (view, year, month, day) -> {
-            date.set(year, month, day);
+            viewModel.getSelectedMoneyTransfer().setWhen(new Date(year,month,day));
             updateDateText();
         }, date.getYear(),
                 date.getMonth(),
@@ -155,7 +133,6 @@ public class MoneyTransfer extends BaseFragment<MoneyTransfer.MoneyTransferViewH
 
     private void onSave(){
         getViewHolder().amountInput.setError(null);
-
         float _amount;
         try{
             _amount = calculatorKeyboard.calculate(getViewHolder().amount.getEditableText());
@@ -164,21 +141,45 @@ public class MoneyTransfer extends BaseFragment<MoneyTransfer.MoneyTransferViewH
                 return;
             }
         }
-        catch (Exception ignored){
+        catch (Exception ex){
+            Log.d(TAG,"exception occurred during amount calculate: "+ex.getMessage());
             getViewHolder().amountInput.setError(getString(R.string.error_invalid_amount));
             return;
         }
-        long _accountFrom = getViewHolder().accountFrom.getSelectedItemId();
-        long _accountTo = getViewHolder().accountTo.getSelectedItemId();
-        if (_accountFrom == _accountTo) {
+        Account payer = (Account) getViewHolder().accountFrom.getSelectedItem();
+        Account payee = (Account) getViewHolder().accountTo.getSelectedItem();
+        if (Check.isEquals(payer,payee)) {
             showQuickMessage(R.string.error_same_account_money_transfer);
             return;
         }
+        else if (payer.getBalance() < _amount) {
+            showQuickMessage(R.string.error_insufficient_balance);
+            return;
+        }
         String _description = getViewHolder().description.getText().toString();
-        viewModel.transferMoney(new Transaction(_accountFrom, null,
-                        _amount, TYPE_CREDIT, date, _description),
-                new Transaction(_accountTo, null,
-                        _amount, TYPE_DEBIT, date, _description));
+
+        final MoneyTransfer mt = viewModel.getSelectedMoneyTransfer();
+        mt.setAmount(_amount);
+        mt.setPayer_account_id(payer.getAccountId());
+        mt.setPayee_account_id(payee.getAccountId());
+        mt.setDescription(_description);
+        if (mt.getId() == 0)
+            viewModel.insertMoneyTransfer(mt);
+        else
+            viewModel.updateMoneyTransfer(mt);
+    }
+
+    private void populateWithInitialValues(MoneyTransferViewHolder vh, MoneyTransfer mt) {
+        Log.d(TAG,"populating money transfer: "+mt);
+        vh.amount.setText(Helper.floatToString(mt.getAmount()));
+        updateDateText();
+        vh.description.setText(mt.getDescription());
+        if (mt.getId() == 0) {
+            Helper.setTitle(getActivity(),R.string.label_new_money_transfer);
+        }
+        else {
+            Helper.setTitle(getActivity(),R.string.label_edit_money_transfer);
+        }
     }
 
     private void onCompleteMoneyTransfer(boolean success) {
@@ -187,6 +188,7 @@ public class MoneyTransfer extends BaseFragment<MoneyTransfer.MoneyTransferViewH
     }
 
     private void updateDateText(){
+        Date date = viewModel.getSelectedMoneyTransfer().getWhen();
         getViewHolder().date.setText(date.format(DATE_FORMAT));
     }
 
@@ -199,10 +201,18 @@ public class MoneyTransfer extends BaseFragment<MoneyTransfer.MoneyTransferViewH
         public void onCompleteInsert(boolean success) {
             onCompleteMoneyTransfer(success);
         }
+
+        @Override
+        public void onCompleteUpdate(boolean success) {
+            onCompleteMoneyTransfer(success);
+            if (success) {
+                navController.popBackStack();
+            }
+        }
     };
 
     private CalculatorKeyboard getCalculatorKeyboard() {
-        return ((MainActivity) getActivity()).getCalculatorKeyboard();
+        return new CalculatorKeyboard(getActivity(),getViewHolder().amount);
     }
 
     static class MoneyTransferViewHolder extends BaseFragment.FragmentViewHolder{
@@ -221,12 +231,12 @@ public class MoneyTransfer extends BaseFragment<MoneyTransfer.MoneyTransferViewH
 
             amountInput = findViewById(R.id.amount_input);
             amount = findViewById(R.id.amount);
-            date = findViewById(R.id.date);
+            date = findViewById(R.id.when);
             accountFrom = findViewById(R.id.account_from);
             accountTo = findViewById(R.id.account_to);
             description = findViewById(R.id.description);
             cancel = findViewById(R.id.cancel);
-            save = findViewById(R.id.save);
+            save = findViewById(R.id.btn_restore);
         }
     }
 }

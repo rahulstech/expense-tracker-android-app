@@ -2,29 +2,33 @@
 <resources>
 
     <string name="app_name">Expense Tracker</string>
-	<string name="backup_activity">Backup And Restore</string>
+	<string name="title_activity_settings">Settings</string>
 	<string name="work_action_service_name">WorkActionService</string>
-	<string name="work_action_service_description">Service to handle different action in backup and restore notification</string>
-    
-    <string name="label_accounts">Accounts</string>
+	<string name="work_action_service_description">
+		Service to handle different action in backup and restore notification
+	</string>
+
+	<string name="label_accounts">Accounts</string>
     <string name="label_insert_account">Create Account</string>
     <string name="label_update_account">Edit Account</string>
-    <string name="label_persons_list">Persons</string>
+    <string name="label_persons_list">People</string>
     <string name="label_insert_person">Add Person</string>
     <string name="label_update_person">Edit Person</string>
     <string name="label_transactions_list">Transactions</string>
 	<string name="label_money_transfer">Money Transfer</string>
+	<string name="label_money_transfer_history">Transfer History</string>
+	<string name="label_new_money_transfer">New Money Transfer</string>
+	<string name="label_edit_money_transfer">Edit Money Transfer</string>
 	<string name="label_total_balance">Total Balance</string>
 	<string name="label_total_due">Total Due</string>
 	<string name="label_count_balance_accounts">From %d accounts</string>
 	<string name="label_count_due_people">From %d people</string>
-
-	<string name="label_insert_transaction">Insert Transaction</string>
+	<string name="label_insert_transaction">New Transaction</string>
     <string name="label_update_transaction">Edit Transaction</string>
 	<string name="label_filter_transaction">Filter Transactions</string>
 	<string name="label_loading">Loading</string>
-	
-    <string name="account_name">Account Name</string>
+
+	<string name="account_name">Account Name</string>
     <string name="person_name">Person Name</string>
     <string name="amount">Amount</string>
     <string name="account">Account</string>
@@ -40,6 +44,7 @@
     <string name="no_account">No Account</string>
     <string name="no_person">No Person</string>
     <string name="no_transaction">No Transaction</string>
+	<string name="no_money_transfer_history">No History</string>
     <string name="balance">Balance</string>
     <string name="due_payment">Due</string>
 	<string name="advanced_payment">Advanced</string>
@@ -58,15 +63,48 @@
 	<string name="yesterday">Yesterday</string>
 	<string name="account_from">From</string>
 	<string name="account_to">To</string>
+
+	<!-- Backup -->
+
 	<string name="backup">Backup</string>
+	<string name="description_backup">
+		Backup your data into your external storage . Backup File(s) can be found under ExpenseTracker > backup directory.
+		Keep the latest backup file safe to restore the data after reinstall . Never forget to make a backup before uninstall.
+	</string>
+	<string name="notification_start_local_backup">Local backup in progress. Please wait till finish</string>
+	<string name="notification_end_local_backup">Local backup completed successfully to file: %1$s</string>
+	<string name="notification_error_local_backup">Error occurred during local backup</string>
+
+	<!-- Restore -->
 	<string name="restore">Restore</string>
+	<string name="description_restore">
+		Restore your old data from local storage. Click the RESTORE button bellow and choose the file to restore.
+	</string>
+	<string name="message_restore_file_not_selected">No file selected to restore</string>
+	<string name="notification_start_restore">Restore in progress. Please wait till finish</string>
+	<string name="notification_end_restore">Restore completed successfully</string>
+	<string name="notification_error_restore">Error occurred during restore</string>
+
+	<!-- Settings -->
+	<string name="title_auto_delete">Auto Delete</string>
+	<string name="summery_auto_delete">Automatically delete all data which are older than specified amount of time.
+		This will only delete date oriented data like transaction and money transfers.</string>
+	<string name="notification_start_auto_delete">Auto delete old entries in progress...</string>
+	<string name="notification_end_auto_delete">App data deleted successfully</string>
+
+	<string name="title_clear_all">Clear All Data</string>
+	<string name="summery_clear_all">Clear all your app data. This will not delete your settings.
+		If have done a backup then you can restore data after reinstall </string>
+    <string name="message_clear_all">You are about to clear all app data. You will loss all of your current app data permanently. Are you sure?</string>
+	<string name="notification_start_clear_all">Clear app data in progress. Please wait till finish.</string>
+	<string name="notification_error_clear_all">Error occurred during clear app data</string>
+	<string name="notification_end_clear_all">App data cleared successfully</string>
 
 	<!-- strings related to filter transaction screens -->
 	<string name="screen_account">Accounts</string>
 	<string name="screen_people">People</string>
 	<string name="screen_dates">Dates</string>
 	<string name="screen_miscellaneous">Miscellaneous</string>
-
 	<string name="max_amount">Max Amount</string>
 	<string name="min_amount">Min Amount</string>
 
@@ -91,10 +129,11 @@
 	<string name="error_invalid_amount">invalid amount</string>
 	<string name="error_negative_amount">negative amount not allowed</string>
     <string name="error_same_account_money_transfer">can not transfer money between same accounts</string>
+	<string name="error_insufficient_balance">account does not has sufficient balance</string>
 	<string name="transaction_save_successful">transaction saved</string>
 	<string name="transaction_save_unsuccessful">transaction not saved</string>
-	<string name="money_transfer_successful">money transferred successfully</string>
-	<string name="money_transfer_unsuccessful">fail to transfer money</string>
+	<string name="money_transfer_successful">money transfer history saved</string>
+	<string name="money_transfer_unsuccessful">money transfer history not saved</string>
     <string name="message_money_transfer_accounts_not_enough">
 		At least two accounts are required for money transfer.
 	</string>
@@ -108,15 +147,6 @@
 		Please enable this permission in System\'s App Settings under the App\'s permission section.
 	</string>
 	<string name="open_settings">Open Settings</string>
-	<string name="description_backup">
-		Backup your data into your external storage . Backup File(s) can be found under Expensetracker > backup directory.
-		Keep the latest backup file safe to restore the data after reinstall . Never forget to make a backup before uninstall.
-	</string>
-	<string name="description_restore" formatted="false">
-		Restore your data from your local storage. Click the button and choose a file to restore.
-		Restore does not check for duplicate data.
-		To avoid data duplication restore just after reinstall or when all your data wiped out.
-	</string>
 
 	<string name="last_backup_date">Last Backup: </string>
 	<string name="backup_never">Never</string>
@@ -130,25 +160,6 @@
 	<string name="schedule_weekly">Weekly</string>
 	<string name="schedule_monthly">Monthly</string>
 
-	<string name="message_local_backup_start">Starting Local Backup</string>
-	<string name="message_backup_canceled">Backup Canceled</string>
-	<string name="message_local_backup_successful">Local Backup Successful</string>
-	<string name="message_backup_fail">Backup Fail</string>
-	<string name="message_fail_no_data">No data found.</string>
-	<string name="message_backup_fail_unknown">Backup fail due to some error, please try again</string>
-
-	<string name="message_local_restore_start">Starting Local Restore</string>
-	<string name="message_restore_canceled">Restore Canceled</string>
-	<string name="message_local_restore_successful">Restore Successful</string>
-	<string name="message_restore_fail_invalid">Selected file contains invalid data</string>
-	<string name="message_restore_fail_unknown">Some internal error occurred during restore, please try again.</string>
-	<string name="message_backup_progress_accounts">Retrieving account(s) %1$d/%2$d</string>
-	<string name="message_backup_progress_people">Retrieving person(s) %1$d/%2$d</string>
-	<string name="message_backup_progress_transactions">Retrieving transaction(s) %1$d/%2$d</string>
-	<string name="message_restore_progress">Restoring from \"%1$s\" %2$d%%</string>
-	<string name="message_restore_non_empty_database">Restore canceled. Database is not empty. Clear the database first and try again</string>
-	<string name="message_restore_file_not_selected">No file selected to restore</string>
-
 	<string name="message_error_file_access">
 		Read and write to external storage is not allowed for this app. Open setting and allow permission now.
 	</string>
@@ -156,9 +167,10 @@
 	<!-- strings related to menu -->
 	<string name="menu_edit">Edit</string>
 	<string name="menu_delete">Delete</string>
-    <string name="menu_new_transaction">New Transaction</string>
-	<string name="menu_send_money">Send Money</string>
-	<string name="menu_receive_money">Receive Money</string>
 	<string name="menu_backup_restore">Backup And Restore</string>
+	<string name="menu_settings">Settings</string>
+	<string name="menu_change_log">Change Log</string>
+	<string name="menu_about">About</string>
 	<string name="menu_filter">Filter</string>
+
 </resources>

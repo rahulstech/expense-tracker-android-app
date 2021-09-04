@@ -1,5 +1,7 @@
 package dreammaker.android.expensetracker.database;
 
+import com.google.gson.annotations.SerializedName;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
@@ -21,15 +23,18 @@ public class Person {
     @ColumnInfo(name = _ID, typeAffinity = ColumnInfo.INTEGER)
     @PrimaryKey(autoGenerate = true)
     @NonNull
+    @SerializedName(_ID)
     private long personId;
 
     @ColumnInfo(name = PERSON_NAME, typeAffinity = TEXT)
     @NonNull
+    @SerializedName(PERSON_NAME)
     private String personName;
 
 
     @ColumnInfo(name = DUE_PAYMENT, typeAffinity = REAL, defaultValue = "0")
     @NonNull
+    @SerializedName(DUE_PAYMENT)
     private float due;
 
     public Person(long personId, @NonNull String personName, float due) {
@@ -53,7 +58,7 @@ public class Person {
     @Ignore
     public Person() { this(0,"",0); }
 
-    public Long getPersonId() {
+    public long getPersonId() {
         return personId;
     }
 

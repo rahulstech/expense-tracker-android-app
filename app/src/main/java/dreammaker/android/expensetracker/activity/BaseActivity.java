@@ -6,6 +6,8 @@ import dreammaker.android.expensetracker.util.OnBackPressListener;
 
 public abstract class BaseActivity extends AppCompatActivity {
 
+    private static final String TAG = "BaseActivity";
+
     private OnBackPressListener onBackPressListener;
 
     public void registerOnBackPressListener(OnBackPressListener listener){

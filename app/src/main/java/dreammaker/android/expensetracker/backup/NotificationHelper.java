@@ -5,47 +5,57 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.StringRes;
+import androidx.core.app.NotificationChannelCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.graphics.drawable.IconCompat;
+import dreammaker.android.expensetracker.BuildConfig;
 import dreammaker.android.expensetracker.R;
 
-public class NotificationHelper implements Handler.Callback {
+public class NotificationHelper  {
 
-    private static final String BACKUP_RESTORE_CHANNEL_ID = "Backup And Restore";
-    private static final String BACKUP_RESTORE_CHANNEL_DESCRIPTION = "Notifications related to backup and restore service";
+    public static final String MISCELLANEOUS_CHANNEL_ID = "Others";
+    public static final String MISCELLANEOUS_CHANNEL_DESCRIPTION = "Notifications for general purpose";
+    public static final String BACKUP_RESTORE_CHANNEL_ID = "Backup And Restore";
+    public static final String BACKUP_RESTORE_CHANNEL_DESCRIPTION = "Notifications related to backup and restore service";
 
     public static class NotificationArgs {
         public static final int NOTIFICATION_TYPE_SIMPLE = 1;
         public static final int NOTIFICATION_TYPE_DETERMINATE_PROGRESS = 2;
         public static final int NOTIFICATION_TYPE_INDETERMINATE_PROGRESS = 3;
 
-        private int notificationId;
         private int notificationType;
         private int progressMax;
         private int progressCurrent;
+        private int smallIconRes = R.drawable.ic_launcher;
         private String notificationTitle;
         private String notificationMessage;
         private NotificationCompat.Action action;
         private PendingIntent contentIntent;
         private boolean autoCancel = false;
-
-        @Deprecated
-        public NotificationArgs(int notificationType, int notificationId) {
-            this.notificationType = notificationType;
-            this.notificationId = notificationId;
-        }
+        private long autoCancelDuration = 60000; // default 1 minute
 
         public NotificationArgs(int notificationType) {
             this.notificationType = notificationType;
+        }
+
+        public NotificationArgs setSmallIcon(@DrawableRes int smallIconRes) {
+            this.smallIconRes = smallIconRes;
+            return this;
         }
 
         public NotificationArgs setProgressMax(int max) {
@@ -82,11 +92,16 @@ public class NotificationHelper implements Handler.Callback {
             this.autoCancel = autoCancel;
             return this;
         }
+
+        public NotificationArgs setAutoCancel(boolean autoCancel, long autoCancelDuration) {
+            this.autoCancel = autoCancel;
+            this.autoCancelDuration = Math.max(60000, autoCancelDuration); // auto cancel notification minimum after 1 minute
+            return this;
+        }
     }
 
     private Context appContext;
     private NotificationManagerCompat notificationManager;
-    private Handler handler;
 
     public NotificationHelper(@NonNull Context context) {
         if (null == context) {
@@ -94,48 +109,31 @@ public class NotificationHelper implements Handler.Callback {
         }
         this.appContext = context.getApplicationContext();
         this.notificationManager = NotificationManagerCompat.from(context);
-        this.handler = new Handler(Looper.getMainLooper(),this);
-    }
-
-    @Override
-    public boolean handleMessage(@NonNull Message msg) {
-        if (1 == msg.what) {
-            NotificationManagerCompat notificationManager = this.notificationManager;
-            NotificationArgs args = (NotificationArgs) msg.obj;
-            int notificationId = args.notificationId;
-            Notification notification = newNotification(args);
-            notificationManager.notify(notificationId,notification);
-            return true;
-        }
-        return false;
     }
 
     public NotificationCompat.Action createAction(@StringRes int resId, @Nullable PendingIntent pi) {
-        return new NotificationCompat.Action(null, getResourceString(resId),pi);
+        return new NotificationCompat.Action(null, appContext.getString(resId),pi);
     }
 
     public Context getAppContext() { return appContext; }
 
-    public void showNotification(@NonNull NotificationArgs args) {
-        handler.obtainMessage(1,args)
-                .sendToTarget();
-    }
-
-    public void cancelNotification() {
-        handler.removeMessages(1);
-    }
-
     @NonNull
-    public Notification newNotification(@NonNull NotificationArgs args) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) setupNotificationChannel();
-        NotificationCompat.Builder nBuilder = new NotificationCompat.Builder(appContext, BACKUP_RESTORE_CHANNEL_ID);
+    public Notification newNotification(String channelID,  @NonNull NotificationArgs args) {
+        NotificationCompat.Builder nBuilder = new NotificationCompat.Builder(appContext,channelID);
         nBuilder.setWhen(System.currentTimeMillis())
                 .setShowWhen(true)
-                .setSmallIcon(R.drawable.backup_restore)
+                .setSmallIcon(args.smallIconRes)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setContentTitle(args.notificationTitle)
-                .setContentText(args.notificationMessage);
+                .setContentText(args.notificationMessage)
+                .setStyle(new NotificationCompat.BigTextStyle()
+                        .setBigContentTitle(args.notificationTitle)
+                        .bigText(args.notificationMessage));
+        if (args.autoCancel) {
+            nBuilder.setAutoCancel(args.autoCancel)
+                    .setTimeoutAfter(args.autoCancelDuration);
+        }
         if (null != args.action) nBuilder.addAction(args.action);
         if (null != args.contentIntent) nBuilder.setContentIntent(args.contentIntent);
         int notificationType = args.notificationType;
@@ -148,19 +146,24 @@ public class NotificationHelper implements Handler.Callback {
         return nBuilder.build();
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    private void setupNotificationChannel() {
-        if (null == notificationManager.getNotificationChannel(BACKUP_RESTORE_CHANNEL_ID)) {
-            NotificationChannel channel = new NotificationChannel(BACKUP_RESTORE_CHANNEL_ID,
-                    BACKUP_RESTORE_CHANNEL_ID, NotificationManager.IMPORTANCE_HIGH);
-            channel.setDescription(BACKUP_RESTORE_CHANNEL_DESCRIPTION);
-            channel.setShowBadge(false);
-            channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
-            notificationManager.createNotificationChannel(channel);
+    public void createNotificationChannel(String id, String description) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (null == notificationManager.getNotificationChannel(id)) {
+                NotificationChannel channel = new NotificationChannel(id,
+                        id, NotificationManager.IMPORTANCE_HIGH);
+                channel.setDescription(description);
+                channel.setShowBadge(false);
+                channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+                notificationManager.createNotificationChannel(channel);
+            }
         }
     }
 
-    private String getResourceString(@StringRes int resId) {
-        return appContext.getString(resId);
+    public void updateNotification(int nid, @NonNull Notification updated) {
+        notificationManager.notify(nid,updated);
+    }
+
+    public void removeNotification(int nid) {
+        notificationManager.cancel(nid);
     }
 }

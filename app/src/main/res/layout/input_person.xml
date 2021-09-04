@@ -12,19 +12,19 @@
         android:layout_marginTop="@dimen/margin_vertical_medium"
         android:text="@string/cancel"
         app:backgroundTint="@android:color/white"
-        app:layout_constraintTop_toBottomOf="@id/due_input"
+        app:layout_constraintTop_toBottomOf="@id/radio_group"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/save"/>
+        app:layout_constraintEnd_toStartOf="@id/btn_restore"/>
 
     <Button
-        android:id="@+id/save"
+        android:id="@+id/btn_restore"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/margin_vertical_medium"
         android:text="@string/save"
         android:textColor="@android:color/white"
         app:backgroundTint="@color/text_green"
-        app:layout_constraintTop_toBottomOf="@id/due_input"
+        app:layout_constraintTop_toBottomOf="@id/radio_group"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/cancel"/>
 
@@ -43,7 +43,7 @@
         app:layout_constraintEnd_toEndOf="parent">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/person_name"
+            android:id="@+id/to_account"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textCapWords"
@@ -68,5 +68,38 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
     </com.google.android.material.textfield.TextInputLayout>
+
+    <RadioGroup
+        android:id="@+id/radio_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/due_input"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="parent"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <com.google.android.material.radiobutton.MaterialRadioButton
+            android:id="@+id/type_due"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:checked="true"
+            android:text="@string/due_payment"
+            android:textColor="@color/text_red"
+            android:textSize="18sp"
+            app:buttonTint="@color/text_red"/>
+
+        <com.google.android.material.radiobutton.MaterialRadioButton
+            android:id="@+id/type_advanced"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/advanced_payment"
+            android:textColor="@color/text_green"
+            android:textSize="18sp"
+            app:buttonTint="@color/text_green" />
+
+    </RadioGroup>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

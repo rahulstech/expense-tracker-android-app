@@ -31,8 +31,7 @@ public class PersonsViewModel extends BaseViewModel {
     }
 
     public void setSelectedPerson(Person person) {
-        Check.isNonNull(person, "selected person must be non null");
-        selectedPersonLiveData.setValue(person.clone());
+        selectedPersonLiveData.setValue(null == person ? new Person() : person.clone());
     }
 
     public LiveData<Person> getSelectedPersonLiveData() {

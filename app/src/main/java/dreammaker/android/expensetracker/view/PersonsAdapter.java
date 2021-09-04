@@ -15,7 +15,7 @@ import dreammaker.android.expensetracker.database.AboutPerson;
 import dreammaker.android.expensetracker.util.Check;
 import dreammaker.android.expensetracker.util.Helper;
 
-public class PersonsAdapter extends BaseRecyclerViewListAdapterFilterable<AboutPerson, PersonsAdapter.PersonViewHolder> implements RVAViewHolder.OnChildClickListener {
+public class PersonsAdapter extends BaseRecyclerViewListAdapterFilterable<AboutPerson, PersonsAdapter.PersonViewHolder> {
 
 	private static DiffUtil.ItemCallback<AboutPerson> DIFF_CALLBACK = new DiffUtil.ItemCallback<AboutPerson>() {
 		@Override
@@ -51,13 +51,6 @@ public class PersonsAdapter extends BaseRecyclerViewListAdapterFilterable<AboutP
 	}
 
 	@Override
-	public void onChildClick(RecyclerView.ViewHolder vh, View child) {
-		if (hasOnItemChildClickListener()){
-			getOnItemChildClickListener().onItemChildClicked(this, (PersonViewHolder) vh, child);
-		}
-	}
-
-	@Override
 	public boolean onMatch(@Nullable AboutPerson item, @NonNull String key) {
 		return item.getPersonName().toLowerCase().contains(key.toLowerCase());
 	}
@@ -72,19 +65,14 @@ public class PersonsAdapter extends BaseRecyclerViewListAdapterFilterable<AboutP
 
 		PersonViewHolder(View root){
 			super(root);
-			person_name = findViewById(R.id.person_name);
+			person_name = findViewById(R.id.to_account);
 			due_payment = findViewById(R.id.due_payment);
 			advanced_payment = findViewById(R.id.advanced_payment);
 			options = findViewById(R.id.options);
 			labelDuePayment = findViewById(R.id.label_due_payment);
 			labelAdvPayment = findViewById(R.id.label_advanced_payment);
-			View.OnClickListener clickListener = v -> {
-				if (hasOnChildClickListener()){
-					getOnChildClickListener().onChildClick(PersonViewHolder.this, v);
-				}
-			};
-			options.setOnClickListener(clickListener);
-			root.setOnClickListener(clickListener);
+			bindChildForClick(options);
+			bindChildForClick(root);
 		}
 
 		public void bind(AboutPerson person){

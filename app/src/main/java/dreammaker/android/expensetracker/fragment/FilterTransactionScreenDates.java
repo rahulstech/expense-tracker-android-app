@@ -145,7 +145,7 @@ public class FilterTransactionScreenDates extends BaseFragment<FilterTransaction
             onChooseDate(b,initial,date -> params.setDateRange(DATE_SPECIFIC,date,date));
         }
         else if (vh.minDate == b) {
-            final Date initial = null == params.getMinDate() ? params.getMinDate() : new Date();
+            final Date initial = null != params.getMinDate() ? params.getMinDate() : new Date();
             onChooseDate(b,initial,date -> params.setDateType(DATE_CUSTOM_RANGE).setMinDate(date));
         }
         else if (vh.maxDate == b) {
@@ -237,7 +237,7 @@ public class FilterTransactionScreenDates extends BaseFragment<FilterTransaction
             rbCustomRange = findViewById(R.id.rb_custom_range);
             pickDate = findViewById(R.id.pick_date);
             pickDateRange = findViewById(R.id.pick_date_range);
-            date = findViewById(R.id.date);
+            date = findViewById(R.id.when);
             maxDate = findViewById(R.id.max_date);
             minDate = findViewById(R.id.min_date);
         }

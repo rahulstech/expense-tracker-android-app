@@ -2,6 +2,7 @@ package dreammaker.android.expensetracker.database;
 
 import androidx.annotation.NonNull;
 
+@Deprecated
 public class AboutPerson extends Person {
 
     public AboutPerson(long personId, @NonNull String personName, float due) {

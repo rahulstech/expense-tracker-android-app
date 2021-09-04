@@ -20,7 +20,7 @@
         app:layout_constraintEnd_toEndOf="parent">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/person_name"
+            android:id="@+id/to_account"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textCapWords"
@@ -55,10 +55,10 @@
         app:backgroundTint="@android:color/white"
         app:layout_constraintTop_toBottomOf="@id/balance_input"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/save"/>
+        app:layout_constraintEnd_toStartOf="@id/btn_restore"/>
 
     <Button
-        android:id="@+id/save"
+        android:id="@+id/btn_restore"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/margin_vertical_medium"

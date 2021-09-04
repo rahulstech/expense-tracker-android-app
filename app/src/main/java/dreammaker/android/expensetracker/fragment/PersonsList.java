@@ -42,10 +42,11 @@ public class PersonsList extends BaseListFragment<BaseListFragment.ListFragmentV
     private TransactionsViewModel transactionsViewModel;
     private PersonsAdapter adapter;
     private PersonListSaveData saveData;
+    private NavController navController;
 
     public PersonsList() { super(); }
 
-    public NavController getNavController() { return ((MainActivity) getActivity()).getNavController(); }
+    public NavController getNavController() { return navController; }
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -98,6 +99,11 @@ public class PersonsList extends BaseListFragment<BaseListFragment.ListFragmentV
     }
 
     @Override
+    protected void onBindFragmentViewHolder(@NonNull ListFragmentViewHolder vh) {
+        navController = Navigation.findNavController(vh.getRoot());
+    }
+
+    @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.person_list_menu, menu);
@@ -126,7 +132,8 @@ public class PersonsList extends BaseListFragment<BaseListFragment.ListFragmentV
     @Override
     public void onItemChildClicked(PersonsAdapter personsAdapter, PersonsAdapter.PersonViewHolder vh, View v) {
         if (null == getContext()) return;
-        final AboutPerson person = adapter.getItem(vh.getAdapterPosition());
+        final AboutPerson person = adapter.getItem(vh.getAbsoluteAdapterPosition());
+        Log.d(TAG,"selected person "+person);
         if (vh.options == v){
             PopupMenu menu = new PopupMenu(getContext(), v);
             menu.inflate(R.menu.person_list_item_options_menu);
@@ -156,7 +163,7 @@ public class PersonsList extends BaseListFragment<BaseListFragment.ListFragmentV
     }
 
     private void onAddPerson(){
-        viewModel.setSelectedPerson(new Person());
+        viewModel.setSelectedPerson(null);
         getNavController().navigate(R.id.action_personsList_to_inputPerson);
     }
 

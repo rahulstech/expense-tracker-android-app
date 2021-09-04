@@ -35,10 +35,13 @@ public abstract class ExpensesBackupDao {
     @Insert
     public abstract void insertTransactions(List<Transaction> transactions);
 
-    @Query("SELECT CASE WHEN (count_accounts+count_people+count_transactions) > 0 THEN 0 ELSE 1 END AS is_empty FROM " +
+    @androidx.room.Transaction
+    @Insert
+    public abstract void insertMoneyTransfers(List<MoneyTransfer> moneyTransfers);
+
+    @Query("SELECT CASE WHEN (count_accounts+count_people) > 0 THEN 0 ELSE 1 END AS is_empty FROM " +
             "(SELECT COUNT("+ ExpensesContract.AccountsColumns._ID +") AS count_accounts  FROM "+ACCOUNTS_TABLE+") AS a," +
-            " (SELECT COUNT("+ ExpensesContract.PersonsColumns._ID +") AS count_people FROM "+PERSONS_TABLE+") AS p," +
-            " (SELECT COUNT("+ ExpensesContract.TransactionsColumns._ID +") AS count_transactions FROM "+TRANSACTIONS_TABLE+") AS t")
+            " (SELECT COUNT("+ ExpensesContract.PersonsColumns._ID +") AS count_people FROM "+PERSONS_TABLE+") AS p;")
     public abstract boolean isDatabaseEmpty();
 
     @Query("SELECT * FROM "+ACCOUNTS_TABLE)
@@ -49,6 +52,9 @@ public abstract class ExpensesBackupDao {
 
     @Query("SELECT * FROM "+TRANSACTIONS_TABLE)
     public abstract List<Transaction> getTransactions();
+
+    @Query("SELECT * FROM `money_transfers`;")
+    public abstract List<MoneyTransfer> getMoneyTransfers();
 
     @Query("SELECT "+ACCOUNT_ID +
             ", SUM(CASE "+TYPE+" WHEN "+TYPE_CREDIT+" THEN -"+AMOUNT+" WHEN "+TYPE_DEBIT+" THEN "+AMOUNT+" ELSE 0 END) AS "+BALANCE+

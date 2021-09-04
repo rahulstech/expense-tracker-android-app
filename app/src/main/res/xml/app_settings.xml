@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <ListPreference
+        android:layout_width="match_parent"
+        android:defaultValue="never"
+        android:dialogTitle="@string/title_auto_delete"
+        android:entries="@array/auto_delete_entries"
+        android:entryValues="@array/auto_delete_values"
+        android:icon="@drawable/ic_baseline_auto_delete"
+        android:key="auto_delete"
+        android:summary="@string/summery_auto_delete"
+        android:title="@string/title_auto_delete"
+        app:useSimpleSummaryProvider="true" />
+    <dreammaker.android.expensetracker.activity.ClearAppDataConfirmationDialogPreference
+        android:icon="@drawable/ic_baseline_clear_all"
+        app:dialogMessage="@string/message_clear_all"
+        app:dialogTitle="@string/title_clear_all"
+        app:negativeButtonText="@string/cancel"
+        app:positiveButtonText="@android:string/yes"
+        app:summary="@string/summery_clear_all"
+        app:title="@string/title_clear_all" />
+</PreferenceScreen>

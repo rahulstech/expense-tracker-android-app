@@ -19,22 +19,7 @@ import dreammaker.android.expensetracker.viewmodel.TransactionsViewModel;
 public class FilterTransactionScreenMiscellaneous extends BaseFragment<FilterTransactionScreenMiscellaneous.FilterTransactionMiscellaneousViewHolder> {
 
     private TransactionsViewModel viewModel;
-    private CalculatorKeyboard calculatorKeyboard;
-
-    private final CalculatorKeyboard.SimpleCallback calculatorCallback = new CalculatorKeyboard.SimpleCallback(){
-        @Override
-        public void onAfterCalculate(EditText which, String text, float result) {
-            if (getViewHolder().maxAmount == which) {
-                viewModel.getWorkingFilterParams().setMaxAmount(Check.isEmptyString(text) ? null : result);
-            }
-            else if (getViewHolder().minAmount == which) {
-                viewModel.getWorkingFilterParams().setMinAmount(Check.isEmptyString(text) ? null : result);
-            }
-        }
-
-        @Override
-        public void onError(EditText which, String text, Throwable error) {}
-    };
+    private CalculatorKeyboard minCalcKB, maxCalcKB;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -54,7 +39,8 @@ public class FilterTransactionScreenMiscellaneous extends BaseFragment<FilterTra
 
     @Override
     protected void onFragmentViewHolderCreated(@NonNull final FilterTransactionMiscellaneousViewHolder vh) {
-        calculatorKeyboard = getCalculatorKeyboard();
+        minCalcKB = new CalculatorKeyboard(getActivity(),vh.minAmount);
+        maxCalcKB = new CalculatorKeyboard(getActivity(),vh.maxAmount);
         vh.credit.setOnCheckedChangeListener((cb,checked) -> viewModel.getWorkingFilterParams().setCredit(checked));
         vh.debit.setOnCheckedChangeListener((cb,checked) -> viewModel.getWorkingFilterParams().setDebit(checked));
         viewModel.getWorkingFilterParamsLiveData().observe(this, param -> populateWithInitialValues(vh,param));
@@ -64,18 +50,16 @@ public class FilterTransactionScreenMiscellaneous extends BaseFragment<FilterTra
     protected void onBindFragmentViewHolder(@NonNull FilterTransactionMiscellaneousViewHolder vh) {}
 
     @Override
-    public void onResume() {
-        super.onResume();
-        calculatorKeyboard.registerEditText(getViewHolder().maxAmount,getViewHolder().minAmount);
-        calculatorKeyboard.registerCallback(calculatorCallback);
+    public void onPause() {
+        maxCalcKB.hideCalculatorKeyboard();
+        minCalcKB.hideCalculatorKeyboard();
+        super.onPause();
     }
 
     @Override
-    public void onPause() {
-        calculatorKeyboard.unregisterEditText(getViewHolder().maxAmount);
-        calculatorKeyboard.unregisterEditText(getViewHolder().minAmount);
-        calculatorKeyboard.unregisterCallback(calculatorCallback);
-        super.onPause();
+    public boolean onBackPressed() {
+        if (minCalcKB.onBackPressed() || maxCalcKB.onBackPressed()) return true;
+        return super.onBackPressed();
     }
 
     private void populateWithInitialValues(@NonNull FilterTransactionMiscellaneousViewHolder vh, TransactionsViewModel.FilterTransactionParams params) {
@@ -83,10 +67,6 @@ public class FilterTransactionScreenMiscellaneous extends BaseFragment<FilterTra
         vh.maxAmount.setText(params.getMaxAmountText());
         vh.credit.setChecked(params.isCredit());
         vh.debit.setChecked(params.isDebit());
-    }
-
-    private CalculatorKeyboard getCalculatorKeyboard() {
-        return ((MainActivity) getActivity()).getCalculatorKeyboard();
     }
 
     public static class FilterTransactionMiscellaneousViewHolder extends BaseFragment.FragmentViewHolder {

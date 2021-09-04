@@ -1,5 +1,7 @@
 package dreammaker.android.expensetracker.util;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
@@ -82,6 +84,7 @@ public class Date implements Cloneable {
         return false;
     }
 
+    @NotNull
     @Override
     public Date clone()
     {
@@ -155,14 +158,24 @@ public class Date implements Cloneable {
     }
 
     public Date firstDateOfLastMonth() {
-        final Calendar copy = (Calendar) this.firstDateOfThisMonth().calendar.clone();
-        copy.add(Calendar.MONTH,-1);
-        return new Date(copy);
+        return firstDateOfNPreviousMonths(1);
     }
 
     public Date lastDateOfLastMonth() {
         final Calendar copy = (Calendar) this.lastDateOfThisMonth().calendar.clone();
         copy.add(Calendar.MONTH,-1);
+        return new Date(copy);
+    }
+
+    public Date firstDateOfNPreviousMonths(int n) {
+        final Calendar copy = (Calendar) this.firstDateOfThisMonth().calendar.clone();
+        copy.add(Calendar.MONTH,-Math.abs(n));
+        return new Date(copy);
+    }
+
+    public Date firstDateOfNNextMonths(int n) {
+        final Calendar copy = (Calendar) this.firstDateOfThisMonth().calendar.clone();
+        copy.add(Calendar.MONTH,Math.abs(n));
         return new Date(copy);
     }
 }

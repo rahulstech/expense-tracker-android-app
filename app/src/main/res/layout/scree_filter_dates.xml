@@ -49,7 +49,7 @@
                 android:textSize="@dimen/text_size_medium" />
 
             <Button
-                android:id="@+id/date"
+                android:id="@+id/when"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/padding_horizontal_small"

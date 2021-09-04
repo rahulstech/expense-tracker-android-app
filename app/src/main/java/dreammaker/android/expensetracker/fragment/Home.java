@@ -80,8 +80,7 @@ public class Home extends Fragment implements View.OnClickListener {
         transactions.setOnClickListener(this);
         moneyTransfer.setOnClickListener(this);
         Helper.setTitle(getActivity(), R.string.app_name);
-        viewModel.getBalanceAndDueSummaryLiveData().observe(getViewLifecycleOwner(), summary->
-                onUpdateBalanceAndDueSummary(summary));
+        viewModel.getBalanceAndDueSummaryLiveData().observe(getViewLifecycleOwner(), this::onUpdateBalanceAndDueSummary);
     }
 
     @Override
@@ -97,13 +96,9 @@ public class Home extends Fragment implements View.OnClickListener {
             navController.navigate(R.id.action_home_to_transactionsList);
         }
         else if (v == addTransaction){
-            viewModel.countAccounts(r -> {
-                if (r > 0) {
-                    viewModel.setWorkingTransaction(new Transaction());
-                    if (DEBUG) {
-                        Transaction t = viewModel.getWorkingTransaction();
-                        Log.d(TAG,t.toString());
-                    }
+            viewModel.hasAnyAccount(r -> {
+                if (r) {
+                    viewModel.setWorkingTransaction(null);
                     navController.navigate(R.id.action_home_to_inputTransaction);
                 }
                 else
@@ -111,13 +106,7 @@ public class Home extends Fragment implements View.OnClickListener {
             });
         }
         else if (v == moneyTransfer) {
-            viewModel.countAccounts(r -> {
-                if (r > 1)
-                    navController.navigate(R.id.action_home_to_moneyTransfer);
-                else
-                    showQuickMessage(R.string.message_money_transfer_accounts_not_enough);
-            });
-
+            navController.navigate(R.id.action_home_to_moneyTransferHistory);
         }
     }
 

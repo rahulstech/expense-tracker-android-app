@@ -1,8 +1,6 @@
 package dreammaker.android.expensetracker.fragment;
 
 import android.content.Context;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -58,18 +56,6 @@ public class InputAccount extends BaseFragment<InputAccount.InputAccountViewHold
         calculatorKeyboard = getCalculatorKeyboard();
         vh.save.setOnClickListener(this);
         vh.cancel.setOnClickListener(this);
-        vh.accountName.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                viewModel.getSelectedAccount().setAccountName(s.toString());
-            }
-        });
         viewModel.setOperationCallback(callback);
         viewModel.getSelectedAccountLiveData().observe(this, account -> populateWithInitialValues(vh,account));
     }
@@ -77,13 +63,18 @@ public class InputAccount extends BaseFragment<InputAccount.InputAccountViewHold
     @Override
     protected void onBindFragmentViewHolder(@NonNull InputAccountViewHolder vh) {
         navController = Navigation.findNavController(vh.getRoot());
-        calculatorKeyboard.registerEditText(vh.balance);
     }
 
     @Override
     public void onPause() {
-        calculatorKeyboard.unregisterEditText(getViewHolder().balance);
+        calculatorKeyboard.hideCalculatorKeyboard();
         super.onPause();
+    }
+
+    @Override
+    public boolean onBackPressed() {
+        if (calculatorKeyboard.onBackPressed()) return true;
+        return super.onBackPressed();
     }
 
     @Override
@@ -103,22 +94,25 @@ public class InputAccount extends BaseFragment<InputAccount.InputAccountViewHold
     private void onSave() {
         getViewHolder().accountNameInput.setError(null);
         getViewHolder().balanceInput.setError(null);
-
         final Account account = viewModel.getSelectedAccount();
+        float _balance;
         try{
-            float _balance = calculatorKeyboard.calculate(getViewHolder().balance.getEditableText());
-            account.setBalance(_balance);
+            _balance = calculatorKeyboard.calculate(getViewHolder().balance.getEditableText());
+            if (_balance < 0) {
+                throw new IllegalArgumentException("negative balance");
+            }
         }
         catch (Exception e){
             getViewHolder().balanceInput.setError(getString(R.string.error_invalid_amount));
             return;
         }
-
-        String name = account.getAccountName();
+        String name = getViewHolder().accountName.getText().toString();
         if (Check.isEmptyString(name)){
             getViewHolder().accountNameInput.setError(getText(R.string.error_empty_account_name));
             return;
         }
+        account.setAccountName(name);
+        account.setBalance(_balance);
 
         if (account.getAccountId() <= 0){
             viewModel.insertAccount(account);
@@ -147,7 +141,7 @@ public class InputAccount extends BaseFragment<InputAccount.InputAccountViewHold
     }
 
     private CalculatorKeyboard getCalculatorKeyboard() {
-        return ((MainActivity) getActivity()).getCalculatorKeyboard();
+        return new CalculatorKeyboard(getActivity(),getViewHolder().balance);
     }
 
     private OperationCallback callback = new OperationCallback(){
@@ -159,7 +153,9 @@ public class InputAccount extends BaseFragment<InputAccount.InputAccountViewHold
         @Override
         public void onCompleteUpdate(boolean success) {
             onCompleteSave(success);
-            navController.popBackStack();
+            if (success) {
+                navController.popBackStack();
+            }
         }
     };
 
@@ -175,9 +171,9 @@ public class InputAccount extends BaseFragment<InputAccount.InputAccountViewHold
         public InputAccountViewHolder(@NonNull View root) {
             super(root);
             accountNameInput = findViewById(R.id.account_name_input);
-            accountName = findViewById(R.id.person_name);
+            accountName = findViewById(R.id.to_account);
             cancel = findViewById(R.id.cancel);
-            save = findViewById(R.id.save);
+            save = findViewById(R.id.btn_restore);
             balanceInput = findViewById(R.id.balance_input);
             balance = findViewById(R.id.balance);
         }

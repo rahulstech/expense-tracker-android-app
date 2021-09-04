@@ -1,9 +1,8 @@
 package dreammaker.android.expensetracker.database;
 
-import java.util.Objects;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.room.Ignore;
 import androidx.room.Relation;
 import dreammaker.android.expensetracker.util.Check;
 import dreammaker.android.expensetracker.util.Date;
@@ -14,8 +13,8 @@ public class TransactionDetails extends Transaction {
     @Relation(parentColumn = "person_id", entityColumn = "_id")
     private Person person = null;
 
-    public TransactionDetails(long transactionId, long accountId, Long personId, float amount, int type, @NonNull Date date, String description) {
-        super(transactionId, accountId, personId, amount, type, date, description);
+    public TransactionDetails(long transactionId, long accountId, Long personId, float amount, int type, @NonNull Date date, boolean deleted, String description) {
+        super(transactionId, accountId, personId, amount, type, date, deleted, description);
     }
 
     @NonNull

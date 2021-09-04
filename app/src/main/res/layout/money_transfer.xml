@@ -13,7 +13,7 @@
         android:paddingRight="@dimen/padding_horizontal_small">
 
         <Button
-            android:id="@+id/date"
+            android:id="@+id/when"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_horizontal_small"
@@ -30,11 +30,11 @@
             android:text="@string/cancel"
             app:backgroundTint="@android:color/white"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/save"
+            app:layout_constraintEnd_toStartOf="@id/btn_restore"
             app:layout_constraintTop_toBottomOf="@id/description_input" />
 
         <Button
-            android:id="@+id/save"
+            android:id="@+id/btn_restore"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_vertical_medium"
@@ -53,7 +53,7 @@
             app:layout_constraintBottom_toTopOf="@+id/account_to"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/label_account_from"
-            app:layout_constraintTop_toBottomOf="@+id/date" />
+            app:layout_constraintTop_toBottomOf="@+id/when" />
 
         <Spinner
             android:id="@+id/account_to"
@@ -74,7 +74,7 @@
             android:textSize="@dimen/text_size_medium"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBottom_toTopOf="@+id/label_account_from"
-            app:layout_constraintEnd_toStartOf="@id/date"
+            app:layout_constraintEnd_toStartOf="@id/when"
             app:layout_constraintTop_toBottomOf="@+id/amount_input" />
 
         <TextView
