@@ -86,7 +86,7 @@ public class SettingsActivity extends BaseActivity {
         String date = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext())
                 .getString(KEY_NEXT_AUTO_DELETE_DATE,null);
         if (null != date && !"".equals(date)) {
-            return Date.valueOf(date);
+            return Date.valueOf(date,Date.ISO_DATE_PATTERN);
         }
         return null;
     }
@@ -102,14 +102,14 @@ public class SettingsActivity extends BaseActivity {
                 break;
             case "one_year": months = 12;
         }
+        Date date = null;
         if (months > 0) {
-            Date date = new Date().firstDateOfNNextMonths(months);
-            Log.d(TAG,date.toString());
-            PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext())
-                    .edit()
-                    .putString(KEY_NEXT_AUTO_DELETE_DATE,null == date ? null : date.format(Date.ISO_DATE_PATTERN))
-                    .apply();
+            date = new Date().firstDateOfNNextMonths(months);
         }
+        PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext())
+                .edit()
+                .putString(KEY_NEXT_AUTO_DELETE_DATE,null == date ? null : date.format(Date.ISO_DATE_PATTERN))
+                .apply();
     }
 
     public static void setAutoDeleteDuration(Context context, String newDuration) {

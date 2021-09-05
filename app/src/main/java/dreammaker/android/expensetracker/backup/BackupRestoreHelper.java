@@ -23,7 +23,6 @@ import androidx.preference.PreferenceManager;
 import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
-import androidx.work.Operation;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 import androidx.work.WorkQuery;
@@ -195,6 +194,7 @@ public class BackupRestoreHelper {
 
     public static void onBackupSuccessful(@NonNull Context appContext) {
         setLastLocalBackupDate(appContext, new Date());
+        backupNext(appContext);
     }
 
     public static void restore(@NonNull Context context, @NonNull Uri from) {

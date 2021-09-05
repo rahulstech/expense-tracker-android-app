@@ -129,10 +129,12 @@ public class WorkActionService extends Service {
         if (null != autoDeleteWork) return;
         Date nextDate = getNextAutoDeleteDate(this);
         if (null != nextDate && nextDate.equals(new Date())) {
-            this.autoDeleteWork = new AutoDeleteWork(this, successful -> {
+            AutoDeleteWork task = new AutoDeleteWork(this, successful -> {
                 setNextAutoDeleteDate(this);
                 this.autoDeleteWork = null;
             });
+            AppExecutor.getDiskOperationsExecutor().execute(task);
+            autoDeleteWork = task;
         }
         else {
             stopSelf();
@@ -240,12 +242,4 @@ public class WorkActionService extends Service {
         LiveData<WorkInfo> workInfoLiveData;
         Observer<WorkInfo> workInfoObserver;
     }
-
-
-    /*
-    Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                        .setData(Uri.fromParts("package", getPackageName(), null))
-                        .addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-     */
 }

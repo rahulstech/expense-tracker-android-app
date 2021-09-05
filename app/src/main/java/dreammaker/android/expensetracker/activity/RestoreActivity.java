@@ -1,16 +1,5 @@
 package dreammaker.android.expensetracker.activity;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import dreammaker.android.expensetracker.R;
-import dreammaker.android.expensetracker.backup.BackupRestoreHelper;
-import dreammaker.android.expensetracker.backup.WorkActionService;
-
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -20,6 +9,16 @@ import android.provider.Settings;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import dreammaker.android.expensetracker.R;
+import dreammaker.android.expensetracker.backup.BackupRestoreHelper;
 
 public class RestoreActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -100,14 +99,4 @@ public class RestoreActivity extends AppCompatActivity implements View.OnClickLi
     private void startRestore(@NonNull Uri restoreFrom) {
         BackupRestoreHelper.restore(this,restoreFrom);
     }
-
-    /*new AlertDialog.Builder(this)
-            .setMessage(R.string.description_open_settings_allow_permission)
-                    .setPositiveButton(R.string.open_settings, (dialogInterface, i) ->
-    startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                                    .setData(Uri.fromParts("package", getPackageName(), null))
-            .addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
-                                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)))
-            .setNegativeButton(R.string.cancel, null)
-                    .show();*/
 }

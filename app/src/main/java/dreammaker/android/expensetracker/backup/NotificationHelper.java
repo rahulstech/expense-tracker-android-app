@@ -5,25 +5,14 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.StringRes;
-import androidx.core.app.NotificationChannelCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
-import androidx.core.graphics.drawable.IconCompat;
-import dreammaker.android.expensetracker.BuildConfig;
 import dreammaker.android.expensetracker.R;
 
 public class NotificationHelper  {

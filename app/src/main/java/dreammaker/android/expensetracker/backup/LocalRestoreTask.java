@@ -3,7 +3,6 @@ package dreammaker.android.expensetracker.backup;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.util.Log;
 
@@ -13,7 +12,6 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 
 import androidx.annotation.NonNull;
-import androidx.preference.PreferenceManager;
 import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.activity.MainActivity;
 import dreammaker.android.expensetracker.activity.RestoreActivity;
@@ -84,8 +82,7 @@ public class LocalRestoreTask implements Runnable {
             Gson gson = createNewGSONInstance();
             BackupData data = gson.fromJson(reader,BackupData.class);
             restoreAppData(data);
-            if (data.getVersion() > VERSION_6)
-                restoreSettings(data.getSettings());
+            restoreSettings(data);
         }
     }
 
@@ -93,8 +90,7 @@ public class LocalRestoreTask implements Runnable {
         bkpDao.insertAccounts(data.getAccounts());
         bkpDao.insertPeople(data.getPeople());
         bkpDao.insertTransactions(data.getTransactions());
-
-        if (!data.getTransactions().isEmpty() && data.getVersion() > VERSION_5) {
+        if (!data.getTransactions().isEmpty() && data.getVersion() < VERSION_6) {
             bkpDao.setAccountsBalancesAndPeopleDues();
         }
         if (data.getVersion() > VERSION_6) {
@@ -102,7 +98,9 @@ public class LocalRestoreTask implements Runnable {
         }
     }
 
-    private void restoreSettings(BackupData.SettingsData settings) {
+    private void restoreSettings(BackupData data) {
+        if (data.getVersion() <= VERSION_6) return;
+        BackupData.SettingsData settings = data.getSettings();
         BackupRestoreHelper.setBackupAutoScheduleDuration(service,settings.getBackupAutoScheduleDuration());
         SettingsActivity.setAutoDeleteDuration(service,settings.getAutoDeleteDuration());
     }

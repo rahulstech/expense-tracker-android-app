@@ -2,9 +2,12 @@ package dreammaker.android.expensetracker.activity;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -20,6 +23,8 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
@@ -125,6 +130,17 @@ public class BackupRestoreActivity extends BaseActivity implements View.OnClickL
         if (PackageManager.PERMISSION_GRANTED ==
                 ContextCompat.checkSelfPermission(this,Manifest.permission.WRITE_EXTERNAL_STORAGE))
             onStartLocalBackup();
+        else if (ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            new AlertDialog.Builder(this)
+                    .setMessage(R.string.description_open_settings_allow_permission)
+                    .setPositiveButton(R.string.open_settings, (dialogInterface, i) ->
+                            startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                                    .setData(Uri.fromParts("package", getPackageName(), null))
+                                    .addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
+                                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)))
+                    .setNegativeButton(R.string.cancel, null)
+                    .show();
+        }
         else
             requestPermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE);
     }
@@ -144,10 +160,8 @@ public class BackupRestoreActivity extends BaseActivity implements View.OnClickL
 
     private void onUpdateBackupProgress(@Nullable List<WorkInfo> infos) {
         if (null != infos && !infos.isEmpty()) {
-            WorkInfo info = infos.get(0);
-            Log.d(TAG,info.toString());
-            WorkInfo.State state = info.getState();
-            changeEnableBackupButtonAndAutoSchedulesSpinner(WorkInfo.State.ENQUEUED == state);
+            WorkInfo.State state = infos.get(0).getState();
+            // TODO: handle disable
         }
     }
 
@@ -162,7 +176,6 @@ public class BackupRestoreActivity extends BaseActivity implements View.OnClickL
         //btnBackupCancel.setVisibility(showCancel ? View.VISIBLE : View.GONE);
     }
     */
-
 
     private void changeEnableBackupButtonAndAutoSchedulesSpinner(boolean enable) {
         backup.setClickable(enable);
@@ -213,16 +226,4 @@ public class BackupRestoreActivity extends BaseActivity implements View.OnClickL
             vh.setContentText(getItem(position));
         }
     }
-
-    /**
-     * new AlertDialog.Builder(this)
-     *                     .setMessage(R.string.description_open_settings_allow_permission)
-     *                     .setPositiveButton(R.string.open_settings, (dialogInterface, i) ->
-     *                             startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-     *                                     .setData(Uri.fromParts("package", getPackageName(), null))
-     *                                     .addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
-     *                                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)))
-     *                     .setNegativeButton(R.string.cancel, null)
-     *                     .show();
-     */
 }
