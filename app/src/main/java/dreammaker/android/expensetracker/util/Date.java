@@ -1,5 +1,7 @@
 package dreammaker.android.expensetracker.util;
 
+import android.util.Log;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.text.SimpleDateFormat;
@@ -7,6 +9,9 @@ import java.util.Calendar;
 import java.util.Locale;
 
 public class Date implements Cloneable {
+
+    private static final String TAG = "Date";
+
     public static final String ISO_DATE_PATTERN = "yyyy-MM-dd";
 
     private Calendar calendar;
@@ -33,8 +38,10 @@ public class Date implements Cloneable {
             date.calendar.setTime(src);
             return date;
         }
-        catch(Exception ignore){}
-        return new Date();
+        catch(Exception ex){
+            Log.e(TAG,ex.getMessage());
+            throw new RuntimeException(ex);
+        }
     }
 
     public static Date valueOf(String dateString){
@@ -153,7 +160,7 @@ public class Date implements Cloneable {
 
     public Date lastDateOfThisMonth() {
         final Calendar copy = (Calendar) this.calendar.clone();
-        copy.set(Calendar.DAY_OF_MONTH, copy.getMaximum(Calendar.DAY_OF_MONTH));
+        copy.set(Calendar.DAY_OF_MONTH, copy.getActualMaximum(Calendar.DAY_OF_MONTH));
         return new Date(copy);
     }
 
@@ -162,8 +169,9 @@ public class Date implements Cloneable {
     }
 
     public Date lastDateOfLastMonth() {
-        final Calendar copy = (Calendar) this.lastDateOfThisMonth().calendar.clone();
+        final Calendar copy = (Calendar) this.calendar.clone();
         copy.add(Calendar.MONTH,-1);
+        copy.set(Calendar.DAY_OF_MONTH,copy.getActualMaximum(Calendar.DAY_OF_MONTH));
         return new Date(copy);
     }
 

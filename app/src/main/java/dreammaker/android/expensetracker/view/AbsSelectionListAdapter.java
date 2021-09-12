@@ -90,8 +90,10 @@ public abstract class AbsSelectionListAdapter<T,VH extends ViewHolder> extends B
 
     protected final void setChecked(int position, boolean checked) {
         final T item = getItem(position);
-        if (checked && !checkedItems.contains(item))
-            checkedItems.add(item);
+        if (checked) {
+            if (!checkedItems.contains(item))
+                checkedItems.add(item);
+        }
         else
             checkedItems.remove(item);
     }

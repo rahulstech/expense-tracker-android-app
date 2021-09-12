@@ -23,6 +23,7 @@ import dreammaker.android.expensetracker.backup.BackupRestoreHelper;
 import dreammaker.android.expensetracker.backup.WorkActionService;
 import dreammaker.android.expensetracker.util.CalculatorKeyboard;
 import dreammaker.android.expensetracker.util.Check;
+import dreammaker.android.expensetracker.util.Date;
 
 public class MainActivity extends BaseActivity {
 
@@ -73,8 +74,12 @@ public class MainActivity extends BaseActivity {
     }
 
     private void checkForAutoDelete() {
-        startService(new Intent(this, WorkActionService.class)
-                .setAction(WorkActionService.ACTION_AUTO_DELETE_START));
+        Date nextDate = SettingsActivity.getNextAutoDeleteDate(this);
+        Date today = new Date();
+        if (null != nextDate && today.equals(nextDate)) {
+            startService(new Intent(this, WorkActionService.class)
+                    .setAction(WorkActionService.ACTION_AUTO_DELETE_START));
+        }
     }
 
     @Override

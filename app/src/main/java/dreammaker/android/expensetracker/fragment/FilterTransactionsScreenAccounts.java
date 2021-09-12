@@ -91,13 +91,8 @@ public class FilterTransactionsScreenAccounts extends BaseFragment<FilterTransac
                 return false;
             }
         });
-        viewModel.getAllAccountsNameAndId().observe(this, accounts -> {
-            onAccountsLoaded(accounts);
-        });
+        viewModel.getAllAccountsNameAndId().observe(this, this::onAccountsLoaded);
     }
-
-    @Override
-    protected void onBindFragmentViewHolder(@NonNull FilterTransactionsScreenSearchableListContentViewHolder vh) { }
 
     private void onAccountsLoaded(List<Account> accounts) {
         adapter.changeList(accounts);

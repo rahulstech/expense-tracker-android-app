@@ -22,11 +22,11 @@ import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.activity.BackupRestoreActivity;
-import dreammaker.android.expensetracker.activity.SettingsActivity;
 import dreammaker.android.expensetracker.util.AppExecutor;
 import dreammaker.android.expensetracker.util.Date;
 
-import static dreammaker.android.expensetracker.activity.SettingsActivity.*;
+import static dreammaker.android.expensetracker.activity.SettingsActivity.getNextAutoDeleteDate;
+import static dreammaker.android.expensetracker.activity.SettingsActivity.setNextAutoDeleteDate;
 import static dreammaker.android.expensetracker.backup.BackupRestoreHelper.BACKUP_NOTIFICATION_ID;
 import static dreammaker.android.expensetracker.backup.BackupRestoreHelper.BACKUP_WORK_TAG;
 import static dreammaker.android.expensetracker.backup.BackupRestoreHelper.KEY_BACKUP_FILE;
@@ -127,18 +127,12 @@ public class WorkActionService extends Service {
 
     private void onStartAutoDelete() {
         if (null != autoDeleteWork) return;
-        Date nextDate = getNextAutoDeleteDate(this);
-        if (null != nextDate && nextDate.equals(new Date())) {
-            AutoDeleteWork task = new AutoDeleteWork(this, successful -> {
-                setNextAutoDeleteDate(this);
-                this.autoDeleteWork = null;
-            });
-            AppExecutor.getDiskOperationsExecutor().execute(task);
-            autoDeleteWork = task;
-        }
-        else {
-            stopSelf();
-        }
+        AutoDeleteWork task = new AutoDeleteWork(this, successful -> {
+            setNextAutoDeleteDate(this);
+            this.autoDeleteWork = null;
+        });
+        AppExecutor.getDiskOperationsExecutor().execute(task);
+        autoDeleteWork = task;
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////

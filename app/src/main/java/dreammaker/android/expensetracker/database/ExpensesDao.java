@@ -1,6 +1,7 @@
 package dreammaker.android.expensetracker.database;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -19,7 +20,6 @@ import dreammaker.android.expensetracker.util.Date;
 
 import static dreammaker.android.expensetracker.database.ExpensesContract.AboutAccountColumns.BALANCE;
 import static dreammaker.android.expensetracker.database.ExpensesContract.AboutPersonColumns.DUE_PAYMENT;
-import static dreammaker.android.expensetracker.database.ExpensesContract.AccountsColumns.ACCOUNT_NAME;
 import static dreammaker.android.expensetracker.database.ExpensesContract.BalanceAndDueSummaryColumns.COUNT_ACCOUNTS;
 import static dreammaker.android.expensetracker.database.ExpensesContract.BalanceAndDueSummaryColumns.COUNT_PEOPLE;
 import static dreammaker.android.expensetracker.database.ExpensesContract.BalanceAndDueSummaryColumns.TOTAL_BALANCE;
@@ -53,7 +53,7 @@ public abstract class ExpensesDao {
     @Query("SELECT COUNT("+ ExpensesContract.AccountsColumns._ID +") FROM "+ACCOUNTS_TABLE)
     public abstract long countAccounts();
 
-    @Query("SELECT * FROM `accounts` WHERE `balance` > 0;")
+    @Query("SELECT * FROM `accounts`")
     public abstract LiveData<List<Account>> getAllAccounts();
 
     @Update
@@ -254,22 +254,26 @@ public abstract class ExpensesDao {
         }
 
         public TransactionDetailsQueryBuilder minDate(Date minDate){
-            this.minDate = minDate;
+            if (null != minDate)
+                this.minDate = minDate.clone();
             return this;
         }
 
         public TransactionDetailsQueryBuilder maxDate(Date maxDate){
-            this.maxDate = maxDate;
+            if (null != maxDate)
+                this.maxDate = maxDate.clone();
             return this;
         }
 
         public TransactionDetailsQueryBuilder accounts(List<Account> accounts) {
-            this.accounts = accounts;
+            this.accounts = null == accounts || accounts.isEmpty() ? Collections.EMPTY_LIST
+                    : new ArrayList<>(accounts);
             return this;
         }
 
         public TransactionDetailsQueryBuilder people(List<Person> people) {
-            this.people = people;
+            this.people = null == people || people.isEmpty() ? Collections.EMPTY_LIST
+                    : new ArrayList<>(people);
             return this;
         }
 

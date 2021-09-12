@@ -27,8 +27,9 @@ public class PeopleSelectionAdapter extends AbsSelectionListAdapter<Person, Peop
     @Override
     public void changeList(List<Person> newData) {
         this.original = newData;
-        ArrayList<Person> people = new ArrayList<>(newData);
+        ArrayList<Person> people = new ArrayList<>();
         people.add(0, NONE);
+        if (null != newData) people.addAll(newData);
         super.changeList(people);
     }
 
@@ -38,31 +39,13 @@ public class PeopleSelectionAdapter extends AbsSelectionListAdapter<Person, Peop
     }
 
     @Override
-    public void setCheckedItems(List<Person> items) {
-        if (null != items && items.remove(null)) {
-            items.add(NONE);
-        }
-        super.setCheckedItems(items);
-    }
-
-    @Override
     public boolean onMatch(@Nullable Person item, @NonNull String key) {
-        if (null == item)
-            item = NONE;
         return item.getPersonName().toLowerCase().contains(key.toLowerCase());
     }
 
     @Override
-    public Person getItem(int position) {
-        Person item = super.getItem(position);
-        if (null != item && item.getPersonId() == NO_ID)
-            return null;
-        return item;
-    }
-
-    @Override
     protected long getItemId(@NonNull Person item) {
-        return item == null ? NO_ID : item.getPersonId();
+        return item.getPersonId();
     }
 
     @Override
@@ -75,7 +58,7 @@ public class PeopleSelectionAdapter extends AbsSelectionListAdapter<Person, Peop
     @Override
     protected void onBindViewHolder(@NonNull PersonSelectionViewHolder vh, int position, boolean checked) {
         final Person person = getItem(position);
-        vh.bind(person == null ? NONE : person);
+        vh.bind(person);
     }
 
     public static class PersonSelectionViewHolder extends ViewHolder{

@@ -35,8 +35,6 @@ import dreammaker.android.expensetracker.util.ResultCallback;
 
 public class BackupRestoreHelper {
 
-    private static final String TAG = "BackupRestoreHelper";
-
     public static final int VERSION_5 = 5;
     public static final int VERSION_6 = 6;
     public static final int VERSION_7 = 7;
@@ -131,7 +129,7 @@ public class BackupRestoreHelper {
                 ExpensesBackupDao dao = ExpensesDatabase.getInstance(appContext).getBackupDao();
                 final boolean isRequired = dao.isDatabaseEmpty();
                 AppExecutor.getMainThreadExecutor().execute(() -> {
-                    if (null != callback) callback.onResult(isRequired);
+                    callback.onResult(isRequired);
                     setFirstRestoreAsked(appContext, true);
                 });
             });

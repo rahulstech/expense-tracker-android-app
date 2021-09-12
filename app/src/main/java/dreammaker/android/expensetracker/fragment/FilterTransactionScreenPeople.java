@@ -92,9 +92,6 @@ public class FilterTransactionScreenPeople extends BaseFragment<FilterTransactio
         viewModel.getAllPersonNamAndId().observe(this, this::onPeopleLoaded);
     }
 
-    @Override
-    protected void onBindFragmentViewHolder(@NonNull FilterTransactionsScreenPeopleViewHolder vh) {}
-
     private void onPeopleLoaded(List<Person> people) {
         adapter.changeList(people);
         adapter.setCheckedItems(viewModel.getWorkingFilterParams().getSelectedPeople());
