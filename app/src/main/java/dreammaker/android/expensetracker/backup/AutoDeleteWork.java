@@ -57,23 +57,23 @@ public class AutoDeleteWork implements Runnable {
 
     private void delete() {
         String autoDeleteDuration = SettingsActivity.getAutoDeleteDuration(service);
-        Date now = new Date();
+        Date now = Date.today();
         Date date;
         switch (autoDeleteDuration) {
             case "one_month": {
-                date = now.firstDateOfNPreviousMonths(1);
+                date = now.lastMonth().atMonthStart();
             }
             break;
             case "three_month": {
-                date = now.firstDateOfNPreviousMonths(3);
+                date = now.add(Date.MONTH,-3).atMonthStart();
             }
             break;
             case "six_month": {
-                date = now.firstDateOfNPreviousMonths(6);
+                date = now.add(Date.MONTH,-6).atMonthStart();
             }
             break;
             case "one_year": {
-                date = now.firstDateOfNPreviousMonths(12);
+                date = now.add(Date.MONTH,12).atMonthStart();
             }
             break;
             default: {

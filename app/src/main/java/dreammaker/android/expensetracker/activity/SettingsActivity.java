@@ -104,7 +104,7 @@ public class SettingsActivity extends BaseActivity {
         }
         Date date = null;
         if (months > 0) {
-            date = new Date().firstDateOfNNextMonths(months);
+            date = Date.today().add(Date.MONTH,months).atMonthStart();
         }
         PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext())
                 .edit()

@@ -1,2 +1,7 @@
 include ':app'
 rootProject.name='Expense Tracker'
+include ':expense-database'
+include ':core'
+include ':ui'
+include ':background'
+include ':calculator'

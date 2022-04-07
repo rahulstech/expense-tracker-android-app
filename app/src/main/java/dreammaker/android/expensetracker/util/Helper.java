@@ -5,10 +5,6 @@ import android.content.Context;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
@@ -85,4 +81,6 @@ public class Helper {
     }
     return context.getString(resId, args);
   }
+
+
 }

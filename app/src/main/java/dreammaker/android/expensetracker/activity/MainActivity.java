@@ -15,13 +15,11 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.backup.BackupRestoreHelper;
 import dreammaker.android.expensetracker.backup.WorkActionService;
-import dreammaker.android.expensetracker.util.CalculatorKeyboard;
 import dreammaker.android.expensetracker.util.Check;
 import dreammaker.android.expensetracker.util.Date;
 
@@ -75,7 +73,7 @@ public class MainActivity extends BaseActivity {
 
     private void checkForAutoDelete() {
         Date nextDate = SettingsActivity.getNextAutoDeleteDate(this);
-        Date today = new Date();
+        Date today = Date.today();
         if (null != nextDate && today.equals(nextDate)) {
             startService(new Intent(this, WorkActionService.class)
                     .setAction(WorkActionService.ACTION_AUTO_DELETE_START));

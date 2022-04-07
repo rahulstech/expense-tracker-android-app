@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string-array name="base_numbers_words">
+		<item></item>
+		<item>এক</item>
+		<item>দুই</item>
+		<item>তিন</item>
+		<item>চার</item>
+		<item>পাঁচ</item>
+		<item>ছয়</item>
+		<item>সাত</item>
+		<item>আট</item>
+		<item>নয়</item>
+		<item>দশ</item>
+		<item>এগারো</item>
+		<item>বারো</item>
+		<item>তেরো</item>
+		<item>চোদ্দো</item>
+		<item>পনেরো</item>
+		<item>ষোলো</item>
+		<item>সাতেরো</item>
+		<item>আঠারো</item>
+		<item>উনিশ</item>
+		<item>কুড়ি</item>
+		<item>একুশ</item>
+		<item>বাইশ</item>
+		<item>তেইশ</item>
+		<item>চব্বিশ</item>
+		<item>পঁচিশ</item>
+		<item>ছাব্বিশ</item>
+		<item>সাতাশ</item>
+		<item>আঠাশ</item>
+		<item>ঊনত্রিশ</item>
+		<item>তিরিশ</item>
+		<item>একত্রিশ</item>
+		<item>বত্রিশ</item>
+		<item>তেত্রিশ</item>
+		<item>চৌত্রিশ</item>
+		<item>পঁয়ত্রিশ</item>
+		<item>ছত্রিশ</item>
+		<item>সাইত্রিশ</item>
+		<item>আটত্রিশ</item>
+		<item>ঊনচল্লিশ</item>
+		<item>চল্লিশ</item>
+		<item>একচল্লিশ</item>
+		<item>বিয়াল্লিশ</item>
+		<item>তেতাল্লিশ</item>
+		<item>চুয়াল্লিশ</item>
+		<item>পঁয়তাল্লিশ</item>
+		<item>ছেচল্লিশ</item>
+		<item>সাতচল্লিশ</item>
+		<item>আটচল্লিশ</item>
+		<item>ঊপঞ্চাশ</item>
+		<item>পঞ্চাশ</item>
+		<item>একান্ন</item>
+		<item>বাহান্ন</item>
+		<item>তেপান্ন</item>
+		<item>চুয়ান্ন</item>
+		<item>পনচান্ন</item>
+		<item>ছাপান্ন</item>
+		<item>সাতান্ন</item>
+		<item>আটান্ন</item>
+		<item>ঊনষাঠ</item>
+		<item>ষাঠ</item>
+		<item>একষট্টি</item>
+		<item>বাষট্টি</item>
+		<item>তেষট্টি</item>
+		<item>চৌষট্টি</item>
+		<item>পঁয়ষট্টি</item>
+		<item>ছেষট্টি</item>
+		<item>সাতষট্টি</item>
+		<item>আটষট্টি</item>
+		<item>ঊনসত্তর</item>
+		<item>সত্তর</item>
+		<item>একাত্তর</item>
+		<item>বাহাত্তর</item>
+		<item>তিয়াত্তর</item>
+		<item>চুয়াত্তর</item>
+		<item>পঁচাত্তর</item>
+		<item>ছিয়াত্তর</item>
+		<item>সাতাত্তর</item>
+		<item>আটাত্তর</item>
+		<item>ঊনআশি</item>
+		<item>আশি</item>
+		<item>একাশি</item>
+		<item>বিরাশি</item>
+		<item>তিরাশি</item>
+		<item>চুরাশি</item>
+		<item>পঁচাশি</item>
+		<item>ছিয়াশি</item>
+		<item>সাতাশি</item>
+		<item>আটাশি</item>
+		<item>ঊনানব্বই</item>
+		<item>নব্বই</item>
+		<item>একানব্বই</item>
+		<item>বিরানব্বই</item>
+		<item>তিরানব্বই</item>
+		<item>চুরানব্বই</item>
+		<item>পঁচানব্বই</item>
+		<item>ছিয়ানব্বই</item>
+		<item>সাতানব্বই</item>
+		<item>আটানব্বই</item>
+		<item>নিরানব্বই</item>
+	</string-array>
+
+	<string name="hundred">শত</string>
+	<string name="thousand">হাজার</string>
+	<string name="lakh">লক্ষ</string>
+	<string name="million">মিলিয়ন</string>
+
+	<string name="hundreds">শত</string>
+	<string name="thousands">হাজার</string>
+	<string name="lakhs">লক্ষ</string>
+	<string name="millions">মিলিয়ন</string>
+
+	<string-array name="digits">
+		<item>০</item>
+		<item>১</item>
+		<item>২</item>
+		<item>৩</item>
+		<item>৪</item>
+		<item>৫</item>
+		<item>৬</item>
+		<item>৭</item>
+		<item>৮</item>
+		<item>৯</item>
+	</string-array>
+</resources>

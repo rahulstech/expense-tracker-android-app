@@ -1,0 +1,26 @@
+> calculator keyboard will be shown via a popup window: using https://github.com/stefanhaustein/Emoji-1
+> calculator will be changed to expression evaluation via reversed polished notation
+> complete app UI will be updated according to the planning_for_v6.jpg and night theme will be added
+  with restore after configuration change support (currently edit fields resets after screen rotation,
+  this should be fixed)
+> fragment -> activity separate activity for account and person and there will be no "person <> account" movement
+> background scheduled task will use alarm manager in place of work manager
+> sectioned list for transaction -> section by transaction date
+  and swipe menu for list item action in place of popup menu:
+  using  https://github.com/Omega-R/OmegaRecyclerView
+> shortcuts at home and widget at launcher for person
+> showing transactions other than latest via filtering transactions only for both accounts and people
+> show number in words as applicable
+> bengali locale
+> share person transactions to pdf/excel in preferred language irrespective of app language
+> add person from phone contact list
+> add trash -> contains transactions flagged 'deleted=1' -> restore
+
+============= Database Change ==============
+> add budget
+> person +col "included" -> 0: don't use for total due calculate, 1(default): use for total due calculate
+         +col email nullable
+         +col phone nullable
+         +col whatsapp nullable
+> transactions -col type -> amount < 0 : type deduction, amount > 0 : type addition
+

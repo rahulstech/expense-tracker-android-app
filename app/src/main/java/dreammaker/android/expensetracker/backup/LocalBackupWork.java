@@ -129,7 +129,7 @@ public class LocalBackupWork extends Worker {
     }
 
     private File getBackupFile() throws SecurityException {
-        Date now = new Date();
+        Date now = Date.today();
         String filename = "et_backup_"+now.format("yyyy_MM_dd")+".json";
         return new File(getBackupDirectory(),filename);
     }

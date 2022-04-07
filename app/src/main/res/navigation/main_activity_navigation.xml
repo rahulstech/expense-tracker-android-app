@@ -7,7 +7,7 @@
     <!-- Fragment Home -->
     <fragment
         android:id="@+id/home"
-        android:name="dreammaker.android.expensetracker.fragment.Home"
+        android:name="dreammaker.android.expensetracker.dreammaker.android.expensetracker.dreammaker.android.expensetracker.fragment.Home"
         android:label="@string/app_name"
         tools:layout="@layout/home">
         <action
@@ -62,18 +62,18 @@
     <!-- Fragment Input Transaction -->
     <fragment
         android:id="@+id/inputTransaction"
-        android:name="dreammaker.android.expensetracker.fragment.InputTransaction"
+        android:name="dreammaker.android.expensetracker.dreammaker.android.expensetracker.dreammaker.android.expensetracker.fragment.InputTransaction"
         android:label="@string/label_insert_transaction"
         tools:layout="@layout/input_transaction" />
 
     <!-- Fragment Money Transfer -->
     <fragment
         android:id="@+id/moneyTransfer"
-        android:name="dreammaker.android.expensetracker.fragment.InputMoneyTransfer"
+        android:name="dreammaker.android.expensetracker.dreammaker.android.expensetracker.dreammaker.android.expensetracker.fragment.InputMoneyTransfer"
         android:label="@string/label_new_money_transfer" />
     <fragment
         android:id="@+id/moneyTransferHistory"
-        android:name="dreammaker.android.expensetracker.fragment.MoneyTransferHistory"
+        android:name="dreammaker.android.expensetracker.dreammaker.android.expensetracker.dreammaker.android.expensetracker.fragment.MoneyTransferHistory"
         android:label="@string/label_money_transfer_history">
         <action
             android:id="@+id/action_moneyTransferHistory_to_moneyTransfer"
@@ -87,7 +87,7 @@
     <!-- Fragment Accounts List -->
     <fragment
         android:id="@+id/accountsList"
-        android:name="dreammaker.android.expensetracker.fragment.AccountsList"
+        android:name="dreammaker.android.expensetracker.dreammaker.android.expensetracker.dreammaker.android.expensetracker.fragment.AccountsList"
         android:label="@string/label_accounts"
         tools:layout="@layout/list_content">
         <action
@@ -127,14 +127,14 @@
     <!-- Fragment Input Account -->
     <fragment
         android:id="@+id/inputAccount"
-        android:name="dreammaker.android.expensetracker.fragment.InputAccount"
+        android:name="dreammaker.android.expensetracker.dreammaker.android.expensetracker.dreammaker.android.expensetracker.fragment.InputAccount"
         android:label="@string/label_insert_account"
         tools:layout="@layout/input_account"/>
 
     <!-- Fragment People List -->
     <fragment
         android:id="@+id/personsList"
-        android:name="dreammaker.android.expensetracker.fragment.PersonsList"
+        android:name="dreammaker.android.expensetracker.dreammaker.android.expensetracker.dreammaker.android.expensetracker.fragment.PersonsList"
         android:label="@string/label_persons_list"
         tools:layout="@layout/list_content">
         <action
@@ -166,14 +166,14 @@
     <!-- Fragment Input Person -->
     <fragment
         android:id="@+id/inputPerson"
-        android:name="dreammaker.android.expensetracker.fragment.InputPerson"
+        android:name="dreammaker.android.expensetracker.dreammaker.android.expensetracker.dreammaker.android.expensetracker.fragment.InputPerson"
         android:label="@string/label_insert_person"
         tools:layout="@layout/input_person"/>
 
     <!-- Fragment Transactions List -->
     <fragment
         android:id="@+id/transactionsList"
-        android:name="dreammaker.android.expensetracker.fragment.TransactionsList"
+        android:name="dreammaker.android.expensetracker.dreammaker.android.expensetracker.dreammaker.android.expensetracker.fragment.TransactionsList"
         android:label="@string/label_transactions_list"
         tools:layout="@layout/list_content">
         <action
@@ -197,7 +197,7 @@
     <!-- Fragment Filter Transactions -->
     <fragment
         android:id="@+id/filterTransaction"
-        android:name="dreammaker.android.expensetracker.fragment.FilterTransaction2"
+        android:name="dreammaker.android.expensetracker.dreammaker.android.expensetracker.dreammaker.android.expensetracker.fragment.FilterTransaction2"
         android:label="@string/label_filter_transaction"
         tools:layout="@layout/layout_filter_transaction"/>
 

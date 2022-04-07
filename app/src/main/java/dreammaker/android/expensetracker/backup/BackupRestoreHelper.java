@@ -191,7 +191,7 @@ public class BackupRestoreHelper {
     }
 
     public static void onBackupSuccessful(@NonNull Context appContext) {
-        setLastLocalBackupDate(appContext, new Date());
+        setLastLocalBackupDate(appContext, Date.today());
         backupNext(appContext);
     }
 
