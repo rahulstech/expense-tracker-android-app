@@ -1,21 +1,14 @@
 package dreammaker.android.expensetracker.backup;
 
-import android.app.Notification;
-import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
-import androidx.work.Worker;
-import androidx.work.WorkerParameters;
 import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.activity.SettingsActivity;
 import dreammaker.android.expensetracker.database.ExpensesDao;
 import dreammaker.android.expensetracker.database.ExpensesDatabase;
 import dreammaker.android.expensetracker.util.AppExecutor;
 import dreammaker.android.expensetracker.util.Check;
-import dreammaker.android.expensetracker.util.Date;
+import dreammaker.android.expensetracker.database.type.Date;
 import dreammaker.android.expensetracker.util.ResultCallback;
 
 public class AutoDeleteWork implements Runnable {
@@ -57,23 +50,23 @@ public class AutoDeleteWork implements Runnable {
 
     private void delete() {
         String autoDeleteDuration = SettingsActivity.getAutoDeleteDuration(service);
-        Date now = Date.today();
+        Date now = new Date();
         Date date;
         switch (autoDeleteDuration) {
             case "one_month": {
-                date = now.lastMonth().atMonthStart();
+                date = now.firstDateOfNPreviousMonths(1);
             }
             break;
             case "three_month": {
-                date = now.add(Date.MONTH,-3).atMonthStart();
+                date = now.firstDateOfNPreviousMonths(3);
             }
             break;
             case "six_month": {
-                date = now.add(Date.MONTH,-6).atMonthStart();
+                date = now.firstDateOfNPreviousMonths(6);
             }
             break;
             case "one_year": {
-                date = now.add(Date.MONTH,12).atMonthStart();
+                date = now.firstDateOfNPreviousMonths(12);
             }
             break;
             default: {

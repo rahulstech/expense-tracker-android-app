@@ -7,199 +7,24 @@
     <!-- Fragment Home -->
     <fragment
         android:id="@+id/home"
-        android:name="dreammaker.android.expensetracker.dreammaker.android.expensetracker.dreammaker.android.expensetracker.fragment.Home"
+        android:name="dreammaker.android.expensetracker.fragment.Home"
         android:label="@string/app_name"
         tools:layout="@layout/home">
-        <action
-            android:id="@+id/action_home_to_accountsList"
-            app:destination="@id/accountsList"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right"
-            app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left"
-            app:popUpTo="@+id/home"/>
-        <action
-            android:id="@+id/action_home_to_personsList"
-            app:destination="@+id/personsList"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right"
-            app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left"
-            app:popUpTo="@id/home"/>
-        <action
-            android:id="@+id/action_home_to_transactionsList"
-            app:destination="@+id/transactionsList"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right"
-            app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left"
-            app:popUpTo="@id/home"/>
-        <action
-            android:id="@+id/action_home_to_inputTransaction"
-            app:destination="@id/inputTransaction"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right"
-            app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left"
-            app:popUpTo="@id/home" />
-        <action
-            android:id="@+id/action_home_to_moneyTransfer"
-            app:destination="@id/moneyTransfer"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right"
-            app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left"
-            app:popUpTo="@id/home" />
-        <action
-            android:id="@+id/action_home_to_moneyTransferHistory"
-            app:destination="@id/moneyTransferHistory"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right"
-            app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left" />
+
+        <action android:id="@+id/home_to_activity_account"
+            app:destination="@id/activity_account"/>
+
+        <action android:id="@+id/home_to_activity_people"
+            app:destination="@id/activity_people"/>
+
     </fragment>
 
-    <!-- Fragment Input Transaction -->
-    <fragment
-        android:id="@+id/inputTransaction"
-        android:name="dreammaker.android.expensetracker.dreammaker.android.expensetracker.dreammaker.android.expensetracker.fragment.InputTransaction"
-        android:label="@string/label_insert_transaction"
-        tools:layout="@layout/input_transaction" />
+    <activity android:id="@+id/activity_account"
+        android:name="dreammaker.android.expensetracker.activity.ActivityAccount"
+        tools:layout="@layout/activity_account"/>
 
-    <!-- Fragment Money Transfer -->
-    <fragment
-        android:id="@+id/moneyTransfer"
-        android:name="dreammaker.android.expensetracker.dreammaker.android.expensetracker.dreammaker.android.expensetracker.fragment.InputMoneyTransfer"
-        android:label="@string/label_new_money_transfer" />
-    <fragment
-        android:id="@+id/moneyTransferHistory"
-        android:name="dreammaker.android.expensetracker.dreammaker.android.expensetracker.dreammaker.android.expensetracker.fragment.MoneyTransferHistory"
-        android:label="@string/label_money_transfer_history">
-        <action
-            android:id="@+id/action_moneyTransferHistory_to_moneyTransfer"
-            app:destination="@id/moneyTransfer"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right"
-            app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left" />
-    </fragment>
-
-    <!-- Fragment Accounts List -->
-    <fragment
-        android:id="@+id/accountsList"
-        android:name="dreammaker.android.expensetracker.dreammaker.android.expensetracker.dreammaker.android.expensetracker.fragment.AccountsList"
-        android:label="@string/label_accounts"
-        tools:layout="@layout/list_content">
-        <action
-            android:id="@+id/action_accountsList_to_inputAccount"
-            app:destination="@id/inputAccount"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right"
-            app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left"
-            app:popUpTo="@id/accountsList"/>
-        <action
-            android:id="@+id/action_accountsList_to_transactionsList"
-            app:destination="@id/transactionsList"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right"
-            app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left"
-            app:popUpTo="@id/accountsList" />
-        <action
-            android:id="@+id/action_accountsList_to_inputTransaction"
-            app:destination="@id/inputTransaction"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right"
-            app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left"
-            app:popUpTo="@id/accountsList" />
-        <action
-            android:id="@+id/action_accountsList_to_moneyTransfer"
-            app:destination="@id/moneyTransfer"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right"
-            app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left"
-            app:popUpTo="@id/accountsList" />
-    </fragment>
-
-    <!-- Fragment Input Account -->
-    <fragment
-        android:id="@+id/inputAccount"
-        android:name="dreammaker.android.expensetracker.dreammaker.android.expensetracker.dreammaker.android.expensetracker.fragment.InputAccount"
-        android:label="@string/label_insert_account"
-        tools:layout="@layout/input_account"/>
-
-    <!-- Fragment People List -->
-    <fragment
-        android:id="@+id/personsList"
-        android:name="dreammaker.android.expensetracker.dreammaker.android.expensetracker.dreammaker.android.expensetracker.fragment.PersonsList"
-        android:label="@string/label_persons_list"
-        tools:layout="@layout/list_content">
-        <action
-            android:id="@+id/action_personsList_to_inputPerson"
-            app:destination="@id/inputPerson"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right"
-            app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left"
-            app:popUpTo="@id/personsList" />
-        <action
-            android:id="@+id/action_personsList_to_transactionsList"
-            app:destination="@id/transactionsList"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right"
-            app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left"
-            app:popUpTo="@id/personsList" />
-        <action
-            android:id="@+id/action_personsList_to_inputTransaction"
-            app:destination="@id/inputTransaction"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right"
-            app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left"
-            app:popUpTo="@id/personsList" />
-    </fragment>
-
-    <!-- Fragment Input Person -->
-    <fragment
-        android:id="@+id/inputPerson"
-        android:name="dreammaker.android.expensetracker.dreammaker.android.expensetracker.dreammaker.android.expensetracker.fragment.InputPerson"
-        android:label="@string/label_insert_person"
-        tools:layout="@layout/input_person"/>
-
-    <!-- Fragment Transactions List -->
-    <fragment
-        android:id="@+id/transactionsList"
-        android:name="dreammaker.android.expensetracker.dreammaker.android.expensetracker.dreammaker.android.expensetracker.fragment.TransactionsList"
-        android:label="@string/label_transactions_list"
-        tools:layout="@layout/list_content">
-        <action
-            android:id="@+id/action_transactionsList_to_inputTransaction"
-            app:destination="@id/inputTransaction"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right"
-            app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left"
-            app:popUpTo="@id/transactionsList"/>
-        <action
-            android:id="@+id/action_transactionsList_to_filterTransaction"
-            app:destination="@id/filterTransaction"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right"
-            app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left"
-            app:popUpTo="@id/transactionsList"/>
-    </fragment>
-
-    <!-- Fragment Filter Transactions -->
-    <fragment
-        android:id="@+id/filterTransaction"
-        android:name="dreammaker.android.expensetracker.dreammaker.android.expensetracker.dreammaker.android.expensetracker.fragment.FilterTransaction2"
-        android:label="@string/label_filter_transaction"
-        tools:layout="@layout/layout_filter_transaction"/>
-
+    <activity android:id="@+id/activity_people"
+        android:name="dreammaker.android.expensetracker.activity.ActivityPeople"
+        tools:layout="@layout/activity_people"/>
 
 </navigation>

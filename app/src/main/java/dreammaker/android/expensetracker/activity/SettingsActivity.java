@@ -3,31 +3,12 @@ package dreammaker.android.expensetracker.activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 
-import com.google.common.util.concurrent.ListenableFuture;
-
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
-import androidx.work.Data;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkInfo;
-import androidx.work.WorkManager;
-import androidx.work.WorkQuery;
 import dreammaker.android.expensetracker.R;
-import dreammaker.android.expensetracker.backup.AutoDeleteWork;
-import dreammaker.android.expensetracker.backup.LocalBackupWork;
-import dreammaker.android.expensetracker.util.AppExecutor;
-import dreammaker.android.expensetracker.util.Check;
-import dreammaker.android.expensetracker.util.Date;
+import dreammaker.android.expensetracker.database.type.Date;
 
 public class SettingsActivity extends BaseActivity {
 
@@ -104,7 +85,7 @@ public class SettingsActivity extends BaseActivity {
         }
         Date date = null;
         if (months > 0) {
-            date = Date.today().add(Date.MONTH,months).atMonthStart();
+            date = new Date().firstDateOfNNextMonths(months);
         }
         PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext())
                 .edit()

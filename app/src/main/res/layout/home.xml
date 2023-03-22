@@ -31,24 +31,6 @@
             app:layout_constraintStart_toEndOf="@id/accounts"
             app:layout_constraintTop_toBottomOf="@id/container_total_due" />
 
-        <Button
-            android:id="@+id/transactions"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/label_transactions_list"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/accounts" />
-
-        <Button
-            android:id="@+id/money_transfer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/label_money_transfer"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/transactions" />
-
         <androidx.cardview.widget.CardView
             android:id="@+id/container_total_balance"
             android:layout_width="0dp"
@@ -64,41 +46,40 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/label_total_balance"
-                    android:layout_width="0dp"
+                    android:id="@+id/label_total_asset"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/label_total_balance"
+                    android:text="@string/label_total_asset"
                     android:textSize="@dimen/text_size_small"
                     android:padding="@dimen/padding_vertical_extra_small"
                     android:gravity="end"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/count_accounts"/>
+                    app:layout_constraintStart_toStartOf="parent"/>
+
                 <TextView
-                    android:id="@+id/total_balance"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/text_green"
-                    android:textStyle="bold"
-                    android:textSize="@dimen/text_size_large"
-                    tools:text="35369.35"
-                    app:layout_constraintTop_toBottomOf="@id/label_total_balance"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"/>
-                <TextView
-                    android:id="@+id/count_accounts"
+                    android:id="@+id/total_asset"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:textSize="@dimen/text_size_small"
-                    android:padding="@dimen/padding_vertical_extra_small"
-                    app:layout_constraintStart_toEndOf="@id/label_total_balance"
+                    android:textAlignment="center"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+                    android:textColor="@color/text_green"
+                    android:textStyle="italic|bold"
+                    tools:text="35369.35"
+                    app:layout_constraintTop_toBottomOf="@id/label_total_asset"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/button_expand_asset"/>
+                <ImageButton
+                    android:id="@+id/button_expand_asset"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:padding="10dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:text="From 3 accounts"/>
+                    app:layout_constraintTop_toBottomOf="@+id/label_total_asset"/>
+
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>
 
@@ -117,11 +98,10 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/label_total_due"
+                    android:id="@+id/label_total_liability"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:text="@string/label_total_due"
@@ -129,30 +109,27 @@
                     android:gravity="end"
                     android:padding="@dimen/padding_vertical_extra_small"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/count_people"
                     app:layout_constraintStart_toStartOf="parent" />
                 <TextView
-                    android:id="@+id/total_due"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/text_red"
-                    android:textSize="@dimen/text_size_large"
-                    android:textStyle="bold"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/label_total_due"
-                    tools:text="300.56" />
-                <TextView
-                    android:id="@+id/count_people"
+                    android:id="@+id/total_liability"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:textSize="@dimen/text_size_small"
-                    android:padding="@dimen/padding_vertical_extra_small"
-                    tools:text="From 3 people"
-                    app:layout_constraintTop_toTopOf="parent"
+                    android:textAlignment="center"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+                    android:textColor="@color/text_red"
+                    android:textStyle="italic|bold"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/button_expand_liability"
+                    app:layout_constraintTop_toBottomOf="@id/label_total_liability"
+                    tools:text="300.56" />
+                <ImageButton
+                    android:id="@+id/button_expand_liability"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:padding="10dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/label_total_due"/>
-
+                    app:layout_constraintTop_toBottomOf="@+id/label_total_liability"/>
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>
 
@@ -160,11 +137,9 @@
             android:id="@+id/add_transaction"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/fab_margin"
-            android:layout_marginBottom="@dimen/fab_margin"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/money_transfer"
+            app:layout_constraintTop_toBottomOf="@+id/accounts"
             app:srcCompat="@drawable/ic_add" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,14 +1,14 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:app="http://schemas.android.com/apk/res-auto">
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
 
 	<item
         android:id="@+id/edit"
-        android:title="@string/menu_edit"
-		app:showAsAction="never"/>
+        android:title="@string/menu_edit"/>
+	<item
+		android:id="@+id/send_money"
+		android:title="@string/send_money"/>
 	<item
         android:id="@+id/delete"
-        android:title="@string/menu_delete"
-		app:showAsAction="never"/>
+        android:title="@string/menu_delete"/>
 
 
 </menu>

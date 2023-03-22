@@ -13,7 +13,6 @@ import java.io.Writer;
 import java.util.List;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.work.Data;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
@@ -24,7 +23,7 @@ import dreammaker.android.expensetracker.database.MoneyTransfer;
 import dreammaker.android.expensetracker.database.Person;
 import dreammaker.android.expensetracker.database.Transaction;
 import dreammaker.android.expensetracker.util.AppExecutor;
-import dreammaker.android.expensetracker.util.Date;
+import dreammaker.android.expensetracker.database.type.Date;
 
 import static dreammaker.android.expensetracker.backup.BackupRestoreHelper.CURRENT_BACKUP_FILE_SCHEMA_VERSION;
 import static dreammaker.android.expensetracker.backup.BackupRestoreHelper.DIRECTORY_BACKUP;
@@ -129,7 +128,7 @@ public class LocalBackupWork extends Worker {
     }
 
     private File getBackupFile() throws SecurityException {
-        Date now = Date.today();
+        Date now = new Date();
         String filename = "et_backup_"+now.format("yyyy_MM_dd")+".json";
         return new File(getBackupDirectory(),filename);
     }

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/transaction_input_navigation"
+    app:startDestination="@id/basic_details">
+
+    <fragment
+        android:id="@+id/basic_details"
+        android:name="dreammaker.android.expensetracker.fragment.TransactionBasicDetailsInputFragment"
+        tools:layout="@layout/transaction_basic_details_input_layout">
+
+        <action android:id="@+id/basic_details_to_people"
+            app:destination="@id/people"/>
+
+        <action android:id="@+id/basic_details_to_account"
+            app:destination="@id/accounts" />
+
+        <action android:id="@+id/basic_details_to_save_transaction"
+            app:destination="@id/save_transaction"/>
+
+    </fragment>
+
+    <fragment
+        android:id="@id/accounts"
+        android:name="dreammaker.android.expensetracker.fragment.AccountChooserFragment"
+        tools:layout="@layout/payee_payer_chooser_layout">
+
+        <action android:id="@+id/accounts_to_accounts"
+            app:destination="@id/accounts"/>
+
+        <action android:id="@+id/accounts_to_save_transaction"
+            app:destination="@id/save_transaction"/>
+
+    </fragment>
+
+    <fragment android:id="@+id/people"
+        android:name="dreammaker.android.expensetracker.fragment.PersonChooserFragment"
+        tools:layout="@layout/payee_payer_chooser_layout">
+
+        <action android:id="@+id/people_to_accounts"
+            app:destination="@id/accounts" />
+
+        <action android:id="@+id/people_to_save_transaction"
+            app:destination="@id/save_transaction"/>
+
+    </fragment>
+
+    <dialog android:id="@+id/save_transaction"
+        android:name="dreammaker.android.expensetracker.fragment.SaveTransactionFragment"
+        tools:layout="@layout/fragment_save_transaction">
+
+    </dialog>
+
+</navigation>

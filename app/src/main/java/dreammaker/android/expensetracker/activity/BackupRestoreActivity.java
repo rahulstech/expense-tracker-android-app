@@ -31,7 +31,7 @@ import androidx.work.WorkInfo;
 import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.backup.BackupRestoreHelper;
 import dreammaker.android.expensetracker.util.Check;
-import dreammaker.android.expensetracker.util.Date;
+import dreammaker.android.expensetracker.database.type.Date;
 import dreammaker.android.expensetracker.view.BaseSpinnerAdapter;
 import dreammaker.android.expensetracker.viewmodel.BackupRestoreViewModel;
 

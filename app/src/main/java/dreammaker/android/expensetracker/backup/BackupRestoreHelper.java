@@ -30,7 +30,7 @@ import dreammaker.android.expensetracker.database.ExpensesBackupDao;
 import dreammaker.android.expensetracker.database.ExpensesDatabase;
 import dreammaker.android.expensetracker.util.AppExecutor;
 import dreammaker.android.expensetracker.util.Check;
-import dreammaker.android.expensetracker.util.Date;
+import dreammaker.android.expensetracker.database.type.Date;
 import dreammaker.android.expensetracker.util.ResultCallback;
 
 public class BackupRestoreHelper {
@@ -191,7 +191,7 @@ public class BackupRestoreHelper {
     }
 
     public static void onBackupSuccessful(@NonNull Context appContext) {
-        setLastLocalBackupDate(appContext, Date.today());
+        setLastLocalBackupDate(appContext, new Date());
         backupNext(appContext);
     }
 
