@@ -5,6 +5,7 @@ import androidx.room.Relation;
 import dreammaker.android.expensetracker.database.Account;
 import dreammaker.android.expensetracker.database.MoneyTransfer;
 
+@Deprecated
 public class MoneyTransferDisplayModel {
 
     @Embedded

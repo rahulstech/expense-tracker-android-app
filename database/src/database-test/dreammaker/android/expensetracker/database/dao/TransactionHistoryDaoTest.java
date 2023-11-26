@@ -5,114 +5,123 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.List;
 
-import androidx.annotation.NonNull;
-import androidx.room.RoomDatabase;
-import androidx.sqlite.db.SupportSQLiteDatabase;
-import androidx.test.core.app.ApplicationProvider;
+import androidx.lifecycle.LiveData;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import dreammaker.android.expensetracker.database.ExpensesDatabase;
-import dreammaker.android.expensetracker.database.FakeData;
-import dreammaker.android.expensetracker.database.model.Account;
-import dreammaker.android.expensetracker.database.model.Person;
-import dreammaker.android.expensetracker.database.model.TransactionHistory;
-import dreammaker.android.expensetracker.database.type.Date;
+import dreammaker.android.expensetracker.database.entity.TransactionHistory;
+import dreammaker.android.expensetracker.database.model.TransactionHistoryModel;
+import dreammaker.android.expensetracker.database.type.Currency;
 import dreammaker.android.expensetracker.database.type.TransactionType;
+import dreammaker.android.expensetracker.database.util.DatabaseUtil;
 
+import static dreammaker.android.expensetracker.database.util.DatabaseUtil.createTransactionHistory;
+import static dreammaker.android.expensetracker.database.util.DatabaseUtil.createTransactionHistoryMode;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(AndroidJUnit4.class)
 public class TransactionHistoryDaoTest {
 
     ExpensesDatabase db;
-    AccountDao accountDao;
-    PeopleDao peopleDao;
-    TransactionHistoryDao transactionDao;
+
+    TransactionHistoryDao dao;
 
     @Before
-    public void createDB() {
-        db = ExpensesDatabase.getTestInstance(ApplicationProvider.getApplicationContext(), new RoomDatabase.Callback() {
-            @Override
-            public void onCreate(@NonNull SupportSQLiteDatabase db) {
-                new FakeData().addFakeData_v7(db);
-            }
-        });
-        accountDao = db.getAccountDao();
-        peopleDao = db.getPeopleDao();
-        transactionDao = db.getTransactionHistoryDao();
+    public void openDb() {
+        db = DatabaseUtil.createInMemoryExpenseDatabase(7);
+        dao = db.getTransactionHistoryDao();
     }
 
     @After
-    public void closeDB() {
-        db.close();
+    public void closeDb() {
+        DatabaseUtil.closeDBSilently(db);
     }
 
     @Test
-    public void testAddDue() {
-        TransactionHistory transaction = new TransactionHistory(0,1l,null,2l,null, BigDecimal.valueOf(500), TransactionType.DUE, Date.today(),null);
-        long tid = transactionDao.insert(transaction);
-        assertTrue("insert DUE",tid > 0);
-
-        Account expected_account = new Account(2,"acc 2", BigDecimal.valueOf(3000));
-        Person expected_person = new Person(1,"person 1",null,BigDecimal.valueOf(700),BigDecimal.ZERO);
-        Account original_account = accountDao.getAccountById(2);
-        Person original_person = peopleDao.getPersonById(1);
-        assertEquals("insert did not updated account balance properly",expected_account,original_account);
-        assertEquals("insert did not updated person due properly",expected_person,original_person);
+    public void addTransactionHistory() {
+        TransactionHistory history = createTransactionHistory(0L, TransactionType.DUE, Currency.valueOf("100"), LocalDate.now(),null,3L,1L,null,null);
+        long id = dao.addTransactionHistory(history);
+        assertTrue(id>0);
     }
 
     @Test
-    public void testPayBorrow() {
-        TransactionHistory transaction = new TransactionHistory(0,2l,null,2l,null, BigDecimal.valueOf(500), TransactionType.PAY_BORROW, Date.today(),null);
-        long tid = transactionDao.insert(transaction);
-        assertTrue("insert PAY_BORROW",tid > 0);
-
-        Account expected_account = new Account(2,"acc 2", BigDecimal.valueOf(3000));
-        Person expected_person = new Person(2,"person 2",null,BigDecimal.ZERO,BigDecimal.valueOf(500));
-        Account original_account = accountDao.getAccountById(2);
-        Person original_person = peopleDao.getPersonById(2);
-        assertEquals("insert did not updated account balance properly",expected_account,original_account);
-        assertEquals("insert did not updated person due properly",expected_person,original_person);
+    public void updateTransactionHistory() {
+        // (id,payeeAccountId,amount,type,`when`) => (8,3,\"200\",\"INCOME\",\"2021-08-05\")
+        TransactionHistory history = createTransactionHistory(8L, TransactionType.INCOME, Currency.valueOf("150"), LocalDate.of(2021,8,5),3L,null,null,null,null);
+        int changes = dao.updateTransactionHistory(history);
+        assertEquals(1,changes);
     }
 
     @Test
-    public void testDeleteBorrow() {
-        TransactionHistory transaction = new TransactionHistory(11,null,3l,null,1l,BigDecimal.valueOf(500),TransactionType.BORROW,Date.valueOf("2021-09-06"),null);
-        boolean org_result = transactionDao.delete(transaction);
-        assertTrue("delete BORROW",org_result);
-
-        Account expected_account = new Account(1,"acc 1",BigDecimal.valueOf(-500));
-        Person expected_person = new Person(3,"person 3 FN","person 3 LN",BigDecimal.ZERO,BigDecimal.valueOf(-500));
-        Account org_account = accountDao.getAccountById(1);
-        Person org_person = peopleDao.getPersonById(3);
-        assertEquals("account balance not updated after deletion of BORROW transaction",expected_account,org_account);
-        assertEquals("person borrow not updated after deletion of BORROW transaction",expected_person,org_person);
+    public void findTransactionById() {
+        // (id,payerAccountId,payeePersonId,amount,type,`when`) => (1,1,1,\"200\",\"DUE\",\"2021-01-03\")
+        TransactionHistory expected = createTransactionHistory(1L, TransactionType.DUE, Currency.valueOf("200"), LocalDate.of(2021,1,3),null,1L,1L,null,null);
+        TransactionHistory actual = dao.findTransactionHistoryById(1);
+        assertEquals(expected,actual);
     }
 
     @Test
-    public void testDeleteMoneyTransfer() {
-        TransactionHistory transaction = new TransactionHistory(13,null,null,3l,2l,BigDecimal.valueOf(500),TransactionType.MONEY_TRANSFER,Date.valueOf("2021-07-15"),null);
-        boolean org_result = transactionDao.delete(transaction);
-        assertTrue("delete MONEY_TRANSFER",org_result);
+    public void getAllTransactionHistoriesForDateLive() throws Exception {
+        /*
+         (id,payeeAccountId,payerPersonId,amount,type,`when`) => (3,2,1,\"355\",\"PAY_DUE\",\"2021-01-06\")
 
-        Account expected_payer_account = new Account(3,"acc 3",BigDecimal.valueOf(25500));
-        Account expected_payee_account = new Account(2,"acc 2",BigDecimal.valueOf(3000));
-        Account org_payer_account = accountDao.getAccountById(3);
-        Account org_payee_account = accountDao.getAccountById(2);
-        assertEquals("payer account balance not updated after deletion of MONEY_TRANSFER transaction",expected_payer_account,org_payer_account);
-        assertEquals("payee account balance not updated after deletion of MONEY_TRANSFER transaction",expected_payee_account,org_payee_account);
+         (id,payerAccountId,payeePersonId,amount,type,`when`) => (6,1,2,\"156\",\"DUE\",\"2021-01-06\")
+         */
+        LiveData<List<TransactionHistoryModel>> liveData = dao.getAllTransactionHistoriesForDateLive(LocalDate.of(2021,1,6));
+        List<TransactionHistoryModel> actual = DatabaseUtil.getValueFromLivedata(liveData,5000);
+
+        TransactionHistoryModel history1 = createTransactionHistoryMode(3L,TransactionType.PAY_DUE,Currency.valueOf("355"),LocalDate.of(2021,1,6),2L,null,null,1L,null);
+        TransactionHistoryModel history2 = createTransactionHistoryMode(6L,TransactionType.DUE,Currency.valueOf("156"),LocalDate.of(2021,1,6),null,1L,2L,null,null);
+        List<TransactionHistoryModel> expected = Arrays.asList(history1,history2);
+
+        assertEquals("expected list of transaction-histories not fetched",expected,actual);
+        assertNotNull("account-model not fetched",actual.get(0).getPayeeAccount());
+        assertNotNull("person-model not fetched",actual.get(0).getPayerPerson());
     }
 
     @Test
-    public void testDeleteMultiple() {
-        int org_result = transactionDao.deleteMultiple(Arrays.asList(1l));
-        assertEquals("deleteMultiple",1,org_result);
+    public void getAllTransactionHistoriesForAccountBetweenLive() throws Exception {
+        /*
+        (id,payerAccountId,payeePersonId,amount,type,`when`) => (5,3,1,\"700\",\"DUE\",\"2021-01-05\");")
 
-        TransactionHistory org_transaction = transactionDao.getTransactionHistoryById(1);
-        assertNull("transaction found after delete",org_transaction);
+        (id,payerAccountId,payeeAccountId,amount,type,`when`) => (13,3,2,\"500\",\"MONEY_TRANSFER\",\"2021-07-15\");")
+         */
+        LiveData<List<TransactionHistoryModel>> liveData = dao.getAllTransactionHistoriesForAccountsBetweenLive(3,LocalDate.of(2021,1,5),LocalDate.of(2021,7,30));
+        List<TransactionHistoryModel> actual = DatabaseUtil.getValueFromLivedata(liveData,5000);
+
+        TransactionHistoryModel history1 = createTransactionHistoryMode(13L,TransactionType.MONEY_TRANSFER,Currency.valueOf("500"),LocalDate.of(2021,7,15),2L,3L,null,null,null);
+        TransactionHistoryModel history2 = createTransactionHistoryMode(5L,TransactionType.DUE,Currency.valueOf("700"),LocalDate.of(2021,1,5),null,3L,1L,null,null);
+        List<TransactionHistoryModel> expected = Arrays.asList(history1,history2);
+
+        assertEquals(expected,actual);
+    }
+
+    @Test
+    public void getAllTransactionHistoriesForPersonBetweenLive() throws Exception {
+        /*
+        (id,payerAccountId,payeePersonId,amount,type,`when`) => (6,1,2,\"156\",\"DUE\",\"2021-01-06\")
+
+        (id,payeeAccountId,payerPersonId,amount,type,`when`) => (9,1,2,\"800.5\",\"PAY_DUE\",\"2021-01-03\")
+         */
+        LiveData<List<TransactionHistoryModel>> liveData = dao.getAllTransactionHistoriesForPeopleBetweenLive(2,LocalDate.of(2021,1,1),LocalDate.of(2021,1,31));
+        List<TransactionHistoryModel> actual = DatabaseUtil.getValueFromLivedata(liveData,5000);
+
+        TransactionHistoryModel history1 = createTransactionHistoryMode(6L,TransactionType.DUE,Currency.valueOf("156"),LocalDate.of(2021,1,6),null,1L,2L,null,null);
+        TransactionHistoryModel history2 = createTransactionHistoryMode(9L,TransactionType.PAY_DUE,Currency.valueOf("800.5"),LocalDate.of(2021,1,3),1L,null,null,2L,null);
+        List<TransactionHistoryModel> expected = Arrays.asList(history1,history2);
+
+        assertEquals(expected,actual);
+    }
+
+    @Test
+    public void removeTransactionHistory() {
+        TransactionHistory history = createTransactionHistory(1L, TransactionType.DUE, Currency.valueOf("200"), LocalDate.of(2021,1,3),null,1L,1L,null,null);
+        int changes = dao.removeTransactionHistory(history);
+        assertEquals(1,changes);
     }
 }

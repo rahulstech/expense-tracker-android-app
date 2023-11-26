@@ -9,6 +9,7 @@ import androidx.room.Ignore;
 import androidx.room.Relation;
 import dreammaker.android.expensetracker.database.type.TransactionType;
 
+@Deprecated
 public class TransactionHistoryDisplayModel implements Cloneable {
 
     @Embedded

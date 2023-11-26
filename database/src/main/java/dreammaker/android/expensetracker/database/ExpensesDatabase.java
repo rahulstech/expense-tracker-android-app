@@ -4,7 +4,7 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
+import androidx.room.BuiltInTypeConverters;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
@@ -13,26 +13,29 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 import dreammaker.android.expensetracker.database.dao.AccountDao;
 import dreammaker.android.expensetracker.database.dao.AnalyticsDao;
 import dreammaker.android.expensetracker.database.dao.PeopleDao;
+import dreammaker.android.expensetracker.database.dao.PersonDao;
 import dreammaker.android.expensetracker.database.dao.TransactionHistoryDao;
+import dreammaker.android.expensetracker.database.entity.Account;
+import dreammaker.android.expensetracker.database.entity.Person;
+import dreammaker.android.expensetracker.database.entity.TransactionHistory;
 import dreammaker.android.expensetracker.database.migration.MIGRATION_6_TO_7;
-import dreammaker.android.expensetracker.database.model.Account;
-import dreammaker.android.expensetracker.database.model.Person;
-import dreammaker.android.expensetracker.database.model.TransactionHistory;
+import dreammaker.android.expensetracker.database.view.AssetLiabilitySummary;
+import dreammaker.android.expensetracker.database.view.AccountsSummaryView;
+import dreammaker.android.expensetracker.database.view.PeopleSummaryView;
 
 @Database(
         entities = {Account.class, Person.class, TransactionHistory.class},
+        views = {AccountsSummaryView.class, PeopleSummaryView.class, AssetLiabilitySummary.class},
 		version = ExpensesDatabase.DB_VERSION)
-@TypeConverters({Converters.class})
+@TypeConverters(value = Converters.class, builtInTypeConverters = @BuiltInTypeConverters(enums = BuiltInTypeConverters.State.ENABLED))
+@SuppressWarnings({"unused","deprecation"})
 public abstract class ExpensesDatabase extends RoomDatabase
 {
     private static final String TAG = "ExpensesDatabase";
 
     private static final String DB_NAME = "expenses.db3";
 
-    private static final int VERSION_6 = 6;
-    private static final int VERSION_7 = 7;
-
-    public static final int DB_VERSION = VERSION_7;
+    public static final int DB_VERSION = 7;
     
     private static ExpensesDatabase mExpensesDB;
     
@@ -44,7 +47,7 @@ public abstract class ExpensesDatabase extends RoomDatabase
         return mExpensesDB;
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Deprecated
     public static ExpensesDatabase getTestInstance(@NonNull Context context, @Nullable Callback callback) {
         RoomDatabase.Builder<ExpensesDatabase> builder = Room.inMemoryDatabaseBuilder(context,ExpensesDatabase.class)
                 .allowMainThreadQueries();
@@ -64,13 +67,17 @@ public abstract class ExpensesDatabase extends RoomDatabase
         return builder.build();
     }
 
+    @Deprecated
     public ExpensesDao getDao() {return null;}
 
+    @Deprecated
     public ExpensesBackupDao getBackupDao() { return null; }
 
     public abstract AccountDao getAccountDao();
 
     public abstract PeopleDao getPeopleDao();
+
+    public abstract PersonDao getPersonDao();
 
     public abstract TransactionHistoryDao getTransactionHistoryDao();
 

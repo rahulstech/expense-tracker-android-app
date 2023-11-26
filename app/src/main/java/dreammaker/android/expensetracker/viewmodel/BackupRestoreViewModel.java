@@ -3,7 +3,6 @@ package dreammaker.android.expensetracker.viewmodel;
 import android.app.Application;
 
 import java.util.List;
-import java.util.UUID;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;

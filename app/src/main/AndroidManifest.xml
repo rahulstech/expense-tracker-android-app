@@ -53,7 +53,7 @@
             android:screenOrientation="userPortrait" />
 
         <service
-            android:name=".backup.WorkActionService"
+            android:name="rahulstech.android.expensetracker.backup.WorkActionService"
             android:description="@string/work_action_service_description"
             android:enabled="true"
             android:exported="false"

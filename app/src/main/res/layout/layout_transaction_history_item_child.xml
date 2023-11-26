@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="16dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/logoPrimary"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="16dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:shapeAppearance="@style/ShapeAppearance.AppTheme.RoundedImage"
+        tools:src="@tools:sample/avatars"/>
+
+    <TextView
+        android:id="@+id/text1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@id/logoPrimary"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:ellipsize="end"
+        android:maxLines="2"
+        android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+        tools:text="this is a very long description of the payment transaction"/>
+
+    <TextView
+        android:id="@+id/text2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintTop_toBottomOf="@id/text1"
+        app:layout_constraintStart_toEndOf="@id/logoPrimary"
+        app:layout_constraintEnd_toStartOf="@id/logoSecondary"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+        tools:text="+2000.00"/>
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/logoSecondary"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/text2"
+        app:shapeAppearance="@style/ShapeAppearance.AppTheme.RoundedImage"
+        tools:src="@tools:sample/avatars"/>
+
+    <com.google.android.material.divider.MaterialDivider
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintStart_toEndOf="@id/logoPrimary"
+        app:layout_constraintTop_toBottomOf="@id/text2"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

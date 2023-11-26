@@ -9,4 +9,6 @@
     <dimen name="margin_horizontal_small">6dp</dimen>
     <dimen name="padding_horizontal_small">8dp</dimen>
     <dimen name="padding_vertical_extra_small">4dp</dimen>
+    <dimen name="button_size_medium">48dp</dimen>
+    <dimen name="inset_small">18dp</dimen>
 </resources>

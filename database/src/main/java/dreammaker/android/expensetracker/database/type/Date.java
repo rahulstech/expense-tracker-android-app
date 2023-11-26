@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
+@Deprecated
 public class Date implements Cloneable {
 
     private static final String TAG = "Date";

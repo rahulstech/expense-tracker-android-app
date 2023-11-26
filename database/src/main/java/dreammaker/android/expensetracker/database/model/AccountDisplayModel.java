@@ -10,6 +10,7 @@ import androidx.room.Ignore;
 import androidx.room.TypeConverters;
 import dreammaker.android.expensetracker.database.Converters;
 
+@Deprecated
 public class AccountDisplayModel implements Cloneable {
 
     private long id;

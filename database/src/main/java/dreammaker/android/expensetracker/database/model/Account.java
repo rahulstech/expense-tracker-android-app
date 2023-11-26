@@ -14,6 +14,7 @@ import dreammaker.android.expensetracker.database.Converters;
 
 import static androidx.room.ColumnInfo.TEXT;
 
+@Deprecated
 @Entity(tableName = "accounts")
 public class Account implements Cloneable {
 

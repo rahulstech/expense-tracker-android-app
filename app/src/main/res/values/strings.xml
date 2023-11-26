@@ -199,7 +199,7 @@
 
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="transaction_input_progress_text">Saving...</string>
+    <string name="transaction_input_progress_text">Saving…</string>
     <string name="error_empty_input">empty input</string>
     <string name="error_invalid_numeric_value">not a valid numeric value</string>
     <string name="account_not_found">no account found</string>
@@ -208,6 +208,19 @@
     <string name="last_name">Last Name</string>
     <string name="label_total_borrow">Total Returnable</string>
     <string name="label_people">People</string>
+    <string name="description_add_history">add new transaction history</string>
+
+    <string name="text_unknown">Unknown</string>
+    <string name="text_transaction_history_description_due">Amount paid on behalf of %1$s from %2$s</string>
+    <string name="text_transaction_history_description_borrow">Amount borrowed from %1$s, received in %2$s</string>
+    <string name="text_transaction_history_description_pay_due">Due paid by %1$s, received in %2$s</string>
+    <string name="text_transaction_history_description_pay_borrow">Amount paid to %1$s from %2$s</string>
+
+    <string name="text_amount_received">amount received from %1$s in %2$s </string>
+    <string name="text_amount_paid">amount paid from %1$s on behalf of %2$s</string>
+    <string name="text_amount_sent">amount sent from %1$s to %2$s </string>
+
+
     <!-- TODO: Remove or change this placeholder text -->
     <string-array name="transaction_date_option_values">
         <item>Yesterday</item>

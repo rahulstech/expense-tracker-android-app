@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -13,13 +14,14 @@ import dreammaker.android.expensetracker.database.model.Person;
 import dreammaker.android.expensetracker.database.model.PersonDisplayModel;
 
 @Dao
+@Deprecated
 public abstract class PeopleDao {
 
-    @Insert
-    public abstract long insert(Person person);
+    //@Insert
+    public long insert(Person person) { return 0; }
 
-    @Update
-    public abstract int update(Person person);
+    //@Update
+    public int update(Person person) { return 0; }
 
     public boolean addDue(long id, BigDecimal quantity) {
         Person person = getPersonById(id);
@@ -47,19 +49,19 @@ public abstract class PeopleDao {
         return addBorrow(id,quantity.negate());
     }
 
-    @Delete
-    public abstract int delete(Person person);
+    //@Delete
+    public int delete(Person person){return 0;}
 
     @Query("DELETE FROM `people` WHERE `id` IN(:ids)")
     public abstract int deleteMultiple(List<Long> ids);
 
-    @Query("SELECT * FROM `people` WHERE `id` = :id")
-    public abstract LiveData<Person> findPersonById(long id);
+    //@Query("SELECT * FROM `people` WHERE `id` = :id")
+    public LiveData<Person> findPersonById(long id){ return new MutableLiveData<>(); }
 
-    @Query("SELECT * FROM `people` WHERE `id` = :id")
-    public abstract Person getPersonById(long id);
+    //@Query("SELECT * FROM `people` WHERE `id` = :id")
+    public Person getPersonById(long id) { return null; }
 
-    @Query("SELECT `id`,`firstName`,`lastName`,`amountDue`,`amountBorrow` FROM `people` " +
-            "ORDER BY CASE WHEN CAST(`amountDue` AS REAL) THEN 2 WHEN CAST(`amountBorrow` AS REAL) THEN 1 ELSE 0 END DESC")
-    public abstract LiveData<List<PersonDisplayModel>> getAllPeopleForDisplay();
+    //@Query("SELECT `id`,`firstName`,`lastName`,`amountDue`,`amountBorrow` FROM `people` " +
+    //        "ORDER BY CASE WHEN CAST(`amountDue` AS REAL) THEN 2 WHEN CAST(`amountBorrow` AS REAL) THEN 1 ELSE 0 END DESC")
+    public LiveData<List<PersonDisplayModel>> getAllPeopleForDisplay() { return new MutableLiveData<>();}
 }

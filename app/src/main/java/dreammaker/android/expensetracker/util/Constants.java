@@ -30,6 +30,21 @@ public class Constants {
 
     public static final String EXTRA_OPERATION_ID = "operation_id";
 
+
+
+
+
+    public static final String EXTRA_ID = "extra_id";
+
+    public static final String EXTRA_ENTITY = "extra_entity";
+
+    public static final int ENTITY_ACCOUNTS = 10;
+
+    public static final int ENTITY_PEOPLE = 20;
+
+
+
+
     public static final int DB_INSERT = 1;
 
     public static final int DB_UPDATE = 2;

@@ -1,5 +1,6 @@
 package dreammaker.android.expensetracker.database;
 
+@SuppressWarnings("unused")
 public class DatabaseException extends RuntimeException {
 
     public DatabaseException(String message) {

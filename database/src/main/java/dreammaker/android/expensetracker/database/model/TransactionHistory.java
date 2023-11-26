@@ -19,6 +19,7 @@ import dreammaker.android.expensetracker.database.type.TransactionType;
 import static androidx.room.ColumnInfo.TEXT;
 import static androidx.room.ForeignKey.CASCADE;
 
+@Deprecated
 @Entity(tableName = "transaction_histories",
 foreignKeys = {
         @ForeignKey(entity = Person.class, parentColumns = "id", childColumns = "payeePersonId", onDelete = CASCADE),

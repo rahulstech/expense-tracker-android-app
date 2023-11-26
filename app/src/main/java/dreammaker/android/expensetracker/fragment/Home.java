@@ -20,13 +20,10 @@ import androidx.navigation.Navigation;
 import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.activity.ActivityTransactionInput;
 import dreammaker.android.expensetracker.activity.MainActivity;
-import dreammaker.android.expensetracker.database.BalanceAndDueSummary;
-import dreammaker.android.expensetracker.database.model.AssetLiabilitySummary;
-import dreammaker.android.expensetracker.util.Check;
+import dreammaker.android.expensetracker.database.view.AssetLiabilitySummary;
 import dreammaker.android.expensetracker.util.Constants;
 import dreammaker.android.expensetracker.util.Helper;
 import dreammaker.android.expensetracker.viewmodel.HomeViewModel;
-import dreammaker.android.expensetracker.viewmodel.TransactionsViewModel;
 
 public class Home extends Fragment {
 

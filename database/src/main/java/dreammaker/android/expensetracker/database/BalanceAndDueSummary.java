@@ -9,6 +9,7 @@ import static dreammaker.android.expensetracker.database.ExpensesContract.Balanc
 import static dreammaker.android.expensetracker.database.ExpensesContract.BalanceAndDueSummaryColumns.TOTAL_BALANCE;
 import static dreammaker.android.expensetracker.database.ExpensesContract.BalanceAndDueSummaryColumns.TOTAL_DUE;
 
+@Deprecated
 public class BalanceAndDueSummary {
 
     @ColumnInfo(name = TOTAL_BALANCE, typeAffinity = REAL, defaultValue = "0")

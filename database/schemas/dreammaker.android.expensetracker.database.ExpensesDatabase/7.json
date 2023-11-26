@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 7,
-    "identityHash": "1791946ab8c3eb67aaf1b701d057fa64",
+    "identityHash": "d0afe58fa9a95ae4a0f0086c864c3ead",
     "entities": [
       {
         "tableName": "accounts",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `balance` TEXT NOT NULL DEFAULT '0')",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `balance` TEXT NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -24,8 +24,7 @@
             "fieldPath": "balance",
             "columnName": "balance",
             "affinity": "TEXT",
-            "notNull": true,
-            "defaultValue": "'0'"
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -39,7 +38,7 @@
       },
       {
         "tableName": "people",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `firstName` TEXT NOT NULL, `lastName` TEXT, `amountDue` TEXT NOT NULL DEFAULT '0', `amountBorrow` TEXT NOT NULL DEFAULT '0')",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `firstName` TEXT NOT NULL, `lastName` TEXT, `due` TEXT NOT NULL, `borrow` TEXT NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -60,18 +59,16 @@
             "notNull": false
           },
           {
-            "fieldPath": "amountDue",
-            "columnName": "amountDue",
+            "fieldPath": "due",
+            "columnName": "due",
             "affinity": "TEXT",
-            "notNull": true,
-            "defaultValue": "'0'"
+            "notNull": true
           },
           {
-            "fieldPath": "amountBorrow",
-            "columnName": "amountBorrow",
+            "fieldPath": "borrow",
+            "columnName": "borrow",
             "affinity": "TEXT",
-            "notNull": true,
-            "defaultValue": "'0'"
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -85,13 +82,25 @@
       },
       {
         "tableName": "transaction_histories",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `payeePersonId` INTEGER, `payerPersonId` INTEGER, `payerAccountId` INTEGER, `payeeAccountId` INTEGER, `amount` TEXT NOT NULL DEFAULT '0', `type` TEXT NOT NULL, `date` TEXT NOT NULL, `description` TEXT, FOREIGN KEY(`payeePersonId`) REFERENCES `people`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`payerPersonId`) REFERENCES `people`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`payeeAccountId`) REFERENCES `accounts`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`payerAccountId`) REFERENCES `accounts`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `payeeAccountId` INTEGER, `payerAccountId` INTEGER, `payeePersonId` INTEGER, `payerPersonId` INTEGER, `type` TEXT NOT NULL, `amount` TEXT NOT NULL, `when` TEXT NOT NULL, `description` TEXT)",
         "fields": [
           {
             "fieldPath": "id",
             "columnName": "id",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "payeeAccountId",
+            "columnName": "payeeAccountId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "payerAccountId",
+            "columnName": "payerAccountId",
+            "affinity": "INTEGER",
+            "notNull": false
           },
           {
             "fieldPath": "payeePersonId",
@@ -106,33 +115,20 @@
             "notNull": false
           },
           {
-            "fieldPath": "payerAccountId",
-            "columnName": "payerAccountId",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "payeeAccountId",
-            "columnName": "payeeAccountId",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "amount",
-            "columnName": "amount",
-            "affinity": "TEXT",
-            "notNull": true,
-            "defaultValue": "'0'"
-          },
-          {
             "fieldPath": "type",
             "columnName": "type",
             "affinity": "TEXT",
             "notNull": true
           },
           {
-            "fieldPath": "date",
-            "columnName": "date",
+            "fieldPath": "amount",
+            "columnName": "amount",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "when",
+            "columnName": "when",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -149,92 +145,14 @@
           ],
           "autoGenerate": true
         },
-        "indices": [
-          {
-            "name": "transaction_history_payeePersonId_index",
-            "unique": false,
-            "columnNames": [
-              "payeePersonId"
-            ],
-            "createSql": "CREATE INDEX IF NOT EXISTS `transaction_history_payeePersonId_index` ON `${TABLE_NAME}` (`payeePersonId`)"
-          },
-          {
-            "name": "transaction_history_payerPersonId_index",
-            "unique": false,
-            "columnNames": [
-              "payerPersonId"
-            ],
-            "createSql": "CREATE INDEX IF NOT EXISTS `transaction_history_payerPersonId_index` ON `${TABLE_NAME}` (`payerPersonId`)"
-          },
-          {
-            "name": "transaction_history_payeeAccountId_index",
-            "unique": false,
-            "columnNames": [
-              "payeeAccountId"
-            ],
-            "createSql": "CREATE INDEX IF NOT EXISTS `transaction_history_payeeAccountId_index` ON `${TABLE_NAME}` (`payeeAccountId`)"
-          },
-          {
-            "name": "transaction_history_payerAccountId_index",
-            "unique": false,
-            "columnNames": [
-              "payerAccountId"
-            ],
-            "createSql": "CREATE INDEX IF NOT EXISTS `transaction_history_payerAccountId_index` ON `${TABLE_NAME}` (`payerAccountId`)"
-          }
-        ],
-        "foreignKeys": [
-          {
-            "table": "people",
-            "onDelete": "CASCADE",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "payeePersonId"
-            ],
-            "referencedColumns": [
-              "id"
-            ]
-          },
-          {
-            "table": "people",
-            "onDelete": "CASCADE",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "payerPersonId"
-            ],
-            "referencedColumns": [
-              "id"
-            ]
-          },
-          {
-            "table": "accounts",
-            "onDelete": "CASCADE",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "payeeAccountId"
-            ],
-            "referencedColumns": [
-              "id"
-            ]
-          },
-          {
-            "table": "accounts",
-            "onDelete": "CASCADE",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "payerAccountId"
-            ],
-            "referencedColumns": [
-              "id"
-            ]
-          }
-        ]
+        "indices": [],
+        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1791946ab8c3eb67aaf1b701d057fa64')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd0afe58fa9a95ae4a0f0086c864c3ead')"
     ]
   }
 }

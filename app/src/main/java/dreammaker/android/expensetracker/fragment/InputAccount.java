@@ -1,6 +1,5 @@
 package dreammaker.android.expensetracker.fragment;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;

@@ -27,7 +27,6 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.activity.ActivityTransactionInput;
-import dreammaker.android.expensetracker.collection.FakeList;
 import dreammaker.android.expensetracker.database.model.AccountDisplayModel;
 import dreammaker.android.expensetracker.util.Constants;
 import dreammaker.android.expensetracker.view.adapter.AccountsListAdapter;

@@ -2,24 +2,15 @@ package dreammaker.android.expensetracker.database.dao;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-
-import androidx.annotation.NonNull;
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.Observer;
-import androidx.room.RoomDatabase;
-import androidx.sqlite.db.SupportSQLiteDatabase;
-import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import dreammaker.android.expensetracker.database.ExpensesDatabase;
-import dreammaker.android.expensetracker.database.FakeData;
-import dreammaker.android.expensetracker.database.model.AssetLiabilitySummary;
+import dreammaker.android.expensetracker.database.view.AssetLiabilitySummary;
+import dreammaker.android.expensetracker.database.type.Currency;
+import dreammaker.android.expensetracker.database.util.DatabaseUtil;
 
 import static org.junit.Assert.assertEquals;
 
@@ -27,42 +18,41 @@ import static org.junit.Assert.assertEquals;
 public class AnalyticsDaoTest {
 
     ExpensesDatabase db;
+
     AnalyticsDao dao;
 
-    @Rule
-    public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
-
     @Before
-    public void createDB() {
-        db = ExpensesDatabase.getTestInstance(ApplicationProvider.getApplicationContext(), new RoomDatabase.Callback() {
-            @Override
-            public void onCreate(@NonNull SupportSQLiteDatabase db) {
-                new FakeData().addFakeData_v7(db);
-            }
-        });
+    public void openDb() {
+        db = DatabaseUtil.createInMemoryExpenseDatabase(7);
         dao = db.getAnalyticsDao();
     }
 
     @After
-    public void closeDB() {
-        db.close();
+    public void closeDb() {
+        DatabaseUtil.closeDBSilently(db);
     }
 
     @Test
-    public void testGetTotalAssetLiability() {
+    public void getTotalAssetLiability() throws Exception {
         LiveData<AssetLiabilitySummary> liveData = dao.getTotalAssetLiability();
-        liveData.observeForever(summery ->{
-            AssetLiabilitySummary original = liveData.getValue();
-            AssetLiabilitySummary expected = new AssetLiabilitySummary();
-            expected.setTotalPositiveBalance(BigDecimal.valueOf(28500).setScale(2, RoundingMode.HALF_DOWN));
-            expected.setTotalNegativeBalance(BigDecimal.valueOf(2600).setScale(2, RoundingMode.HALF_DOWN));
-            expected.setTotalPositiveDue(BigDecimal.valueOf(200).setScale(2, RoundingMode.HALF_DOWN));
-            expected.setTotalNegativeDue(BigDecimal.valueOf(9000).setScale(2, RoundingMode.HALF_DOWN));
-            expected.setTotalPositiveBorrow(BigDecimal.valueOf(1000).setScale(2, RoundingMode.HALF_DOWN));
-            expected.setTotalNegativeBorrow(BigDecimal.valueOf(150).setScale(2, RoundingMode.HALF_DOWN));
+        AssetLiabilitySummary actual = DatabaseUtil.getValueFromLivedata(liveData,5000);
 
-            assertEquals(expected,original);
-        });
+        AssetLiabilitySummary expected = new AssetLiabilitySummary();
+        expected.setTotalPositiveBalance(Currency.valueOf("28500"));
+        expected.setTotalPositiveAccounts(2);
+        expected.setTotalNegativeBalance(Currency.valueOf("-100"));
+        expected.setTotalNegativeAccounts(1);
+        expected.setTotalPositiveDue(Currency.valueOf("200"));
+        expected.setTotalPositiveDuePeople(1);
+        expected.setTotalNegativeDue(Currency.valueOf("-500"));
+        expected.setTotalNegativeDuePeople(1);
+        expected.setTotalPositiveBorrow(Currency.valueOf("1000"));
+        expected.setTotalPositiveBorrowPeople(1);
+        expected.setTotalNegativeBorrow(Currency.valueOf("-100"));
+        expected.setTotalNegativeBorrowPeople(1);
+        expected.setTotalAccounts(3);
+        expected.setTotalPeople(3);
 
+        assertEquals(expected,actual);
     }
 }
