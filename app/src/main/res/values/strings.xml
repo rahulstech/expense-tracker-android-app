@@ -8,6 +8,8 @@
 		Service to handle different action in backup and restore notification
 	</string>
 
+    <string name="fab_behaviour" translatable="false">@null</string>
+
     <string name="label_accounts">Accounts</string>
     <string name="label_insert_account">Create Account</string>
     <string name="label_update_account">Edit Account</string>
@@ -20,7 +22,7 @@
     <string name="label_new_money_transfer">New Money Transfer</string>
     <string name="label_edit_money_transfer">Edit Money Transfer</string>
     <string name="label_total_balance">Total Balance</string>
-    <string name="label_total_due">Total Receivable</string>
+    <string name="label_total_due">Receivable</string>
     <string name="label_count_balance_accounts">From %d accounts</string>
     <string name="label_count_due_people">From %d people</string>
     <string name="label_insert_transaction">New Transaction</string>
@@ -64,8 +66,8 @@
     <string name="account_from">From</string>
     <string name="account_to">To</string>
 
-    <string name="label_total_asset">Total Asset</string>
-    <string name="label_total_liability">Total Liability</string>
+    <string name="label_total_asset">Total Assets</string>
+    <string name="label_total_liability">Total Liabilities</string>
 
     <!-- Backup -->
 
@@ -206,7 +208,7 @@
     <string name="person_not_found">no person found</string>
     <string name="first_name">First Name</string>
     <string name="last_name">Last Name</string>
-    <string name="label_total_borrow">Total Returnable</string>
+    <string name="label_total_borrow">Payable</string>
     <string name="label_people">People</string>
     <string name="description_add_history">add new transaction history</string>
 
@@ -219,6 +221,28 @@
     <string name="text_amount_received">amount received from %1$s in %2$s </string>
     <string name="text_amount_paid">amount paid from %1$s on behalf of %2$s</string>
     <string name="text_amount_sent">amount sent from %1$s to %2$s </string>
+
+
+
+    <string name="description_add_account">add account</string>
+    <string name="label_paid_from">Paid From</string>
+    <string name="label_paid_by">Paid By</string>
+    <string name="label_transferred_from">Sent From</string>
+    <string name="message_debit_without_amount">Debited</string>
+    <string name="message_credit_without_amount">Credited</string>
+    <string name="message_received_in_without_amount">Received in %1$s</string>
+    <string name="message_paid_to_without_amount">Paid to %1$s</string>
+    <string name="message_transferred_to_without_amount">Sent tp %1$s</string>
+    <string name="error_account_not_found">account not found</string>
+    <string name="error_save">not saved</string>
+    <string name="message_save">saved</string>
+    <string name="warning_not_saved">changes are not saved</string>
+    <string name="label_discard">Discard</string>
+    <string name="label_exit">Exit</string>
+    <string name="description_save">save</string>
+    <string name="error_person_not_found">person not found</string>
+    <string name="message_no_change_no_save">no changes to save</string>
+    <string name="description_add_person">add person</string>
 
 
     <!-- TODO: Remove or change this placeholder text -->

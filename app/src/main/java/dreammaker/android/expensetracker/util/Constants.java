@@ -1,6 +1,14 @@
 package dreammaker.android.expensetracker.util;
 
+@SuppressWarnings("unused")
 public class Constants {
+
+
+    public static final String ACTION_INSERT = "action_insert";
+
+    public static final String ACTION_UPDATE = "action_update";
+
+
 
     public static final String ACTION_INCOME_EXPENSE = "action_income_expense";
 
@@ -32,7 +40,7 @@ public class Constants {
 
 
 
-
+    public static final String EXTRA_ACTION = "extra_action";
 
     public static final String EXTRA_ID = "extra_id";
 

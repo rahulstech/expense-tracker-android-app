@@ -1,8 +1,18 @@
 <resources>
 
-    <style name="ShapeAppearance.AppTheme.RoundedImage" parent="">
-        <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">50%</item>
+    <style name="AppTheme.Widget"/>
+
+    <style name="AppTheme.Widget.Button" parent="Widget.MaterialComponents.Button">
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetLeft">0dp</item>
+        <item name="android:insetRight">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="textOutlineColor">@color/mtrl_btn_bg_color_selector</item>
     </style>
+
+    <style name="AppTheme.Widget.FloatingActionButton" parent="Widget.MaterialComponents.FloatingActionButton">
+        <item name="elevation">10dp</item>
+    </style>
+
 
 </resources>

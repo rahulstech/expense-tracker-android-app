@@ -7,7 +7,7 @@
 
     <fragment android:id="@+id/accounts_list"
         android:name="dreammaker.android.expensetracker.fragment.AccountsList"
-        tools:layout="@layout/list_content"
+        tools:layout="@layout/layout_accounts_list_fragment"
         android:label="@string/account">
 
         <action android:id="@+id/action_accountsList_to_inputAccount"

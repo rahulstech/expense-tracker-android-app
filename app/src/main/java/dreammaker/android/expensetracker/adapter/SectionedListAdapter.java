@@ -13,17 +13,20 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.AsyncListDiffer;
-import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 @SuppressWarnings("unused")
-public abstract class SectionedListAdapter<H,I,HVH extends RecyclerView.ViewHolder, IVH extends RecyclerView.ViewHolder> extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public abstract class SectionedListAdapter<H,I,HVH extends RecyclerView.ViewHolder, IVH extends RecyclerView.ViewHolder>
+        extends RecyclerView.Adapter<RecyclerView.ViewHolder>
+        implements IHeaderFooterAdapter {
 
     private static final String TAG = "SectionedListAdapter";
 
     public static final int SECTION_HEADER_TYPE = 100;
 
     public static final int SECTION_ITEM_TYPE = 200;
+
+    private final AsyncSectionBuilderCallback<H,I> BUILDER_CALLBACK = this::onResult;
 
     @NonNull
     @SuppressWarnings("FieldMayBeFinal")
@@ -40,45 +43,23 @@ public abstract class SectionedListAdapter<H,I,HVH extends RecyclerView.ViewHold
 
     private AsyncSectionBuilderResult<H,I> mLastResult = new AsyncSectionBuilderResult<>();
 
-    protected SectionedListAdapter(@NonNull Context context, @NonNull ItemCallback<H,I> callback) {
+    private boolean mHasListHeader = false;
+
+    private boolean mHasListFooter = false;
+
+    protected SectionedListAdapter(@NonNull Context context, @NonNull ItemCallback callback) {
         mContext = context;
         mInflater = LayoutInflater.from(context);
-        mDiffer = new AsyncListDiffer<>(this, new DiffUtil.ItemCallback<ListItem>() {
-            @Override
-            public boolean areItemsTheSame(@NonNull ListItem oldItem, @NonNull ListItem newItem) {
-                if (oldItem.getType() == newItem.getType()) {
-                    if (SECTION_HEADER_TYPE == oldItem.getType()) {
-                        return callback.isSameHeader(oldItem.getData(), newItem.getData());
-                    }
-                    else {
-                        return callback.isSameChild(oldItem.getData(),newItem.getData());
-                    }
-                }
-                return false;
-            }
-
-            @Override
-            public boolean areContentsTheSame(@NonNull ListItem oldItem, @NonNull ListItem newItem) {
-                if (oldItem.getType() == newItem.getType()) {
-                    if (SECTION_HEADER_TYPE == oldItem.getType()) {
-                        return callback.isHeaderContentSame(oldItem.getData(), newItem.getData());
-                    }
-                    else {
-                        return callback.isChildContentSame(oldItem.getData(),newItem.getData());
-                    }
-                }
-                return false;
-            }
-        });
+        mDiffer = new AsyncListDiffer<>(this, callback);
     }
 
     public void submitList(@Nullable List<I> list) {
         if (null != mSectionBuilder) {
             mSectionBuilder.cancel(true);
-            mSectionBuilder.setAsyncSectionBuilderCallback(null);
+            mSectionBuilder.removeAllAsyncSectionBuilderCallback();
         }
         mSectionBuilder = onCreateSectionBuilder(list);
-        mSectionBuilder.setAsyncSectionBuilderCallback(this::onSectionBuilt);
+        mSectionBuilder.addAsyncSectionBuilderCallback(BUILDER_CALLBACK);
         mSectionBuilder.execute();
     }
 
@@ -104,12 +85,52 @@ public abstract class SectionedListAdapter<H,I,HVH extends RecyclerView.ViewHold
 
     @NonNull
     public List<H> getHeaders() {
-        return mLastResult.getHeaders();
+        return Collections.unmodifiableList(mLastResult.getHeaders());
+    }
+
+    public int getHeaderPositionFor(int adapterPosition) {
+        ListItem item = mDiffer.getCurrentList().get(adapterPosition);
+        return (int) item.getExtras();
+    }
+
+    @NonNull
+    public List<I> getSubmittedList() {
+        return Collections.unmodifiableList(mLastResult.getItems());
     }
 
     @NonNull
     public <T> T getData(int position) {
         return mDiffer.getCurrentList().get(position).getData();
+    }
+
+    @Nullable
+    @Override
+    public Object getHeaderData() {return null;}
+
+    @Nullable
+    @Override
+    public Object getFooterData() {return null;}
+
+    @Override
+    public void setHasListHeader(boolean hasHeader) {
+        mHasListHeader = hasHeader;
+        onResult(mLastResult);
+    }
+
+    @Override
+    public boolean hasListHeader() {
+        return mHasListHeader;
+    }
+
+    @Override
+    public void setHasListFooter(boolean hasFooter) {
+        mHasListFooter = hasFooter;
+        onResult(mLastResult);
+    }
+
+    @Override
+    public boolean hasListFooter() {
+        return mHasListFooter;
     }
 
     @NonNull
@@ -118,9 +139,16 @@ public abstract class SectionedListAdapter<H,I,HVH extends RecyclerView.ViewHold
         if (SECTION_HEADER_TYPE == viewType) {
             return onCreateSectionHeaderViewHolder(parent,viewType);
         }
-        else  {
+        else if (SECTION_ITEM_TYPE == viewType){
             return onCreateSectionItemViewHolder(parent,viewType);
         }
+        else if (hasListHeader() && LIST_HEADER_TYPE == viewType) {
+            return onCreateListHeaderViewHolder(parent);
+        }
+        else if (hasListFooter() && LIST_FOOTER_TYPE == viewType){
+            return onCreateListFooterViewHolder(parent);
+        }
+        throw new IllegalArgumentException("unknown viewType="+viewType);
     }
 
     @SuppressWarnings("unchecked")
@@ -130,8 +158,14 @@ public abstract class SectionedListAdapter<H,I,HVH extends RecyclerView.ViewHold
         if (SECTION_HEADER_TYPE == type) {
             onBindSectionHeaderViewHolder((HVH) holder,position);
         }
-        else {
+        else if (SECTION_ITEM_TYPE == type){
             onBindSectionItemViewHolder((IVH) holder,position);
+        }
+        else if (LIST_HEADER_TYPE == type) {
+            onBindListFooterViewHolder(holder,getHeaderData());
+        }
+        else {
+            onBindListFooterViewHolder(holder,getFooterData());
         }
     }
 
@@ -142,13 +176,38 @@ public abstract class SectionedListAdapter<H,I,HVH extends RecyclerView.ViewHold
         if (SECTION_HEADER_TYPE == type) {
             onBindSectionHeaderViewHolder((HVH) holder,position,payloads);
         }
-        else {
+        else if (SECTION_ITEM_TYPE == type){
             onBindSectionItemViewHolder((IVH) holder,position,payloads);
+        }
+        else {
+            onBindViewHolder(holder,position);
         }
     }
 
     @NonNull
     protected abstract AsyncSectionBuilder<H,I> onCreateSectionBuilder(@Nullable List<I> list);
+
+    @NonNull
+    @Override
+    public RecyclerView.ViewHolder onCreateListHeaderViewHolder(@NonNull ViewGroup parent) {
+        throw new RuntimeException("onCreateListHeaderViewHolder(ViewGroup) not implemented");
+    }
+
+    @NonNull
+    @Override
+    public RecyclerView.ViewHolder onCreateListFooterViewHolder(@NonNull ViewGroup parent) {
+        throw new RuntimeException("onCreateListFooterViewHolder(ViewGroup) not implemented");
+    }
+
+    @Override
+    public void onBindListHeaderViewHolder(@NonNull RecyclerView.ViewHolder holder, @Nullable Object data) {
+        throw new RuntimeException("onBindListHeaderViewHolder(RecyclerView.ViewHolder,Object) not implemented");
+    }
+
+    @Override
+    public void onBindListFooterViewHolder(@NonNull RecyclerView.ViewHolder holder, @Nullable Object data) {
+        throw new RuntimeException("onBindListFooterViewHolder(RecyclerView.ViewHolder,Object) not implemented");
+    }
 
     @NonNull
     protected abstract HVH onCreateSectionHeaderViewHolder(@NonNull ViewGroup parent, int type);
@@ -168,32 +227,32 @@ public abstract class SectionedListAdapter<H,I,HVH extends RecyclerView.ViewHold
         onBindSectionItemViewHolder(holder,adapterPosition);
     }
 
-    private void onSectionBuilt(AsyncSectionBuilderResult<H,I> result) {
-        Log.d(TAG,"onSectionBuild: listItems="+result.getListItems().size());
+    private void onResult(AsyncSectionBuilderResult<H,I> result) {
         mLastResult = result;
-        mDiffer.submitList(result.getListItems());
+        final List<ListItem> actualItems = result.getListItems();
+        List<ListItem> items = new ArrayList<>();
+        addListHeaderItem(items);
+        items.addAll(actualItems);
+        addListFooterItem(items);
+        mDiffer.submitList(items);
     }
 
-    public static class ListItem {
-
-        @NonNull
-        private final Object data;
-        private final int type;
-
-        public ListItem(@NonNull Object data, int type) {
-            this.data = data;
-            this.type = type;
+    private void addListHeaderItem(@NonNull List<ListItem> list) {
+        if (!hasListHeader()) {
+            return;
         }
+        ListItem item = new ListItem(getHeaderData(),LIST_HEADER_TYPE);
+        list.add(0,item);
+        Log.d(TAG,"list header item added");
+    }
 
-        @SuppressWarnings("unchecked")
-        @NonNull
-        public <T> T getData() {
-            return (T) data;
+    private void addListFooterItem(@NonNull List<ListItem> list) {
+        if (!hasListFooter()) {
+            return;
         }
-
-        public int getType() {
-            return type;
-        }
+        ListItem item = new ListItem(getFooterData(),LIST_FOOTER_TYPE);
+        list.add(item);
+        Log.d(TAG,"list footer item added");
     }
 
     public static class AsyncSectionBuilderResult<H,I> {
@@ -259,7 +318,7 @@ public abstract class SectionedListAdapter<H,I,HVH extends RecyclerView.ViewHold
         @Nullable
         private final List<H> mHeaders;
 
-        private AsyncSectionBuilderCallback<H,I> mCallback;
+        private final ArrayList<AsyncSectionBuilderCallback<H,I>> mCallbacks = new ArrayList<>();
 
         public AsyncSectionBuilder(@Nullable List<I> items) {
             this(items,null);
@@ -271,8 +330,16 @@ public abstract class SectionedListAdapter<H,I,HVH extends RecyclerView.ViewHold
             this.mHeaders = headers;
         }
 
-        public void setAsyncSectionBuilderCallback(AsyncSectionBuilderCallback<H,I> callback) {
-            mCallback = callback;
+        public void addAsyncSectionBuilderCallback(@NonNull AsyncSectionBuilderCallback<H,I> callback) {
+            mCallbacks.add(callback);
+        }
+
+        public void removeAsyncSectionBuilderCallback(@NonNull AsyncSectionBuilderCallback<H,I> callback) {
+            mCallbacks.remove(callback);
+        }
+
+        public void  removeAllAsyncSectionBuilderCallback() {
+            mCallbacks.clear();
         }
 
         @NonNull
@@ -336,6 +403,8 @@ public abstract class SectionedListAdapter<H,I,HVH extends RecyclerView.ViewHold
         private List<ListItem> createListItems(@NonNull List<I> items, @NonNull List<H> headers) {
             ArrayList<ListItem> listItems = new ArrayList<>();
             H lastHeader = null;
+            int position = 0;
+            int lastHeaderPosition = 0;
             for (I item : items) {
                 H currentHeader = null;
                 for (H header : headers) {
@@ -348,22 +417,23 @@ public abstract class SectionedListAdapter<H,I,HVH extends RecyclerView.ViewHold
                     continue;
                 }
                 if (lastHeader != currentHeader) {
-                    ListItem listItem = new ListItem(currentHeader,SECTION_HEADER_TYPE);
+                    ListItem listItem = new ListItem(currentHeader,SECTION_HEADER_TYPE,position);
                     listItems.add(listItem);
                     lastHeader = currentHeader;
+                    lastHeaderPosition = position;
                 }
-                ListItem listItem = new ListItem(item,SECTION_ITEM_TYPE);
+                ListItem listItem = new ListItem(item,SECTION_ITEM_TYPE,lastHeaderPosition);
                 listItems.add(listItem);
+                position++;
             }
             return listItems;
         }
 
         @Override
         protected final void onPostExecute(AsyncSectionBuilderResult<H,I> result) {
-            if (null != mCallback) {
-                mCallback.onResult(result);
+            for (AsyncSectionBuilderCallback<H,I> callback : mCallbacks) {
+                callback.onResult(result);
             }
         }
     }
 }
-

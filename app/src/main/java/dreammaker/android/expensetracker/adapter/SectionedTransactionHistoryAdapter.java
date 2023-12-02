@@ -1,14 +1,9 @@
 package dreammaker.android.expensetracker.adapter;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.amulyakhare.textdrawable.TextDrawable;
 import com.amulyakhare.textdrawable.util.ColorGenerator;
@@ -16,59 +11,57 @@ import com.amulyakhare.textdrawable.util.ColorGenerator;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView;
 import dreammaker.android.expensetracker.R;
-import dreammaker.android.expensetracker.database.model.AccountModel;
 import dreammaker.android.expensetracker.database.model.PersonModel;
 import dreammaker.android.expensetracker.database.model.TransactionHistoryModel;
-import dreammaker.android.expensetracker.database.type.Currency;
 import dreammaker.android.expensetracker.database.type.TransactionType;
+import dreammaker.android.expensetracker.databinding.LayoutTransactionHistoryItemChildBinding;
+import dreammaker.android.expensetracker.databinding.LayoutTransactionHistoryItemHeaderBinding;
+import dreammaker.android.expensetracker.text.TextUtil;
 
 @SuppressWarnings("unused")
 public class SectionedTransactionHistoryAdapter
-        extends SectionedListAdapter<LocalDate, TransactionHistoryModel,
+        extends SectionedListAdapter<SectionedTransactionHistoryAdapter.HeaderData, TransactionHistoryModel,
         SectionedTransactionHistoryAdapter.HeaderViewHolder, SectionedTransactionHistoryAdapter.ChildViewHolder> {
+
+    private static final String TAG = SectionedTransactionHistoryAdapter.class.getSimpleName();
+
+    private static final ItemCallback CALLBACK = new ItemCallback() {
+        @Override
+        protected boolean areItemsTheSame(int type, @NonNull Object oldData, @NonNull Object newData) {
+            if (type == SECTION_ITEM_TYPE) {
+                return Objects.equals(((TransactionHistoryModel) oldData).getId(),((TransactionHistoryModel) newData).getId());
+            }
+            return Objects.equals(oldData,newData);
+        }
+
+        @Override
+        protected boolean areContentsTheSame(int type, @NonNull Object oldData, @NonNull Object newData) {
+            return Objects.equals(oldData,newData);
+        }
+    };
 
     public static final int HEADER_DATE = 1;
 
     public static final int HEADER_MONTH = 2;
 
-    private static final ItemCallback<LocalDate,TransactionHistoryModel> CALLBACK
-            = new ItemCallback<LocalDate, TransactionHistoryModel>() {
-        @Override
-        public boolean isSameHeader(@NonNull LocalDate oldHeader, @NonNull LocalDate newHeader) {
-            return oldHeader.compareTo(newHeader) == 0;
-        }
-
-        @Override
-        public boolean isSameChild(@NonNull TransactionHistoryModel oldChild, @NonNull TransactionHistoryModel newChild) {
-            return oldChild.getId().longValue() == newChild.getId().longValue();
-        }
-
-        @Override
-        public boolean isHeaderContentSame(@NonNull LocalDate oldHeader, @NonNull LocalDate newHeader) {
-            return oldHeader.compareTo(newHeader) == 0;
-        }
-
-        @Override
-        public boolean isChildContentSame(@NonNull TransactionHistoryModel oldChild, @NonNull TransactionHistoryModel newChild) {
-            return oldChild.equals(newChild);
-        }
-    };
-
     private int mHeaderType = HEADER_DATE;
 
     public SectionedTransactionHistoryAdapter(@NonNull Context context) {
         super(context, CALLBACK);
+        setHasListFooter(true);
     }
 
-    @SuppressLint("NotifyDataSetChanged")
-    public void setHeaderType(int type) {
+    public void changeHeaderType(int type) {
         mHeaderType = type;
-        notifyDataSetChanged();
+        submitList(new LinkedList<>(getSubmittedList()));
     }
 
     public int getHeaderType() {
@@ -77,227 +70,269 @@ public class SectionedTransactionHistoryAdapter
 
     @NonNull
     @Override
-    protected HeaderViewHolder onCreateHeaderViewHolder(@NonNull LayoutInflater inflater, @NonNull ViewGroup parent, int viewType) {
-        View view = inflater.inflate(R.layout.layout_transaction_history_item_header,parent,false);
-        HeaderViewHolder holder = new HeaderViewHolder(view);
-        holder.setHeaderType(mHeaderType);
+    protected AsyncSectionBuilder<HeaderData, TransactionHistoryModel> onCreateSectionBuilder(@Nullable List<TransactionHistoryModel> list) {
+        return new AsyncItemBuilder(list,mHeaderType);
+    }
+
+    @NonNull
+    @Override
+    protected HeaderViewHolder onCreateSectionHeaderViewHolder(@NonNull ViewGroup parent, int type) {
+        LayoutTransactionHistoryItemHeaderBinding binding
+                = LayoutTransactionHistoryItemHeaderBinding.inflate(getLayoutInflater(),parent,false);
+        HeaderViewHolder holder = new HeaderViewHolder(binding);
+        holder.setAdapter(this);
         return holder;
     }
 
     @NonNull
     @Override
-    protected ChildViewHolder onCreateChildViewHolder(@NonNull LayoutInflater inflater, @NonNull ViewGroup parent, int viewType) {
-        View view = inflater.inflate(R.layout.layout_transaction_history_item_child,parent,false);
-        return new ChildViewHolder(view);
+    protected ChildViewHolder onCreateSectionItemViewHolder(@NonNull ViewGroup parent, int type) {
+        LayoutTransactionHistoryItemChildBinding binding
+                = LayoutTransactionHistoryItemChildBinding.inflate(getLayoutInflater(),parent,false);
+        ChildViewHolder holder = new ChildViewHolder(binding);
+        holder.setAdapter(this);
+        return holder;
     }
 
     @Override
-    protected void onBindHeaderViewHolder(@NonNull HeaderViewHolder holder, int adapterPosition) {
-        holder.bind(getData(adapterPosition));
+    protected void onBindSectionHeaderViewHolder(@NonNull HeaderViewHolder holder, int adapterPosition) {
+        HeaderData data = getData(adapterPosition);
+        holder.bind(data);
     }
 
     @Override
-    protected void onBindChildViewHolder(@NonNull ChildViewHolder holder, int adapterPosition) {
-        holder.bind(getData(adapterPosition));
-    }
-
-    @Nullable
-    @Override
-    protected List<TransactionHistoryModel> onBeforeCreateSections(@NonNull List<TransactionHistoryModel> list) {
-        // TODO: implement necessary filter
-        return list;
+    protected void onBindSectionItemViewHolder(@NonNull ChildViewHolder holder, int adapterPosition) {
+        TransactionHistoryModel data = getData(adapterPosition);
+        holder.bind(data);
     }
 
     @NonNull
     @Override
-    protected LocalDate onCreateHeaderFromChild(@NonNull TransactionHistoryModel child) {
-        LocalDate when = child.getWhen();
-        return LocalDate.from(when);
+    public RecyclerView.ViewHolder onCreateListFooterViewHolder(@NonNull ViewGroup parent) {
+        return BaseViewHolder.create(getContext(),parent, R.layout.layout_list_footer);
     }
 
     public static class HeaderData {
 
-        private LocalDate date;
+        private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("EEE, dd-MMM-yyyy");
 
-        private Month month;
+        private static final DateTimeFormatter MONTH_FORMAT = DateTimeFormatter.ofPattern("MMM yyyy");
 
-        public HeaderData() {}
+        private final int type;
 
-        public CharSequence getDisplayText() {
-            return null;
+        @NonNull
+        private final Object data;
+
+        public HeaderData(int type, @NonNull Object data) {
+            this.type = type;
+            this.data = data;
+        }
+
+        public int getType() {
+            return type;
+        }
+
+        @SuppressWarnings("unchecked")
+        public <T> T getData() {
+            return (T) data;
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            if (type == HEADER_DATE) {
+                LocalDate date = (LocalDate) data;
+                return DATE_FORMAT.format(date);
+            }
+            else {
+                Month month = (Month) data;
+                return MONTH_FORMAT.format(month);
+            }
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof HeaderData)) return false;
+            HeaderData that = (HeaderData) o;
+            return type == that.type && data.equals(that.data);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(type, data);
         }
     }
 
-    public static class HeaderViewHolder extends BaseViewHolder<LocalDate> {
+    public static class HeaderViewHolder extends BaseViewHolder<HeaderData> {
 
-        static final DateTimeFormatter FORMATTER_DATE_WITH_WEEK_DAY = DateTimeFormatter.ofPattern("EEEE, dd-MMMM-yyyy");
+        final LayoutTransactionHistoryItemHeaderBinding mBinding;
 
-        static final DateTimeFormatter FORMATTER_MONTH = DateTimeFormatter.ofPattern("EEEE, dd-MMMM-yyyy");
-
-
-        TextView text1;
-        int mHeaderType;
-
-        public HeaderViewHolder(@NonNull View itemView) {
-            super(itemView);
-            text1 = findViewById(R.id.text1);
-        }
-
-        public void setHeaderType(int type) {
-            mHeaderType = type;
+        public HeaderViewHolder(@NonNull LayoutTransactionHistoryItemHeaderBinding binding) {
+            super(binding.getRoot());
+            mBinding = binding;
         }
 
         @Override
-        protected void onBindNull() {
-            text1.setText(null);
-        }
+        protected void onBindNull() {}
 
         @Override
-        protected void onBindNonNull(@NonNull LocalDate item) {
-            String headerText;
-            if (mHeaderType == HEADER_DATE) {
-                headerText = item.format(FORMATTER_DATE_WITH_WEEK_DAY);
-            }
-            else {
-                headerText = item.format(FORMATTER_MONTH);
-            }
-            text1.setText(headerText);
+        protected void onBindNonNull(@NonNull HeaderData item) {
+            mBinding.text1.setText(item.toString());
         }
     }
 
     public static class ChildViewHolder extends BaseViewHolder<TransactionHistoryModel> {
 
-        ImageView logoPrimary;
-        ImageView logoSecondary;
-        TextView text1;
-        TextView text2;
+        final LayoutTransactionHistoryItemChildBinding mBinding;
 
-        public ChildViewHolder(@NonNull View itemView) {
-            super(itemView);
-            logoPrimary = findViewById(R.id.logoPrimary);
-            logoPrimary = findViewById(R.id.logoSecondary);
-            text1 = findViewById(R.id.text1);
-            text2 = findViewById(R.id.text2);
+        public ChildViewHolder(@NonNull LayoutTransactionHistoryItemChildBinding binding) {
+            super(binding.getRoot());
+            mBinding = binding;
         }
 
         @Override
-        protected void onBindNull() {
-            text1.setText(null);
-            text2.setText(null);
-            logoPrimary.setImageDrawable(null);
-            logoSecondary.setImageDrawable(null);
-        }
+        protected void onBindNull() {}
 
         @Override
         protected void onBindNonNull(@NonNull TransactionHistoryModel item) {
-            text1.setText(getDescriptionText(item));
-            text2.setText(getAmountText(item));
-            logoPrimary.setImageDrawable(getPrimaryLogo(item));
-            logoSecondary.setImageDrawable(getSecondaryLogo(item));
+            TransactionType type = item.getType();
+            mBinding.logoPrimary.setImageDrawable(getPayeeDefaultDrawable(item));
+            mBinding.description.setText(getDescription(item));
+            mBinding.amount.setText(item.getAmount().toString());
+            if (type == TransactionType.INCOME) {
+                mBinding.logoSecondary.setText(null);
+                mBinding.logoSecondary.setCompoundDrawablesRelative(null, null, null, null);
+            }
+            else {
+                mBinding.logoSecondary.setCompoundDrawablesRelative(null,null,getPayerDefaultDrawable(item),null);
+                switch (type) {
+                    case DUE:
+                    case EXPENSE:
+                    case PAY_BORROW: {
+                        mBinding.logoSecondary.setText(getContext().getText(R.string.label_paid_from));
+                    }
+                    case BORROW:
+                    case PAY_DUE: {
+                        mBinding.logoSecondary.setText(getContext().getString(R.string.label_paid_by));
+                    }
+                    case MONEY_TRANSFER:
+                    case DUE_TRANSFER:
+                    case BORROW_TO_DUE_TRANSFER: {
+                        mBinding.logoSecondary.setText(getContext().getString(R.string.label_transferred_from));
+                    }
+                }
+            }
         }
 
-        CharSequence getDescriptionText(@NonNull TransactionHistoryModel item) {
+        Drawable getPayeeDefaultDrawable(TransactionHistoryModel item) {
+            if (null != item.getPayeeAccount()) {
+                return getTextDrawable(item.getPayeeAccount().getName());
+            }
+            else if (null != item.getPayeePerson()) {
+                return getPersonDefaultPhoto(item.getPayeePerson());
+            }
+            return null;
+        }
+
+        Drawable getPayerDefaultDrawable(TransactionHistoryModel item) {
+            if (null != item.getPayeeAccount()) {
+                return getTextDrawable(item.getPayeeAccount().getName());
+            }
+            else if (null != item.getPayeePerson()) {
+                return getPersonDefaultPhoto(item.getPayeePerson());
+            }
+            return null;
+        }
+
+        Drawable getPersonDefaultPhoto(PersonModel person) {
+            final String firstName = person.getFirstName();
+            final String lastName = person.getLastName();
+            final String displayName = TextUtil.getDisplayNameForPerson(firstName,lastName,TextUtil.FIRST_NAME_FIRST);
+            return getTextDrawable(displayName);
+        }
+
+        Drawable getTextDrawable(String text) {
+            String drawableText = TextUtil.getDisplayLabel(text);
+            int drawableBackground = ColorGenerator.MATERIAL.getColor(text);
+            return TextDrawable.builder()
+                    .beginConfig().bold().endConfig()
+                    .buildRound(drawableText,drawableBackground);
+        }
+
+        CharSequence getDescription(TransactionHistoryModel item) {
             String description = item.getDescription();
             if (!TextUtils.isEmpty(description)) {
+                // TODO: make single line
                 return description;
             }
-            /*
-            TransactionType  type = item.getType();
-            PersonModel personPayer = item.getPayerPerson();
-            AccountModel accountPayer = item.getPayerAccount();
-            PersonModel personPayee = item.getPayeePerson();
-            AccountModel accountPayee = item.getPayeeAccount();
-            String unknown = getContext().getString(R.string.text_unknown);
+            TransactionType type = item.getType();
             switch (type) {
-                case DUE: {
-                    String payee = getPersonDisplayNameOrDefault(personPayee,unknown);
-                    String payer = getAccountNameOrDefault(accountPayer,unknown);
-                    return getContext().getString(R.string.text_transaction_history_description_due,payee,payer);
+                case EXPENSE: {
+                    return getContext().getText(R.string.message_debit_without_amount);
+                }
+                case INCOME: {
+                    return getContext().getString(R.string.message_credit_without_amount);
+                }
+                case DUE_TRANSFER:
+                case BORROW_TRANSFER:
+                case BORROW_TO_DUE_TRANSFER:{
+                    PersonModel payee = item.getPayeePerson();
+                    String dest = TextUtil.getDisplayNameForPerson(payee.getFirstName(),payee.getLastName(), TextUtil.FIRST_NAME_FIRST);
+                    return getContext().getString(R.string.message_transferred_to_without_amount,dest);
                 }
                 case BORROW:
-                case PAY_DUE: {
-                    String payee = getAccountNameOrDefault(accountPayee,unknown) ;
-                    String payer = getPersonDisplayNameOrDefault(personPayer,unknown);
-                    return getContext().getString(R.string.text_amount_received,payer,payee);
-                }
+                case PAY_DUE:
                 case MONEY_TRANSFER: {
-                    String payee = getAccountNameOrDefault(accountPayee,unknown) ;
-                    String payer = getAccountNameOrDefault(accountPayer,unknown);
-                    return getContext().getString(R.string.text_amount_received,payer,payee);
+                    String dest = item.getPayeeAccount().getName();
+                    return getContext().getString(R.string.message_received_in_without_amount,dest);
                 }
-                break;
+                case DUE:
                 case PAY_BORROW: {
-                    String payee = getPersonDisplayNameOrDefault(personPayee,unknown);
-                    String payer = getAccountNameOrDefault(accountPayer,unknown);
-                    return getContext().getString(R.string.text_transaction_history_description_pay_borrow,payee,payer);
+                    PersonModel payee = item.getPayeePerson();
+                    String dest = TextUtil.getDisplayNameForPerson(payee.getFirstName(),payee.getLastName(), TextUtil.FIRST_NAME_FIRST);
+                    return getContext().getString(R.string.message_paid_to_without_amount,dest);
                 }
-            }*/
-            return null;
-        }
-
-        CharSequence getAmountText(@NonNull TransactionHistoryModel item) {
-            Currency amount = item.getAmount();
-            TransactionType type = item.getType();
-            return amount.toString();
-        }
-
-        Drawable getPrimaryLogo(@NonNull TransactionHistoryModel item) {
-            AccountModel account = item.getPayeeAccount();
-            PersonModel person = item.getPayeePerson();
-            if (null != account) {
-                String text = account.getName().substring(0,1);
-                int color = ColorGenerator.MATERIAL.getColor(account);
-                return TextDrawable.builder().buildRound(text,color);
-            }
-            else if (null != person) {
-                String text = getPersonDrawableText(person);
-                int color = ColorGenerator.MATERIAL.getColor(person);
-                return TextDrawable.builder().buildRound(text,color);
             }
             return null;
         }
+    }
 
-        Drawable getSecondaryLogo(@NonNull TransactionHistoryModel item) {
-            return null;
+    private static class AsyncItemBuilder extends AsyncSectionBuilder<HeaderData,TransactionHistoryModel> {
+
+        private final int mHeaderType;
+
+        public AsyncItemBuilder(@Nullable List<TransactionHistoryModel> items, int headerType) {
+            super(items);
+            mHeaderType = headerType;
         }
 
         @NonNull
-        String getAccountNameOrDefault(@Nullable AccountModel account, @NonNull String defaultValue) {
-            if (null == account) {
-                return defaultValue;
-            }
-            return account.getName();
+        @Override
+        protected List<TransactionHistoryModel> onBeforeBuildSections(@NonNull List<TransactionHistoryModel> items) {
+            return super.onBeforeBuildSections(items);
         }
 
         @NonNull
-        String getPersonDisplayNameOrDefault(@Nullable PersonModel person, @NonNull String defaultValue) {
-            if (null == person) {
-                return defaultValue;
-            }
-            return getPersonDisplayName(person);
-        }
-
-        @NonNull
-        String getPersonDisplayName(@NonNull PersonModel person) {
-            String firstName = person.getFirstName();
-            String lastName = person.getLastName();
-            if (null == lastName) {
-                return firstName;
+        @Override
+        protected HeaderData onCreateSectionHeader(@NonNull TransactionHistoryModel item) {
+            if (mHeaderType == HEADER_DATE) {
+                LocalDate data = LocalDate.from(item.getWhen());
+                return new HeaderData(HEADER_DATE,data);
             }
             else {
-                return firstName+" "+lastName;
+                Month data = Month.from(item.getWhen());
+                return new HeaderData(HEADER_MONTH,data);
             }
         }
 
-        @NonNull
-        String getPersonDrawableText(@NonNull PersonModel person) {
-            String firstName = person.getFirstName();
-            String lastName = person.getLastName();
-            if (null == lastName) {
-                return firstName.substring(0,1);
+        @Override
+        protected boolean belongsToSection(@NonNull TransactionHistoryModel item, @NonNull HeaderData header) {
+            if (mHeaderType == HEADER_DATE) {
+                return item.getWhen().isEqual(header.getData());
             }
             else {
-                return String.valueOf(firstName.charAt(0)+lastName.charAt(0));
+                return item.getWhen().getMonth().equals(header.getData());
             }
         }
     }

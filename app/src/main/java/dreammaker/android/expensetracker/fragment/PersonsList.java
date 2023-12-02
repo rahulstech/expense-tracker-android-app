@@ -1,9 +1,7 @@
 package dreammaker.android.expensetracker.fragment;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -27,16 +25,13 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 import dreammaker.android.expensetracker.R;
-import dreammaker.android.expensetracker.database.Person;
 import dreammaker.android.expensetracker.database.model.PersonDisplayModel;
-import dreammaker.android.expensetracker.util.Check;
 import dreammaker.android.expensetracker.util.Constants;
-import dreammaker.android.expensetracker.view.BaseRecyclerViewListAdapterFilterable;
 import dreammaker.android.expensetracker.view.adapter.PeopleListAdapter;
 import dreammaker.android.expensetracker.viewmodel.PersonsViewModel;
 import dreammaker.android.expensetracker.viewmodel.SavedStateViewModel;
-import dreammaker.android.expensetracker.viewmodel.TransactionsViewModel;
 
+@Deprecated
 public class PersonsList extends Fragment {
 
     private static final String TAG = "PersonsList";

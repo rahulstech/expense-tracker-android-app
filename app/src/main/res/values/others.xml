@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="input_person_name_orientation" type="integer">vertical</item>
+
+    <item name="input_person_balance_orientation" type="integer">vertical</item>
+
+    <item name="asset_liability_orientation" type="integer">vertical</item>
+</resources>

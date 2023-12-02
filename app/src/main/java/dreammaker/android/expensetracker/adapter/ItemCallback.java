@@ -1,20 +1,35 @@
 package dreammaker.android.expensetracker.adapter;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
 
-/**
- * Callback method to calculate difference between two non-null items in a list
- *
- * @param <H> header item type
- * @param <C> child item type
- */
-public interface ItemCallback<H,C> {
+@SuppressWarnings("unused")
+public abstract class ItemCallback extends DiffUtil.ItemCallback<ListItem> {
 
-    boolean isSameHeader(@NonNull H oldHeader, @NonNull H newHeader);
 
-    boolean isSameChild(@NonNull C oldChild, @NonNull C newChild);
+    @Override
+    public boolean areItemsTheSame(@NonNull ListItem oldItem, @NonNull ListItem newItem) {
+        if (oldItem.getType() != newItem.getType()) {
+            return false;
+        }
+        if (null == oldItem.getData() && null != newItem.getData()) {
+            return areItemsTheSame(newItem.getType(),oldItem.getData(),newItem.getData());
+        }
+        return false;
+    }
 
-    boolean isHeaderContentSame(@NonNull H oldHeader, @NonNull H newHeader);
+    @Override
+    public boolean areContentsTheSame(@NonNull ListItem oldItem, @NonNull ListItem newItem) {
+        if (oldItem.getType() != newItem.getType()) {
+            return false;
+        }
+        if (null == oldItem.getData() && null != newItem.getData()) {
+            return areContentsTheSame(newItem.getType(),oldItem.getData(),newItem.getData());
+        }
+        return false;
+    }
 
-    boolean isChildContentSame(@NonNull C oldChild, @NonNull C newChild);
+    protected abstract boolean areItemsTheSame(int type, @NonNull Object oldData, @NonNull Object newData);
+
+    protected abstract boolean areContentsTheSame(int type, @NonNull Object oldData, @NonNull Object newData);
 }

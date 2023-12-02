@@ -32,6 +32,9 @@ public interface AccountDao {
     LiveData<List<AccountModel>> getAllAccountWithUsageCountLive();
 
     @Query("SELECT * FROM `accounts` WHERE `id` = :id")
+    LiveData<AccountModel> getAccountByIdLive(long id);
+
+    @Query("SELECT * FROM `accounts` WHERE `id` = :id")
     Account findAccountById(long id);
 
     @Query("DELETE FROM `accounts` WHERE `id` IN(:ids)")

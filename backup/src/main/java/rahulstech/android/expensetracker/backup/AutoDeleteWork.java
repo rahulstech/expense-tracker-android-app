@@ -1,5 +1,6 @@
 package rahulstech.android.expensetracker.backup;
 
+/**
 import android.util.Log;
 
 import dreammaker.android.expensetracker.R;
@@ -10,11 +11,12 @@ import dreammaker.android.expensetracker.util.AppExecutor;
 import dreammaker.android.expensetracker.util.Check;
 import dreammaker.android.expensetracker.database.type.Date;
 import dreammaker.android.expensetracker.util.ResultCallback;
-
+*/
 public class AutoDeleteWork implements Runnable {
 
     public static final String TAG = "AutoDeleteWork";
 
+    /**
     private static final int AUTO_DELETE_NOTIFICATION_ID = 854;
 
     private WorkActionService service;
@@ -32,11 +34,11 @@ public class AutoDeleteWork implements Runnable {
         this.nh = new NotificationHelper(service);
         this.nh.createNotificationChannel(NotificationHelper.MISCELLANEOUS_CHANNEL_ID,
                 NotificationHelper.MISCELLANEOUS_CHANNEL_DESCRIPTION);
-    }
+    }*/
 
     @Override
     public void run() {
-        notifyStart();
+        /*notifyStart();
         try {
             delete();
         }
@@ -45,9 +47,10 @@ public class AutoDeleteWork implements Runnable {
         }
         finally {
             notifyEnd();
-        }
+        }*/
     }
 
+    /*
     private void delete() {
         String autoDeleteDuration = SettingsActivity.getAutoDeleteDuration(service);
         Date now = new Date();
@@ -105,4 +108,5 @@ public class AutoDeleteWork implements Runnable {
 
         });
     }
+    */
 }

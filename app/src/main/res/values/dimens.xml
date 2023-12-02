@@ -11,4 +11,7 @@
     <dimen name="padding_vertical_extra_small">4dp</dimen>
     <dimen name="button_size_medium">48dp</dimen>
     <dimen name="inset_small">18dp</dimen>
+
+
+    <dimen name="fab_size_medium">56dp</dimen>
 </resources>

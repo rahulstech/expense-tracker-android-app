@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="asset_liability_orientation" type="integer">horizontal</item>
+</resources>

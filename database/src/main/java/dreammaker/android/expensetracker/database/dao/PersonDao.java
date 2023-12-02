@@ -32,6 +32,9 @@ public interface PersonDao {
     LiveData<List<PersonModel>> getAllPeopleWithUsageCountLive();
 
     @Query("SELECT * FROM `people` WHERE `id` = :id")
+    LiveData<PersonModel> getPersonByIdLive(long id);
+
+    @Query("SELECT * FROM `people` WHERE `id` = :id")
     Person findPersonById(long id);
 
     @Query("DELETE FROM `people` WHERE `id` IN(:ids)")

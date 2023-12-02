@@ -19,53 +19,48 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 import dreammaker.android.expensetracker.R;
-import dreammaker.android.expensetracker.adapter.AccountsAdapter;
-import dreammaker.android.expensetracker.database.model.AccountModel;
-import dreammaker.android.expensetracker.databinding.LayoutAccountsListFragmentBinding;
+import dreammaker.android.expensetracker.adapter.PeopleAdapter;
+import dreammaker.android.expensetracker.database.model.PersonModel;
+import dreammaker.android.expensetracker.databinding.LayoutPeopleListFragmentBinding;
 import dreammaker.android.expensetracker.listener.OnItemClickListener;
 import dreammaker.android.expensetracker.listener.RecyclerViewItemClickHelper;
-import dreammaker.android.expensetracker.viewmodel.AccountsListViewModel;
-
-import static androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory;
-import static androidx.lifecycle.ViewModelProvider.Factory;
+import dreammaker.android.expensetracker.viewmodel.PeopleListViewModel;
 
 @SuppressWarnings("all")
-public class AccountsList extends Fragment implements OnItemClickListener {
+public class PeopleList extends Fragment implements OnItemClickListener {
 
-    private static final String TAG = AccountsList.class.getSimpleName();
+    private static final String TAG = "PersonsList";
 
     private static final String KEY_QUERY_STRING = "query_string";
 
-    private static final int SEARCH_KEY_LENGTH_THRESHOLD = 2;
-
     private NavController navController;
 
-    private AccountsListViewModel mViewModel;
+    private PeopleListViewModel mViewModel;
 
-    private LayoutAccountsListFragmentBinding mBinding;
+    private LayoutPeopleListFragmentBinding mBinding;
 
-    private AccountsAdapter mAdapter;
+    private PeopleAdapter mAdapter;
 
     private RecyclerViewItemClickHelper mClickHelper;
 
+    private List<PersonModel> mPeopleList;
+
     private String mQueryString = null;
 
-    private List<AccountModel> mLastLoadedAccounts = null;
-
-    public AccountsList() { super(); }
+    public PeopleList() { super(); }
 
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        mViewModel = new ViewModelProvider(requireActivity(), (Factory) new AndroidViewModelFactory())
-                .get(AccountsListViewModel.class);
-        mViewModel.getAllAccounts().observe(this,this::onFinishAccountsLoading);
+        mViewModel = new ViewModelProvider(this,(ViewModelProvider.Factory) new ViewModelProvider.AndroidViewModelFactory())
+                .get(PeopleListViewModel.class);
+        mViewModel.getAllPeople().observe(this,this::onPeopleLoadingComplete);
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        mBinding = LayoutAccountsListFragmentBinding.inflate(inflater,container,false);
+        mBinding = LayoutPeopleListFragmentBinding.inflate(inflater,container,false);
         return mBinding.getRoot();
     }
 
@@ -73,7 +68,7 @@ public class AccountsList extends Fragment implements OnItemClickListener {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         navController = Navigation.findNavController(view);
-        mBinding.searchAccount.addTextChangedListener(new TextWatcher() {
+        mBinding.searchPeople.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
@@ -85,12 +80,11 @@ public class AccountsList extends Fragment implements OnItemClickListener {
                 onSearchKeyChanged(s.toString());
             }
         });
-        mBinding.addAccount.setOnClickListener(v->onClickAddAccount());
-        mAdapter = new AccountsAdapter(requireContext());
+        mBinding.addPerson.setOnClickListener(v -> onClickAddPerson());
+        mAdapter = new PeopleAdapter(requireContext());
         mBinding.list.setAdapter(mAdapter);
         mClickHelper = new RecyclerViewItemClickHelper(mBinding.list);
         mClickHelper.setOnItemClickListener(this);
-        // restore saved state if available
         if (null != savedInstanceState) {
             mQueryString = savedInstanceState.getString(KEY_QUERY_STRING,null);
         }
@@ -99,7 +93,7 @@ public class AccountsList extends Fragment implements OnItemClickListener {
     @Override
     public void onResume() {
         super.onResume();
-        // TODO: change title setting
+        // TODO: set title
     }
 
     @Override
@@ -108,45 +102,41 @@ public class AccountsList extends Fragment implements OnItemClickListener {
         outState.putString(KEY_QUERY_STRING,mQueryString);
     }
 
+    private void onPeopleLoadingComplete(@NonNull List<PersonModel> people) {
+        mPeopleList = people;
+        searchPeople();
+    }
+
+    private void onClickPerson(@NonNull PersonModel person) {
+        // TODO: handle person click
+    }
+
     private void onSearchKeyChanged(String key) {
         mQueryString = key;
-        searchAccounts();
+        searchPeople();
     }
 
-    private void searchAccounts() {
+    private void searchPeople() {
         if (TextUtils.isEmpty(mQueryString)) {
-            mAdapter.submitList(mLastLoadedAccounts);
+            mAdapter.submitList(mPeopleList);
         }
         else {
-            mAdapter.filter(mLastLoadedAccounts,mQueryString);
+            mAdapter.filter(mPeopleList,mQueryString);
         }
     }
 
-    private void onDataSetChanged() {
-        // TODO: implement method
+    private void onClickAddPerson(){
+        navController.navigate(R.id.action_personsList_to_inputPerson);
     }
 
-    private void onFinishAccountsLoading(@Nullable List<AccountModel> accounts) {
-        mLastLoadedAccounts = accounts;
-        searchAccounts();
-    }
-
-    private void onClickAddAccount() {
-        navController.navigate(R.id.action_accountsList_to_inputAccount);
-    }
-
-    private void onClickDeleteAccounts() {
-        // TODO: warn before delete
-    }
 
     @Override
     public void onClickItem(@NonNull RecyclerView recyclerView, @NonNull View view, int positon) {
-        if (AccountsAdapter.SECTION_ITEM_TYPE == mAdapter.getItemViewType(positon)) {
-            onClickAccount(mAdapter.getData(positon));
+        if (PeopleAdapter.SECTION_ITEM_TYPE == mAdapter.getItemViewType(positon)) {
+            onClickPerson(mAdapter.getData(positon));
         }
     }
 
-    private void onClickAccount(@NonNull AccountModel account) {
-        // TODO: handle account click
-    }
+    private void onClickDeletePeople() {}
+
 }
