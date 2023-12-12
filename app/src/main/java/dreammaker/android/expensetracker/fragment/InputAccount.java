@@ -27,8 +27,8 @@ import dreammaker.android.expensetracker.text.TextUtil;
 import dreammaker.android.expensetracker.util.Constants;
 import dreammaker.android.expensetracker.viewmodel.DBViewModel;
 import dreammaker.android.expensetracker.viewmodel.InputAccountViewModel;
+import dreammaker.android.expensetracker.viewmodel.InputPersonViewModel;
 
-@SuppressWarnings("all")
 public class InputAccount extends Fragment {
 
     private static final String TAG = InputAccount.class.getSimpleName();
@@ -48,27 +48,6 @@ public class InputAccount extends Fragment {
         super();
     }
 
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        mViewModel = new ViewModelProvider(requireActivity(), (ViewModelProvider.Factory) new ViewModelProvider.AndroidViewModelFactory())
-                .get(InputAccountViewModel.class);
-        if (isEditOperation()) {
-            long id = getAccountId();
-            mViewModel.getAccountById(id).observe(getViewLifecycleOwner(),this::onAccountFetched);
-        }
-        LiveData<DBViewModel.AsyncQueryResult> result = mViewModel.getLiveResult(InputAccountViewModel.OPERATION_SAVE_ACCOUNT);
-        if (result != null) {
-            result.observe(getViewLifecycleOwner(),this::onAccountSaveComplete);
-        }
-        requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                onBackPressed();
-            }
-        });
-    }
-
     private boolean isEditOperation() {
         return Constants.ACTION_UPDATE.equals(requireArguments().getString(Constants.EXTRA_ACTION));
     }
@@ -77,10 +56,25 @@ public class InputAccount extends Fragment {
         return requireArguments().getLong(Constants.EXTRA_ID,0L);
     }
 
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        mViewModel = new ViewModelProvider(this, (ViewModelProvider.Factory) ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
+                .get(InputAccountViewModel.class);
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mBinding = InputAccountBinding.inflate(inflater,container,false);
+        if (isEditOperation()) {
+            long id = getAccountId();
+            mViewModel.getAccountById(id).observe(getViewLifecycleOwner(),this::onAccountFetched);
+        }
+        LiveData<DBViewModel.AsyncQueryResult> result = mViewModel.getLiveResult(InputAccountViewModel.OPERATION_SAVE_ACCOUNT);
+        if (result != null) {
+            result.observe(getViewLifecycleOwner(),this::onAccountSaveComplete);
+        }
         return mBinding.getRoot();
     }
 
@@ -90,9 +84,20 @@ public class InputAccount extends Fragment {
         navController = Navigation.findNavController(view);
         mBinding.containerBalance.setEndIconOnClickListener(v->onToggleCalculator());
         mBinding.buttonSave.setOnClickListener(v->onClickSave());
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
         if (null != savedInstanceState) {
             mAccountSet = savedInstanceState.getBoolean(KEY_ACCOUNT_VALUE_SET,false);
         }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        // TODO: set title
     }
 
     @Override
@@ -155,20 +160,11 @@ public class InputAccount extends Fragment {
             valid = false;
         }
         else {
-            try {
-                balance = Currency.valueOf(txtBalance.toString());
-            }
-            catch (Throwable ignore) {
-
-                valid = false;
-            }
-
             balance = TextUtil.tryConvertToCurrencyOrNull(txtBalance);
             valid = null != balance;
             if (!valid) {
                 mBinding.containerBalance.setError(getString(R.string.error_invalid_numeric_value));
             }
-
         }
         // at least one invalid input exists, don't go further
         if (!valid) return;

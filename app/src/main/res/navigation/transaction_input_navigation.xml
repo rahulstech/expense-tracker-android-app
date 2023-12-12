@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/basic_details"
         android:name="dreammaker.android.expensetracker.fragment.TransactionBasicDetailsInputFragment"
-        tools:layout="@layout/transaction_basic_details_input_layout">
+        tools:layout="@layout/fragment_transaction_basic_details_input">
 
         <action android:id="@+id/basic_details_to_people"
             app:destination="@id/people"/>
@@ -24,7 +24,7 @@
     <fragment
         android:id="@id/accounts"
         android:name="dreammaker.android.expensetracker.fragment.AccountChooserFragment"
-        tools:layout="@layout/payee_payer_chooser_layout">
+        tools:layout="@layout/layout_payee_payer_chooser">
 
         <action android:id="@+id/accounts_to_accounts"
             app:destination="@id/accounts"/>
@@ -36,7 +36,7 @@
 
     <fragment android:id="@+id/people"
         android:name="dreammaker.android.expensetracker.fragment.PersonChooserFragment"
-        tools:layout="@layout/payee_payer_chooser_layout">
+        tools:layout="@layout/layout_payee_payer_chooser">
 
         <action android:id="@+id/people_to_accounts"
             app:destination="@id/accounts" />

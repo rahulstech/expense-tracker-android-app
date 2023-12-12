@@ -2,23 +2,17 @@ package dreammaker.android.expensetracker.fragment;
 
 import android.app.DatePickerDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Spinner;
 
-import com.google.android.material.textfield.TextInputLayout;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
-import java.util.UUID;
-
-import androidx.annotation.IdRes;
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -26,188 +20,296 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import dreammaker.android.expensetracker.R;
+import dreammaker.android.expensetracker.database.type.Currency;
 import dreammaker.android.expensetracker.database.type.TransactionType;
-import dreammaker.android.expensetracker.util.Check;
+import dreammaker.android.expensetracker.databinding.FragmentTransactionBasicDetailsInputBinding;
+import dreammaker.android.expensetracker.text.TextUtil;
 import dreammaker.android.expensetracker.util.Constants;
-import dreammaker.android.expensetracker.database.type.Date;
-import dreammaker.android.expensetracker.viewmodel.SavedStateViewModel;
-import dreammaker.android.expensetracker.viewmodel.TransactionInputViewModel;
+import dreammaker.android.expensetracker.viewmodel.TransactionHistoryInputViewModel;
 
+@SuppressWarnings("unused")
 public class TransactionBasicDetailsInputFragment extends Fragment {
 
     private static final String TAG = "TranBasicDetails";
 
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
     private static final String KEY_PICKED_DATE = "picked_date";
 
-    private Spinner dateOptions;
-    private Button btn2;
-    private Button btn1;
-
-    private TextInputLayout containerAmount;
-    private EditText inpAmount;
-    private EditText inpDescription;
+    public static final String EXTRA_TRANSACTION_HISTORY = "extra_transaction_history";
 
     private NavController navController;
-    private SavedStateViewModel mSavedState;
-    private Date pickedDate = Date.today();
+
+    @SuppressWarnings("FieldCanBeLocal")
+    private TransactionHistoryInputViewModel mViewModel;
+
+    private LocalDate pickedDate = LocalDate.now();
+
+    private FragmentTransactionBasicDetailsInputBinding mBinding;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        checkHasTransactionTypeOrThrow();
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        mViewModel = new ViewModelProvider(this,(ViewModelProvider.Factory) ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
+                .get(TransactionHistoryInputViewModel.class);
+        requireActivity().getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                onBeforeExit();
+            }
+        });
+    }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.transaction_basic_details_input_layout,container,false);
-        return v;
+        mBinding = FragmentTransactionBasicDetailsInputBinding.inflate(inflater,container,false);
+        return mBinding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         navController = Navigation.findNavController(view);
-        mSavedState = new ViewModelProvider(this).get(SavedStateViewModel.class);
-        dateOptions = view.findViewById(R.id.date_options);
-        btn1 = view.findViewById(R.id.btn1);
-        btn2 = view.findViewById(R.id.btn2);
-        containerAmount = view.findViewById(R.id.container_amount);
-        inpAmount = view.findViewById(R.id.line2);
-        inpDescription = view.findViewById(R.id.description);
-        view.findViewById(R.id.container_two_buttons).setVisibility(View.VISIBLE);
-
-        ArrayAdapter<CharSequence> dateOptionAdapter = ArrayAdapter.createFromResource(requireContext(),R.array.transaction_date_option_values,
-                android.R.layout.simple_dropdown_item_1line);
-        dateOptions.setAdapter(dateOptionAdapter);
-        dateOptions.setSelection(1);
-        dateOptions.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                onChangeDateOption(position);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
-        });
-
-        String action = requireActivity().getIntent().getAction();
-        boolean hasAccount = requireActivity().getIntent().hasExtra(Constants.EXTRA_ACCOUNT);
-        if (Constants.ACTION_INCOME_EXPENSE.equals(action) && hasAccount) {
-            btn1.setText(R.string.add_income);
-            btn2.setText(R.string.add_expense);
+        mBinding.date.setOnClickListener(v->onClickDate());
+        mBinding.btnNext.setOnClickListener(v->onClickNext());
+        if (hasExtraWhen()) {
+            LocalDate when = getExtraWhen();
+            changeTransactionWhen(when);
         }
-        else {
-            btn1.setText(R.string.cancel);
-            btn2.setText(R.string.next);
+        if (hasExtraAmount()) {
+            Currency amount = getExtraAmount();
+            mBinding.amount.setText(amount.toString());
         }
-        btn1.setOnClickListener(v -> onClickBtn1());
-        btn2.setOnClickListener(v -> onClickBtn2());
+        if (hasExtraDescription()) {
+            mBinding.description.setText(getExtraDescription());
+        }
+    }
 
-        String txtDate = mSavedState.getString(KEY_PICKED_DATE);
-        if (null != txtDate) {
-            pickedDate = Date.valueOf(txtDate);
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        if (null != savedInstanceState) {
+            String pickedDateValue = savedInstanceState.getString(KEY_PICKED_DATE);
+            pickedDate = LocalDate.parse(pickedDateValue,DateTimeFormatter.ISO_LOCAL_DATE.withLocale(Locale.ENGLISH));
         }
     }
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        mSavedState.put(KEY_PICKED_DATE,pickedDate.toString());
+        outState.putString(KEY_PICKED_DATE,pickedDate.format(DateTimeFormatter.ISO_LOCAL_DATE.withLocale(Locale.ENGLISH)));
     }
 
     private boolean validateAmount() {
-        String txtAmount = inpAmount.getText().toString();
+        String txtAmount = mBinding.amount.getEditableText().toString();
         if (TextUtils.isEmpty(txtAmount)) {
-            containerAmount.setError(getString(R.string.error_no_amount));
+            mBinding.containerAmount.setError(getString(R.string.error_no_amount));
             return false;
         }
-        if (!Check.isNumeric(txtAmount)) {
-            containerAmount.setError(getString(R.string.error_invalid_amount));
+        if (!TextUtil.isNumber(txtAmount)) {
+            mBinding.containerAmount.setError(getString(R.string.error_invalid_amount));
             return false;
         }
+        mBinding.containerAmount.setError(null);
         return true;
     }
 
-    void onClickBtn2() {
-        if (!validateAmount()) return;
+    private void onClickDate() {
+        DatePickerDialog dialog = new DatePickerDialog(requireContext(),(view, year, month, dayOfMonth) -> {
+            LocalDate date = LocalDate.of(year,month,dayOfMonth);
+            changeTransactionWhen(date);
+        }, pickedDate.getYear(),pickedDate.getMonthValue(),pickedDate.getDayOfMonth());
+        dialog.show();
+    }
 
-        Intent intent = requireActivity().getIntent();
-        String action = intent.getAction();
-        Bundle extras = intent.getExtras();
-        boolean hasAccount = intent.hasExtra(Constants.EXTRA_ACCOUNT);
-        boolean hasPerson = intent.hasExtra(Constants.EXTRA_PERSON);
+    private void changeTransactionWhen(LocalDate newDate) {
+        pickedDate = newDate;
+        mBinding.date.setText(newDate.format(FORMATTER));
+    }
 
-        Bundle args = new Bundle();
-        if (Constants.ACTION_PAYMENT_DUE.equals(action)) {
-            if (hasPerson) {
-                args.putLong(Constants.EXTRA_PERSON,extras.getLong(Constants.EXTRA_PERSON));
-                onMoveToNextDestination(R.id.basic_details_to_account,args);
-            }
-            else {
-                onMoveToNextDestination(R.id.basic_details_to_people,args);
-            }
+    private void onClickNext() {
+        if (!validateAmount()) {
+            return;
         }
-        else if (Constants.ACTION_INCOME_EXPENSE.equals(action)) {
-            args.putString(Constants.EXTRA_TRANSACTION_TYPE, TransactionType.EXPENSE.name());
-            if (hasAccount) {
-                args.putLong(Constants.EXTRA_ACCOUNT,extras.getLong(Constants.EXTRA_ACCOUNT));
-                onMoveToNextDestination(R.id.basic_details_to_save_transaction,args);
-            }
-            else {
-                onMoveToNextDestination(R.id.basic_details_to_account,args);
-            }
-        }
-        else {
-            if (hasAccount) {
-                args.putLong(Constants.EXTRA_PAYER_ACCOUNT,extras.getLong(Constants.EXTRA_ACCOUNT));
-            }
-            navController.navigate(R.id.basic_details_to_account,args);
+        String txtAmount = mBinding.amount.getEditableText().toString();
+        Currency amount = Currency.valueOf(txtAmount);
+        String description = mBinding.description.getEditableText().toString();
+        TransactionHistoryParcelable history = new TransactionHistoryParcelable();
+        history.setId(getExtraTransactionId());
+        history.setType(getExtraTransactionType());
+        history.setPayerAccountId(getExtraPayerAccountId());
+        history.setPayeeAccountId(getExtraPayeeAccountId());
+        history.setPayeePersonId(getExtraPayeePersonId());
+        history.setPayerPersonId(getExtraPayerPersonId());
+        history.setWhen(pickedDate);
+        history.setAmount(amount);
+        history.setDescription(description);
+        gotoNextDestination(history);
+    }
+
+    private void onBeforeExit() {
+        if (!hasExtraDescription()) {
+
         }
     }
 
-    void onClickBtn1() {
-        String action = requireActivity().getIntent().getAction();
-        boolean hasAccount = requireActivity().getIntent().hasExtra(Constants.EXTRA_ACCOUNT);
-        if (Constants.ACTION_INCOME_EXPENSE.equals(action)) {
-            Bundle args = new Bundle();
-            args.putString(Constants.EXTRA_TRANSACTION_TYPE,TransactionType.INCOME.name());
-            if (hasAccount) {
-                args.putLong(Constants.EXTRA_ACCOUNT,requireActivity().getIntent().getLongExtra(Constants.EXTRA_ACCOUNT,0));
-                onMoveToNextDestination(R.id.basic_details_to_save_transaction,args);
+    private boolean hasAnyValueChanged() {
+        return false;
+    }
+
+    private void gotoNextDestination(TransactionHistoryParcelable history) {
+        TransactionType type = history.getType();
+        switch (type) {
+            case INCOME: {
+                if (!hasExtraPayerAccountId()) {
+
+                }
+                else {
+
+                }
             }
-            else {
-                onMoveToNextDestination(R.id.basic_details_to_account,args);
+            break;
+            case EXPENSE: {
+                if (!hasExtraPayeeAccountId()) {
+
+                }
+                else {
+
+                }
+            }
+            break;
+            case DUE: {
+
+            }
+            break;
+            case BORROW: {
+
+            }
+            break;
+            case PAY_DUE: {
+
+            }
+            break;
+            case PAY_BORROW: {
+
+            }
+            break;
+            case MONEY_TRANSFER: {
+
+            }
+            break;
+            case DUE_TRANSFER: {
+
+            }
+            break;
+            case BORROW_TO_DUE_TRANSFER: {
+
             }
         }
-        else {
-            requireActivity().finish();
+    }
+
+    ////////////////////////////////////////////////////////////////
+    //             Check and Get Argument Extras                 //
+    //////////////////////////////////////////////////////////////
+
+    private long getExtraTransactionId() {
+        return requireArguments().getLong(Constants.EXTRA_ID,0);
+    }
+
+    private void checkHasTransactionTypeOrThrow() {
+        String value = requireArguments().getString(Constants.EXTRA_TRANSACTION_TYPE,null);
+        try {
+            TransactionType.valueOf(value);
+        }
+        catch (IllegalArgumentException error) {
+            throw new IllegalArgumentException("invalid TransactionType given as argument");
         }
     }
 
-    private void onChangeDateOption(int which) {
-        if (0 == which) {
-            pickedDate = Date.yesterday();
-        }
-        else if (1 == which) {
-            pickedDate = Date.today();
-        }
-        else {
-            onShowDatePicker();
-        }
+    private TransactionType getExtraTransactionType() {
+        String value = requireArguments().getString(Constants.EXTRA_TRANSACTION_TYPE,null);
+        return TransactionType.valueOf(value);
     }
 
-    private void onShowDatePicker() {
-        DatePickerDialog picker = new DatePickerDialog(requireContext(), (view, year, month, day) -> {
-            pickedDate = new Date(year,month,day);
-        },pickedDate.getYear(),pickedDate.getMonth(),pickedDate.getDayOfMonth());
-        picker.show();
+    private boolean hasExtraPayerAccountId() {
+        return requireArguments().containsKey(Constants.EXTRA_PAYER_ACCOUNT);
     }
 
-    private void onMoveToNextDestination(@IdRes int destinationId, @Nullable Bundle parent) {
-        String date = pickedDate.toString();
-        String amount = inpAmount.getText().toString();
-        String description = inpDescription.getText().toString();
+    private Long getExtraPayerAccountId() {
+        if (!hasExtraPayerAccountId()) {
+            return null;
+        }
+        return requireArguments().getLong(Constants.EXTRA_PAYER_ACCOUNT);
+    }
 
-        Bundle args = new Bundle(parent);
-        args.putString(Constants.EXTRA_OPERATION_ID, UUID.randomUUID().toString());
-        args.putString(Constants.EXTRA_DATE,date);
-        args.putString(Constants.EXTRA_AMOUNT,amount);
-        args.putString(Constants.EXTRA_DESCRIPTION,description);
-        navController.navigate(destinationId,args);
+    private boolean hasExtraPayeeAccountId() {
+        return requireArguments().containsKey(Constants.EXTRA_PAYEE_ACCOUNT);
+    }
+
+    private Long getExtraPayeeAccountId() {
+        if (!hasExtraPayeeAccountId()) {
+            return null;
+        }
+        return requireArguments().getLong(Constants.EXTRA_PAYEE_ACCOUNT);
+    }
+
+    private boolean hasExtraPayerPersonId() {
+        return requireArguments().containsKey(Constants.EXTRA_PAYER_PERSON);
+    }
+
+    private Long getExtraPayerPersonId() {
+        if (!hasExtraPayerPersonId()) {
+            return null;
+        }
+        return requireArguments().getLong(Constants.EXTRA_PAYER_PERSON);
+    }
+
+    private boolean hasExtraPayeePersonId() {
+        return requireArguments().containsKey(Constants.EXTRA_PAYEE_PERSON);
+    }
+
+    private Long getExtraPayeePersonId() {
+        if (!hasExtraPayeePersonId()) {
+            return null;
+        }
+        return requireArguments().getLong(Constants.EXTRA_PAYEE_PERSON);
+    }
+
+    private boolean hasExtraAmount() {
+        return requireArguments().containsKey(Constants.EXTRA_AMOUNT);
+    }
+
+    private Currency getExtraAmount() {
+        if (!hasExtraAmount()) {
+            return Currency.ZERO;
+        }
+        return Currency.valueOf(requireArguments().getString(Constants.EXTRA_AMOUNT,"0"));
+    }
+
+    private boolean hasExtraWhen() {
+        return requireArguments().containsKey(Constants.EXTRA_WHEN);
+    }
+
+    private LocalDate getExtraWhen() {
+        if (!hasExtraWhen()) {
+            return LocalDate.now();
+        }
+        String value = requireArguments().getString(Constants.EXTRA_WHEN);
+        return LocalDate.parse(value,DateTimeFormatter.ISO_LOCAL_DATE.withLocale(Locale.ENGLISH));
+    }
+
+    private boolean hasExtraDescription() {
+        return requireArguments().containsKey(Constants.EXTRA_DESCRIPTION);
+    }
+
+    private String getExtraDescription() {
+        return requireArguments().getString(Constants.EXTRA_DESCRIPTION,null);
     }
 }

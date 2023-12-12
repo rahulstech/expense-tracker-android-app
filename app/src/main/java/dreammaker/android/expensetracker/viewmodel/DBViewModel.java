@@ -3,6 +3,7 @@ package dreammaker.android.expensetracker.viewmodel;
 import android.app.Application;
 import android.os.AsyncTask;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -176,5 +177,10 @@ public class DBViewModel extends AndroidViewModel {
         public boolean isFinished() {
             return Status.FINISHED == getStatus();
         }
+    }
+
+    @Override
+    protected void onCleared() {
+        // TODO: handle onCleared
     }
 }

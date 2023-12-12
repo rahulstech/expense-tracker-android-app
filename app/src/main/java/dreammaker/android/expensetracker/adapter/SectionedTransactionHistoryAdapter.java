@@ -11,25 +11,25 @@ import com.amulyakhare.textdrawable.util.ColorGenerator;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.RecyclerView;
 import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.database.model.PersonModel;
 import dreammaker.android.expensetracker.database.model.TransactionHistoryModel;
 import dreammaker.android.expensetracker.database.type.TransactionType;
 import dreammaker.android.expensetracker.databinding.LayoutTransactionHistoryItemChildBinding;
 import dreammaker.android.expensetracker.databinding.LayoutTransactionHistoryItemHeaderBinding;
+import dreammaker.android.expensetracker.listener.ChoiceModel;
 import dreammaker.android.expensetracker.text.TextUtil;
 
 @SuppressWarnings("unused")
 public class SectionedTransactionHistoryAdapter
         extends SectionedListAdapter<SectionedTransactionHistoryAdapter.HeaderData, TransactionHistoryModel,
-        SectionedTransactionHistoryAdapter.HeaderViewHolder, SectionedTransactionHistoryAdapter.ChildViewHolder> {
+        SectionedTransactionHistoryAdapter.HeaderViewHolder, SectionedTransactionHistoryAdapter.ChildViewHolder>
+        implements ChoiceModel.Callback {
 
     private static final String TAG = SectionedTransactionHistoryAdapter.class.getSimpleName();
 
@@ -54,18 +54,42 @@ public class SectionedTransactionHistoryAdapter
 
     private int mHeaderType = HEADER_DATE;
 
+    private ChoiceModel mChoiceModel;
+
     public SectionedTransactionHistoryAdapter(@NonNull Context context) {
         super(context, CALLBACK);
-        setHasListFooter(true);
     }
 
     public void changeHeaderType(int type) {
         mHeaderType = type;
-        submitList(new LinkedList<>(getSubmittedList()));
     }
 
     public int getHeaderType() {
         return mHeaderType;
+    }
+
+    public void setChoiceModel(ChoiceModel model) {
+        mChoiceModel = model;
+    }
+
+    public ChoiceModel getChoiceModel() {
+        return mChoiceModel;
+    }
+
+    @NonNull
+    @Override
+    public Object getKey(int position) {
+        return null;
+    }
+
+    @Override
+    public int getPosition(@NonNull Object key) {
+        return 0;
+    }
+
+    @Override
+    public boolean isCheckable(int position) {
+        return getItemViewType(position) == SECTION_ITEM_TYPE;
     }
 
     @NonNull
@@ -104,12 +128,7 @@ public class SectionedTransactionHistoryAdapter
     protected void onBindSectionItemViewHolder(@NonNull ChildViewHolder holder, int adapterPosition) {
         TransactionHistoryModel data = getData(adapterPosition);
         holder.bind(data);
-    }
-
-    @NonNull
-    @Override
-    public RecyclerView.ViewHolder onCreateListFooterViewHolder(@NonNull ViewGroup parent) {
-        return BaseViewHolder.create(getContext(),parent, R.layout.layout_list_footer);
+        holder.setChecked(mChoiceModel.isChecked(adapterPosition));
     }
 
     public static class HeaderData {
@@ -189,6 +208,10 @@ public class SectionedTransactionHistoryAdapter
         public ChildViewHolder(@NonNull LayoutTransactionHistoryItemChildBinding binding) {
             super(binding.getRoot());
             mBinding = binding;
+        }
+
+        public void setChecked(boolean checked) {
+
         }
 
         @Override

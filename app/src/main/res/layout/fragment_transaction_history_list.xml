@@ -20,7 +20,6 @@
         android:layout_margin="@dimen/inset_small"
         android:contentDescription="@string/description_add_history"
         app:fabCustomSize="@dimen/button_size_medium"
-        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
         tools:ignore="RtlHardcoded,ImageContrastCheck" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

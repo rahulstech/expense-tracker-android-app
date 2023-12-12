@@ -26,6 +26,8 @@ public class Constants {
 
     public static final String EXTRA_DATE = "date";
 
+    public static final String EXTRA_WHEN = "when";
+
     public static final String EXTRA_PAYEE_PERSON = "payee_person";
 
     public static final String EXTRA_PAYER_PERSON = "payer_person";

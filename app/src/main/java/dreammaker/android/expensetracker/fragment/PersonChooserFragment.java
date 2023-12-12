@@ -2,12 +2,11 @@ package dreammaker.android.expensetracker.fragment;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.List;
@@ -18,85 +17,234 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
-import androidx.recyclerview.widget.RecyclerView;
 import dreammaker.android.expensetracker.R;
-import dreammaker.android.expensetracker.database.Transaction;
-import dreammaker.android.expensetracker.database.model.PersonDisplayModel;
-import dreammaker.android.expensetracker.util.Constants;
-import dreammaker.android.expensetracker.view.adapter.PersonChooserRecyclerAdapter;
-import dreammaker.android.expensetracker.viewmodel.SavedStateViewModel;
-import dreammaker.android.expensetracker.viewmodel.TransactionInputViewModel;
+import dreammaker.android.expensetracker.adapter.PeopleChooserAdapter;
+import dreammaker.android.expensetracker.database.model.PersonModel;
+import dreammaker.android.expensetracker.database.type.TransactionType;
+import dreammaker.android.expensetracker.databinding.LayoutPayeePayerChooserBinding;
+import dreammaker.android.expensetracker.listener.ChoiceModel;
+import dreammaker.android.expensetracker.viewmodel.TransactionHistoryInputViewModel;
 
+@SuppressWarnings("unused")
 public class PersonChooserFragment extends Fragment {
 
-    private static final String TAG = "PrsnChooserFrag";
+    private static final String TAG = PersonChooserFragment.class.getSimpleName();
 
-    private static final String KEY_PEOPLE_ADAPTER_STATE = "people_adapter_state";
+    private static final String KEY_QUERY = "query";
 
     private NavController navController;
-    private TransactionInputViewModel viewModel;
-    private SavedStateViewModel mSavedState;
-    private Button btnNext;
-    private Button btnPrevious;
-    private RecyclerView peopleChooser;
-    private PersonChooserRecyclerAdapter peopleAdapter;
+
+    @SuppressWarnings("FieldCanBeLocal")
+    private TransactionHistoryInputViewModel mViewModel;
+
+    private ChoiceModel.SavedStateViewModel mChoiceModelSavedState;
+
+    private LayoutPayeePayerChooserBinding mBinding;
+
+    private String mQuery;
+
+    private ChoiceModel mChoiceModel;
+
+    private PeopleChooserAdapter mAdapter;
+
+    private TransactionHistoryParcelable mHistory;
+
+    private List<PersonModel> mLoadedPeople;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mHistory = getExtraTransactionHistory();
+    }
 
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        viewModel = new ViewModelProvider(requireActivity(),
-                new ViewModelProvider.AndroidViewModelFactory(requireActivity().getApplication()))
-                .get(TransactionInputViewModel.class);
+        mViewModel = new ViewModelProvider(this,(ViewModelProvider.Factory) ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
+                .get(TransactionHistoryInputViewModel.class);
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.payee_payer_chooser_layout,container,false);
+        mBinding = LayoutPayeePayerChooserBinding.inflate(inflater,container,false);
+        return mBinding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        setTitle();
         navController = Navigation.findNavController(view);
-        mSavedState = new ViewModelProvider(this).get(SavedStateViewModel.class);
-        TextView title = view.findViewById(R.id.title);
-        btnNext = view.findViewById(R.id.btn2);
-        btnPrevious= view.findViewById(R.id.btn1);
-        peopleChooser = view.findViewById(R.id.list);
+        mViewModel.getAllPeopleWithUsageCountLive().observe(getViewLifecycleOwner(),this::onPeopleLoaded);
+        mChoiceModelSavedState = new ViewModelProvider(this).get(ChoiceModel.SavedStateViewModel.class);
+        mBinding.search.setHint(R.string.search_person);
+        mBinding.search.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
-        peopleAdapter = new PersonChooserRecyclerAdapter(requireContext());
-        peopleAdapter.changeChoiceMode(PersonChooserRecyclerAdapter.CHOICE_MODE_SINGLE);
-        peopleChooser.setAdapter(peopleAdapter);
-        viewModel.getPeopleDisplayLiveData().observe(getViewLifecycleOwner(),items -> peopleAdapter.submitList(items));
-        title.setText(R.string.person);
-        view.findViewById(R.id.container_two_buttons).setVisibility(View.VISIBLE);
-        btnNext.setText(R.string.next);
-        btnPrevious.setText(R.string.back);
-        btnNext.setOnClickListener(v -> onClickNext());
-        btnPrevious.setOnClickListener(v -> onClickPrevious());
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
 
-        peopleAdapter.onRestoreState(mSavedState.getParcelable(KEY_PEOPLE_ADAPTER_STATE));
+            @Override
+            public void afterTextChanged(Editable s) {
+                submitQuery(s.toString());
+            }
+        });
+        mAdapter = new PeopleChooserAdapter(requireContext());
+        mBinding.list.setAdapter(mAdapter);
+        mChoiceModel = new ChoiceModel(mBinding.list,mAdapter);
+        mChoiceModel.setChoiceMode(ChoiceModel.CHOICE_MODE_SINGLE);
+        mAdapter.setChoiceModel(mChoiceModel);
+        mBinding.btnNext.setOnClickListener(v -> onClickNext());
+        mBinding.btnPrevious.setOnClickListener(v -> onClickPrevious());
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        if (null != savedInstanceState) {
+            mQuery = savedInstanceState.getString(KEY_QUERY,null);
+        }
+        mChoiceModel.onRestoreInstanceState(mChoiceModelSavedState);
     }
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        mSavedState.put(KEY_PEOPLE_ADAPTER_STATE,peopleAdapter.onSaveState());
+        outState.putString(KEY_QUERY,mQuery);
+        mChoiceModel.onSaveInstanceState(mChoiceModelSavedState);
     }
 
-    void onClickNext() {
-        PersonDisplayModel person = peopleAdapter.getCheckedItem();
-        if (null == person) {
-            Toast.makeText(requireContext(),R.string.no_person_selected,Toast.LENGTH_SHORT).show();
+    private void setTitle() {
+        TransactionType type = mHistory.getType();
+        switch (type) {
+            case DUE: {
+                mBinding.toolbar.setTitle(R.string.label_pay_for);
+            }
+            case PAY_BORROW: {
+                mBinding.toolbar.setTitle(R.string.label_pay_to);
+            }
+            break;
+            case BORROW:
+            case PAY_DUE:{
+                mBinding.toolbar.setTitle(R.string.label_receive_from);
+            }
+            break;
+            case DUE_TRANSFER:
+            case BORROW_TRANSFER:
+            case BORROW_TO_DUE_TRANSFER: {
+                if (null == mHistory.getPayeePersonId()) {
+                    mBinding.toolbar.setTitle(R.string.label_send_to);
+                }
+                else {
+                    mBinding.toolbar.setTitle(R.string.label_send_from);
+                }
+            }
+        }
+    }
+
+    private void onPeopleLoaded(@Nullable List<PersonModel> people) {
+        if (null == people) {
+            // TODO: notify and exit
+            onClickPrevious();
+        }
+        else {
+            mLoadedPeople = people;
+            submitPeople();
+        }
+    }
+
+    private void submitQuery(String query) {
+        mQuery = query;
+        submitPeople();
+    }
+
+    private void submitPeople() {
+        mAdapter.filter(mLoadedPeople,mQuery);
+    }
+
+    private void onClickNext() {
+        if (!validatePerson()) {
             return;
         }
-        Bundle args = new Bundle(getArguments());
-        args.putLong(Constants.EXTRA_PERSON,person.getId());
-        navController.navigate(R.id.people_to_accounts,args);
+        long id = mAdapter.getItemId(mChoiceModel.getSelectedPosition());
+        TransactionType type = mHistory.getType();
+        switch (type) {
+            case DUE:
+            case PAY_BORROW: {
+                mHistory.setPayeePersonId(id);
+            }
+            break;
+            case BORROW:
+            case PAY_DUE: {
+                mHistory.setPayerPersonId(id);
+            }
+            break;
+            case DUE_TRANSFER:
+            case BORROW_TRANSFER:
+            case BORROW_TO_DUE_TRANSFER: {
+                if (null == mHistory.getPayeePersonId()) {
+                    mHistory.setPayeePersonId(id);
+                }
+                else {
+                    mHistory.setPayerPersonId(id);
+                }
+            }
+        }
     }
 
-    void onClickPrevious() {
+    private boolean validatePerson() {
+        if (!mChoiceModel.hasSelection()) {
+            Toast.makeText(requireContext(), R.string.error_no_person_selected, Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
+    }
+
+    private void gotoNextDestination(TransactionHistoryParcelable history) {
+        Bundle args = new Bundle();
+        args.putParcelable(TransactionBasicDetailsInputFragment.EXTRA_TRANSACTION_HISTORY,history);
+        TransactionType type = history.getType();
+        switch (type) {
+            case DUE:
+            case PAY_BORROW: {
+                if (mHistory.getPayerAccountId() == null) {
+                    // TODO: proceed to account chooser
+                }
+                else {
+                    // TODO: proceed to save
+                }
+            }
+            break;
+            case BORROW:
+            case PAY_DUE: {
+                if (mHistory.getPayeeAccountId() == null) {
+                    // TODO: proceed to account chooser
+                }
+                else {
+                    // TODO: proceed to save
+                }
+            }
+            break;
+            case DUE_TRANSFER:
+            case BORROW_TRANSFER:
+            case BORROW_TO_DUE_TRANSFER: {
+                if (history.getPayeePersonId() != null && history.getPayerPersonId() != null) {
+                    // TODO: proceed to save
+                }
+                else {
+                    // TODO: proceed to payer chooser
+                }
+            }
+        }
+    }
+
+    private void onClickPrevious() {
         navController.popBackStack();
+    }
+
+    private TransactionHistoryParcelable getExtraTransactionHistory() {
+        return requireArguments().getParcelable(TransactionBasicDetailsInputFragment.EXTRA_TRANSACTION_HISTORY);
     }
 }

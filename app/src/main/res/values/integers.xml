@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <integer name="orientation_horizontal">0</integer>
+    <integer name="orientation_vertical">1</integer>
+
+    <integer name="input_person_name_orientation">@integer/orientation_vertical</integer>
+    <integer name="input_person_balance_orientation">@integer/orientation_vertical</integer>
+    <integer name="asset_liability_orientation" >@integer/orientation_vertical</integer>
+
+</resources>

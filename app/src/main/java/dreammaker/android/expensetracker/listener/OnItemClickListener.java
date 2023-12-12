@@ -8,5 +8,5 @@ import androidx.recyclerview.widget.RecyclerView;
 @SuppressWarnings("unused")
 public interface OnItemClickListener {
 
-    void onClickItem(@NonNull RecyclerView recyclerView, @NonNull View view, int positon);
+    void onClickItem(@NonNull RecyclerView recyclerView, @NonNull View view, int position);
 }

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <integer name="input_person_name_orientation">@integer/orientation_horizontal</integer>
+    <integer name="input_person_balance_orientation">@integer/orientation_horizontal</integer>
+
+</resources>

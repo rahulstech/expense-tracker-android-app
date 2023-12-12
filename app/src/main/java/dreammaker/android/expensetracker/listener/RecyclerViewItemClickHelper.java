@@ -23,10 +23,18 @@ public class RecyclerViewItemClickHelper implements RecyclerView.OnItemTouchList
             }
             return false;
         }
+
+        @Override
+        public void onLongPress(MotionEvent e) {
+            if (canHandleEvent()) {
+                handleLongClickEvent(e);
+            }
+        }
     };
 
     private final GestureDetector mGestureDetector;
 
+    @NonNull
     private final RecyclerView mRecyclerView;
 
     private boolean mShouldHandleEvent = true;
@@ -36,13 +44,26 @@ public class RecyclerViewItemClickHelper implements RecyclerView.OnItemTouchList
     @Nullable
     private OnItemClickListener mClickListener;
 
+    @Nullable
+    private OnItemLongClickListener mLongClickListener;
+
     public RecyclerViewItemClickHelper(@NonNull RecyclerView view) {
         mRecyclerView = view;
         mGestureDetector = new GestureDetector(view.getContext(),mGestureListener);
     }
 
+    @NonNull
+    public RecyclerView getRecyclerView() {
+        return mRecyclerView;
+    }
+
     public void setOnItemClickListener(OnItemClickListener listener) {
         mClickListener = listener;
+    }
+
+    public void setOnItemLongClickListener(OnItemLongClickListener listener) {
+        mLongClickListener = listener;
+        mGestureDetector.setIsLongpressEnabled(null != listener);
     }
 
     @Override
@@ -68,9 +89,7 @@ public class RecyclerViewItemClickHelper implements RecyclerView.OnItemTouchList
     }
 
     private void handleClickEvent(@NonNull MotionEvent e) {
-        final float x = e.getX();
-        final float y = e.getY();
-        View itemView = mRecyclerView.findChildViewUnder(x,y);
+        View itemView = findChildViewUnder(e);
         if (null == itemView) {
             return;
         }
@@ -78,5 +97,23 @@ public class RecyclerViewItemClickHelper implements RecyclerView.OnItemTouchList
         if (null != mClickListener) {
             mClickListener.onClickItem(mRecyclerView,itemView,position);
         }
+    }
+
+    private void handleLongClickEvent(@NonNull MotionEvent e) {
+        View itemView = findChildViewUnder(e);
+        if (null == itemView) {
+            return;
+        }
+        int position = mRecyclerView.getChildAdapterPosition(itemView);
+        if (null != mLongClickListener) {
+            mLongClickListener.onLongClickItem(mRecyclerView,itemView,position);
+        }
+    }
+
+    @Nullable
+    private View findChildViewUnder(@NonNull MotionEvent e) {
+        final float x = e.getX();
+        final float y = e.getY();
+        return mRecyclerView.findChildViewUnder(x,y);
     }
 }

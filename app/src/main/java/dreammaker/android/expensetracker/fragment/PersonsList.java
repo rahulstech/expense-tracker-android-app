@@ -64,8 +64,8 @@ public class PersonsList extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         navController = Navigation.findNavController(view);
-        viewModel = new ViewModelProvider(requireActivity(),new ViewModelProvider.AndroidViewModelFactory(requireActivity().getApplication()))
-                .get(PersonsViewModel.class);
+        //viewModel = new ViewModelProvider(requireActivity(),new ViewModelProvider.AndroidViewModelFactory(requireActivity().getApplication()))
+        //        .get(PersonsViewModel.class);
         mSavedState = new ViewModelProvider(this).get(SavedStateViewModel.class);
         list = view.findViewById(R.id.list);
         emptyView = view.findViewById(R.id.empty);

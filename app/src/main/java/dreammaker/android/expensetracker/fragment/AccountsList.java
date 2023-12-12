@@ -22,6 +22,7 @@ import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.adapter.AccountsAdapter;
 import dreammaker.android.expensetracker.database.model.AccountModel;
 import dreammaker.android.expensetracker.databinding.LayoutAccountsListFragmentBinding;
+import dreammaker.android.expensetracker.databinding.LayoutBrowseSearchAddBinding;
 import dreammaker.android.expensetracker.listener.OnItemClickListener;
 import dreammaker.android.expensetracker.listener.RecyclerViewItemClickHelper;
 import dreammaker.android.expensetracker.viewmodel.AccountsListViewModel;
@@ -29,20 +30,17 @@ import dreammaker.android.expensetracker.viewmodel.AccountsListViewModel;
 import static androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory;
 import static androidx.lifecycle.ViewModelProvider.Factory;
 
-@SuppressWarnings("all")
 public class AccountsList extends Fragment implements OnItemClickListener {
 
     private static final String TAG = AccountsList.class.getSimpleName();
 
     private static final String KEY_QUERY_STRING = "query_string";
 
-    private static final int SEARCH_KEY_LENGTH_THRESHOLD = 2;
-
     private NavController navController;
 
     private AccountsListViewModel mViewModel;
 
-    private LayoutAccountsListFragmentBinding mBinding;
+    private LayoutBrowseSearchAddBinding mBinding;
 
     private AccountsAdapter mAdapter;
 
@@ -57,23 +55,25 @@ public class AccountsList extends Fragment implements OnItemClickListener {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        mViewModel = new ViewModelProvider(requireActivity(), (Factory) new AndroidViewModelFactory())
+        mViewModel = new ViewModelProvider(this, (Factory) AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
                 .get(AccountsListViewModel.class);
-        mViewModel.getAllAccounts().observe(this,this::onFinishAccountsLoading);
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        mBinding = LayoutAccountsListFragmentBinding.inflate(inflater,container,false);
+        mBinding = LayoutBrowseSearchAddBinding.inflate(inflater,container,false);
+        mViewModel.getAllAccounts().observe(getViewLifecycleOwner(),this::onFinishAccountsLoading);
         return mBinding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        setTitle();
         navController = Navigation.findNavController(view);
-        mBinding.searchAccount.addTextChangedListener(new TextWatcher() {
+        mBinding.search.setHint(R.string.search_account);
+        mBinding.search.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
@@ -82,24 +82,23 @@ public class AccountsList extends Fragment implements OnItemClickListener {
 
             @Override
             public void afterTextChanged(Editable s) {
-                onSearchKeyChanged(s.toString());
+                submitQuery(s.toString());
             }
         });
-        mBinding.addAccount.setOnClickListener(v->onClickAddAccount());
+        mBinding.add.setContentDescription(getText(R.string.description_add_account));
+        mBinding.add.setOnClickListener(v->onClickAddAccount());
         mAdapter = new AccountsAdapter(requireContext());
         mBinding.list.setAdapter(mAdapter);
         mClickHelper = new RecyclerViewItemClickHelper(mBinding.list);
         mClickHelper.setOnItemClickListener(this);
-        // restore saved state if available
-        if (null != savedInstanceState) {
-            mQueryString = savedInstanceState.getString(KEY_QUERY_STRING,null);
-        }
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        // TODO: change title setting
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        if (null != savedInstanceState) {
+            mQueryString = savedInstanceState.getString(KEY_QUERY_STRING,null);
+        }
     }
 
     @Override
@@ -108,35 +107,26 @@ public class AccountsList extends Fragment implements OnItemClickListener {
         outState.putString(KEY_QUERY_STRING,mQueryString);
     }
 
-    private void onSearchKeyChanged(String key) {
+    private void setTitle() {
+
+    }
+
+    private void submitQuery(String key) {
         mQueryString = key;
-        searchAccounts();
+        submitAccounts();
     }
 
-    private void searchAccounts() {
-        if (TextUtils.isEmpty(mQueryString)) {
-            mAdapter.submitList(mLastLoadedAccounts);
-        }
-        else {
-            mAdapter.filter(mLastLoadedAccounts,mQueryString);
-        }
-    }
-
-    private void onDataSetChanged() {
-        // TODO: implement method
+    private void submitAccounts() {
+        mAdapter.filter(mLastLoadedAccounts,mQueryString);
     }
 
     private void onFinishAccountsLoading(@Nullable List<AccountModel> accounts) {
         mLastLoadedAccounts = accounts;
-        searchAccounts();
+        submitAccounts();
     }
 
     private void onClickAddAccount() {
         navController.navigate(R.id.action_accountsList_to_inputAccount);
-    }
-
-    private void onClickDeleteAccounts() {
-        // TODO: warn before delete
     }
 
     @Override

@@ -8,4 +8,9 @@
     <style name="TextAppearance.AppTheme.Headline5" parent="TextAppearance.MaterialComponents.Headline5">
 
     </style>
+
+    <style name="TextAppearance.ExpenseTracker.ToolbarTitlePrimary" parent="TextAppearance.MaterialComponents.Headline5">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">?android:textColorPrimaryInverse</item>
+    </style>
 </resources>

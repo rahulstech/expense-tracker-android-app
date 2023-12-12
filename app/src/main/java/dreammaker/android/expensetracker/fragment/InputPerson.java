@@ -27,7 +27,6 @@ import dreammaker.android.expensetracker.util.Constants;
 import dreammaker.android.expensetracker.viewmodel.DBViewModel;
 import dreammaker.android.expensetracker.viewmodel.InputPersonViewModel;
 
-@SuppressWarnings("unused")
 public class InputPerson extends Fragment {
 
     private static final String TAG = InputPerson.class.getSimpleName();
@@ -50,22 +49,8 @@ public class InputPerson extends Fragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        mViewModel = new ViewModelProvider(this,(ViewModelProvider.Factory) new ViewModelProvider.AndroidViewModelFactory())
+        mViewModel = new ViewModelProvider(this,(ViewModelProvider.Factory) ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
                 .get(InputPersonViewModel.class);
-        if (isEditOperation()) {
-            long id = getPersonId();
-            mViewModel.getPersonById(id).observe(this,this::onPersonFetched);
-        }
-        LiveData<DBViewModel.AsyncQueryResult> result = mViewModel.getLiveResult(InputPersonViewModel.SAVE_PERSON);
-        if (null != result) {
-            result.observe(this,this::onPersonSaveComplete);
-        }
-        requireActivity().getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                onBackPressed();
-            }
-        });
     }
 
     private boolean isEditOperation() {
@@ -80,6 +65,14 @@ public class InputPerson extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mBinding = InputPersonBinding.inflate(inflater,container,false);
+        if (isEditOperation()) {
+            long id = getPersonId();
+            mViewModel.getPersonById(id).observe(getViewLifecycleOwner(),this::onPersonFetched);
+        }
+        LiveData<DBViewModel.AsyncQueryResult> result = mViewModel.getLiveResult(InputPersonViewModel.SAVE_PERSON);
+        if (null != result) {
+            result.observe(getViewLifecycleOwner(),this::onPersonSaveComplete);
+        }
         return mBinding.getRoot();
     }
 
@@ -90,9 +83,20 @@ public class InputPerson extends Fragment {
         mBinding.containerDue.setEndIconOnClickListener(this::onToggleCalculator);
         mBinding.containerBorrow.setEndIconOnClickListener(this::onToggleCalculator);
         mBinding.buttonSave.setOnClickListener(v -> onClickSave());
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
         if (null != savedInstanceState) {
             mPersonSet = savedInstanceState.getBoolean(KEY_PERSON_SET,false);
         }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        // TODO: set title
     }
 
     @Override

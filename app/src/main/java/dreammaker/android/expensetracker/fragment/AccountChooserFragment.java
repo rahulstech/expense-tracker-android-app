@@ -2,169 +2,230 @@ package dreammaker.android.expensetracker.fragment;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Parcelable;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.IdRes;
+import java.util.List;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
-import androidx.recyclerview.widget.RecyclerView;
 import dreammaker.android.expensetracker.R;
-import dreammaker.android.expensetracker.database.model.AccountDisplayModel;
+import dreammaker.android.expensetracker.adapter.AccountsChooserAdapter;
+import dreammaker.android.expensetracker.database.model.AccountModel;
 import dreammaker.android.expensetracker.database.type.TransactionType;
-import dreammaker.android.expensetracker.util.Constants;
-import dreammaker.android.expensetracker.view.adapter.AccountChooserRecyclerAdapter;
-import dreammaker.android.expensetracker.viewmodel.SavedStateViewModel;
-import dreammaker.android.expensetracker.viewmodel.TransactionInputViewModel;
+import dreammaker.android.expensetracker.databinding.LayoutPayeePayerChooserBinding;
+import dreammaker.android.expensetracker.listener.ChoiceModel;
+import dreammaker.android.expensetracker.viewmodel.TransactionHistoryInputViewModel;
 
+@SuppressWarnings("unused")
 public class AccountChooserFragment extends Fragment {
 
-    private static final String TAG = "AccChooserFrag";
+    private static final String TAG = AccountChooserFragment.class.getSimpleName();
 
-    private static final String KEY_ACCOUNT_ADAPTER_STATE = "account_adapter_state";
+    private static final String KEY_QUERY = "query";
 
     private NavController navController;
-    private TransactionInputViewModel viewModel;
-    private SavedStateViewModel mSavedState;
-    private Button btn2;
-    private Button btn1;
-    private RecyclerView accountChooser;
-    private AccountChooserRecyclerAdapter accountAdapter;
+
+    @SuppressWarnings("FieldCanBeLocal")
+    private TransactionHistoryInputViewModel mViewModel;
+
+    private ChoiceModel.SavedStateViewModel mChoiceModelSavedState;
+
+    private AccountsChooserAdapter mAdapter;
+
+    private LayoutPayeePayerChooserBinding mBinding;
+
+    private TransactionHistoryParcelable mHistory;
+
+    private String mQuery;
+
+    private List<AccountModel> mLoadedAccounts;
+
+    private ChoiceModel mChoiceModel;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mHistory = getExtraTransactionHistory();
+    }
 
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        viewModel = new ViewModelProvider(requireActivity(),
-                new ViewModelProvider.AndroidViewModelFactory(requireActivity().getApplication()))
-                .get(TransactionInputViewModel.class);
+        mViewModel = new ViewModelProvider(this, (ViewModelProvider.Factory) ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
+                .get(TransactionHistoryInputViewModel.class);
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.payee_payer_chooser_layout,container,false);
+        mBinding = LayoutPayeePayerChooserBinding.inflate(inflater,container,false);
+        return mBinding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        setTitle();
         navController = Navigation.findNavController(view);
-        mSavedState = new ViewModelProvider(this).get(SavedStateViewModel.class);
-        TextView title = view.findViewById(R.id.title);
-        btn1 = view.findViewById(R.id.btn1);
-        btn2 = view.findViewById(R.id.btn2);
-        view.findViewById(R.id.container_two_buttons).setVisibility(View.VISIBLE);
-        accountChooser = view.findViewById(R.id.list);
-        accountAdapter = new AccountChooserRecyclerAdapter(requireContext());
-        accountChooser.setAdapter(accountAdapter);
-        accountAdapter.changeChoiceMode(AccountChooserRecyclerAdapter.CHOICE_MODE_SINGLE);
-        viewModel.getAccountsDisplayLiveData().observe(getViewLifecycleOwner(),items -> accountAdapter.submitList(items));
-        btn1.setOnClickListener(v -> onClickBtn1());
-        btn2.setOnClickListener(v -> onClickBtn2());
+        mViewModel.getAllAccountsWithUsageCountLive().observe(getViewLifecycleOwner(),this::onAccountsLoaded);
+        mChoiceModelSavedState = new ViewModelProvider(this).get(ChoiceModel.SavedStateViewModel.class);
+        mBinding.search.setHint(R.string.search_account);
+        mBinding.search.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
-        String action = requireActivity().getIntent().getAction();
-        if (Constants.ACTION_INCOME_EXPENSE.equals(action)) {
-            title.setText(R.string.pay_from);
-            btn1.setText(R.string.add_income);
-            btn2.setText(R.string.add_expense);
-        }
-        else if (Constants.ACTION_PAYMENT_DUE.equals(action)) {
-            title.setText(R.string.pay_from);
-            btn1.setText(R.string.pay_due);
-            btn2.setText(R.string.add_due);
-        }
-        else if (!isPayeeAccountChooser()) {
-            title.setText(R.string.pay_from);
-            btn1.setText(R.string.back);
-            btn2.setText(R.string.next);
-        }
-        else {
-            title.setText(R.string.pay_to);
-            btn1.setText(R.string.back);
-            btn2.setText(R.string.send_money);
-        }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
 
-        // restore adapter state
-        accountAdapter.onRestoreState(mSavedState.getParcelable(KEY_ACCOUNT_ADAPTER_STATE));
+            @Override
+            public void afterTextChanged(Editable s) {
+                submitSearch(s.toString());
+            }
+        });
+        mBinding.btnPrevious.setOnClickListener(v->onClickPrevious());
+        mBinding.btnNext.setOnClickListener(v-> onClickNext());
+        mAdapter = new AccountsChooserAdapter(requireContext());
+        mBinding.list.setAdapter(mAdapter);
+        mChoiceModel = new ChoiceModel(mBinding.list,mAdapter);
+        mChoiceModel.setChoiceMode(ChoiceModel.CHOICE_MODE_SINGLE);
+        mAdapter.setChoiceModel(mChoiceModel);
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        if (null != savedInstanceState) {
+            mQuery = savedInstanceState.getString(KEY_QUERY,null);
+        }
+        mChoiceModel.onRestoreInstanceState(mChoiceModelSavedState);
     }
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-
-        mSavedState.put(KEY_ACCOUNT_ADAPTER_STATE, accountAdapter.onSaveState());
+        outState.putString(KEY_QUERY,mQuery);
+        mChoiceModel.onSaveInstanceState(mChoiceModelSavedState);
     }
 
-    void onClickBtn2() {
-        String action = requireActivity().getIntent().getAction();
-        if (Constants.ACTION_PAYMENT_DUE.equals(action)) {
-            onMoveToNextDestination(R.id.accounts_to_save_transaction,TransactionType.DUE);
-        }
-        else if (Constants.ACTION_INCOME_EXPENSE.equals(action)) {
-            onMoveToNextDestination(R.id.accounts_to_save_transaction,TransactionType.EXPENSE);
-        }
-        else if (isPayeeAccountChooser()) {
-            onMoveToNextDestination(R.id.accounts_to_accounts,TransactionType.MONEY_TRANSFER);
-        }
-        else {
-            onMoveToNextDestination(R.id.accounts_to_accounts,TransactionType.MONEY_TRANSFER);
+    private void setTitle() {
+        TransactionType type = mHistory.getType();
+        switch (type) {
+            case INCOME:
+            case BORROW: {
+                mBinding.toolbar.setTitle(R.string.label_receive_in);
+            }
+            break;
+            case EXPENSE:
+            case DUE: {
+                mBinding.toolbar.setTitle(R.string.label_pay_from);
+            }
+            break;
+            case MONEY_TRANSFER: {
+                if (null == mHistory.getPayeeAccountId()) {
+                    mBinding.toolbar.setTitle(R.string.label_send_to);
+                }
+                else {
+                    mBinding.toolbar.setTitle(R.string.label_send_from);
+                }
+            }
         }
     }
 
-    void onClickBtn1() {
-        String action = requireActivity().getIntent().getAction();
-        if (Constants.ACTION_PAYMENT_DUE.equals(action)) {
-            onMoveToNextDestination(R.id.accounts_to_save_transaction,TransactionType.PAY_DUE);
+    private void onClickPrevious() {
+        navController.popBackStack();
+    }
+
+    private void onClickNext() {
+        if (!validateAccount()) {
+            return;
         }
-        else if (Constants.ACTION_INCOME_EXPENSE.equals(action)) {
-            onMoveToNextDestination(R.id.accounts_to_save_transaction,TransactionType.INCOME);
+        long id = mAdapter.getItemId(mChoiceModel.getSelectedPosition());
+        TransactionType type = mHistory.getType();
+        switch (type) {
+            case INCOME:
+            case BORROW:
+            case PAY_DUE:{
+                mHistory.setPayeeAccountId(id);
+            }
+            break;
+            case EXPENSE:
+            case DUE:
+            case PAY_BORROW: {
+                mHistory.setPayerAccountId(id);
+            }
+            break;
+            case MONEY_TRANSFER: {
+                if (mHistory.getPayeeAccountId() == null) {
+                    mHistory.setPayeeAccountId(id);
+                }
+                else {
+                    mHistory.setPayerAccountId(id);
+                }
+            }
+        }
+        gotoNextDestination(mHistory);
+    }
+
+    private void onAccountsLoaded(@Nullable List<AccountModel> accounts) {
+        if (null == accounts) {
+            // TODO: notify and exit
+            Toast.makeText(requireContext(),"",Toast.LENGTH_SHORT).show();
+            onClickPrevious();
         }
         else {
-            navController.popBackStack();
+            mLoadedAccounts = accounts;
+            submitAccounts();
         }
+    }
+
+    private void submitSearch(String query) {
+        mQuery = query;
+        submitAccounts();
+    }
+
+    private void submitAccounts() {
+        mAdapter.filter(mLoadedAccounts,mQuery);
+    }
+
+    private TransactionHistoryParcelable getExtraTransactionHistory() {
+        return requireArguments().getParcelable(TransactionBasicDetailsInputFragment.EXTRA_TRANSACTION_HISTORY);
     }
 
     private boolean validateAccount() {
-        if (!accountAdapter.hasSelection()) {
-            Toast.makeText(requireContext(), R.string.no_account_selected, Toast.LENGTH_SHORT).show();
+        if (!mChoiceModel.hasSelection()) {
+            Toast.makeText(requireContext(), R.string.error_no_account_selected, Toast.LENGTH_SHORT).show();
             return false;
         }
         return true;
     }
 
-    private void onMoveToNextDestination(@IdRes int destinationId, @NonNull TransactionType type) {
-        if (!validateAccount()) return;
-
-        AccountDisplayModel account = accountAdapter.getCheckedItem();
-        String action = requireActivity().getIntent().getAction();
-        Bundle args = new Bundle(getArguments());
-        args.putString(Constants.EXTRA_TRANSACTION_TYPE,type.name());
-        if (Constants.ACTION_MONEY_TRANSFER.equals(action)) {
-            if (isPayeeAccountChooser()){
-                args.putLong(Constants.EXTRA_PAYEE_ACCOUNT,account.getId());
+    private void gotoNextDestination(TransactionHistoryParcelable history) {
+        Bundle args = new Bundle();
+        args.putParcelable(TransactionBasicDetailsInputFragment.EXTRA_TRANSACTION_HISTORY,history);
+        TransactionType type = history.getType();
+        switch (type) {
+            case DUE:
+            case BORROW: {
+                // TODO: proceed to save
             }
-            else {
-                args.putLong(Constants.EXTRA_PAYER_ACCOUNT,account.getId());
+            break;
+            case MONEY_TRANSFER: {
+                if (history.getPayeeAccountId() != null && history.getPayerAccountId() != null) {
+                    // TODO: proceed to save
+                }
+                else {
+                    // TODO: proceed to payer chooser
+                }
             }
         }
-        else {
-            args.putLong(Constants.EXTRA_ACCOUNT,account.getId());
-        }
-        navController.navigate(destinationId,args);
-    }
-
-    private boolean isPayeeAccountChooser() {
-        String action = requireActivity().getIntent().getAction();
-        boolean hasPayeeAccount = getArguments().containsKey(Constants.EXTRA_PAYEE_ACCOUNT);
-        return Constants.ACTION_MONEY_TRANSFER.equals(action) && hasPayeeAccount;
     }
 }

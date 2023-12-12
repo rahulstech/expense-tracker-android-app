@@ -2,17 +2,20 @@ package dreammaker.android.expensetracker.adapter;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.util.SparseLongArray;
 import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.RecyclerView;
 import dreammaker.android.expensetracker.database.model.AccountModel;
+import dreammaker.android.expensetracker.listener.ChoiceModel;
 import dreammaker.android.expensetracker.text.TextUtil;
 
 @SuppressWarnings("unused")
@@ -36,33 +39,33 @@ public class AccountsAdapter
         }
     };
 
-    @Nullable
     private String mQuery = null;
 
     public AccountsAdapter(@NonNull Context context) {
         super(context, CALLBACK);
-        setHasListFooter(true);
-    }
-
-    public void filter(@Nullable List<AccountModel> accounts, @Nullable String query) {
-        mQuery = query;
-        submitList(accounts);
-    }
-
-    @Nullable
-    public String getQuery() {
-        return mQuery;
     }
 
     @Override
-    public boolean hasListFooter() {
-        return super.hasListFooter() && getItemCount() > 0;
+    public void submitList(@Nullable List<AccountModel> list) {
+        throw new RuntimeException("use filter(List,String) instead");
+    }
+
+    public void filter(@Nullable List<AccountModel> accounts, String query) {
+        mQuery = query;
+        if (null == accounts || accounts.isEmpty()) {
+            performSubmit(Collections.emptyList(),Collections.emptyList(),Collections.emptyList());
+        }
+        else {
+            super.submitList(accounts);
+        }
     }
 
     @NonNull
     @Override
     protected AsyncSectionBuilder<String, AccountModel> onCreateSectionBuilder(@Nullable List<AccountModel> list) {
-        return new AsyncItemBuilder(list,mQuery);
+        AsyncItemBuilder builder = new AsyncItemBuilder(list);
+        builder.setQuery(mQuery);
+        return builder;
     }
 
     @NonNull
@@ -79,19 +82,12 @@ public class AccountsAdapter
 
     @Override
     protected void onBindSectionHeaderViewHolder(@NonNull SectionHeaderViewHolder holder, int adapterPosition) {
-
+        holder.bind(getData(adapterPosition));
     }
 
     @Override
     protected void onBindSectionItemViewHolder(@NonNull SectionItemViewHolder holder, int adapterPosition) {
-
-    }
-
-    @NonNull
-    @Override
-    public RecyclerView.ViewHolder onCreateListFooterViewHolder(@NonNull ViewGroup parent) {
-        // TODO: implement method
-        return BaseViewHolder.create(getContext(),parent,0);
+        holder.bind(getData(adapterPosition));
     }
 
     public static class SectionHeaderViewHolder extends BaseViewHolder<String> {
@@ -108,14 +104,17 @@ public class AccountsAdapter
         }
     }
 
-    public static class AsyncItemBuilder extends AsyncSectionBuilder<String,AccountModel> {
+    private static class AsyncItemBuilder extends AsyncSectionBuilder<String,AccountModel> {
 
         public static final String HEADER_NON_LETTER = "#";
 
-        private final String mQuery;
+        private String mQuery;
 
-        public AsyncItemBuilder(@Nullable List<AccountModel> items, @Nullable String query) {
+        public AsyncItemBuilder(@Nullable List<AccountModel> items) {
             super(items);
+        }
+
+        public void setQuery(String query) {
             mQuery = query;
         }
 
@@ -143,12 +142,11 @@ public class AccountsAdapter
             return accounts;
         }
 
-        @NonNull
         private List<AccountModel> filter(@NonNull List<AccountModel> accounts, String query) {
             ArrayList<AccountModel> list = new ArrayList<>();
             for (AccountModel ac : accounts) {
                 String name = ac.getName();
-                if (name.contains(query)) {
+                if (TextUtil.containsIgnoreCase(name,query)) {
                     list.add(ac);
                 }
             }
