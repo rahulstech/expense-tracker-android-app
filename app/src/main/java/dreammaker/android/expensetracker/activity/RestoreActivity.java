@@ -18,7 +18,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import dreammaker.android.expensetracker.R;
-import dreammaker.android.expensetracker.backup.BackupRestoreHelper;
 
 public class RestoreActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -87,7 +86,7 @@ public class RestoreActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private void onCancel() {
-        BackupRestoreHelper.setFirstRestoreAsked(this, true);
+        //BackupRestoreHelper.setFirstRestoreAsked(this, true);
         finish();
     }
 
@@ -97,6 +96,6 @@ public class RestoreActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private void startRestore(@NonNull Uri restoreFrom) {
-        BackupRestoreHelper.restore(this,restoreFrom);
+        //BackupRestoreHelper.restore(this,restoreFrom);
     }
 }

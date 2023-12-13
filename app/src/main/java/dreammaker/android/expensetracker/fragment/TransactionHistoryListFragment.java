@@ -53,7 +53,7 @@ public class TransactionHistoryListFragment extends Fragment {
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
 
-        mViewModel = new ViewModelProvider(requireActivity(),new ViewModelProvider.AndroidViewModelFactory())
+        mViewModel = new ViewModelProvider(this,(ViewModelProvider.Factory) ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
                 .get(TransactionHistoryListFragmentViewModel.class);
 
         long id = getEntityId();
@@ -88,7 +88,7 @@ public class TransactionHistoryListFragment extends Fragment {
     }
 
     private void onTransactionHistoryListFetched(List<TransactionHistoryModel> histories) {
-        mTransactionsAdapter.submitChildren(histories);
+        mTransactionsAdapter.submitList(histories);
     }
 
     private void onClickAddTransaction() {

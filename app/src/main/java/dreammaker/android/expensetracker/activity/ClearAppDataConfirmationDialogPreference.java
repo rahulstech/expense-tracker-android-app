@@ -6,7 +6,6 @@ import android.util.AttributeSet;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.preference.DialogPreference;
-import dreammaker.android.expensetracker.backup.WorkActionService;
 
 public class ClearAppDataConfirmationDialogPreference extends DialogPreference {
 
@@ -21,7 +20,7 @@ public class ClearAppDataConfirmationDialogPreference extends DialogPreference {
                 .setMessage(getDialogMessage())
                 .setPositiveButton(getNegativeButtonText(), null)
                 .setNegativeButton(getPositiveButtonText(),(di,which) -> {
-                    getContext().startService(new Intent(getContext(), WorkActionService.class).setAction(WorkActionService.ACTION_CLEAR_APP_DATA));
+                    //getContext().startService(new Intent(getContext(), WorkActionService.class).setAction(WorkActionService.ACTION_CLEAR_APP_DATA));
                 })
                 .create();
         dialog.show();

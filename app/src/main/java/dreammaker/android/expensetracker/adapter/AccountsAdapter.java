@@ -1,21 +1,25 @@
 package dreammaker.android.expensetracker.adapter;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
-import android.util.SparseLongArray;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+
+import com.amulyakhare.textdrawable.TextDrawable;
+import com.amulyakhare.textdrawable.util.ColorGenerator;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.database.model.AccountModel;
-import dreammaker.android.expensetracker.listener.ChoiceModel;
+import dreammaker.android.expensetracker.databinding.LayoutAccountListItemBinding;
 import dreammaker.android.expensetracker.text.TextUtil;
 
 @SuppressWarnings("unused")
@@ -71,13 +75,19 @@ public class AccountsAdapter
     @NonNull
     @Override
     protected SectionHeaderViewHolder onCreateSectionHeaderViewHolder(@NonNull ViewGroup parent, int type) {
-        return null;
+        View view = getLayoutInflater().inflate(R.layout.layout_simple_list_item_1,parent,false);
+        SectionHeaderViewHolder holder = new SectionHeaderViewHolder(view);
+        holder.setAdapter(this);
+        return holder;
     }
 
     @NonNull
     @Override
     protected SectionItemViewHolder onCreateSectionItemViewHolder(@NonNull ViewGroup parent, int type) {
-        return null;
+        LayoutAccountListItemBinding binding = LayoutAccountListItemBinding.inflate(getLayoutInflater(),parent,false);
+        SectionItemViewHolder holder = new SectionItemViewHolder(binding);
+        holder.setAdapter(this);
+        return holder;
     }
 
     @Override
@@ -92,21 +102,54 @@ public class AccountsAdapter
 
     public static class SectionHeaderViewHolder extends BaseViewHolder<String> {
 
+        private final TextView text1;
+
         public SectionHeaderViewHolder(@NonNull View itemView) {
             super(itemView);
+            text1 = findViewById(R.id.text1);
+        }
+
+        @Override
+        protected void onBindNonNull(@NonNull String item) {
+            text1.setText(item);
         }
     }
 
     public static class SectionItemViewHolder extends BaseViewHolder<AccountModel> {
 
-        public SectionItemViewHolder(@NonNull View itemView) {
-            super(itemView);
+        private final LayoutAccountListItemBinding mBinding;
+
+        public SectionItemViewHolder(LayoutAccountListItemBinding binding) {
+            super(binding.getRoot());
+            mBinding = binding;
+        }
+
+        @Override
+        protected void onBindNonNull(@NonNull AccountModel item) {
+            String name = item.getName();
+            Drawable logo = getDefaultAccountLogo(item);
+            mBinding.logo.setImageDrawable(logo);
+            mBinding.name.setText(name);
+            mBinding.balance.setText(item.getBalance().toString());
+        }
+
+        private Drawable getDefaultAccountLogo(AccountModel account) {
+            String name = account.getName();
+            int color = ColorGenerator.MATERIAL.getColor(name);
+            String text;
+            if (TextUtils.isEmpty(name)) {
+                text = "";
+            }
+            else {
+                text = name.substring(0,1);
+            }
+            return TextDrawable.builder()
+                    .beginConfig().toUpperCase().endConfig()
+                    .buildRound(text,color);
         }
     }
 
     private static class AsyncItemBuilder extends AsyncSectionBuilder<String,AccountModel> {
-
-        public static final String HEADER_NON_LETTER = "#";
 
         private String mQuery;
 
@@ -128,17 +171,7 @@ public class AccountsAdapter
             else {
                 accounts = filter(items,mQuery);
             }
-            accounts.sort((left,right)->{
-                String nameLeft = left.getName();
-                String nameRight = right.getName();
-                String firstLeft = TextUtil.getDisplayLabel(nameLeft);
-                String firstRight = TextUtil.getDisplayLabel(nameRight);
-                if (TextUtil.isNonLetter(firstLeft) || TextUtil.isNonLetter(firstRight)) {
-                    // TODO: implement proper sorting for non letter
-                    return Integer.MIN_VALUE;
-                }
-                return nameLeft.compareToIgnoreCase(nameRight);
-            });
+            sort(accounts);
             return accounts;
         }
 
@@ -151,6 +184,23 @@ public class AccountsAdapter
                 }
             }
             return list;
+        }
+
+        private void sort(List<AccountModel> accounts) {
+            accounts.sort((left,right)->{
+                String nameLeft = left.getName();
+                String nameRight = right.getName();
+                String firstLeft = TextUtil.getDisplayLabel(nameLeft);
+                String firstRight = TextUtil.getDisplayLabel(nameRight);
+                if (TextUtil.isNonLetter(firstLeft) && TextUtil.isNonLetter(firstRight)) {
+                    return 0;
+                }
+                else if (TextUtil.isNonLetter(firstLeft) || TextUtil.isNonLetter(firstRight)) {
+                    // TODO: implement proper sorting for non letter
+                    return Integer.MAX_VALUE;
+                }
+                return nameLeft.compareToIgnoreCase(nameRight);
+            });
         }
 
         @NonNull

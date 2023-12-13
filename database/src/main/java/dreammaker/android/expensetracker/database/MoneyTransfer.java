@@ -1,7 +1,5 @@
 package dreammaker.android.expensetracker.database;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Objects;
@@ -56,7 +54,7 @@ public class MoneyTransfer implements Cloneable {
 
     @Ignore
     @Deprecated
-    public MoneyTransfer(long _id, @NotNull Date when, float amount, long payee_account_id, long payer_account_id, String description) {
+    public MoneyTransfer(long _id, @NonNull Date when, float amount, long payee_account_id, long payer_account_id, String description) {
         this.id = _id;
         this.when = when;
         this.payee_account_id = payee_account_id;
@@ -64,7 +62,7 @@ public class MoneyTransfer implements Cloneable {
         this.description = description;
     }
 
-    public MoneyTransfer(long _id, @NotNull Date when, BigDecimal totalAmount, long payee_account_id, long payer_account_id, String description) {
+    public MoneyTransfer(long _id, @NonNull Date when, BigDecimal totalAmount, long payee_account_id, long payer_account_id, String description) {
         this.id = _id;
         this.when = when;
         this.totalAmount = totalAmount;
@@ -85,12 +83,12 @@ public class MoneyTransfer implements Cloneable {
         this.id = id;
     }
 
-    @NotNull
+    @NonNull
     public Date getWhen() {
         return when;
     }
 
-    public void setWhen(@NotNull Date when) {
+    public void setWhen(@NonNull Date when) {
         this.when = when;
     }
 

@@ -45,17 +45,18 @@ public class FilterTransactionScreenPeople extends BaseFragment<FilterTransactio
         super.onAttach(context);
         setFragmentTitle(R.string.label_filter_transaction);
         if (Check.isNonNull(getActivity())) {
-            viewModel = new ViewModelProvider(getActivity(),
-                    new ViewModelProvider.AndroidViewModelFactory(getActivity().getApplication()))
-                    .get(TransactionsViewModel.class);
+            //viewModel = new ViewModelProvider(getActivity(),
+            //        new ViewModelProvider.AndroidViewModelFactory(getActivity().getApplication()))
+            //        .get(TransactionsViewModel.class);
         }
     }
 
     @NonNull
     @Override
     protected FilterTransactionsScreenPeopleViewHolder onCreateFragmentViewHolder(@NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
-        return new FilterTransactionsScreenPeopleViewHolder(
-                inflater.inflate(R.layout.screen_searchable_list_content, container, false));
+        //return new FilterTransactionsScreenPeopleViewHolder(
+        //        inflater.inflate(R.layout.screen_searchable_list_content, container, false));
+        return null;
     }
 
     @Override
@@ -107,7 +108,7 @@ public class FilterTransactionScreenPeople extends BaseFragment<FilterTransactio
 
             search = findViewById(R.id.search);
             list = findViewById(R.id.list);
-            empty = findViewById(R.id.empty);
+            //empty = findViewById(R.id.empty);
         }
 
         void configEmptyList( boolean isEmpty){

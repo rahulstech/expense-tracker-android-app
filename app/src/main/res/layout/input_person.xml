@@ -4,6 +4,9 @@
     android:layout_height="match_parent"
     android:layout_width="match_parent">
 
+    <include android:id="@+id/actionBar"
+        layout="@layout/actionbar_layout"/>
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/button_save"
         android:layout_width="@dimen/fab_size_medium"
@@ -19,7 +22,8 @@
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -42,10 +46,9 @@
                     android:layout_marginEnd="16dp"
                     android:layout_weight="1"
                     android:hint="@string/first_name"
-                    app:errorEnabled="false"
-                    app:helperTextEnabled="false"
                     app:hintAnimationEnabled="true"
-                    app:hintEnabled="true">
+                    app:hintEnabled="true"
+                    style="@style/Widget.AppTheme.TextInputLayout">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/first_name"
@@ -69,10 +72,9 @@
                     android:layout_marginEnd="16dp"
                     android:layout_weight="1"
                     android:hint="@string/last_name"
-                    app:errorEnabled="false"
-                    app:helperTextEnabled="true"
                     app:hintAnimationEnabled="true"
-                    app:hintEnabled="true">
+                    app:hintEnabled="true"
+                    style="@style/Widget.AppTheme.TextInputLayout">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/last_name"
@@ -109,7 +111,7 @@
                     app:endIconDrawable="@drawable/ic_calculator"
                     app:endIconScaleType="center"
                     app:endIconMode="custom"
-                    app:errorEnabled="flase">
+                    style="@style/Widget.AppTheme.TextInputLayout">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/due"
@@ -134,10 +136,10 @@
                     app:endIconDrawable="@drawable/ic_calculator"
                     app:endIconScaleType="center"
                     app:endIconMode="custom"
-                    app:errorEnabled="false"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/container_due">
+                    app:layout_constraintTop_toBottomOf="@id/container_due"
+                    style="@style/Widget.AppTheme.TextInputLayout">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/borrow"

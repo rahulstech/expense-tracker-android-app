@@ -1,222 +1,264 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_height="match_parent"
     android:layout_width="match_parent">
-
-    <!-- TODO: redesign this layout -->
-
-    <androidx.constraintlayout.widget.ConstraintLayout
+    
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/margin_vertical_medium">
+        android:layout_height="match_parent">
+        
+        <include android:id="@+id/actionBar"
+            layout="@layout/actionbar_layout"/>
 
-        <!--
-        <Button
-            android:id="@+id/accounts"
-            android:layout_width="0dp"
+        <androidx.core.widget.NestedScrollView 
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/margin_vertical_medium"
-            android:padding="@dimen/padding_horizontal_small"
-            android:text="@string/label_accounts"
-            app:layout_constraintEnd_toStartOf="@id/persons"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/container_total_due"/>
-
-        <Button
-            android:id="@+id/persons"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/margin_vertical_medium"
-            android:padding="@dimen/padding_horizontal_small"
-            android:text="@string/label_persons_list"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/accounts"
-            app:layout_constraintTop_toBottomOf="@id/container_total_due" />
-        -->
-
-        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="@integer/asset_liability_orientation"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            android:clipToPadding="false"
+            android:paddingBottom="81dp"
+            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 
-            <androidx.cardview.widget.CardView
-                android:id="@+id/container_total_balance"
+            <!-- TODO: redesign this layout -->
+
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                app:cardElevation="8dp"
-                app:cardUseCompatPadding="true"
-                app:contentPadding="12dp"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent">
+                android:layout_height="wrap_content">
+                
+                <!-- section asset liability -->
 
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/container_total_balance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    app:cardElevation="8dp"
+                    app:cardUseCompatPadding="true"
+                    app:contentPadding="12dp"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:gravity="center_horizontal">
+
+                        <TextView
+                            android:id="@+id/label_total_asset"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/label_total_asset"
+                            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6" />
+
+                        <TextView
+                            android:id="@+id/total_asset"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:textAlignment="center"
+                            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline4"
+                            android:textColor="@color/text_green"
+                            android:textStyle="bold"
+                            android:background="?attr/selectableItemBackground"
+                            android:drawablePadding="12dp"
+                            app:drawableRightCompat="@drawable/ic_baseline_keyboard_arrow_down_24"
+                            tools:text="333333333333333333333333333333333333333.56" />
+
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/container_total_due"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    app:cardElevation="8dp"
+                    app:cardUseCompatPadding="true"
+                    app:contentPadding="12dp"
+                    app:layout_constraintTop_toBottomOf="@id/container_total_balance"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:gravity="center_horizontal">
+
+                        <TextView
+                            android:id="@+id/label_total_liability"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/label_total_liability"
+                            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6" />
+                        <TextView
+                            android:id="@+id/total_liability"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:textAlignment="center"
+                            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline4"
+                            android:textColor="@color/text_red"
+                            android:textStyle="bold"
+                            android:background="?attr/selectableItemBackground"
+                            android:drawablePadding="12dp"
+                            app:drawableRightCompat="@drawable/ic_baseline_keyboard_arrow_down_24"
+                            tools:text="303333300000000.56" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+                
+                <!-- section navigation -->
+                
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:gravity="center_horizontal">
-
-                    <TextView
-                        android:id="@+id/label_total_asset"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/container_total_due"
+                    android:layoutDirection="ltr">
+                    
+                    <!-- nav accounts -->
+                    
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/nav_accounts"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/label_total_asset"
-                        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6" />
+                        android:layout_marginVertical="@dimen/tile_margin_medium"
+                        style="@style/Widget.AppTheme.TileCard.Small">
+                        
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:background="?attr/selectableItemBackground">
+                            
+                            <com.google.android.material.imageview.ShapeableImageView
+                                android:layout_width="@dimen/tile_icon_size_small"
+                                android:layout_height="@dimen/tile_icon_size_small"
+                                app:shapeAppearance="@style/ShapeAppearance.AppTheme.RoundedImage"
+                                app:srcCompat="@drawable/ic_account_black"/>
+                            
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/label_accounts"
+                                android:textAppearance="@style/TextAppearance.MaterialComponents.Button"
+                                android:textAllCaps="false"
+                                android:maxLines="1"
+                                android:singleLine="true"/>
+                            
+                        </LinearLayout>
+                        
+                    </com.google.android.material.card.MaterialCardView>
+                    
+                    <!-- nav people -->
 
-                    <TextView
-                        android:id="@+id/total_asset"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:textAlignment="center"
-                        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline4"
-                        android:textColor="@color/text_green"
-                        android:textStyle="bold"
-                        android:background="?attr/selectableItemBackground"
-                        android:drawablePadding="12dp"
-                        app:drawableRightCompat="@drawable/ic_baseline_keyboard_arrow_down_24"
-                        tools:text="333333333333333333333333333333333333333.56" />
-
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <androidx.cardview.widget.CardView
-                android:id="@+id/container_total_due"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                app:cardElevation="8dp"
-                app:cardUseCompatPadding="true"
-                app:contentPadding="12dp"
-                app:layout_constraintTop_toBottomOf="@id/container_total_balance"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:gravity="center_horizontal">
-
-                    <TextView
-                        android:id="@+id/label_total_liability"
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/nav_people"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/label_total_liability"
-                        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6" />
-                    <TextView
-                        android:id="@+id/total_liability"
-                        android:layout_width="match_parent"
+                        android:layout_marginVertical="@dimen/tile_margin_medium"
+                        style="@style/Widget.AppTheme.TileCard.Small">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:background="?attr/selectableItemBackground">
+
+                            <com.google.android.material.imageview.ShapeableImageView
+                                android:layout_width="@dimen/tile_icon_size_small"
+                                android:layout_height="@dimen/tile_icon_size_small"
+                                app:shapeAppearance="@style/ShapeAppearance.AppTheme.RoundedImage"
+                                app:srcCompat="@drawable/ic_person_black"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/label_people"
+                                android:textAppearance="@style/TextAppearance.MaterialComponents.Button"
+                                android:textAllCaps="false"
+                                android:maxLines="1"
+                                android:singleLine="true"/>
+
+                        </LinearLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+                    
+                    <!-- nav histories -->
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/nav_histories"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:textAlignment="center"
-                        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline4"
-                        android:textColor="@color/text_red"
-                        android:textStyle="bold"
-                        android:background="?attr/selectableItemBackground"
-                        android:drawablePadding="12dp"
-                        app:drawableRightCompat="@drawable/ic_baseline_keyboard_arrow_down_24"
-                        tools:text="303333300000000.56" />
+                        android:layout_marginVertical="@dimen/tile_margin_medium"
+                        style="@style/Widget.AppTheme.TileCard.Small">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:background="?attr/selectableItemBackground">
+
+                            <com.google.android.material.imageview.ShapeableImageView
+                                android:layout_width="@dimen/tile_icon_size_small"
+                                android:layout_height="@dimen/tile_icon_size_small"
+                                app:shapeAppearance="@style/ShapeAppearance.AppTheme.RoundedImage"
+                                app:srcCompat="@drawable/ic_baseline_history_24"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/label_transaction_histories"
+                                android:textAppearance="@style/TextAppearance.MaterialComponents.Button"
+                                android:textAllCaps="false"
+                                android:maxLines="1"
+                                android:singleLine="true"/>
+
+                        </LinearLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+                    
                 </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-        </LinearLayout>
-
-
-        <!--
-        <androidx.cardview.widget.CardView
-            android:id="@+id/container_total_balance"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            app:cardElevation="8dp"
-            app:cardUseCompatPadding="true"
-            app:contentPadding="12dp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center_horizontal">
-
-                <TextView
-                    android:id="@+id/label_total_asset"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/label_total_asset"
-                    android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6" />
-
-                <TextView
-                    android:id="@+id/total_asset"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:textAlignment="center"
-                    android:textAppearance="@style/TextAppearance.MaterialComponents.Headline4"
-                    android:textColor="@color/text_green"
-                    android:textStyle="bold"
-                    android:background="?attr/selectableItemBackground"
-                    android:drawablePadding="12dp"
-                    app:drawableRightCompat="@drawable/ic_baseline_keyboard_arrow_down_24"
-                    tools:text="333.56" />
-
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/container_total_due"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            app:cardElevation="8dp"
-            app:cardUseCompatPadding="true"
-            app:contentPadding="12dp"
-            app:layout_constraintTop_toBottomOf="@id/container_total_balance"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center_horizontal">
-
-                <TextView
-                    android:id="@+id/label_total_liability"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/label_total_liability"
-                    android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6" />
-                <TextView
-                    android:id="@+id/total_liability"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:textAlignment="center"
-                    android:textAppearance="@style/TextAppearance.MaterialComponents.Headline4"
-                    android:textColor="@color/text_red"
-                    android:textStyle="bold"
-                    android:background="?attr/selectableItemBackground"
-                    android:drawablePadding="12dp"
-                    app:drawableRightCompat="@drawable/ic_baseline_keyboard_arrow_down_24"
-                    tools:text="300.56" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-        -->
+                
+                <!-- section shortcut -->
 
 
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.core.widget.NestedScrollView>
+        
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/add_history"
+            android:layout_width="@dimen/fab_size_medium"
+            android:layout_height="@dimen/fab_size_medium"
+            app:fabCustomSize="@dimen/fab_size_medium"
+            android:layout_margin="@dimen/fab_margin"
+            android:layout_gravity="bottom|right"
+            android:contentDescription="@string/description_add_transaction_history"
+            android:src="@drawable/ic_add"
+            app:tint="@color/fab_icon_tint"
+            tools:ignore="RtlHardcoded"/>
+        
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-</ScrollView>
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/drawer"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        app:headerLayout="@layout/left_drawer_header"
+        app:menu="@menu/home_navigation_drawer_menu"/>
+    
+</androidx.drawerlayout.widget.DrawerLayout>
+
 

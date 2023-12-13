@@ -9,7 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -27,7 +26,6 @@ import dreammaker.android.expensetracker.text.TextUtil;
 import dreammaker.android.expensetracker.util.Constants;
 import dreammaker.android.expensetracker.viewmodel.DBViewModel;
 import dreammaker.android.expensetracker.viewmodel.InputAccountViewModel;
-import dreammaker.android.expensetracker.viewmodel.InputPersonViewModel;
 
 public class InputAccount extends Fragment {
 
@@ -42,6 +40,7 @@ public class InputAccount extends Fragment {
     private InputAccountBinding mBinding;
 
     private AccountModel nAccount;
+
     private boolean mAccountSet = false;
 
     public InputAccount(){
@@ -81,6 +80,7 @@ public class InputAccount extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        setTitle();
         navController = Navigation.findNavController(view);
         mBinding.containerBalance.setEndIconOnClickListener(v->onToggleCalculator());
         mBinding.buttonSave.setOnClickListener(v->onClickSave());
@@ -95,15 +95,14 @@ public class InputAccount extends Fragment {
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-        // TODO: set title
-    }
-
-    @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean(KEY_ACCOUNT_VALUE_SET, mAccountSet);
+    }
+
+    private void setTitle() {
+        CharSequence title = isEditOperation() ? getText(R.string.label_update_account) : getText(R.string.label_insert_account);
+        mBinding.actionBar.toolbar.setTitle(title);
     }
 
     private void onBackPressed() {
@@ -142,33 +141,13 @@ public class InputAccount extends Fragment {
     }
 
     private void onClickSave() {
+        if (!validate()) {
+            return;
+        }
+
         CharSequence name = mBinding.name.getText();
-        CharSequence txtBalance = mBinding.balance.getText();
-        Currency balance = null;
+        Currency balance = TextUtil.tryConvertToCurrencyOrNull(mBinding.balance.getText());
 
-        mBinding.containerName.setErrorEnabled(false);
-        mBinding.containerBalance.setErrorEnabled(false);
-
-        // validate inputs
-        boolean valid = true;
-        if (TextUtils.isEmpty(name)) {
-            mBinding.containerName.setError(getString(R.string.error_empty_input));
-            valid = false;
-        }
-        if (TextUtils.isEmpty(txtBalance)) {
-            mBinding.containerBalance.setError(getString(R.string.error_empty_input));
-            valid = false;
-        }
-        else {
-            balance = TextUtil.tryConvertToCurrencyOrNull(txtBalance);
-            valid = null != balance;
-            if (!valid) {
-                mBinding.containerBalance.setError(getString(R.string.error_invalid_numeric_value));
-            }
-        }
-        // at least one invalid input exists, don't go further
-        if (!valid) return;
-        // all inputs are valid proceed to save
         Account account = new Account();
         if (isEditOperation()) {
             if (!hasAnyValueChanged()) {
@@ -183,6 +162,33 @@ public class InputAccount extends Fragment {
         mViewModel.saveAccount(account).observe(getViewLifecycleOwner(),this::onAccountSaveComplete);
     }
 
+    private boolean validate() {
+        CharSequence name = mBinding.name.getText();
+        CharSequence txtBalance = mBinding.balance.getText();
+
+        mBinding.containerName.setError(null);
+        mBinding.containerBalance.setError(null);
+
+        // validate inputs
+        boolean valid = true;
+        if (TextUtils.isEmpty(name)) {
+            mBinding.containerName.setError(getString(R.string.error_empty_input));
+            valid = false;
+        }
+        if (TextUtils.isEmpty(txtBalance)) {
+            mBinding.containerBalance.setError(getString(R.string.error_empty_input));
+            valid = false;
+        }
+        else {
+            Currency balance = TextUtil.tryConvertToCurrencyOrNull(txtBalance);
+            valid = null != balance;
+            if (!valid) {
+                mBinding.containerBalance.setError(getString(R.string.error_invalid_numeric_value));
+            }
+        }
+        return valid;
+    }
+
     private void onAccountSaveComplete(@NonNull DBViewModel.AsyncQueryResult result) {
         Account account = (Account) result.getResult();
         if (null == account) {
@@ -190,7 +196,7 @@ public class InputAccount extends Fragment {
             Log.e(TAG,"fail to save account",result.getError());
             return;
         }
-        Toast.makeText(requireContext(),R.string.message_save,Toast.LENGTH_SHORT).show();
+        Toast.makeText(requireContext(),R.string.account_save_successful,Toast.LENGTH_SHORT).show();
         if (isEditOperation()) {
             exit();
         }

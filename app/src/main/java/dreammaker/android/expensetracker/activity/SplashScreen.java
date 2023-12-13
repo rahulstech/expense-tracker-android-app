@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.os.Handler;
 
 import dreammaker.android.expensetracker.R;
-import dreammaker.android.expensetracker.backup.BackupRestoreHelper;
 
 public class SplashScreen extends AppCompatActivity {
 

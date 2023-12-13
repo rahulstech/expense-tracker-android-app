@@ -46,19 +46,19 @@ public class FilterTransactionsScreenAccounts extends BaseFragment<FilterTransac
         super.onAttach(context);
         setFragmentTitle(R.string.label_filter_transaction);
         if (Check.isNonNull(getActivity())) {
-            viewModel = new ViewModelProvider(getActivity(),
-                    new ViewModelProvider.AndroidViewModelFactory(getActivity().getApplication()))
-                    .get(TransactionsViewModel.class);
+            //viewModel = new ViewModelProvider(getActivity(),
+            //        new ViewModelProvider.AndroidViewModelFactory(getActivity().getApplication()))
+            //        .get(TransactionsViewModel.class);
         }
     }
 
     @NonNull
     @Override
     protected FilterTransactionsScreenSearchableListContentViewHolder onCreateFragmentViewHolder(@NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
-        FilterTransactionsScreenSearchableListContentViewHolder vh = new FilterTransactionsScreenSearchableListContentViewHolder(
-                inflater.inflate(R.layout.screen_searchable_list_content, container, false));
-
-        return vh;
+        //FilterTransactionsScreenSearchableListContentViewHolder vh = new FilterTransactionsScreenSearchableListContentViewHolder(
+        //        inflater.inflate(R.layout.screen_searchable_list_content, container, false));
+        //return vh;
+        return null;
     }
 
     @Override
@@ -108,7 +108,7 @@ public class FilterTransactionsScreenAccounts extends BaseFragment<FilterTransac
             super(root);
             search = findViewById(R.id.search);
             list = findViewById(R.id.list);
-            empty = findViewById(R.id.empty);
+            //empty = findViewById(R.id.empty);
         }
 
         private void configEmptyList( boolean isEmpty){

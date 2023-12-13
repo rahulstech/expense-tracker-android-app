@@ -38,6 +38,7 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
 
     public static final String EXTRA_TRANSACTION_HISTORY = "extra_transaction_history";
 
+    @SuppressWarnings("FieldCanBeLocal")
     private NavController navController;
 
     @SuppressWarnings("FieldCanBeLocal")
@@ -79,6 +80,7 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
         navController = Navigation.findNavController(view);
         mBinding.date.setOnClickListener(v->onClickDate());
         mBinding.btnNext.setOnClickListener(v->onClickNext());
+        mBinding.containerAmount.setEndIconOnClickListener(v->onToggleCalculator());
         if (hasExtraWhen()) {
             LocalDate when = getExtraWhen();
             changeTransactionWhen(when);
@@ -132,6 +134,10 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
     private void changeTransactionWhen(LocalDate newDate) {
         pickedDate = newDate;
         mBinding.date.setText(newDate.format(FORMATTER));
+    }
+
+    private void onToggleCalculator() {
+        // TODO: implement toggle calculator
     }
 
     private void onClickNext() {

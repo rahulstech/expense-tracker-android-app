@@ -3,7 +3,6 @@ package dreammaker.android.expensetracker.fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
-import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,15 +20,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.adapter.AccountsAdapter;
 import dreammaker.android.expensetracker.database.model.AccountModel;
-import dreammaker.android.expensetracker.databinding.LayoutAccountsListFragmentBinding;
 import dreammaker.android.expensetracker.databinding.LayoutBrowseSearchAddBinding;
 import dreammaker.android.expensetracker.listener.OnItemClickListener;
 import dreammaker.android.expensetracker.listener.RecyclerViewItemClickHelper;
+import dreammaker.android.expensetracker.util.Constants;
 import dreammaker.android.expensetracker.viewmodel.AccountsListViewModel;
 
 import static androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory;
 import static androidx.lifecycle.ViewModelProvider.Factory;
 
+@SuppressWarnings("unused")
 public class AccountsList extends Fragment implements OnItemClickListener {
 
     private static final String TAG = AccountsList.class.getSimpleName();
@@ -43,8 +43,6 @@ public class AccountsList extends Fragment implements OnItemClickListener {
     private LayoutBrowseSearchAddBinding mBinding;
 
     private AccountsAdapter mAdapter;
-
-    private RecyclerViewItemClickHelper mClickHelper;
 
     private String mQueryString = null;
 
@@ -89,7 +87,7 @@ public class AccountsList extends Fragment implements OnItemClickListener {
         mBinding.add.setOnClickListener(v->onClickAddAccount());
         mAdapter = new AccountsAdapter(requireContext());
         mBinding.list.setAdapter(mAdapter);
-        mClickHelper = new RecyclerViewItemClickHelper(mBinding.list);
+        RecyclerViewItemClickHelper mClickHelper = new RecyclerViewItemClickHelper(mBinding.list);
         mClickHelper.setOnItemClickListener(this);
     }
 
@@ -108,7 +106,7 @@ public class AccountsList extends Fragment implements OnItemClickListener {
     }
 
     private void setTitle() {
-
+        mBinding.actionBar.toolbar.setTitle(R.string.label_accounts);
     }
 
     private void submitQuery(String key) {
@@ -126,7 +124,9 @@ public class AccountsList extends Fragment implements OnItemClickListener {
     }
 
     private void onClickAddAccount() {
-        navController.navigate(R.id.action_accountsList_to_inputAccount);
+        Bundle args = new Bundle();
+        args.putString(Constants.EXTRA_ACTION,Constants.ACTION_INSERT);
+        navController.navigate(R.id.action_accounts_to_input_account,args);
     }
 
     @Override

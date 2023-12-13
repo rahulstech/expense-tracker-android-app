@@ -90,8 +90,19 @@ public class TextUtil {
         if (!firstNameFirst) {
             return getDisplayLabelForPerson(lastName,firstName,true,ifEmpty);
         }
-        String fn1 = substring(firstName.trim(),0,1,null);
-        String ln1 = substring(lastName.trim(),0,1,null);
+        String fn1, ln1;
+        if (!TextUtils.isEmpty(firstName)) {
+            fn1 = firstName.substring(0,1);
+        }
+        else {
+            fn1 = null;
+        }
+        if (!TextUtils.isEmpty(lastName)) {
+            ln1 = lastName.substring(0,1);
+        }
+        else {
+            ln1 = null;
+        }
         String label;
         if (null != fn1 && null != ln1) {
             label = fn1+ln1;

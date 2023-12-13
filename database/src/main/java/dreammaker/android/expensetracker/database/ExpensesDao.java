@@ -7,8 +7,6 @@ import java.util.ListIterator;
 import java.util.Objects;
 
 import androidx.lifecycle.LiveData;
-import androidx.paging.DataSource;
-import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
@@ -105,9 +103,9 @@ public abstract class ExpensesDao {
         return _id;
     }
 
-    @androidx.room.Transaction
-    @RawQuery(observedEntities = {TransactionDetails.class})
-    public abstract DataSource.Factory<Integer, TransactionDetails> filterTransactionPaged(SupportSQLiteQuery query);
+    //@androidx.room.Transaction
+    //@RawQuery(observedEntities = {TransactionDetails.class})
+    //public abstract DataSource.Factory<Integer, TransactionDetails> filterTransactionPaged(SupportSQLiteQuery query);
 
     public int updateTransaction(Transaction newT) {
         Transaction oldT = getTransactionById(newT.getTransactionId());

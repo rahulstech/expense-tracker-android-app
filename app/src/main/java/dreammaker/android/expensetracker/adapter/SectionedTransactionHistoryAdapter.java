@@ -20,8 +20,8 @@ import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.database.model.PersonModel;
 import dreammaker.android.expensetracker.database.model.TransactionHistoryModel;
 import dreammaker.android.expensetracker.database.type.TransactionType;
+import dreammaker.android.expensetracker.databinding.LayoutSimpleListItem1Binding;
 import dreammaker.android.expensetracker.databinding.LayoutTransactionHistoryItemChildBinding;
-import dreammaker.android.expensetracker.databinding.LayoutTransactionHistoryItemHeaderBinding;
 import dreammaker.android.expensetracker.listener.ChoiceModel;
 import dreammaker.android.expensetracker.text.TextUtil;
 
@@ -101,8 +101,8 @@ public class SectionedTransactionHistoryAdapter
     @NonNull
     @Override
     protected HeaderViewHolder onCreateSectionHeaderViewHolder(@NonNull ViewGroup parent, int type) {
-        LayoutTransactionHistoryItemHeaderBinding binding
-                = LayoutTransactionHistoryItemHeaderBinding.inflate(getLayoutInflater(),parent,false);
+        LayoutSimpleListItem1Binding binding
+                = LayoutSimpleListItem1Binding.inflate(getLayoutInflater(),parent,false);
         HeaderViewHolder holder = new HeaderViewHolder(binding);
         holder.setAdapter(this);
         return holder;
@@ -185,9 +185,9 @@ public class SectionedTransactionHistoryAdapter
 
     public static class HeaderViewHolder extends BaseViewHolder<HeaderData> {
 
-        final LayoutTransactionHistoryItemHeaderBinding mBinding;
+        private final LayoutSimpleListItem1Binding mBinding;
 
-        public HeaderViewHolder(@NonNull LayoutTransactionHistoryItemHeaderBinding binding) {
+        public HeaderViewHolder(LayoutSimpleListItem1Binding binding) {
             super(binding.getRoot());
             mBinding = binding;
         }

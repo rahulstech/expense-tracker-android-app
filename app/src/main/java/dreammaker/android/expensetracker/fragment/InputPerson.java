@@ -79,6 +79,7 @@ public class InputPerson extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        setTitle();
         navController = Navigation.findNavController(view);
         mBinding.containerDue.setEndIconOnClickListener(this::onToggleCalculator);
         mBinding.containerBorrow.setEndIconOnClickListener(this::onToggleCalculator);
@@ -94,15 +95,14 @@ public class InputPerson extends Fragment {
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-        // TODO: set title
-    }
-
-    @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean(KEY_PERSON_SET,mPersonSet);
+    }
+
+    private void setTitle() {
+        CharSequence title = isEditOperation() ? getText(R.string.label_update_person) : getText(R.string.label_insert_person);
+        mBinding.actionBar.toolbar.setTitle(title);
     }
 
     private void onBackPressed() {
@@ -136,45 +136,14 @@ public class InputPerson extends Fragment {
     }
 
     private void onClickSave() {
+        if (!validate()) {
+            return;
+        }
+
         CharSequence firstName = mBinding.firstName.getText();
         CharSequence lastName = mBinding.lastName.getText();
-        CharSequence txtDue = mBinding.due.getText();
-        CharSequence txtBorrow = mBinding.borrow.getText();
-        Currency due = null;
-        Currency borrow = null;
-
-        mBinding.containerFirstName.setErrorEnabled(false);
-        mBinding.containerDue.setErrorEnabled(false);
-        mBinding.containerDue.setErrorEnabled(false);
-
-        boolean valid;
-        if (TextUtils.isEmpty(firstName)) {
-            mBinding.containerFirstName.setError(getText(R.string.error_empty_input));
-            valid = false;
-        }
-        if (TextUtils.isEmpty(txtDue)) {
-            mBinding.containerDue.setError(getText(R.string.error_empty_input));
-            valid = false;
-        }
-        else {
-            due = TextUtil.tryConvertToCurrencyOrNull(txtDue);
-            valid = due != null;
-            if (!valid) {
-                mBinding.containerDue.setError(getText(R.string.error_invalid_numeric_value));
-            }
-        }
-        if (TextUtils.isEmpty(txtBorrow)) {
-            mBinding.containerBorrow.setError(getString(R.string.error_empty_input));
-            valid = false;
-        }
-        else {
-            borrow = TextUtil.tryConvertToCurrencyOrNull(txtBorrow);
-            valid = null != borrow;
-            if (!valid) {
-                mBinding.containerBorrow.setError(getText(R.string.error_invalid_numeric_value));
-            }
-        }
-        if (!valid) return;
+        Currency due = TextUtil.tryConvertToCurrencyOrNull(mBinding.due.getText());
+        Currency borrow = TextUtil.tryConvertToCurrencyOrNull(mBinding.borrow.getText());
 
         Person person = new Person();
         if (isEditOperation()) {
@@ -190,6 +159,45 @@ public class InputPerson extends Fragment {
         person.setDue(due);
         person.setBorrow(borrow);
         mViewModel.savePerson(person).observe(getViewLifecycleOwner(),this::onPersonSaveComplete);
+    }
+
+    private boolean validate() {
+        CharSequence firstName = mBinding.firstName.getText();
+        CharSequence txtDue = mBinding.due.getText();
+        CharSequence txtBorrow = mBinding.borrow.getText();
+
+        mBinding.containerFirstName.setError(null);
+        mBinding.containerDue.setError(null);
+        mBinding.containerDue.setError(null);
+
+        boolean valid;
+        if (TextUtils.isEmpty(firstName)) {
+            mBinding.containerFirstName.setError(getText(R.string.error_empty_input));
+            valid = false;
+        }
+        if (TextUtils.isEmpty(txtDue)) {
+            mBinding.containerDue.setError(getText(R.string.error_empty_input));
+            valid = false;
+        }
+        else {
+            Currency due = TextUtil.tryConvertToCurrencyOrNull(txtDue);
+            valid = due != null;
+            if (!valid) {
+                mBinding.containerDue.setError(getText(R.string.error_invalid_numeric_value));
+            }
+        }
+        if (TextUtils.isEmpty(txtBorrow)) {
+            mBinding.containerBorrow.setError(getString(R.string.error_empty_input));
+            valid = false;
+        }
+        else {
+            Currency borrow = TextUtil.tryConvertToCurrencyOrNull(txtBorrow);
+            valid = null != borrow;
+            if (!valid) {
+                mBinding.containerBorrow.setError(getText(R.string.error_invalid_numeric_value));
+            }
+        }
+        return valid;
     }
 
     private void onPersonFetched(@Nullable PersonModel person) {
@@ -213,6 +221,7 @@ public class InputPerson extends Fragment {
             Toast.makeText(requireContext(),R.string.error_save,Toast.LENGTH_SHORT).show();
             return;
         }
+        Toast.makeText(requireContext(),R.string.person_save_successful,Toast.LENGTH_SHORT).show();
         if (isEditOperation()) {
             exit();
         }

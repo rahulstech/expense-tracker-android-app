@@ -7,33 +7,9 @@
     android:orientation="vertical"
     android:gravity="center">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="?android:actionBarSize">
-
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:titleCentered="true"
-            app:titleTextAppearance="@style/TextAppearance.MaterialComponents.Headline5"/>
-
-    </com.google.android.material.appbar.AppBarLayout>
-
-    <!--
-    <TextView
-        android:id="@+id/title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="0"
-        android:paddingTop="12dp"
-        android:paddingBottom="12dp"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp"
-        android:textAppearance="@style/TextAppearance.AppTheme.Headline5"
-        android:textStyle="bold"
-        tools:text="Pay From"/>
-    -->
+    <include
+        android:id="@+id/actionBar"
+        layout="@layout/actionbar_layout"/>
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -56,18 +32,21 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:shapeAppearance="@style/AppTheme.ShapeAppearance.SearchBarOutline"
+                app:shapeAppearance="@style/ShapeAppearance.AppTheme.SearchBarOutline"
                 app:startIconDrawable="@drawable/ic_baseline_search_36"
                 app:startIconScaleType="center"
+                app:endIconMode="clear_text"
                 app:hintAnimationEnabled="false"
-                app:hintEnabled="false">
+                app:hintEnabled="false"
+                style="@style/Widget.AppTheme.TextInputLayout">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/search"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:imeOptions="actionSearch"
                     android:importantForAutofill="no"
-                    android:imeOptions="actionSearch" />
+                    tools:ignore="SpeakableTextPresentCheck" />
 
             </com.google.android.material.textfield.TextInputLayout>
 

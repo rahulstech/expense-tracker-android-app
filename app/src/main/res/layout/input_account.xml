@@ -4,22 +4,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/button_save"
-        android:layout_width="@dimen/fab_size_medium"
-        android:layout_height="@dimen/fab_size_medium"
-        app:fabCustomSize="@dimen/fab_size_medium"
-        android:contentDescription="@string/description_save"
-        android:layout_gravity="bottom|right"
-        android:layout_margin="16dp"
-        android:src="@drawable/ic_baseline_save_alt_24"
-        app:tint="@color/fab_icon_tint"
-        app:layout_behavior="@string/fab_behaviour"
-        tools:ignore="RtlHardcoded" />
+    <include android:id="@+id/actionBar"
+        layout="@layout/actionbar_layout"/>
     
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -36,10 +27,9 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
                 android:hint="@string/account_name"
-                app:errorEnabled="false"
-                app:helperTextEnabled="false"
                 app:hintAnimationEnabled="true"
-                app:hintEnabled="true">
+                app:hintEnabled="true"
+                style="@style/Widget.AppTheme.TextInputLayout">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/name"
@@ -68,8 +58,7 @@
                 android:hint="@string/balance"
                 app:hintEnabled="true"
                 app:hintAnimationEnabled="true"
-                app:helperTextEnabled="true"
-                app:errorEnabled="true">
+                style="@style/Widget.AppTheme.TextInputLayout">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/balance"
@@ -87,6 +76,16 @@
         
     </androidx.core.widget.NestedScrollView>
 
-    
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/button_save"
+        android:layout_width="@dimen/fab_size_medium"
+        android:layout_height="@dimen/fab_size_medium"
+        app:fabCustomSize="@dimen/fab_size_medium"
+        android:contentDescription="@string/description_save"
+        android:layout_gravity="bottom|right"
+        android:layout_margin="@dimen/fab_margin"
+        android:src="@drawable/ic_baseline_save_alt_24"
+        app:tint="@color/fab_icon_tint"
+        tools:ignore="RtlHardcoded" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

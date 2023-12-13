@@ -9,17 +9,6 @@
         android:theme="@style/AppTheme"
         android:supportsRtl="true">
 
-        <activity android:name=".activity.ActivityAccount"
-            android:exported="false"
-            android:theme="@style/AppTheme"/>
-        <activity android:name=".activity.ActivityPeople"
-            android:exported="false"
-            android:theme="@style/AppTheme"/>
-        <activity
-            android:name=".activity.ActivityTransactionInput"
-            android:exported="false"
-            android:theme="@style/AppTheme.NoActionBar">
-        </activity>
         <activity
             android:name=".activity.RestoreActivity"
             android:label="@string/restore"

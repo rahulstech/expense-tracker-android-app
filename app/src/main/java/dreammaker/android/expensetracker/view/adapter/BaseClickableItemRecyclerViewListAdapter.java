@@ -176,7 +176,8 @@ public abstract class BaseClickableItemRecyclerViewListAdapter<T,VH extends Base
         @NonNull
         private static View wrapItemView(@NonNull View itemView) {
             LayoutInflater inflater = LayoutInflater.from(itemView.getContext());
-            return inflater.inflate(R.layout.list_item_view_and_empty_view_container, null, false);
+            //return inflater.inflate(R.layout.list_item_view_and_empty_view_container, null, false);
+            return null;
         }
 
         private TextView blankItem;
@@ -185,8 +186,8 @@ public abstract class BaseClickableItemRecyclerViewListAdapter<T,VH extends Base
 
         public BaseClickableItemViewHolder(@NonNull View itemView) {
             super(wrapItemView(itemView));
-            blankItem = findViewById(R.id.blank_item);
-            itemViewContainer = findViewById(R.id.item_view_container);
+            //blankItem = findViewById(R.id.blank_item);
+            //itemViewContainer = findViewById(R.id.item_view_container);
             itemViewContainer.addView(itemView,new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
                     FrameLayout.LayoutParams.WRAP_CONTENT));
         }

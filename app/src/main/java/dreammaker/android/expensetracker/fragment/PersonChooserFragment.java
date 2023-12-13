@@ -117,31 +117,34 @@ public class PersonChooserFragment extends Fragment {
     }
 
     private void setTitle() {
+        mBinding.actionBar.toolbar.setTitle(getTitle());
+    }
+
+    private CharSequence getTitle() {
         TransactionType type = mHistory.getType();
         switch (type) {
             case DUE: {
-                mBinding.toolbar.setTitle(R.string.label_pay_for);
+                return getText(R.string.label_pay_for);
             }
             case PAY_BORROW: {
-                mBinding.toolbar.setTitle(R.string.label_pay_to);
+                return getText(R.string.label_pay_to);
             }
-            break;
             case BORROW:
             case PAY_DUE:{
-                mBinding.toolbar.setTitle(R.string.label_receive_from);
+                return getText(R.string.label_receive_from);
             }
-            break;
             case DUE_TRANSFER:
             case BORROW_TRANSFER:
             case BORROW_TO_DUE_TRANSFER: {
                 if (null == mHistory.getPayeePersonId()) {
-                    mBinding.toolbar.setTitle(R.string.label_send_to);
+                    return getText(R.string.label_send_to);
                 }
                 else {
-                    mBinding.toolbar.setTitle(R.string.label_send_from);
+                    return getText(R.string.label_send_from);
                 }
             }
         }
+        return null;
     }
 
     private void onPeopleLoaded(@Nullable List<PersonModel> people) {

@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="AppTheme.ShapeAppearance" />
-
     <style name="ShapeAppearance.AppTheme.RoundedImage" parent="">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">50%</item>
     </style>
 
-
-    <style name="AppTheme.ShapeAppearance.SearchBarOutline">
+    <style name="ShapeAppearance.AppTheme.SearchBarOutline" parent="">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">50%</item>
+    </style>
+
+    <style name="ShapeAppearance.AppTheme.Tiles" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">20%</item>
     </style>
 
 </resources>

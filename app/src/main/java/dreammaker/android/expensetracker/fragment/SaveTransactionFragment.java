@@ -45,8 +45,8 @@ public class SaveTransactionFragment extends DialogFragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        viewModel = new ViewModelProvider(requireActivity(),
-                new ViewModelProvider.AndroidViewModelFactory(requireActivity().getApplication()))
+        viewModel = new ViewModelProvider(this,
+                (ViewModelProvider.Factory) ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
                 .get(TransactionInputViewModel.class);
     }
 
@@ -82,7 +82,7 @@ public class SaveTransactionFragment extends DialogFragment {
 
     void onClickPositiveButton() {
         removeResult();
-        navController.popBackStack(R.id.basic_details,true);
+        //navController.popBackStack(R.id.basic_details,true);
     }
 
     void onClickNegativeButton() {

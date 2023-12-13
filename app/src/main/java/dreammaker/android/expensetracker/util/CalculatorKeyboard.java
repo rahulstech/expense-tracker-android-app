@@ -26,7 +26,7 @@ public class CalculatorKeyboard {
     public CalculatorKeyboard(Activity activity, EditText editText) {
         Check.isNonNull(activity, "activity is null");
         this.activity = activity;
-        this.keyboardView = activity.findViewById(R.id.calculator_keyboard);
+        //this.keyboardView = activity.findViewById(R.id.calculator_keyboard);
         this.editText = editText;
         editText.setFocusable(false);
         editText.setOnTouchListener(touchListener);

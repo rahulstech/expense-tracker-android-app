@@ -3,11 +3,11 @@ package dreammaker.android.expensetracker.database.type;
 import android.text.TextUtils;
 import android.util.Log;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
+
+import androidx.annotation.NonNull;
 
 @Deprecated
 public class Date implements Cloneable {
@@ -95,7 +95,7 @@ public class Date implements Cloneable {
         return false;
     }
 
-    @NotNull
+    @NonNull
     @Override
     public Date clone()
     {

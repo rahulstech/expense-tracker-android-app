@@ -5,50 +5,62 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <include
+        android:id="@+id/actionBar"
+        layout="@layout/actionbar_layout"/>
 
-
-    <LinearLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:gravity="fill">
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/search_container"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:shapeAppearance="@style/AppTheme.ShapeAppearance.SearchBarOutline"
-            app:startIconDrawable="@drawable/ic_baseline_search_36"
-            app:startIconScaleType="center"
-            app:hintAnimationEnabled="false"
-            app:hintEnabled="false">
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="fill">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/search"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/search_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:importantForAutofill="no"
-                android:imeOptions="actionSearch"/>
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:shapeAppearance="@style/ShapeAppearance.AppTheme.SearchBarOutline"
+                app:startIconDrawable="@drawable/ic_baseline_search_36"
+                app:endIconMode="clear_text"
+                app:startIconScaleType="center"
+                app:hintAnimationEnabled="false"
+                app:hintEnabled="false"
+                style="@style/Widget.AppTheme.TextInputLayout">
 
-        </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/search"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionSearch"
+                    android:importantForAutofill="no"
+                    tools:ignore="SpeakableTextPresentCheck" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/list"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:layout_marginTop="12dp"
-            android:clipToPadding="false"
-            android:paddingBottom="81dp"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-    </LinearLayout>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/list"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_marginTop="12dp"
+                android:clipToPadding="false"
+                android:paddingBottom="81dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/add"
@@ -56,9 +68,9 @@
         android:layout_height="@dimen/fab_size_medium"
         app:fabCustomSize="@dimen/fab_size_medium"
         android:layout_gravity="bottom|right"
-        android:layout_margin="16dp"
+        android:layout_margin="@dimen/fab_margin"
         android:src="@drawable/ic_add"
         app:tint="@color/fab_icon_tint"
-        tools:ignore="ContentDescription,RtlHardcoded" />
+        tools:ignore="ContentDescription,RtlHardcoded,SpeakableTextPresentCheck" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

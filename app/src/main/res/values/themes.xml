@@ -7,10 +7,10 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-
-        <item name="textInputStyle">@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox</item>
-        <item name="materialButtonStyle">@style/AppTheme.Widget.Button</item>
-        <item name="floatingActionButtonStyle">@style/AppTheme.Widget.FloatingActionButton</item>
+        <item name="windowActionModeOverlay">true</item>
+        <item name="android:windowActionModeOverlay">true</item>
+        <item name="materialButtonStyle">@style/Widget.AppTheme.Button</item>
+        <item name="floatingActionButtonStyle">@style/Widget.AppTheme.FloatingActionButton</item>
     </style>
 
     <!-- NoActionBar Theme -->
@@ -21,5 +21,15 @@
     <!-- FullScreen Theme -->
     <style name="AppTheme.NoActionBar.FullScreen">
         <item name="android:windowFullscreen">true</item>
+    </style>
+
+    <!-- ActionBar Theme -->
+    <style name="AppTheme.ActionBar" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar">
+
+    </style>
+
+    <!-- ActionBar Popup Theme -->
+    <style name="AppTheme.ActionBar.Popup" parent="ThemeOverlay.MaterialComponents.Light">
+
     </style>
 </resources>

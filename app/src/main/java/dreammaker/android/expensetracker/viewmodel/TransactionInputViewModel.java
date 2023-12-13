@@ -40,11 +40,11 @@ public class TransactionInputViewModel extends AndroidViewModel {
 
     public TransactionInputViewModel(@NonNull Application application) {
         super(application);
-        ExpensesDatabase db = ExpensesDatabase.getInstance(application);
+        /*ExpensesDatabase db = ExpensesDatabase.getInstance(application);
         accountDao = db.getAccountDao();
         peopleDao = db.getPeopleDao();
         expensesDao = db.getDao();
-        transactionHistoryDao = db.getTransactionHistoryDao();
+        transactionHistoryDao = db.getTransactionHistoryDao();*/
     }
 
     @NonNull
@@ -55,7 +55,7 @@ public class TransactionInputViewModel extends AndroidViewModel {
     @NonNull
     public LiveData<List<AccountDisplayModel>> getAccountsDisplayLiveData() {
         if (null == accountsDisplayLiveData) {
-            accountsDisplayLiveData = accountDao.getAllAccountsForDisplay();
+            //accountsDisplayLiveData = accountDao.getAllAccountsForDisplay();
         }
         return accountsDisplayLiveData;
     }
@@ -63,7 +63,7 @@ public class TransactionInputViewModel extends AndroidViewModel {
     @NonNull
     public LiveData<List<PersonDisplayModel>> getPeopleDisplayLiveData() {
         if (null == personDisplayLiveData) {
-            personDisplayLiveData = peopleDao.getAllPeopleForDisplay();
+            //personDisplayLiveData = peopleDao.getAllPeopleForDisplay();
         }
         return personDisplayLiveData;
     }
@@ -77,9 +77,9 @@ public class TransactionInputViewModel extends AndroidViewModel {
                 TaskResult result = new TaskResult(Constants.DB_INSERT);
                 result.parameter = transaction;
                 try {
-                    long tid = transactionHistoryDao.insert(transaction);
-                    result.result = tid;
-                    result.successful = tid > 0;
+                    //long tid = transactionHistoryDao.insert(transaction);
+                    //result.result = tid;
+                    //result.successful = tid > 0;
                 }
                 catch (Exception ex) {
                     result.successful = false;

@@ -48,8 +48,8 @@
     <string name="no_transaction">No Transaction</string>
     <string name="no_money_transfer_history">No History</string>
     <string name="balance">Balance</string>
-    <string name="due_payment">Due</string>
-    <string name="advanced_payment">Advanced</string>
+    <string name="due_payment">Receivable</string>
+    <string name="advanced_payment">Payable</string>
     <string name="credit">Credit</string>
     <string name="debit">Debit</string>
     <string name="min_date">From Date</string>
@@ -212,7 +212,9 @@
     <string name="label_people">People</string>
     <string name="description_add_history">add new transaction history</string>
 
-    <string name="text_unknown">Unknown</string>
+    <string name="label_unknown">Unknown</string>
+
+
     <string name="text_transaction_history_description_due">Amount paid on behalf of %1$s from %2$s</string>
     <string name="text_transaction_history_description_borrow">Amount borrowed from %1$s, received in %2$s</string>
     <string name="text_transaction_history_description_pay_due">Due paid by %1$s, received in %2$s</string>
@@ -254,6 +256,8 @@
     <string name="label_pay_for">Pay for</string>
     <string name="label_pay_to">Pay to</string>
     <string name="label_receive_from">Receive from</string>
+    <string name="description_add_transaction_history">add new transaction</string>
+    <string name="label_transaction_histories">Histories</string>
 
 
     <!-- TODO: Remove or change this placeholder text -->

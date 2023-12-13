@@ -4,27 +4,88 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     app:startDestination="@id/home">
 
-    <!-- Fragment Home -->
-    <fragment
-        android:id="@+id/home"
-        android:name="dreammaker.android.expensetracker.fragment.Home"
-        android:label="@string/app_name"
-        tools:layout="@layout/home">
+    <fragment android:id="@+id/home"
+        tools:layout="@layout/home"
+        android:name="dreammaker.android.expensetracker.fragment.FragmentHome"
+        android:label="@string/app_name">
 
-        <action android:id="@+id/home_to_activity_account"
-            app:destination="@id/activity_account"/>
+        <action android:id="@+id/action_home_to_accounts"
+            app:destination="@id/accounts"/>
+        <action android:id="@+id/action_home_to_people"
+            app:destination="@id/people"/>
+        <action android:id="@+id/action_home_to_histories"
+            app:destination="@id/histories"/>
+        <action android:id="@+id/action_home_to_add_history"
+            app:destination="@id/input_history"/>
+    </fragment>
 
-        <action android:id="@+id/home_to_activity_people"
-            app:destination="@id/activity_people"/>
+    <fragment android:id="@+id/accounts"
+        tools:layout="@layout/layout_browse_search_add"
+        android:name="dreammaker.android.expensetracker.fragment.AccountsList"
+        android:label="@string/label_accounts">
+
+        <action android:id="@+id/action_accounts_to_input_account"
+            app:destination="@id/input_account"/>
+    </fragment>
+
+    <fragment android:id="@+id/input_account"
+        tools:layout="@layout/input_account"
+        android:name="dreammaker.android.expensetracker.fragment.InputAccount">
 
     </fragment>
 
-    <activity android:id="@+id/activity_account"
-        android:name="dreammaker.android.expensetracker.activity.ActivityAccount"
-        tools:layout="@layout/activity_account"/>
+    <fragment android:id="@+id/people"
+        tools:layout="@layout/layout_browse_search_add"
+        android:name="dreammaker.android.expensetracker.fragment.PeopleList"
+        android:label="@string/label_people">
 
-    <activity android:id="@+id/activity_people"
-        android:name="dreammaker.android.expensetracker.activity.ActivityPeople"
-        tools:layout="@layout/activity_people"/>
+        <action android:id="@+id/action_people_to_input_person"
+            app:destination="@id/input_person"/>
+    </fragment>
 
+    <fragment android:id="@+id/input_person"
+        tools:layout="@layout/input_person"
+        android:name="dreammaker.android.expensetracker.fragment.InputPerson">
+
+    </fragment>
+
+    <fragment android:id="@+id/histories"
+        tools:layout="@layout/fragment_transaction_history_list"
+        android:name="dreammaker.android.expensetracker.fragment.TransactionHistoryListFragment"
+        android:label="@string/label_transaction_histories">
+
+        <action android:id="@+id/action_histories_to_input_history"
+            app:destination="@id/input_history"/>
+    </fragment>
+
+    <fragment android:id="@+id/input_history"
+        tools:layout="@layout/fragment_transaction_basic_details_input"
+        android:name="dreammaker.android.expensetracker.fragment.TransactionBasicDetailsInputFragment">
+
+        <action android:id="@+id/action_add_history_to_account_chooser"
+            app:destination="@id/account_chooser"/>
+        <action android:id="@+id/action_add_history_to_person_chooser"
+            app:destination="@id/person_chooser"/>
+    </fragment>
+
+    <fragment android:id="@+id/account_chooser"
+        tools:layout="@layout/layout_payee_payer_chooser"
+        android:name="dreammaker.android.expensetracker.fragment.AccountChooserFragment">
+
+        <action android:id="@+id/action_account_chooser_to_account_chooser"
+            app:destination="@id/account_chooser"/>
+        <action android:id="@+id/action_account_chooser_to_person_chooser"
+            app:destination="@id/person_chooser"/>
+    </fragment>
+
+    <fragment android:id="@+id/person_chooser"
+        tools:layout="@layout/layout_payee_payer_chooser"
+        android:name="dreammaker.android.expensetracker.fragment.PersonChooserFragment">
+
+        <action android:id="@+id/action_person_chooser_to_account_chooser"
+            app:destination="@id/account_chooser"/>
+        <action android:id="@+id/action_person_chooser_to_person_chooser"
+            app:destination="@id/person_chooser"/>
+
+    </fragment>
 </navigation>

@@ -15,7 +15,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -25,22 +24,10 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
-import androidx.work.WorkInfo;
 import dreammaker.android.expensetracker.R;
-import dreammaker.android.expensetracker.backup.BackupRestoreHelper;
-import dreammaker.android.expensetracker.util.Check;
-import dreammaker.android.expensetracker.database.type.Date;
 import dreammaker.android.expensetracker.view.BaseSpinnerAdapter;
 import dreammaker.android.expensetracker.viewmodel.BackupRestoreViewModel;
-
-import static dreammaker.android.expensetracker.backup.BackupRestoreHelper.KEY_LAST_LOCAL_BACKUP_DATE;
-import static dreammaker.android.expensetracker.backup.BackupRestoreHelper.SCHEDULE_DAILY;
-import static dreammaker.android.expensetracker.backup.BackupRestoreHelper.SCHEDULE_MONTHLY;
-import static dreammaker.android.expensetracker.backup.BackupRestoreHelper.SCHEDULE_NEVER;
-import static dreammaker.android.expensetracker.backup.BackupRestoreHelper.SCHEDULE_WEEKLY;
-import static dreammaker.android.expensetracker.backup.BackupRestoreHelper.setBackupAutoScheduleDuration;
 
 public class BackupRestoreActivity extends BaseActivity implements View.OnClickListener {
 
@@ -57,7 +44,7 @@ public class BackupRestoreActivity extends BaseActivity implements View.OnClickL
         @Override
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
             int code = backupScheduleSpinnerAdapter.getCode(position);
-            setBackupAutoScheduleDuration(BackupRestoreActivity.this,code);
+            //setBackupAutoScheduleDuration(BackupRestoreActivity.this,code);
         }
 
         @Override
@@ -65,9 +52,9 @@ public class BackupRestoreActivity extends BaseActivity implements View.OnClickL
     };
 
     private SharedPreferences.OnSharedPreferenceChangeListener preferenceChangeListener = (pref, key) -> {
-        if (KEY_LAST_LOCAL_BACKUP_DATE.equals(key)) {
-            setLastBackupDate();
-        }
+        //if (KEY_LAST_LOCAL_BACKUP_DATE.equals(key)) {
+        //    setLastBackupDate();
+        //}
     };
 
     private ActivityResultLauncher<String> requestPermissionLauncher =
@@ -86,17 +73,17 @@ public class BackupRestoreActivity extends BaseActivity implements View.OnClickL
         backupScheduleSpinner = findViewById(R.id.backup_schedule_spinner);
         backupScheduleSpinnerAdapter = new BackupScheduleSpinnerAdapter(this);
         backupScheduleSpinner.setAdapter(backupScheduleSpinnerAdapter);
-        backupScheduleSpinner.setSelection(
-                backupScheduleSpinnerAdapter.getPositionForCode(
-                        BackupRestoreHelper.getBackupAutoScheduleDuration(this)));
+        //backupScheduleSpinner.setSelection(
+        //        backupScheduleSpinnerAdapter.getPositionForCode(
+        //                BackupRestoreHelper.getBackupAutoScheduleDuration(this)));
 
         setLastBackupDate();
         backup.setOnClickListener(this);
         backupScheduleSpinner.setOnItemSelectedListener(onBackupScheduleSpinnerItemClick);
-        viewModel = new ViewModelProvider(this,
-                new ViewModelProvider.AndroidViewModelFactory(getApplication()))
-                .get(BackupRestoreViewModel.class);
-        viewModel.getBackupWorkInfoLiveData().observe(this, infos -> onUpdateBackupProgress(infos));
+        //viewModel = new ViewModelProvider(this,
+        //        new ViewModelProvider.AndroidViewModelFactory(getApplication()))
+        //        .get(BackupRestoreViewModel.class);
+        //viewModel.getBackupWorkInfoLiveData().observe(this, infos -> onUpdateBackupProgress(infos));
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -145,7 +132,7 @@ public class BackupRestoreActivity extends BaseActivity implements View.OnClickL
     }
 
     private void onStartLocalBackup() {
-        BackupRestoreHelper.backupNow(this);
+        //BackupRestoreHelper.backupNow(this);
     }
 
     private void hideProgressSections() {
@@ -153,16 +140,18 @@ public class BackupRestoreActivity extends BaseActivity implements View.OnClickL
     }
 
     private void setLastBackupDate() {
-        Date date = BackupRestoreHelper.getLastLocalBackDate(this);
-        lastBackup.setText(Check.isNull(date) ? getString(R.string.backup_never) : date.format("dd-MMM-yyyy"));
+        //Date date = BackupRestoreHelper.getLastLocalBackDate(this);
+        //lastBackup.setText(Check.isNull(date) ? getString(R.string.backup_never) : date.format("dd-MMM-yyyy"));
     }
 
+    /*
     private void onUpdateBackupProgress(@Nullable List<WorkInfo> infos) {
         if (null != infos && !infos.isEmpty()) {
             WorkInfo.State state = infos.get(0).getState();
             // TODO: handle disable
         }
     }
+    */
 
     /*
     private void updateBackupProgressSection(String message,
@@ -200,10 +189,10 @@ public class BackupRestoreActivity extends BaseActivity implements View.OnClickL
 
         public int getCode(int position) {
             switch (position) {
-                case 0: return SCHEDULE_DAILY;
-                case 1: return SCHEDULE_WEEKLY;
-                case 2: return SCHEDULE_MONTHLY;
-                case 3: return SCHEDULE_NEVER;
+                //case 0: return SCHEDULE_DAILY;
+                //case 1: return SCHEDULE_WEEKLY;
+                //case 2: return SCHEDULE_MONTHLY;
+                //case 3: return SCHEDULE_NEVER;
                 default:
                     throw new IndexOutOfBoundsException("invalid position="+position);
             }
@@ -211,10 +200,10 @@ public class BackupRestoreActivity extends BaseActivity implements View.OnClickL
 
         public int getPositionForCode(int code) {
             switch (code) {
-                case SCHEDULE_DAILY: return 0;
-                case SCHEDULE_WEEKLY: return 1;
-                case SCHEDULE_MONTHLY: return 2;
-                case SCHEDULE_NEVER: return 3;
+                //case SCHEDULE_DAILY: return 0;
+                //case SCHEDULE_WEEKLY: return 1;
+                //case SCHEDULE_MONTHLY: return 2;
+                //case SCHEDULE_NEVER: return 3;
                 default:
                     throw new RuntimeException("invalid code="+code);
             }

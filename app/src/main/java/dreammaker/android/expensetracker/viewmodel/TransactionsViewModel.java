@@ -11,17 +11,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.paging.LivePagedListBuilder;
-import androidx.paging.PagedList;
 import dreammaker.android.expensetracker.database.Account;
 import dreammaker.android.expensetracker.database.BalanceAndDueSummary;
 import dreammaker.android.expensetracker.database.ExpensesDao;
 import dreammaker.android.expensetracker.database.ExpensesDatabase;
 import dreammaker.android.expensetracker.database.Person;
 import dreammaker.android.expensetracker.database.Transaction;
-import dreammaker.android.expensetracker.database.TransactionDetails;
 import dreammaker.android.expensetracker.database.dao.TransactionHistoryDao;
-import dreammaker.android.expensetracker.database.model.TransactionHistoryDisplayModel;
 import dreammaker.android.expensetracker.database.type.Date;
 import dreammaker.android.expensetracker.util.AppExecutor;
 import dreammaker.android.expensetracker.util.Check;
@@ -45,7 +41,7 @@ public class TransactionsViewModel extends BaseViewModel {
     private LiveData<List<Account>> accountNameIdLiveData;
     private LiveData<List<Person>> personNameIdLiveDate;
     private MutableLiveData<ExpensesDao.TransactionDetailsQueryBuilder> transactionDetailsQueryBuilderLiveData;
-    private LiveData<PagedList<TransactionDetails>> transactionsPaged;
+    //private LiveData<PagedList<TransactionDetails>> transactionsPaged;
 
     private Stack<FilterTransactionParams> filterParamStack = new Stack<>();
 
@@ -58,7 +54,7 @@ public class TransactionsViewModel extends BaseViewModel {
 
 
     private TransactionHistoryDao transactionDao;
-    private LiveData<PagedList<TransactionHistoryDisplayModel>> transactionHistoriesDisplayModelLiveData = null;
+    //private LiveData<PagedList<TransactionHistoryDisplayModel>> transactionHistoriesDisplayModelLiveData = null;
 
 
 
@@ -81,11 +77,12 @@ public class TransactionsViewModel extends BaseViewModel {
         transactionDao = db.getTransactionHistoryDao();
     }
 
+    /*
     public LiveData<PagedList<TransactionHistoryDisplayModel>> getTransactionsForAccount(long accountId) {
         Log.i(TAG,"getTransactionsForAccount: "+accountId);
         if (null == transactionHistoriesDisplayModelLiveData) {
-            transactionHistoriesDisplayModelLiveData = new LivePagedListBuilder<>(transactionDao.getTransactionsForAccount(accountId),50)
-                    .build();
+            //transactionHistoriesDisplayModelLiveData = new LivePagedListBuilder<>(transactionDao.getTransactionsForAccount(accountId),50)
+            //        .build();
         }
         return transactionHistoriesDisplayModelLiveData;
     }
@@ -98,7 +95,7 @@ public class TransactionsViewModel extends BaseViewModel {
         }
         return transactionHistoriesDisplayModelLiveData;
     }
-
+    */
 
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -239,7 +236,7 @@ public class TransactionsViewModel extends BaseViewModel {
         return balanceAndDueSummaryLiveData;
     }
 
-    public LiveData<PagedList<TransactionDetails>> getTransactionsPaged() { return transactionsPaged;}
+    //public LiveData<PagedList<TransactionDetails>> getTransactionsPaged() { return transactionsPaged;}
 
     public void updateTransaction(final Transaction transaction){
         AppExecutor.getDiskOperationsExecutor().execute(() -> {

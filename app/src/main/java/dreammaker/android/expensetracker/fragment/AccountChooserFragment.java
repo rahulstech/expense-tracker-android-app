@@ -117,27 +117,30 @@ public class AccountChooserFragment extends Fragment {
     }
 
     private void setTitle() {
+        mBinding.actionBar.toolbar.setTitle(getTitle());
+    }
+
+    private CharSequence getTitle() {
         TransactionType type = mHistory.getType();
         switch (type) {
             case INCOME:
             case BORROW: {
-                mBinding.toolbar.setTitle(R.string.label_receive_in);
+                return getText(R.string.label_receive_in);
             }
-            break;
             case EXPENSE:
             case DUE: {
-                mBinding.toolbar.setTitle(R.string.label_pay_from);
+                return getText(R.string.label_pay_from);
             }
-            break;
             case MONEY_TRANSFER: {
                 if (null == mHistory.getPayeeAccountId()) {
-                    mBinding.toolbar.setTitle(R.string.label_send_to);
+                    return getText(R.string.label_send_to);
                 }
                 else {
-                    mBinding.toolbar.setTitle(R.string.label_send_from);
+                    return getText(R.string.label_send_from);
                 }
             }
         }
+        return null;
     }
 
     private void onClickPrevious() {

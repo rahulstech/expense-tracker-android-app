@@ -27,6 +27,7 @@ import dreammaker.android.expensetracker.databinding.LayoutBrowseSearchAddBindin
 import dreammaker.android.expensetracker.listener.ChoiceModel;
 import dreammaker.android.expensetracker.listener.ModalChoiceModeListener;
 import dreammaker.android.expensetracker.listener.OnItemClickListener;
+import dreammaker.android.expensetracker.util.Constants;
 import dreammaker.android.expensetracker.viewmodel.PeopleListViewModel;
 
 @SuppressWarnings("unused")
@@ -97,6 +98,7 @@ public class PeopleList extends Fragment implements OnItemClickListener, ModalCh
         mChoiceModel.setModalChoiceModeListener(this);
         mChoiceModel.setChoiceMode(ChoiceModel.CHOICE_MODE_MULTIPLE_MODAL);
         mChoiceModel.setOnItemClickListener(this);
+        mAdapter.setChoiceModel(mChoiceModel);
     }
 
     @Override
@@ -112,7 +114,9 @@ public class PeopleList extends Fragment implements OnItemClickListener, ModalCh
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString(KEY_QUERY_STRING,mQueryString);
-        mChoiceModel.onSaveInstanceState(mChoiceModelSavedState);
+        if (null != mChoiceModel) {
+            mChoiceModel.onSaveInstanceState(mChoiceModelSavedState);
+        }
     }
 
     @Override
@@ -140,7 +144,7 @@ public class PeopleList extends Fragment implements OnItemClickListener, ModalCh
     }
 
     private void setTitle() {
-
+        mBinding.actionBar.toolbar.setTitle(R.string.label_people);
     }
 
     private void updateActionMode(ActionMode mode) {
@@ -166,7 +170,9 @@ public class PeopleList extends Fragment implements OnItemClickListener, ModalCh
     }
 
     private void onClickAddPerson(){
-        navController.navigate(R.id.action_personsList_to_inputPerson);
+        Bundle args = new Bundle();
+        args.putString(Constants.EXTRA_ACTION,Constants.ACTION_INSERT);
+        navController.navigate(R.id.action_people_to_input_person,args);
     }
 
     @Override
