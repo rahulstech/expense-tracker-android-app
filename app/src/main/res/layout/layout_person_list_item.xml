@@ -1,21 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="?attr/selectableItemBackground"
     android:clickable="true"
-    android:selectable="true">
+    app:contentPaddingBottom="@dimen/tile_padding_medium"
+    style="@style/Widget.AppTheme.TileCard.Medium">
 
     <!-- TODO: update layout -->
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/photo"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_width="@dimen/tile_icon_size_medium"
+        android:layout_height="@dimen/tile_icon_size_medium"
+        android:layout_marginStart="@dimen/tile_margin_small"
+        android:layout_marginTop="@dimen/tile_margin_small"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:shapeAppearance="@style/ShapeAppearance.AppTheme.RoundedImage"
@@ -26,73 +31,69 @@
         android:id="@+id/name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+        android:layout_marginTop="@dimen/tile_margin_small"
+        android:layout_marginStart="@dimen/tile_margin_medium"
+        android:layout_marginEnd="@dimen/tile_margin_small"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
         android:textStyle="bold"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toEndOf="@id/photo"
         app:layout_constraintEnd_toEndOf="parent"
         tools:text="@tools:sample/full_names"/>
 
-    <TextView
-        android:id="@+id/label_due"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/due_payment"
-        android:textStyle="italic"
-        android:layout_marginTop="8dp"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
-        app:layout_constraintTop_toBottomOf="@id/name"
-        app:layout_constraintStart_toStartOf="@id/name"/>
+        <TextView
+            android:id="@+id/label_due"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/tile_margin_small"
+            android:text="@string/due_payment"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+            android:textStyle="italic"
+            app:layout_constraintStart_toStartOf="@id/name"
+            app:layout_constraintTop_toBottomOf="@id/name"
+            tools:ignore="TextContrastCheck" />
 
     <TextView
         android:id="@+id/due"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="16dp"
-        android:textAppearance="@style/TextAppearance.AppCompat.Title"
-        android:textStyle="normal"
+        android:layout_marginStart="@dimen/tile_margin_small"
+        android:layout_marginTop="@dimen/tile_margin_small"
+        android:layout_marginEnd="@dimen/tile_margin_small"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+        android:textStyle="bold"
+        android:textColor="@color/text_green"
         app:layout_constraintTop_toBottomOf="@id/name"
         app:layout_constraintStart_toEndOf="@id/label_due"
         app:layout_constraintEnd_toEndOf="parent"
         tools:text="25532323232323232236.23"/>
 
-    <TextView
-        android:id="@+id/label_borrow"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/advanced_payment"
-        android:textStyle="italic"
-        android:layout_marginTop="8dp"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
-        app:layout_constraintTop_toBottomOf="@id/due"
-        app:layout_constraintStart_toStartOf="@id/label_due"/>
+        <TextView
+            android:id="@+id/label_borrow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/tile_margin_small"
+            android:text="@string/advanced_payment"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+            android:textStyle="italic"
+            app:layout_constraintStart_toStartOf="@id/name"
+            app:layout_constraintTop_toBottomOf="@id/due"
+            tools:ignore="TextContrastCheck" />
 
     <TextView
         android:id="@+id/borrow"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="16dp"
-        android:textAppearance="@style/TextAppearance.AppCompat.Title"
-        android:textStyle="normal"
+        android:layout_marginTop="@dimen/tile_margin_small"
+        android:layout_marginStart="@dimen/tile_margin_small"
+        android:layout_marginEnd="@dimen/tile_margin_small"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+        android:textStyle="bold"
+        android:textColor="@color/text_red"
         app:layout_constraintTop_toBottomOf="@id/due"
         app:layout_constraintStart_toEndOf="@id/label_borrow"
         app:layout_constraintEnd_toEndOf="parent"
         tools:text="1785555555555555555555555555555555555"/>
 
-    <com.google.android.material.divider.MaterialDivider
-        android:id="@+id/divider"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        app:layout_constraintStart_toEndOf="@id/photo"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/borrow"/>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- TODO: rtl not working properly -->
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:background="?attr/selectableItemBackground"
+    app:contentPaddingBottom="@dimen/tile_margin_medium"
+    android:layout_marginBottom="0dp"
+    style="@style/Widget.AppTheme.TileCard.Medium">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/logoPrimary"
+            android:layout_width="@dimen/tile_icon_size_medium"
+            android:layout_height="@dimen/tile_icon_size_medium"
+            android:layout_marginStart="@dimen/tile_margin_small"
+            android:layout_marginTop="@dimen/tile_margin_small"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearance="@style/ShapeAppearance.AppTheme.RoundedImage"
+            tools:ignore="ImageContrastCheck"
+            tools:src="@tools:sample/avatars" />
+
+        <TextView
+            android:id="@+id/description"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/tile_margin_small"
+            android:layout_marginStart="@dimen/tile_margin_small"
+            android:layout_marginEnd="@dimen/tile_margin_small"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toEndOf="@id/logoPrimary"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:ellipsize="end"
+            android:maxLines="3"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+            android:textStyle="bold"
+            tools:text="this is line1 this is line2 this is line3 this is line4"/>
+
+        <TextView
+            android:id="@+id/amount"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/tile_margin_small"
+            android:layout_marginStart="@dimen/tile_margin_small"
+            android:layout_marginEnd="@dimen/tile_margin_small"
+            app:layout_constraintTop_toBottomOf="@id/description"
+            app:layout_constraintStart_toEndOf="@id/logoPrimary"
+            app:layout_constraintEnd_toStartOf="@id/labelSecondary"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+            android:textStyle="bold"
+            tools:text="+200.00"/>
+
+        <TextView
+            android:id="@+id/labelSecondary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/tile_margin_small"
+            android:layout_marginEnd="@dimen/tile_margin_small"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+            app:layout_constraintEnd_toStartOf="@id/logoSecondary"
+            app:layout_constraintBottom_toBottomOf="@id/amount"
+            tools:text="Paid From" />
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/logoSecondary"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_marginStart="@dimen/tile_margin_small"
+            android:layout_marginTop="@dimen/tile_margin_small"
+            android:layout_marginEnd="@dimen/tile_margin_small"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/amount"
+            app:shapeAppearance="@style/ShapeAppearance.AppTheme.RoundedImage"
+            tools:ignore="ImageContrastCheck"
+            tools:src="@tools:sample/avatars" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+
+
+</com.google.android.material.card.MaterialCardView>

@@ -15,6 +15,7 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
+@Deprecated
 public class Helper {
   public static final int ACTION_INSERT = 10;
   public static final int ACTION_EDIT = 11;

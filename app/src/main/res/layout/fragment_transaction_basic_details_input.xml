@@ -7,20 +7,6 @@
     android:orientation="vertical"
     android:gravity="center_horizontal">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="?android:actionBarSize">
-
-        <com.google.android.material.appbar.MaterialToolbar
-            style="@style/Widget.MaterialComponents.Toolbar"
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:titleCentered="true"
-            app:title="@string/label_transaction_history_amount_and_details" />
-
-    </com.google.android.material.appbar.AppBarLayout>
-
     <androidx.core.widget.NestedScrollView
         android:layout_height="match_parent"
         android:layout_width="match_parent"
@@ -40,28 +26,27 @@
                 android:layout_height="wrap_content"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 app:strokeWidth="1dp"
-                app:strokeColor="@color/text_icon_color_primary"
+                app:strokeColor="@color/primary_text_color"
                 android:padding="16dp"
                 android:layout_marginTop="24dp"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
                 app:icon="@drawable/ic_baseline_calendar_month"
-                app:iconTint="@color/text_icon_color_primary"
+                app:iconTint="@color/primary_text_color"
                 app:iconPadding="16dp"
                 app:iconSize="@dimen/text_icon_size_primary"
                 app:iconGravity="textStart"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
-                android:textColor="?android:textColorPrimary"
-                android:textStyle="bold"
+                android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                android:textColor="@color/primary_text_color"
                 tools:text="12/12/2023"/>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/container_amount"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                style="@style/Widget.AppTheme.TextInputLayout"
                 android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="18dp"
                 android:hint="@string/amount"
                 app:endIconDrawable="@drawable/ic_calculator"
                 app:endIconMode="custom">
@@ -75,8 +60,8 @@
                     android:inputType="numberDecimal"
                     android:maxLines="1"
                     android:singleLine="true"
-                    android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
-                    android:textColor="?android:textColorPrimary"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    tools:ignore="TextContrastCheck"
                     tools:text="52.80" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -87,34 +72,38 @@
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="24dp"
                 app:endIconMode="clear_text"
-                android:hint="@string/description">
+                android:hint="@string/description"
+                style="@style/Widget.AppTheme.TextInputLayout">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/description"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:maxLines="5"
                     android:imeOptions="actionDone"
                     android:importantForAutofill="no"
                     android:inputType="textShortMessage|textImeMultiLine"
-                    android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
-                    android:textColor="?android:textColorPrimary"
-                    tools:text="@tools:sample/lorem/random"/>
+                    android:maxLines="5"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                    tools:ignore="TextContrastCheck"
+                    tools:text="@tools:sample/lorem/random" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
         </LinearLayout>
+
     </androidx.core.widget.NestedScrollView>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btn_next"
         android:layout_width="@dimen/fab_size_medium"
         android:layout_height="@dimen/fab_size_medium"
-        app:fabCustomSize="@dimen/fab_size_medium"
-        android:contentDescription="@string/description_button_next"
-        android:layout_margin="@dimen/fab_margin"
         android:layout_gravity="bottom|right"
-        tools:ignore="RtlHardcoded"/>
+        android:layout_margin="@dimen/fab_margin"
+        android:contentDescription="@string/description_button_next"
+        app:fabCustomSize="@dimen/fab_size_medium"
+        android:src="@drawable/ic_baseline_arrow_forward_24"
+        app:tint="@color/fab_icon_tint"
+        tools:ignore="RtlHardcoded,ImageContrastCheck" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

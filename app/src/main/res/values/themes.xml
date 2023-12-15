@@ -7,15 +7,15 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+
         <item name="windowActionModeOverlay">true</item>
-        <item name="android:windowActionModeOverlay">true</item>
         <item name="materialButtonStyle">@style/Widget.AppTheme.Button</item>
         <item name="floatingActionButtonStyle">@style/Widget.AppTheme.FloatingActionButton</item>
     </style>
 
     <!-- NoActionBar Theme -->
     <style name="AppTheme.NoActionBar" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-
+        <item name="windowActionModeOverlay">true</item>
     </style>
 
     <!-- FullScreen Theme -->
@@ -24,12 +24,8 @@
     </style>
 
     <!-- ActionBar Theme -->
-    <style name="AppTheme.ActionBar" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar">
-
-    </style>
+    <style name="AppTheme.ActionBar" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar"/>
 
     <!-- ActionBar Popup Theme -->
-    <style name="AppTheme.ActionBar.Popup" parent="ThemeOverlay.MaterialComponents.Light">
-
-    </style>
+    <style name="AppTheme.ActionBar.Popup" parent="ThemeOverlay.MaterialComponents.Light"/>
 </resources>

@@ -1,47 +1,65 @@
 package dreammaker.android.expensetracker.adapter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.collection.SparseArrayCompat;
 import androidx.recyclerview.widget.RecyclerView;
+import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.database.model.AccountModel;
-import dreammaker.android.expensetracker.listener.ChoiceModel;
+import dreammaker.android.expensetracker.databinding.LayoutAccountListItemBinding;
+import dreammaker.android.expensetracker.drawable.DrawableUtil;
+import dreammaker.android.expensetracker.text.SpannableStringUtil;
+import dreammaker.android.expensetracker.text.Spans;
+import dreammaker.android.expensetracker.text.TextUtil;
+import dreammaker.android.expensetracker.util.ResourceUtil;
 
+@SuppressWarnings("unused")
 public class AccountsChooserAdapter
-        extends SectionedListAdapter<String, AccountModel, AccountsChooserAdapter.SectionHeaderViewHolder, AccountsChooserAdapter.SectionItemViewHolder>
-        implements ChoiceModel.Callback {
+        extends BaseOnlySectionItemCheckableAdapter<Integer, AccountModel, AccountsChooserAdapter.SectionHeaderViewHolder, AccountsChooserAdapter.SectionItemViewHolder> {
 
     private static final ItemCallback CALLBACK = new ItemCallback() {
         @Override
         protected boolean areItemsTheSame(int type, @NonNull Object oldData, @NonNull Object newData) {
-            return false;
+            if (type == SECTION_ITEM_TYPE) {
+                return Objects.equals(((AccountModel) oldData).getId(), ((AccountModel) newData).getId());
+            }
+            return oldData.hashCode() == newData.hashCode();
         }
 
         @Override
         protected boolean areContentsTheSame(int type, @NonNull Object oldData, @NonNull Object newData) {
-            return false;
+            return Objects.equals(oldData,newData);
         }
     };
 
-    private final List<String> mHeaders;
+    public static final int HEADER_FREQUENTLY_USED = 1;
+
+    public static final int HEADER_OTHERS = 2;
+
+    private final List<Integer> mHeaders = Arrays.asList(HEADER_FREQUENTLY_USED,HEADER_OTHERS);
+
+    private final int mHighlightColor;
 
     private String mQuery;
 
-    private ChoiceModel mChoiceModel;
-
     public AccountsChooserAdapter(@NonNull Context context) {
         super(context, CALLBACK);
-        mHeaders = Arrays.asList(
-
-        );
+        mHighlightColor = ResourceUtil.getThemeColor(context,R.attr.colorSecondary);
     }
 
     @Override
@@ -59,12 +77,12 @@ public class AccountsChooserAdapter
         }
     }
 
-    public void setChoiceModel(ChoiceModel model) {
-        mChoiceModel = model;
+    public String getQuery() {
+        return mQuery;
     }
 
-    public ChoiceModel getChoiceModel() {
-        return mChoiceModel;
+    private int getHighlightColor() {
+        return mHighlightColor;
     }
 
     @Override
@@ -77,20 +95,26 @@ public class AccountsChooserAdapter
 
     @NonNull
     @Override
-    protected AsyncSectionBuilder<String, AccountModel> onCreateSectionBuilder(@Nullable List<AccountModel> list) {
+    protected AsyncSectionBuilder<Integer, AccountModel> onCreateSectionBuilder(@Nullable List<AccountModel> list) {
         return new AsyncItemBuilder(list,mHeaders);
     }
 
     @NonNull
     @Override
     protected SectionHeaderViewHolder onCreateSectionHeaderViewHolder(@NonNull ViewGroup parent, int type) {
-        return null;
+        View view = getLayoutInflater().inflate(R.layout.layout_simple_list_item_1,parent,false);
+        SectionHeaderViewHolder holder = new SectionHeaderViewHolder(view);
+        holder.setAdapter(this);
+        return holder;
     }
 
     @NonNull
     @Override
     protected SectionItemViewHolder onCreateSectionItemViewHolder(@NonNull ViewGroup parent, int type) {
-        return null;
+        LayoutAccountListItemBinding binding = LayoutAccountListItemBinding.inflate(getLayoutInflater(),parent,false);
+        SectionItemViewHolder holder = new SectionItemViewHolder(binding);
+        holder.setAdapter(this);
+        return holder;
     }
 
     @Override
@@ -106,53 +130,86 @@ public class AccountsChooserAdapter
 
     @NonNull
     @Override
-    public Object getKey(int position) {
-        return null;
+    protected Object getChoiceKeyFromData(AccountModel data) {
+        return data.getId();
     }
 
-    @Override
-    public int getPosition(@NonNull Object key) {
-        return 0;
-    }
+    public static class SectionHeaderViewHolder extends BaseViewHolder<Integer> {
 
-    @Override
-    public boolean isCheckable(int position) {
-        return false;
-    }
-
-    public static class SectionHeaderViewHolder extends BaseViewHolder<String> {
+        private final TextView text1;
 
         public SectionHeaderViewHolder(@NonNull View itemView) {
             super(itemView);
+            text1 = findViewById(R.id.text1);
+        }
+
+        @Override
+        protected void onBindNonNull(@NonNull Integer item) {
+            if (item == HEADER_FREQUENTLY_USED) {
+                text1.setText(R.string.label_frequently_used);
+            }
+            else {
+                text1.setText(R.string.label_others);
+            }
         }
     }
 
-    public static class SectionItemViewHolder extends BaseViewHolder<AccountModel> {
+    public class SectionItemViewHolder extends BaseViewHolder<AccountModel> {
 
-        public SectionItemViewHolder(@NonNull View itemView) {
-            super(itemView);
+        private final LayoutAccountListItemBinding mBinding;
+
+        public SectionItemViewHolder(LayoutAccountListItemBinding binding) {
+            super(binding.getRoot());
+            mBinding = binding;
         }
 
         @Override
         protected void onBindNonNull(@NonNull AccountModel item) {
-
+            String name = item.getName();
+            Drawable logo = getDefaultAccountLogo(item);
+            mBinding.logo.setImageDrawable(logo);
+            mBinding.name.setText(highlight(name,getQuery()));
+            mBinding.balance.setText(item.getBalance().toString());
         }
 
         public void setChecked(boolean checked) {
 
         }
+
+        private Drawable getDefaultAccountLogo(AccountModel account) {
+            String name = account.getName();
+            return DrawableUtil.getAccountDefaultLogo(name);
+        }
+
+        private CharSequence highlight(CharSequence text, CharSequence phrase) {
+            if (TextUtils.isEmpty(phrase)) {
+                return text;
+            }
+            int start = TextUtil.indexOfIgnoreCase(text,phrase);
+            int end = start+phrase.length();
+            int color = getHighlightColor();
+            Object span = Spans.textColor(color);
+            return new SpannableStringUtil()
+                    .append(text,span,start,end)
+                    .toSpannableString();
+        }
     }
 
-    private class AsyncItemBuilder extends AsyncSectionBuilder<String,AccountModel> {
+    @SuppressLint("StaticFieldLeak")
+    private class AsyncItemBuilder extends AsyncSectionBuilder<Integer,AccountModel> {
 
-        public AsyncItemBuilder(@Nullable List<AccountModel> items, @Nullable List<String> headers) {
+        private static final int FREQUENTLY_USED_ACCOUNT_COUNT = 3;
+
+        private List<AccountModel> mFrequentlyUsed = Collections.emptyList();
+
+        public AsyncItemBuilder(@Nullable List<AccountModel> items, @Nullable List<Integer> headers) {
             super(items, headers);
         }
 
         @NonNull
         @Override
         protected List<AccountModel> onBeforeBuildSections(@NonNull List<AccountModel> items) {
-            final String query = mQuery;
+            final String query = getQuery();
             List<AccountModel> accounts;
             if (TextUtils.isEmpty(query)) {
                 accounts = items;
@@ -164,25 +221,57 @@ public class AccountsChooserAdapter
             return accounts;
         }
 
-        private List<AccountModel> filter(List<AccountModel> items, String query) {
-            // TODO: filter accounts by query
-            return items;
+        private List<AccountModel> filter(List<AccountModel> accounts, String query) {
+            ArrayList<AccountModel> list = new ArrayList<>();
+            for (AccountModel ac : accounts) {
+                String name = ac.getName();
+                if (TextUtil.containsIgnoreCase(name,query)) {
+                    list.add(ac);
+                }
+            }
+            return list;
         }
 
         private void sort(List<AccountModel> items) {
             // TODO: sort accounts
+            if (items.isEmpty()) {
+                return;
+            }
+            items.sort(Comparator.comparingInt(AccountModel::getUsageCount));
+            if (items.size() > FREQUENTLY_USED_ACCOUNT_COUNT) {
+                ArrayList<AccountModel> frequent = new ArrayList<>();
+                for (int i=0; i<FREQUENTLY_USED_ACCOUNT_COUNT; i++) {
+                    AccountModel account = items.get(i);
+                    if (account.getUsageCount() > 0) {
+                        frequent.add(items.get(i));
+                    }
+                }
+                if (!frequent.isEmpty()) {
+                    mFrequentlyUsed = frequent;
+                }
+            }
         }
 
         @NonNull
         @Override
-        protected String onCreateSectionHeader(@NonNull AccountModel item) {
-            return null;
+        protected Integer onCreateSectionHeader(@NonNull AccountModel item) {
+            if (mFrequentlyUsed.contains(item)) {
+                return HEADER_FREQUENTLY_USED;
+            }
+            return HEADER_OTHERS;
         }
 
         @Override
-        protected boolean belongsToSection(@NonNull AccountModel item, @NonNull String header) {
-            String expected = onCreateSectionHeader(item);
-            return expected.equals(header);
+        protected boolean belongsToSection(@NonNull AccountModel item, @NonNull Integer header) {
+            return header.equals(onCreateSectionHeader(item));
+        }
+
+        @Override
+        protected void onAfterBuildSections(@NonNull List<AccountModel> items, @NonNull List<Integer> headers, @NonNull List<ListItem> listItems) {
+            SparseArrayCompat<Object> map = prepareChoiceKeyMap(listItems);
+            if (!isCancelled()) {
+                postChoiceKeyMap(map);
+            }
         }
     }
 }

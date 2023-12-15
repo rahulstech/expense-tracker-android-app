@@ -17,8 +17,15 @@
     <dimen name="text_icon_size_primary">24dp</dimen>
 
     <dimen name="tile_icon_size_small">24dp</dimen>
-    <dimen name="tile_padding_small">10dp</dimen>
+    <dimen name="tile_padding_small">8dp</dimen>
     <dimen name="tile_margin_small">8dp</dimen>
-    <dimen name="tile_margin_medium">16dp</dimen>
     <dimen name="tile_elevation_small">10dp</dimen>
+
+    <dimen name="tile_icon_size_medium">36dp</dimen>
+    <dimen name="tile_padding_medium">16dp</dimen>
+    <dimen name="tile_margin_medium">16dp</dimen>
+    <dimen name="tile_elevation_medium">6dp</dimen>
+
+    <dimen name="tile_icon_size_large">48dp</dimen>
+    <dimen name="tile_elevation_large">4dp</dimen>
 </resources>

@@ -3,17 +3,14 @@
     <color name="colorPrimary">#C2185B</color>
     <color name="colorPrimaryDark">#880E4F</color>
     <color name="colorAccent">#26A69A</color>
-    <color name="text_green">#388E3C</color>
-    <color name="text_red">#D32F2F</color>
+    <color name="text_green">#2E7D32</color>
+    <color name="text_red">#B00020</color>
     <color name="light_blue_600">#FF039BE5</color>
     <color name="light_blue_900">#FF01579B</color>
     <color name="light_blue_A200">#FF40C4FF</color>
-    <color name="light_blue_A400">#FF00B0FF</color>
+    <color name="light_blue_A400">#00B0FF</color>
+    <color name="light_blue">#0277BD</color>
     <color name="black_overlay">#66000000</color>
-
-    <color name="text_icon_color_primary">?android:textColorPrimary</color>
-
-
     <color name="fab_icon_tint">#ffffff</color>
 
 </resources>

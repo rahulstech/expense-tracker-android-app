@@ -10,12 +10,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import dreammaker.android.expensetracker.R;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ActivityModelProvider {
+
+    private ActivityModel mActivityModel;
 
     @Deprecated
     public static void showQuickMessage(Activity activity, @StringRes int messageID, @StringRes int actionID) {
@@ -34,16 +36,18 @@ public class MainActivity extends AppCompatActivity {
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.nav_host_fragment_container);
         navController = navHostFragment.getNavController();
-        /*drawerLayout = findViewById(R.id.drawer_layout);
-        toolbar = findViewById(R.id.toolbar);
-        drawer = findViewById(R.id.drawer);
+        //drawerLayout = findViewById(R.id.drawer_layout);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        //drawer = findViewById(R.id.drawer);
 
         setSupportActionBar(toolbar);
-        drawerToggle = new ActionBarDrawerToggle(this, drawerLayout,
+        /*drawerToggle = new ActionBarDrawerToggle(this, drawerLayout,
                 toolbar, 0, 0);
         drawerToggle.setDrawerSlideAnimationEnabled(true);
         drawer.setNavigationItemSelectedListener(this::onClickLeftDrawerItem);
         NavigationUI.setupWithNavController(toolbar,navHostFragment.getNavController(),drawerLayout);*/
+
+        mActivityModel = new ActivityModel(this);
     }
 
     @Override
@@ -68,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
             //else
             //    super.onBackPressed();
         //}
-        if (!navController.popBackStack()) {
+        if (!mActivityModel.onBackPressed()) {
             super.onBackPressed();
         }
     }
@@ -113,5 +117,10 @@ public class MainActivity extends AppCompatActivity {
         //    return true;
         //}
         return false;
+    }
+
+    @Override
+    public ActivityModel getActivityModel() {
+        return mActivityModel;
     }
 }

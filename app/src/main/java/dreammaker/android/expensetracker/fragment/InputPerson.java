@@ -8,15 +8,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import dreammaker.android.expensetracker.R;
+import dreammaker.android.expensetracker.activity.ActivityModel;
+import dreammaker.android.expensetracker.activity.ActivityModelProvider;
 import dreammaker.android.expensetracker.database.entity.Person;
 import dreammaker.android.expensetracker.database.model.PersonModel;
 import dreammaker.android.expensetracker.database.type.Currency;
@@ -25,8 +25,9 @@ import dreammaker.android.expensetracker.dialog.DialogUtil;
 import dreammaker.android.expensetracker.text.TextUtil;
 import dreammaker.android.expensetracker.util.Constants;
 import dreammaker.android.expensetracker.viewmodel.DBViewModel;
-import dreammaker.android.expensetracker.viewmodel.InputPersonViewModel;
+import dreammaker.android.expensetracker.viewmodel.PersonViewModel;
 
+@SuppressWarnings("unused")
 public class InputPerson extends Fragment {
 
     private static final String TAG = InputPerson.class.getSimpleName();
@@ -35,7 +36,7 @@ public class InputPerson extends Fragment {
 
     private NavController navController;
 
-    private InputPersonViewModel mViewModel;
+    private PersonViewModel mViewModel;
 
     private InputPersonBinding mBinding;
 
@@ -50,7 +51,11 @@ public class InputPerson extends Fragment {
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         mViewModel = new ViewModelProvider(this,(ViewModelProvider.Factory) ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
-                .get(InputPersonViewModel.class);
+                .get(PersonViewModel.class);
+        if (requireActivity() instanceof ActivityModelProvider) {
+            ActivityModel model = ((ActivityModelProvider) requireActivity()).getActivityModel();
+            model.addOnBackPressedCallback(this,this::onBackPressed);
+        }
     }
 
     private boolean isEditOperation() {
@@ -69,10 +74,7 @@ public class InputPerson extends Fragment {
             long id = getPersonId();
             mViewModel.getPersonById(id).observe(getViewLifecycleOwner(),this::onPersonFetched);
         }
-        LiveData<DBViewModel.AsyncQueryResult> result = mViewModel.getLiveResult(InputPersonViewModel.SAVE_PERSON);
-        if (null != result) {
-            result.observe(getViewLifecycleOwner(),this::onPersonSaveComplete);
-        }
+        mViewModel.setCallbackIfTaskExists(PersonViewModel.SAVE_PERSON,getViewLifecycleOwner(),this::onPersonSaveComplete);
         return mBinding.getRoot();
     }
 
@@ -102,17 +104,18 @@ public class InputPerson extends Fragment {
 
     private void setTitle() {
         CharSequence title = isEditOperation() ? getText(R.string.label_update_person) : getText(R.string.label_insert_person);
-        mBinding.actionBar.toolbar.setTitle(title);
+        requireActivity().setTitle(title);
     }
 
-    private void onBackPressed() {
+    private boolean onBackPressed() {
         if (hasAnyValueChanged()) {
             DialogUtil.createMessageDialog(requireContext(),R.string.warning_not_saved,
-                    R.string.label_discard,null,R.string.label_exit,(di,which)->exit(),
-                    false);
-            return;
+                    R.string.label_discard,null,
+                    R.string.label_exit,(di,which)->exit(),
+                    false).show();
+            return true;
         }
-        exit();
+        return false;
     }
 
     private boolean hasAnyValueChanged() {
@@ -217,7 +220,8 @@ public class InputPerson extends Fragment {
     }
 
     private void onPersonSaveComplete(@NonNull DBViewModel.AsyncQueryResult result) {
-        if (null == result.getResult()) {
+        Person person = (Person) result.getResult();
+        if (null == person) {
             Toast.makeText(requireContext(),R.string.error_save,Toast.LENGTH_SHORT).show();
             return;
         }
@@ -226,12 +230,17 @@ public class InputPerson extends Fragment {
             exit();
         }
         else {
-            // TODO: show new person details
+            showPersonDetails(person);
         }
     }
 
+    private void showPersonDetails(Person person) {
+        Bundle args = new Bundle();
+        args.putLong(Constants.EXTRA_ID,person.getId());
+        navController.navigate(R.id.action_input_person_to_person_details,args);
+    }
+
     private void exit() {
-        // TODO: implement exit method
         navController.popBackStack();
     }
 }

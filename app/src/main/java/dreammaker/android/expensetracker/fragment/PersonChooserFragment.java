@@ -22,8 +22,10 @@ import dreammaker.android.expensetracker.adapter.PeopleChooserAdapter;
 import dreammaker.android.expensetracker.database.model.PersonModel;
 import dreammaker.android.expensetracker.database.type.TransactionType;
 import dreammaker.android.expensetracker.databinding.LayoutPayeePayerChooserBinding;
+import dreammaker.android.expensetracker.itemdecoration.SimpleEmptyRecyclerViewDecoration;
 import dreammaker.android.expensetracker.listener.ChoiceModel;
-import dreammaker.android.expensetracker.viewmodel.TransactionHistoryInputViewModel;
+import dreammaker.android.expensetracker.util.ResourceUtil;
+import dreammaker.android.expensetracker.viewmodel.PersonViewModel;
 
 @SuppressWarnings("unused")
 public class PersonChooserFragment extends Fragment {
@@ -35,7 +37,7 @@ public class PersonChooserFragment extends Fragment {
     private NavController navController;
 
     @SuppressWarnings("FieldCanBeLocal")
-    private TransactionHistoryInputViewModel mViewModel;
+    private PersonViewModel mViewModel;
 
     private ChoiceModel.SavedStateViewModel mChoiceModelSavedState;
 
@@ -61,7 +63,7 @@ public class PersonChooserFragment extends Fragment {
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         mViewModel = new ViewModelProvider(this,(ViewModelProvider.Factory) ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
-                .get(TransactionHistoryInputViewModel.class);
+                .get(PersonViewModel.class);
     }
 
     @Nullable
@@ -76,7 +78,7 @@ public class PersonChooserFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         setTitle();
         navController = Navigation.findNavController(view);
-        mViewModel.getAllPeopleWithUsageCountLive().observe(getViewLifecycleOwner(),this::onPeopleLoaded);
+        mViewModel.getAllPeopleWithUsageCount().observe(getViewLifecycleOwner(),this::onPeopleLoaded);
         mChoiceModelSavedState = new ViewModelProvider(this).get(ChoiceModel.SavedStateViewModel.class);
         mBinding.search.setHint(R.string.search_person);
         mBinding.search.addTextChangedListener(new TextWatcher() {
@@ -96,6 +98,8 @@ public class PersonChooserFragment extends Fragment {
         mChoiceModel = new ChoiceModel(mBinding.list,mAdapter);
         mChoiceModel.setChoiceMode(ChoiceModel.CHOICE_MODE_SINGLE);
         mAdapter.setChoiceModel(mChoiceModel);
+        mBinding.list.addItemDecoration(new SimpleEmptyRecyclerViewDecoration(getText(R.string.label_no_person),
+                ResourceUtil.getDrawable(requireContext(),R.drawable.ic_person_black_72)));
         mBinding.btnNext.setOnClickListener(v -> onClickNext());
         mBinding.btnPrevious.setOnClickListener(v -> onClickPrevious());
     }
@@ -117,7 +121,7 @@ public class PersonChooserFragment extends Fragment {
     }
 
     private void setTitle() {
-        mBinding.actionBar.toolbar.setTitle(getTitle());
+        requireActivity().setTitle(getTitle());
     }
 
     private CharSequence getTitle() {

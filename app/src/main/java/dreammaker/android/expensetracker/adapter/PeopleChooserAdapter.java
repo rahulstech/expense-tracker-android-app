@@ -42,10 +42,6 @@ public class PeopleChooserAdapter
         super(context, CALLBACK);
     }
 
-    public void setQuery(String query) {
-        mQuery = query;
-    }
-
     @Override
     public void submitList(@Nullable List<PersonModel> list) {
         throw new RuntimeException("use filter(List,String) instead");

@@ -1,14 +1,12 @@
 package dreammaker.android.expensetracker.adapter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
-import com.amulyakhare.textdrawable.TextDrawable;
-import com.amulyakhare.textdrawable.util.ColorGenerator;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,7 +18,11 @@ import androidx.annotation.Nullable;
 import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.database.model.AccountModel;
 import dreammaker.android.expensetracker.databinding.LayoutAccountListItemBinding;
+import dreammaker.android.expensetracker.drawable.DrawableUtil;
+import dreammaker.android.expensetracker.text.SpannableStringUtil;
+import dreammaker.android.expensetracker.text.Spans;
 import dreammaker.android.expensetracker.text.TextUtil;
+import dreammaker.android.expensetracker.util.ResourceUtil;
 
 @SuppressWarnings("unused")
 public class AccountsAdapter
@@ -34,7 +36,7 @@ public class AccountsAdapter
             if (type == SECTION_ITEM_TYPE) {
                 return Objects.equals(((AccountModel) oldData).getId(), ((AccountModel) newData).getId());
             }
-            return Objects.equals(oldData,newData);
+            return oldData.hashCode() == newData.hashCode();
         }
 
         @Override
@@ -43,10 +45,13 @@ public class AccountsAdapter
         }
     };
 
+    private final int mHighlightColor;
+
     private String mQuery = null;
 
     public AccountsAdapter(@NonNull Context context) {
         super(context, CALLBACK);
+        mHighlightColor = ResourceUtil.getThemeColor(context,R.attr.colorSecondary);
     }
 
     @Override
@@ -64,12 +69,18 @@ public class AccountsAdapter
         }
     }
 
+    public String getQuery() {
+        return mQuery;
+    }
+
+    private int getHighlightColor() {
+        return mHighlightColor;
+    }
+
     @NonNull
     @Override
     protected AsyncSectionBuilder<String, AccountModel> onCreateSectionBuilder(@Nullable List<AccountModel> list) {
-        AsyncItemBuilder builder = new AsyncItemBuilder(list);
-        builder.setQuery(mQuery);
-        return builder;
+        return new AsyncItemBuilder(list);
     }
 
     @NonNull
@@ -115,7 +126,7 @@ public class AccountsAdapter
         }
     }
 
-    public static class SectionItemViewHolder extends BaseViewHolder<AccountModel> {
+    public class SectionItemViewHolder extends BaseViewHolder<AccountModel> {
 
         private final LayoutAccountListItemBinding mBinding;
 
@@ -129,47 +140,45 @@ public class AccountsAdapter
             String name = item.getName();
             Drawable logo = getDefaultAccountLogo(item);
             mBinding.logo.setImageDrawable(logo);
-            mBinding.name.setText(name);
+            mBinding.name.setText(highlight(name,getQuery()));
             mBinding.balance.setText(item.getBalance().toString());
         }
 
         private Drawable getDefaultAccountLogo(AccountModel account) {
             String name = account.getName();
-            int color = ColorGenerator.MATERIAL.getColor(name);
-            String text;
-            if (TextUtils.isEmpty(name)) {
-                text = "";
+            return DrawableUtil.getAccountDefaultLogo(name);
+        }
+
+        private CharSequence highlight(CharSequence text, CharSequence phrase) {
+            if (TextUtils.isEmpty(phrase)) {
+                return text;
             }
-            else {
-                text = name.substring(0,1);
-            }
-            return TextDrawable.builder()
-                    .beginConfig().toUpperCase().endConfig()
-                    .buildRound(text,color);
+            int start = TextUtil.indexOfIgnoreCase(text,phrase);
+            int end = start+phrase.length();
+            int color = getHighlightColor();
+            Object span = Spans.textColor(color);
+            return new SpannableStringUtil()
+                    .append(text,span,start,end)
+                    .toSpannableString();
         }
     }
 
-    private static class AsyncItemBuilder extends AsyncSectionBuilder<String,AccountModel> {
-
-        private String mQuery;
+    @SuppressLint("StaticFieldLeak")
+    private class AsyncItemBuilder extends AsyncSectionBuilder<String,AccountModel> {
 
         public AsyncItemBuilder(@Nullable List<AccountModel> items) {
             super(items);
-        }
-
-        public void setQuery(String query) {
-            mQuery = query;
         }
 
         @NonNull
         @Override
         protected List<AccountModel> onBeforeBuildSections(@NonNull List<AccountModel> items) {
             List<AccountModel> accounts;
-            if (TextUtils.isEmpty(mQuery)) {
+            if (TextUtils.isEmpty(getQuery())) {
                 accounts = items;
             }
             else {
-                accounts = filter(items,mQuery);
+                accounts = filter(items,getQuery());
             }
             sort(accounts);
             return accounts;

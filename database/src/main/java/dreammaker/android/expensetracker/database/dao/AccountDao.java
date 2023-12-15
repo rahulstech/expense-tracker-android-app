@@ -7,6 +7,7 @@ import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.RoomWarnings;
+import androidx.room.Transaction;
 import androidx.room.Update;
 import dreammaker.android.expensetracker.database.entity.Account;
 import dreammaker.android.expensetracker.database.model.AccountModel;
@@ -37,6 +38,7 @@ public interface AccountDao {
     @Query("SELECT * FROM `accounts` WHERE `id` = :id")
     Account findAccountById(long id);
 
+    @Transaction
     @Query("DELETE FROM `accounts` WHERE `id` IN(:ids)")
     int removeAccounts(long[] ids);
 }

@@ -15,12 +15,11 @@ import androidx.navigation.Navigation;
 import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.database.type.Currency;
 import dreammaker.android.expensetracker.database.view.AssetLiabilitySummary;
-import dreammaker.android.expensetracker.databinding.HomeBinding;
-import dreammaker.android.expensetracker.util.Constants;
+import dreammaker.android.expensetracker.databinding.FragmentHomeBinding;
 import dreammaker.android.expensetracker.viewmodel.HomeViewModel;
 
 @SuppressWarnings("unused")
-public class FragmentHome extends Fragment {
+public class HomeFragment extends Fragment {
 
     private static final String TAG = "Home";
 
@@ -28,9 +27,9 @@ public class FragmentHome extends Fragment {
 
     private NavController navController;
 
-    private HomeBinding mBinding;
+    private FragmentHomeBinding mBinding;
 
-    public FragmentHome() {super();}
+    public HomeFragment() {super();}
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -42,7 +41,7 @@ public class FragmentHome extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        mBinding = HomeBinding.inflate(inflater,container,false);
+        mBinding = FragmentHomeBinding.inflate(inflater,container,false);
         mViewModel.getAssetLiabilitySummaryLiveData().observe(getViewLifecycleOwner(),this::onAssetLiabilitySummeryFetched);
         return mBinding.getRoot();
     }
@@ -56,11 +55,10 @@ public class FragmentHome extends Fragment {
         mBinding.navPeople.setOnClickListener(v -> onClickPeople());
         mBinding.navHistories.setOnClickListener(v -> onClickHistories());
         mBinding.addHistory.setOnClickListener(v->onClickAddHistory());
-
     }
 
     private void setTitle() {
-        mBinding.actionBar.toolbar.setTitle(R.string.app_name);
+        requireActivity().setTitle(R.string.app_name);
     }
 
     private void onClickAccounts() {
@@ -90,7 +88,11 @@ public class FragmentHome extends Fragment {
         }
     }
 
-    private void showAsset(Currency asset) {}
+    private void showAsset(Currency asset) {
+        mBinding.totalAsset.setText(asset.toString());
+    }
 
-    private void showLiability(Currency liability) {}
+    private void showLiability(Currency liability) {
+        mBinding.totalLiability.setText(liability.toString());
+    }
 }

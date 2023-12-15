@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <plurals name="warning_delete_accounts">
-        <item quantity="one">This account and its all transactions will be DELETED PERMANENTLY. Are you sure?</item>
-        <item quantity="many">You are going to DELETE some accounts PERMANENTLY. Are you sure?</item>
+        <item quantity="one">Do you want to permanently delete the account %1$s?</item>
+        <item quantity="many">Do you want to permanently delete selected %1$d accounts?</item>
     </plurals>
     <plurals name="warning_delete_persons">
-        <item quantity="one">This person and its all transactions will be DELETED PERMANENTLY. Are you sure?</item>
-        <item quantity="many">You are going to DELETE some persons PERMANENTLY. Are you sure?</item>
+        <item quantity="one">Do you want to permanently delete the person %1$s?</item>
+        <item quantity="many">Do you want to permanently delete selected %1$d people?</item>
     </plurals>
     <plurals name="warning_delete_transactions">
         <item quantity="one">This transaction will be DELETED PERMANENTLY. Are you sure?</item>

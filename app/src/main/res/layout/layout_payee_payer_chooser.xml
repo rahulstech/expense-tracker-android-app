@@ -7,87 +7,77 @@
     android:orientation="vertical"
     android:gravity="center">
 
-    <include
-        android:id="@+id/actionBar"
-        layout="@layout/actionbar_layout"/>
-
-    <androidx.core.widget.NestedScrollView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="fill"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 
-        <LinearLayout
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/search_container"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:gravity="fill">
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:shapeAppearance="@style/ShapeAppearance.AppTheme.SearchBarOutline"
+            app:startIconDrawable="@drawable/ic_baseline_search_36"
+            app:startIconScaleType="center"
+            app:endIconMode="clear_text"
+            app:hintAnimationEnabled="false"
+            app:hintEnabled="false"
+            style="@style/Widget.AppTheme.TextInputLayout">
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/search_container"
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/search"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:shapeAppearance="@style/ShapeAppearance.AppTheme.SearchBarOutline"
-                app:startIconDrawable="@drawable/ic_baseline_search_36"
-                app:startIconScaleType="center"
-                app:endIconMode="clear_text"
-                app:hintAnimationEnabled="false"
-                app:hintEnabled="false"
-                style="@style/Widget.AppTheme.TextInputLayout">
+                android:imeOptions="actionSearch"
+                android:importantForAutofill="no"
+                tools:ignore="SpeakableTextPresentCheck" />
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/search"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:imeOptions="actionSearch"
-                    android:importantForAutofill="no"
-                    tools:ignore="SpeakableTextPresentCheck" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-            </com.google.android.material.textfield.TextInputLayout>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/list"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_marginTop="12dp"
+            android:paddingBottom="81dp"
+            android:clipToPadding="false"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/list"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:layout_marginTop="12dp"
-                android:paddingBottom="81dp"
-                android:clipToPadding="false"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
-
-        </LinearLayout>
-
-
-
-
-
-    </androidx.core.widget.NestedScrollView>
-
+    </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btn_next"
         android:layout_width="@dimen/fab_size_medium"
         android:layout_height="@dimen/fab_size_medium"
-        app:fabCustomSize="@dimen/fab_size_medium"
-        android:contentDescription="@string/description_button_next"
-        android:layout_margin="@dimen/fab_margin"
         android:layout_gravity="bottom|right"
-        tools:ignore="RtlHardcoded"/>
+        android:layout_margin="@dimen/fab_margin"
+        android:contentDescription="@string/description_button_next"
+        android:src="@drawable/ic_baseline_arrow_forward_24"
+        app:fabCustomSize="@dimen/fab_size_medium"
+        app:tint="@color/fab_icon_tint"
+        tools:ignore="RtlHardcoded,ImageContrastCheck" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btn_previous"
         android:layout_width="@dimen/fab_size_medium"
         android:layout_height="@dimen/fab_size_medium"
-        app:fabCustomSize="@dimen/fab_size_medium"
-        android:contentDescription="@string/description_button_previous"
-        android:layout_margin="@dimen/fab_margin"
         android:layout_gravity="bottom|left"
-        tools:ignore="RtlHardcoded"/>
+        android:layout_margin="@dimen/fab_margin"
+        android:contentDescription="@string/description_button_previous"
+        android:rotation="180"
+        android:src="@drawable/ic_baseline_arrow_forward_24"
+        app:fabCustomSize="@dimen/fab_size_medium"
+        app:tint="@color/fab_icon_tint"
+        tools:ignore="RtlHardcoded,ImageContrastCheck" />
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -4,9 +4,6 @@
     android:layout_height="match_parent"
     android:layout_width="match_parent">
 
-    <include android:id="@+id/actionBar"
-        layout="@layout/actionbar_layout"/>
-
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/button_save"
         android:layout_width="@dimen/fab_size_medium"
@@ -58,7 +55,7 @@
                         android:inputType="textPersonName"
                         android:importantForAutofill="no"
                         android:maxLines="1"
-                        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
                         tools:ignore="TextContrastCheck"
                         tools:text="@tools:sample/first_names" />
                 </com.google.android.material.textfield.TextInputLayout>
@@ -84,7 +81,7 @@
                         android:inputType="textPersonName"
                         android:importantForAutofill="no"
                         android:maxLines="1"
-                        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
                         android:textColor="?android:attr/textColorPrimary"
                         tools:ignore="TextContrastCheck"
                         tools:text="@tools:sample/last_names" />
@@ -120,7 +117,7 @@
                         android:imeOptions="actionNext"
                         android:inputType="numberDecimal"
                         android:maxLines="1"
-                        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
                         tools:text="1802552.80" />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -148,7 +145,7 @@
                         android:imeOptions="actionDone"
                         android:inputType="numberDecimal"
                         android:maxLines="1"
-                        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
                         tools:text="1502552.80" />
                 </com.google.android.material.textfield.TextInputLayout>
 

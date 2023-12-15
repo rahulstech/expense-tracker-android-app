@@ -139,7 +139,6 @@ public class ChoiceModel implements OnItemClickListener, OnItemLongClickListener
         RecyclerViewItemClickHelper mClickHelper = new RecyclerViewItemClickHelper(rv);
         mClickHelper.setOnItemClickListener(this);
         mClickHelper.setOnItemLongClickListener(this);
-        mRecyclerView.addOnItemTouchListener(mClickHelper);
     }
 
     public RecyclerView getRecyclerView() {
@@ -185,7 +184,7 @@ public class ChoiceModel implements OnItemClickListener, OnItemLongClickListener
         mModalModeListener = null;
     }
 
-    // Methods related to sate
+    // Methods related to state
 
     public void onRestoreInstanceState(@NonNull SavedStateViewModel savedState) {
         Log.d(TAG,"restoreInstanceState");
@@ -349,12 +348,19 @@ public class ChoiceModel implements OnItemClickListener, OnItemLongClickListener
         return mKeys.size();
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean hasSelection() {
         return 0!=getCheckedCount();
     }
 
     public int getPosition(@NonNull Object key) {
         return mCallback.getPosition(key);
+    }
+
+    public void finishActionMode() {
+        if (null != mChoiceActionMode) {
+            mChoiceActionMode.finish();
+        }
     }
 
     // Item click and long click listener methods

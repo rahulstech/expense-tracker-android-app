@@ -7,16 +7,16 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import dreammaker.android.expensetracker.R;
+import dreammaker.android.expensetracker.activity.ActivityModel;
+import dreammaker.android.expensetracker.activity.ActivityModelProvider;
 import dreammaker.android.expensetracker.database.entity.Account;
 import dreammaker.android.expensetracker.database.model.AccountModel;
 import dreammaker.android.expensetracker.database.type.Currency;
@@ -24,9 +24,11 @@ import dreammaker.android.expensetracker.databinding.InputAccountBinding;
 import dreammaker.android.expensetracker.dialog.DialogUtil;
 import dreammaker.android.expensetracker.text.TextUtil;
 import dreammaker.android.expensetracker.util.Constants;
+import dreammaker.android.expensetracker.util.ToastUtil;
+import dreammaker.android.expensetracker.viewmodel.AccountViewModel;
 import dreammaker.android.expensetracker.viewmodel.DBViewModel;
-import dreammaker.android.expensetracker.viewmodel.InputAccountViewModel;
 
+@SuppressWarnings("unused")
 public class InputAccount extends Fragment {
 
     private static final String TAG = InputAccount.class.getSimpleName();
@@ -35,11 +37,11 @@ public class InputAccount extends Fragment {
 
     private NavController navController;
 
-    private InputAccountViewModel mViewModel;
+    private AccountViewModel mViewModel;
 
     private InputAccountBinding mBinding;
 
-    private AccountModel nAccount;
+    private AccountModel mAccount;
 
     private boolean mAccountSet = false;
 
@@ -59,7 +61,11 @@ public class InputAccount extends Fragment {
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         mViewModel = new ViewModelProvider(this, (ViewModelProvider.Factory) ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
-                .get(InputAccountViewModel.class);
+                .get(AccountViewModel.class);
+        if (requireActivity() instanceof ActivityModelProvider) {
+            ActivityModel model = ((ActivityModelProvider) requireActivity()).getActivityModel();
+            model.addOnBackPressedCallback(this,this::onBackPressed);
+        }
     }
 
     @Nullable
@@ -70,10 +76,7 @@ public class InputAccount extends Fragment {
             long id = getAccountId();
             mViewModel.getAccountById(id).observe(getViewLifecycleOwner(),this::onAccountFetched);
         }
-        LiveData<DBViewModel.AsyncQueryResult> result = mViewModel.getLiveResult(InputAccountViewModel.OPERATION_SAVE_ACCOUNT);
-        if (result != null) {
-            result.observe(getViewLifecycleOwner(),this::onAccountSaveComplete);
-        }
+        mViewModel.setCallbackIfTaskExists(AccountViewModel.SAVE_ACCOUNT,getViewLifecycleOwner(),this::onAccountSaveComplete);
         return mBinding.getRoot();
     }
 
@@ -102,27 +105,27 @@ public class InputAccount extends Fragment {
 
     private void setTitle() {
         CharSequence title = isEditOperation() ? getText(R.string.label_update_account) : getText(R.string.label_insert_account);
-        mBinding.actionBar.toolbar.setTitle(title);
+        requireActivity().setTitle(title);
     }
 
-    private void onBackPressed() {
+    private boolean onBackPressed() {
         if (hasAnyValueChanged()) {
             DialogUtil.createMessageDialog(requireContext(),R.string.warning_not_saved,
                     R.string.label_discard, null,
                     R.string.label_exit, (di,which)->exit(),
-                    false);
-            return;
+                    false).show();
+            return true;
         }
-        exit();
+        return false;
     }
 
     private void onAccountFetched(@Nullable AccountModel account) {
         if (null == account) {
-            Toast.makeText(requireContext(),R.string.error_account_not_found,Toast.LENGTH_SHORT).show();
+            ToastUtil.showErrorShort(requireContext(),R.string.error_account_not_found);
             exit();
             return;
         }
-        nAccount = account;
+        mAccount = account;
         if (mAccountSet) {
             return;
         }
@@ -132,26 +135,16 @@ public class InputAccount extends Fragment {
         mAccountSet = true;
     }
 
-    private void onClickCancel() {
-        if (hasAnyValueChanged()) {
-
-            return;
-        }
-        exit();
-    }
-
     private void onClickSave() {
         if (!validate()) {
             return;
         }
-
         CharSequence name = mBinding.name.getText();
         Currency balance = TextUtil.tryConvertToCurrencyOrNull(mBinding.balance.getText());
-
         Account account = new Account();
         if (isEditOperation()) {
             if (!hasAnyValueChanged()) {
-                Toast.makeText(requireContext(),R.string.message_no_change_no_save,Toast.LENGTH_SHORT).show();
+                ToastUtil.showMessageShort(requireContext(),R.string.message_no_change_no_save);
                 exit();
                 return;
             }
@@ -189,32 +182,38 @@ public class InputAccount extends Fragment {
         return valid;
     }
 
-    private void onAccountSaveComplete(@NonNull DBViewModel.AsyncQueryResult result) {
-        Account account = (Account) result.getResult();
-        if (null == account) {
-            Toast.makeText(requireContext(),R.string.error_save,Toast.LENGTH_SHORT).show();
-            Log.e(TAG,"fail to save account",result.getError());
-            return;
-        }
-        Toast.makeText(requireContext(),R.string.account_save_successful,Toast.LENGTH_SHORT).show();
-        if (isEditOperation()) {
-            exit();
-        }
-        else {
-            // TODO: show account details
-        }
-    }
-
     private boolean hasAnyValueChanged() {
         CharSequence name = mBinding.name.getText();
         CharSequence txtBalance = mBinding.balance.getText();
         if (isEditOperation()) {
-            return mAccountSet && (TextUtils.equals(name, nAccount.getName())
-                    || !nAccount.getBalance().equals(TextUtil.tryConvertToCurrencyOrNull(txtBalance)));
+            return mAccountSet && (!TextUtils.equals(name, mAccount.getName())
+                    || !mAccount.getBalance().equals(TextUtil.tryConvertToCurrencyOrNull(txtBalance)));
         }
         else {
             return !TextUtils.isEmpty(name) || !TextUtils.isEmpty(txtBalance);
         }
+    }
+
+    private void onAccountSaveComplete(@NonNull DBViewModel.AsyncQueryResult result) {
+        Account account = (Account) result.getResult();
+        if (null == account) {
+            Log.e(TAG,"fail to save account",result.getError());
+            ToastUtil.showErrorShort(requireContext(),R.string.error_save);
+            return;
+        }
+        ToastUtil.showSuccessShort(requireContext(),R.string.account_save_successful);
+        if (isEditOperation()) {
+            exit();
+        }
+        else {
+            showAccountDetails(account);
+        }
+    }
+
+    private void showAccountDetails(Account account) {
+        Bundle args = new Bundle();
+        args.putLong(Constants.EXTRA_ID,account.getId());
+        navController.navigate(R.id.action_input_account_to_account_details,args);
     }
 
     private void onToggleCalculator() {
@@ -222,7 +221,6 @@ public class InputAccount extends Fragment {
     }
 
     private void exit() {
-        // TODO: exit current screen
         navController.popBackStack();
     }
 }

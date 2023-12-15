@@ -17,19 +17,18 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import dreammaker.android.expensetracker.R;
-import dreammaker.android.expensetracker.concurrent.TaskMaster;
 import dreammaker.android.expensetracker.concurrent.TaskResult;
 import dreammaker.android.expensetracker.database.model.TransactionHistory;
 import dreammaker.android.expensetracker.database.type.Date;
 import dreammaker.android.expensetracker.database.type.TransactionType;
 import dreammaker.android.expensetracker.util.Constants;
-import dreammaker.android.expensetracker.viewmodel.TransactionInputViewModel;
+import dreammaker.android.expensetracker.viewmodel.TransactionHistoryViewModel;
 
-public class SaveTransactionFragment extends DialogFragment {
+public class SaveTransactionHistoryFragment extends DialogFragment {
 
     private static final String TAG = "SaveTranFrag";
 
-    private TransactionInputViewModel viewModel;
+    private TransactionHistoryViewModel viewModel;
     private NavController navController;
 
     private View containerProgress;
@@ -40,14 +39,14 @@ public class SaveTransactionFragment extends DialogFragment {
     private Button btnPositive;
     private Button btnNegative;
 
-    public SaveTransactionFragment() {}
+    public SaveTransactionHistoryFragment() {}
 
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         viewModel = new ViewModelProvider(this,
                 (ViewModelProvider.Factory) ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
-                .get(TransactionInputViewModel.class);
+                .get(TransactionHistoryViewModel.class);
     }
 
     @Override
@@ -92,21 +91,21 @@ public class SaveTransactionFragment extends DialogFragment {
 
     private void removeResult() {
         String opId = getArguments().getString(Constants.EXTRA_OPERATION_ID);
-        viewModel.getTaskMaster().removeResult(opId);
+        //viewModel.getTaskMaster().removeResult(opId);
     }
 
     private void onSaveTransaction() {
-        TaskMaster taskMaster = viewModel.getTaskMaster();
+        //TaskMaster taskMaster = viewModel.getTaskMaster();
         Bundle args = getArguments();
         String opId = args.getString(Constants.EXTRA_OPERATION_ID);
 
-        TaskResult oldResult = taskMaster.getResult(opId);
-        if (null != oldResult) {
-            onTransactionSaved((TransactionHistory) oldResult.parameter,oldResult);
-        }
-        else {
+        //TaskResult oldResult = taskMaster.getResult(opId);
+        //if (null != oldResult) {
+        //    onTransactionSaved((TransactionHistory) oldResult.parameter,oldResult);
+        //}
+        //else {
             try {
-                taskMaster.addTaskCallback(opId,result -> onTransactionSaved((TransactionHistory) result.parameter,result));
+                //taskMaster.addTaskCallback(opId,result -> onTransactionSaved((TransactionHistory) result.parameter,result));
             }
             catch (Exception ex) {
                 BigDecimal amount = new BigDecimal(args.getString(Constants.EXTRA_AMOUNT));
@@ -151,9 +150,9 @@ public class SaveTransactionFragment extends DialogFragment {
                 transaction.setDate(date);
                 transaction.setDescription(description);
 
-                viewModel.saveTransactionHistory(opId,transaction,result -> onTransactionSaved(transaction,result));
+                //viewModel.saveTransactionHistory(opId,transaction,result -> onTransactionSaved(transaction,result));
             }
-        }
+        //}
     }
 
     private void onTransactionSaved(@NonNull TransactionHistory transaction, @NonNull TaskResult result) {

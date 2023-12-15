@@ -7,7 +7,6 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import java.util.List;
 
@@ -22,8 +21,11 @@ import dreammaker.android.expensetracker.adapter.AccountsChooserAdapter;
 import dreammaker.android.expensetracker.database.model.AccountModel;
 import dreammaker.android.expensetracker.database.type.TransactionType;
 import dreammaker.android.expensetracker.databinding.LayoutPayeePayerChooserBinding;
+import dreammaker.android.expensetracker.itemdecoration.SimpleEmptyRecyclerViewDecoration;
 import dreammaker.android.expensetracker.listener.ChoiceModel;
-import dreammaker.android.expensetracker.viewmodel.TransactionHistoryInputViewModel;
+import dreammaker.android.expensetracker.util.ResourceUtil;
+import dreammaker.android.expensetracker.util.ToastUtil;
+import dreammaker.android.expensetracker.viewmodel.AccountViewModel;
 
 @SuppressWarnings("unused")
 public class AccountChooserFragment extends Fragment {
@@ -35,7 +37,7 @@ public class AccountChooserFragment extends Fragment {
     private NavController navController;
 
     @SuppressWarnings("FieldCanBeLocal")
-    private TransactionHistoryInputViewModel mViewModel;
+    private AccountViewModel mViewModel;
 
     private ChoiceModel.SavedStateViewModel mChoiceModelSavedState;
 
@@ -61,7 +63,7 @@ public class AccountChooserFragment extends Fragment {
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         mViewModel = new ViewModelProvider(this, (ViewModelProvider.Factory) ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
-                .get(TransactionHistoryInputViewModel.class);
+                .get(AccountViewModel.class);
     }
 
     @Nullable
@@ -76,7 +78,7 @@ public class AccountChooserFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         setTitle();
         navController = Navigation.findNavController(view);
-        mViewModel.getAllAccountsWithUsageCountLive().observe(getViewLifecycleOwner(),this::onAccountsLoaded);
+        mViewModel.getAllAccountsWithUsageCount().observe(getViewLifecycleOwner(),this::onAccountsLoaded);
         mChoiceModelSavedState = new ViewModelProvider(this).get(ChoiceModel.SavedStateViewModel.class);
         mBinding.search.setHint(R.string.search_account);
         mBinding.search.addTextChangedListener(new TextWatcher() {
@@ -98,6 +100,8 @@ public class AccountChooserFragment extends Fragment {
         mChoiceModel = new ChoiceModel(mBinding.list,mAdapter);
         mChoiceModel.setChoiceMode(ChoiceModel.CHOICE_MODE_SINGLE);
         mAdapter.setChoiceModel(mChoiceModel);
+        mBinding.list.addItemDecoration(new SimpleEmptyRecyclerViewDecoration(getText(R.string.label_no_account),
+                ResourceUtil.getDrawable(requireContext(),R.drawable.ic_account_black_72)));
     }
 
     @Override
@@ -117,7 +121,7 @@ public class AccountChooserFragment extends Fragment {
     }
 
     private void setTitle() {
-        mBinding.actionBar.toolbar.setTitle(getTitle());
+        requireActivity().setTitle(getTitle());
     }
 
     private CharSequence getTitle() {
@@ -144,7 +148,7 @@ public class AccountChooserFragment extends Fragment {
     }
 
     private void onClickPrevious() {
-        navController.popBackStack();
+        exit();
     }
 
     private void onClickNext() {
@@ -181,8 +185,8 @@ public class AccountChooserFragment extends Fragment {
     private void onAccountsLoaded(@Nullable List<AccountModel> accounts) {
         if (null == accounts) {
             // TODO: notify and exit
-            Toast.makeText(requireContext(),"",Toast.LENGTH_SHORT).show();
-            onClickPrevious();
+            ToastUtil.showErrorShort(requireContext(),"");
+            exit();
         }
         else {
             mLoadedAccounts = accounts;
@@ -204,8 +208,9 @@ public class AccountChooserFragment extends Fragment {
     }
 
     private boolean validateAccount() {
+        // TODO: hasSelection always returns false
         if (!mChoiceModel.hasSelection()) {
-            Toast.makeText(requireContext(), R.string.error_no_account_selected, Toast.LENGTH_SHORT).show();
+            ToastUtil.showErrorShort(requireContext(), R.string.error_no_account_selected);
             return false;
         }
         return true;
@@ -218,17 +223,21 @@ public class AccountChooserFragment extends Fragment {
         switch (type) {
             case DUE:
             case BORROW: {
-                // TODO: proceed to save
+                navController.navigate(R.id.action_account_chooser_to_person_chooser,args);
             }
             break;
             case MONEY_TRANSFER: {
                 if (history.getPayeeAccountId() != null && history.getPayerAccountId() != null) {
-                    // TODO: proceed to save
+                    navController.navigate(R.id.action_account_chooser_to_save_history,args);
                 }
                 else {
-                    // TODO: proceed to payer chooser
+                    navController.navigate(R.id.action_account_chooser_to_account_chooser,args);
                 }
             }
         }
+    }
+
+    private void exit() {
+        navController.popBackStack();
     }
 }

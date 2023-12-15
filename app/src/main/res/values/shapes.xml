@@ -11,9 +11,19 @@
         <item name="cornerSize">50%</item>
     </style>
 
-    <style name="ShapeAppearance.AppTheme.Tiles" parent="">
+    <style name="ShapeAppearance.AppTheme.TilesSmall" parent="">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">20%</item>
+    </style>
+
+    <style name="ShapeAppearance.AppTheme.TilesMedium" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">5%</item>
+    </style>
+
+    <style name="ShapeAppearance.AppTheme.TilesLarge" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">2%</item>
     </style>
 
 </resources>

@@ -1,12 +1,12 @@
 package dreammaker.android.expensetracker.adapter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.text.TextUtils;
+import android.util.SparseLongArray;
+import android.view.View;
 import android.view.ViewGroup;
-
-import com.amulyakhare.textdrawable.TextDrawable;
-import com.amulyakhare.textdrawable.util.ColorGenerator;
+import android.widget.TextView;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -16,20 +16,21 @@ import java.util.Objects;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.collection.SparseArrayCompat;
+import androidx.recyclerview.widget.RecyclerView;
 import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.database.model.PersonModel;
 import dreammaker.android.expensetracker.database.model.TransactionHistoryModel;
 import dreammaker.android.expensetracker.database.type.TransactionType;
-import dreammaker.android.expensetracker.databinding.LayoutSimpleListItem1Binding;
-import dreammaker.android.expensetracker.databinding.LayoutTransactionHistoryItemChildBinding;
+import dreammaker.android.expensetracker.databinding.LayoutTransactionHistoryItemBinding;
+import dreammaker.android.expensetracker.drawable.DrawableUtil;
 import dreammaker.android.expensetracker.listener.ChoiceModel;
 import dreammaker.android.expensetracker.text.TextUtil;
 
 @SuppressWarnings("unused")
 public class SectionedTransactionHistoryAdapter
-        extends SectionedListAdapter<SectionedTransactionHistoryAdapter.HeaderData, TransactionHistoryModel,
-        SectionedTransactionHistoryAdapter.HeaderViewHolder, SectionedTransactionHistoryAdapter.ChildViewHolder>
-        implements ChoiceModel.Callback {
+        extends BaseOnlySectionItemCheckableAdapter<SectionedTransactionHistoryAdapter.HeaderData, TransactionHistoryModel,
+        SectionedTransactionHistoryAdapter.HeaderViewHolder, SectionedTransactionHistoryAdapter.ChildViewHolder> {
 
     private static final String TAG = SectionedTransactionHistoryAdapter.class.getSimpleName();
 
@@ -54,8 +55,6 @@ public class SectionedTransactionHistoryAdapter
 
     private int mHeaderType = HEADER_DATE;
 
-    private ChoiceModel mChoiceModel;
-
     public SectionedTransactionHistoryAdapter(@NonNull Context context) {
         super(context, CALLBACK);
     }
@@ -68,28 +67,12 @@ public class SectionedTransactionHistoryAdapter
         return mHeaderType;
     }
 
-    public void setChoiceModel(ChoiceModel model) {
-        mChoiceModel = model;
-    }
-
-    public ChoiceModel getChoiceModel() {
-        return mChoiceModel;
-    }
-
-    @NonNull
     @Override
-    public Object getKey(int position) {
-        return null;
-    }
-
-    @Override
-    public int getPosition(@NonNull Object key) {
-        return 0;
-    }
-
-    @Override
-    public boolean isCheckable(int position) {
-        return getItemViewType(position) == SECTION_ITEM_TYPE;
+    public long getItemId(int position) {
+        if (getItemViewType(position) == SECTION_ITEM_TYPE) {
+            return ((TransactionHistoryModel) getData(position)).getId();
+        }
+        return RecyclerView.NO_ID;
     }
 
     @NonNull
@@ -101,9 +84,8 @@ public class SectionedTransactionHistoryAdapter
     @NonNull
     @Override
     protected HeaderViewHolder onCreateSectionHeaderViewHolder(@NonNull ViewGroup parent, int type) {
-        LayoutSimpleListItem1Binding binding
-                = LayoutSimpleListItem1Binding.inflate(getLayoutInflater(),parent,false);
-        HeaderViewHolder holder = new HeaderViewHolder(binding);
+        View view = getLayoutInflater().inflate(R.layout.layout_simple_list_item_1,parent,false);
+        HeaderViewHolder holder = new HeaderViewHolder(view);
         holder.setAdapter(this);
         return holder;
     }
@@ -111,8 +93,8 @@ public class SectionedTransactionHistoryAdapter
     @NonNull
     @Override
     protected ChildViewHolder onCreateSectionItemViewHolder(@NonNull ViewGroup parent, int type) {
-        LayoutTransactionHistoryItemChildBinding binding
-                = LayoutTransactionHistoryItemChildBinding.inflate(getLayoutInflater(),parent,false);
+        LayoutTransactionHistoryItemBinding binding
+                = LayoutTransactionHistoryItemBinding.inflate(getLayoutInflater(),parent,false);
         ChildViewHolder holder = new ChildViewHolder(binding);
         holder.setAdapter(this);
         return holder;
@@ -128,7 +110,13 @@ public class SectionedTransactionHistoryAdapter
     protected void onBindSectionItemViewHolder(@NonNull ChildViewHolder holder, int adapterPosition) {
         TransactionHistoryModel data = getData(adapterPosition);
         holder.bind(data);
-        holder.setChecked(mChoiceModel.isChecked(adapterPosition));
+        holder.setChecked(getChoiceModel().isChecked(adapterPosition));
+    }
+
+    @NonNull
+    @Override
+    protected Object getChoiceKeyFromData(TransactionHistoryModel data) {
+        return data.getId();
     }
 
     public static class HeaderData {
@@ -185,34 +173,29 @@ public class SectionedTransactionHistoryAdapter
 
     public static class HeaderViewHolder extends BaseViewHolder<HeaderData> {
 
-        private final LayoutSimpleListItem1Binding mBinding;
+        private final TextView text1;
 
-        public HeaderViewHolder(LayoutSimpleListItem1Binding binding) {
-            super(binding.getRoot());
-            mBinding = binding;
+        public HeaderViewHolder(View itemView) {
+            super(itemView);
+            text1 = findViewById(R.id.text1);
         }
 
         @Override
-        protected void onBindNull() {}
-
-        @Override
         protected void onBindNonNull(@NonNull HeaderData item) {
-            mBinding.text1.setText(item.toString());
+            text1.setText(item.toString());
         }
     }
 
     public static class ChildViewHolder extends BaseViewHolder<TransactionHistoryModel> {
 
-        final LayoutTransactionHistoryItemChildBinding mBinding;
+        final LayoutTransactionHistoryItemBinding mBinding;
 
-        public ChildViewHolder(@NonNull LayoutTransactionHistoryItemChildBinding binding) {
+        public ChildViewHolder(@NonNull LayoutTransactionHistoryItemBinding binding) {
             super(binding.getRoot());
             mBinding = binding;
         }
 
-        public void setChecked(boolean checked) {
-
-        }
+        public void setChecked(boolean checked) {}
 
         @Override
         protected void onBindNull() {}
@@ -220,29 +203,33 @@ public class SectionedTransactionHistoryAdapter
         @Override
         protected void onBindNonNull(@NonNull TransactionHistoryModel item) {
             TransactionType type = item.getType();
-            mBinding.logoPrimary.setImageDrawable(getPayeeDefaultDrawable(item));
             mBinding.description.setText(getDescription(item));
             mBinding.amount.setText(item.getAmount().toString());
             if (type == TransactionType.INCOME) {
-                mBinding.logoSecondary.setText(null);
-                mBinding.logoSecondary.setCompoundDrawablesRelative(null, null, null, null);
+                mBinding.logoPrimary.setImageDrawable(getPayeeDefaultDrawable(item));
+                mBinding.labelSecondary.setText(null);
+                mBinding.logoSecondary.setImageDrawable(null);
+            }
+            else if (type == TransactionType.EXPENSE) {
+                mBinding.logoPrimary.setImageDrawable(getPayerDefaultDrawable(item));
+                mBinding.labelSecondary.setText(null);
+                mBinding.logoSecondary.setImageDrawable(null);
             }
             else {
-                mBinding.logoSecondary.setCompoundDrawablesRelative(null,null,getPayerDefaultDrawable(item),null);
+                mBinding.logoSecondary.setImageDrawable(getPayerDefaultDrawable(item));
                 switch (type) {
                     case DUE:
-                    case EXPENSE:
                     case PAY_BORROW: {
-                        mBinding.logoSecondary.setText(getContext().getText(R.string.label_paid_from));
+                        mBinding.labelSecondary.setText(getContext().getText(R.string.label_paid_from));
                     }
                     case BORROW:
                     case PAY_DUE: {
-                        mBinding.logoSecondary.setText(getContext().getString(R.string.label_paid_by));
+                        mBinding.labelSecondary.setText(getContext().getString(R.string.label_paid_by));
                     }
                     case MONEY_TRANSFER:
                     case DUE_TRANSFER:
                     case BORROW_TO_DUE_TRANSFER: {
-                        mBinding.logoSecondary.setText(getContext().getString(R.string.label_transferred_from));
+                        mBinding.labelSecondary.setText(getContext().getString(R.string.label_transferred_from));
                     }
                 }
             }
@@ -250,7 +237,7 @@ public class SectionedTransactionHistoryAdapter
 
         Drawable getPayeeDefaultDrawable(TransactionHistoryModel item) {
             if (null != item.getPayeeAccount()) {
-                return getTextDrawable(item.getPayeeAccount().getName());
+                return DrawableUtil.getAccountDefaultLogo(item.getPayeeAccount().getName());
             }
             else if (null != item.getPayeePerson()) {
                 return getPersonDefaultPhoto(item.getPayeePerson());
@@ -260,7 +247,7 @@ public class SectionedTransactionHistoryAdapter
 
         Drawable getPayerDefaultDrawable(TransactionHistoryModel item) {
             if (null != item.getPayeeAccount()) {
-                return getTextDrawable(item.getPayeeAccount().getName());
+                return DrawableUtil.getAccountDefaultLogo(item.getPayeeAccount().getName());
             }
             else if (null != item.getPayeePerson()) {
                 return getPersonDefaultPhoto(item.getPayeePerson());
@@ -271,57 +258,42 @@ public class SectionedTransactionHistoryAdapter
         Drawable getPersonDefaultPhoto(PersonModel person) {
             final String firstName = person.getFirstName();
             final String lastName = person.getLastName();
-            final String displayName = TextUtil.getDisplayNameForPerson(firstName,lastName,TextUtil.FIRST_NAME_FIRST);
-            return getTextDrawable(displayName);
-        }
-
-        Drawable getTextDrawable(String text) {
-            String drawableText = TextUtil.getDisplayLabel(text);
-            int drawableBackground = ColorGenerator.MATERIAL.getColor(text);
-            return TextDrawable.builder()
-                    .beginConfig().bold().endConfig()
-                    .buildRound(drawableText,drawableBackground);
+            return DrawableUtil.getPersonDefaultPhoto(firstName,lastName,true);
         }
 
         CharSequence getDescription(TransactionHistoryModel item) {
             String description = item.getDescription();
-            if (!TextUtils.isEmpty(description)) {
-                // TODO: make single line
-                return description;
-            }
             TransactionType type = item.getType();
-            switch (type) {
-                case EXPENSE: {
-                    return getContext().getText(R.string.message_debit_without_amount);
-                }
-                case INCOME: {
-                    return getContext().getString(R.string.message_credit_without_amount);
-                }
-                case DUE_TRANSFER:
-                case BORROW_TRANSFER:
-                case BORROW_TO_DUE_TRANSFER:{
-                    PersonModel payee = item.getPayeePerson();
-                    String dest = TextUtil.getDisplayNameForPerson(payee.getFirstName(),payee.getLastName(), TextUtil.FIRST_NAME_FIRST);
-                    return getContext().getString(R.string.message_transferred_to_without_amount,dest);
-                }
-                case BORROW:
-                case PAY_DUE:
-                case MONEY_TRANSFER: {
-                    String dest = item.getPayeeAccount().getName();
-                    return getContext().getString(R.string.message_received_in_without_amount,dest);
-                }
-                case DUE:
-                case PAY_BORROW: {
-                    PersonModel payee = item.getPayeePerson();
-                    String dest = TextUtil.getDisplayNameForPerson(payee.getFirstName(),payee.getLastName(), TextUtil.FIRST_NAME_FIRST);
-                    return getContext().getString(R.string.message_paid_to_without_amount,dest);
-                }
+            String payee, payer;
+            if (item.getPayeeAccount() != null) {
+                payee = item.getPayeeAccount().getName();
             }
-            return null;
+            else if (item.getPayeePerson() != null) {
+                PersonModel person = item.getPayeePerson();
+                payee = TextUtil.getDisplayNameForPerson(person.getFirstName(),person.getLastName(),true,
+                        getContext().getString(R.string.label_unknown));
+            }
+            else {
+                payee = null;
+            }
+            if (item.getPayerAccount() != null) {
+                payer = item.getPayeeAccount().getName();
+            }
+            else if (item.getPayerPerson() != null) {
+                PersonModel person = item.getPayerPerson();
+                payer = TextUtil.getDisplayNameForPerson(person.getFirstName(),person.getLastName(),true,
+                        getContext().getString(R.string.label_unknown));
+            }
+            else {
+                payer = null;
+            }
+            return TextUtil.getTransactionHistoryDescription(getContext(),type,payer,payee,description);
         }
     }
 
-    private static class AsyncItemBuilder extends AsyncSectionBuilder<HeaderData,TransactionHistoryModel> {
+
+    @SuppressLint("StaticFieldLeak")
+    private class AsyncItemBuilder extends AsyncSectionBuilder<HeaderData,TransactionHistoryModel> {
 
         private final int mHeaderType;
 
@@ -356,6 +328,14 @@ public class SectionedTransactionHistoryAdapter
             }
             else {
                 return item.getWhen().getMonth().equals(header.getData());
+            }
+        }
+
+        @Override
+        protected void onAfterBuildSections(@NonNull List<TransactionHistoryModel> items, @NonNull List<HeaderData> headers, @NonNull List<ListItem> listItems) {
+            SparseArrayCompat<Object> map = prepareChoiceKeyMap(listItems);
+            if (!isCancelled()) {
+                postChoiceKeyMap(map);
             }
         }
     }

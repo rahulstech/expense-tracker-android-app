@@ -50,6 +50,7 @@ public class RecyclerViewItemClickHelper implements RecyclerView.OnItemTouchList
     public RecyclerViewItemClickHelper(@NonNull RecyclerView view) {
         mRecyclerView = view;
         mGestureDetector = new GestureDetector(view.getContext(),mGestureListener);
+        view.addOnItemTouchListener(this);
     }
 
     @NonNull

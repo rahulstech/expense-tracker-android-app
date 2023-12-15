@@ -245,6 +245,9 @@ public abstract class TransactionHistoryDao {
     @Query("SELECT * FROM `transaction_histories` WHERE `id` = :id")
     public abstract TransactionHistory findTransactionHistoryById(long id);
 
+    @Query("SELECT * FROM `transaction_histories` WHERE `id` = :id")
+    public abstract LiveData<TransactionHistoryModel> getTransactionHistoryByIdLive(long id);
+
     @Transaction
     @Query("SELECT * FROM `transaction_histories` WHERE DATE(`when`) IS :date ORDER BY `when` DESC")
     public abstract LiveData<List<TransactionHistoryModel>> getAllTransactionHistoriesForDateLive(LocalDate date);

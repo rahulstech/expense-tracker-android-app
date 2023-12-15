@@ -17,7 +17,7 @@
     <string name="label_insert_person">Add Person</string>
     <string name="label_update_person">Edit Person</string>
     <string name="label_transactions_list">Transactions</string>
-    <string name="label_money_transfer">Money Transfer</string>
+    <string name="label_money_transfer">Send Money</string>
     <string name="label_money_transfer_history">Transfer History</string>
     <string name="label_new_money_transfer">New Money Transfer</string>
     <string name="label_edit_money_transfer">Edit Money Transfer</string>
@@ -94,7 +94,7 @@
     <string name="title_auto_delete">Auto Delete</string>
     <string name="summery_auto_delete">Automatically delete all data which are older than specified amount of time.
 		This will only delete date oriented data like transaction and money transfers.</string>
-    <string name="notification_start_auto_delete">Auto delete old entries in progress...</string>
+    <string name="notification_start_auto_delete">Auto delete old entries in progress…</string>
     <string name="notification_end_auto_delete">App data deleted successfully</string>
 
     <string name="title_clear_all">Clear All Data</string>
@@ -199,8 +199,6 @@
     <string name="message_ask_add_more_transaction">Want to add more?</string>
     <string name="add_money">Add Money</string>
 
-
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="transaction_input_progress_text">Saving…</string>
     <string name="error_empty_input">empty input</string>
     <string name="error_invalid_numeric_value">not a valid numeric value</string>
@@ -225,7 +223,6 @@
     <string name="text_amount_sent">amount sent from %1$s to %2$s </string>
 
 
-
     <string name="description_add_account">add account</string>
     <string name="label_paid_from">Paid From</string>
     <string name="label_paid_by">Paid By</string>
@@ -234,7 +231,7 @@
     <string name="message_credit_without_amount">Credited</string>
     <string name="message_received_in_without_amount">Received in %1$s</string>
     <string name="message_paid_to_without_amount">Paid to %1$s</string>
-    <string name="message_transferred_to_without_amount">Sent tp %1$s</string>
+    <string name="message_transferred_to_without_amount">Sent to %1$s</string>
     <string name="error_account_not_found">account not found</string>
     <string name="error_save">not saved</string>
     <string name="message_save">saved</string>
@@ -258,6 +255,29 @@
     <string name="label_receive_from">Receive from</string>
     <string name="description_add_transaction_history">add new transaction</string>
     <string name="label_transaction_histories">Histories</string>
+    <string name="label_account_details">Account Details</string>
+    <string name="label_person_details">Person Details</string>
+    <string name="label_add_expense">Add Expense</string>
+    <string name="label_add_income">Add Income</string>
+    <string name="label_no_history">No History</string>
+    <string name="label_no_account">No Account</string>
+    <string name="label_no_person">No Person</string>
+    <string name="label_add_due">Add Due</string>
+    <string name="label_add_pay_due">Pay Due</string>
+    <string name="label_add_borrow">Add Borrow</string>
+    <string name="label_add_pay_borrow">Pay Borrow</string>
+    <string name="error_transaction_history_not_found">history not found</string>
+    <string name="message_expense">%1$s debited</string>
+    <string name="message_income">%1$s credited</string>
+    <string name="message_due">%1$s paid from %2$s</string>
+    <string name="message_money_transfer">amount sent from %1$s to %2$s</string>
+    <string name="message_borrow">borrowed from %1$s and deposited in %2$s</string>
+    <string name="message_pay_due">paid by %1$s and deposited in %2$s</string>
+    <string name="message_pay_borrow">paid to %1$s and credited from %2$s</string>
+    <string name="message_due_transfer">payable by %1$s will be paid by %2$s</string>
+    <string name="message_borrow_to_due_transfer">receivable from %1$s will be paid by %2$s</string>
+    <string name="label_frequently_used">Frequently Used</string>
+    <string name="label_others">Others</string>
 
 
     <!-- TODO: Remove or change this placeholder text -->

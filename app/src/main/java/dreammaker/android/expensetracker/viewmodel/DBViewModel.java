@@ -3,7 +3,6 @@ package dreammaker.android.expensetracker.viewmodel;
 import android.app.Application;
 import android.os.AsyncTask;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -12,8 +11,10 @@ import java.util.concurrent.Callable;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 import dreammaker.android.expensetracker.database.ExpensesDatabase;
 
 @SuppressWarnings("unused")
@@ -38,15 +39,6 @@ public class DBViewModel extends AndroidViewModel {
     }
 
     @NonNull
-    public LiveData<AsyncQueryResult> getOrCreate(int code, Callable<Object> callback) {
-        AsyncQueryTask task = getQueryTask(code);
-        if (null != task) {
-            return task.getLiveResult();
-        }
-        return execute(code,callback);
-    }
-
-    @NonNull
     public final LiveData<AsyncQueryResult> execute(int code, Callable<Object> callback) {
         Objects.requireNonNull(callback,"callback == null");
         AsyncQueryTask task = new AsyncQueryTask(code,callback);
@@ -58,6 +50,15 @@ public class DBViewModel extends AndroidViewModel {
     @Nullable
     public final AsyncQueryTask getQueryTask(int code) {
         return mQueryTasksMap.get(code);
+    }
+
+    public final void setCallbackIfTaskExists(int code, LifecycleOwner owner, Observer<AsyncQueryResult> observer) {
+        Objects.requireNonNull(owner,"LifecycleOwner is null");
+        Objects.requireNonNull(observer,"Observer is null");
+        LiveData<AsyncQueryResult> liveData = getLiveResult(code);
+        if (null != liveData) {
+            liveData.observe(owner,observer);
+        }
     }
 
     @Nullable
@@ -77,6 +78,11 @@ public class DBViewModel extends AndroidViewModel {
             catch (Throwable ignore) {}
         }
         return task;
+    }
+
+    @Override
+    protected void onCleared() {
+        // TODO: handle onCleared
     }
 
     public static class AsyncQueryResult {
@@ -179,8 +185,5 @@ public class DBViewModel extends AndroidViewModel {
         }
     }
 
-    @Override
-    protected void onCleared() {
-        // TODO: handle onCleared
-    }
+
 }

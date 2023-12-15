@@ -4,9 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <include android:id="@+id/actionBar"
-        layout="@layout/actionbar_layout"/>
-    
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -37,7 +34,7 @@
                     android:layout_height="wrap_content"
                     android:imeOptions="actionNext"
                     android:importantForAutofill="no"
-                    android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
                     android:maxLines="1"
                     tools:text="@tools:sample/lorem"/>
             </com.google.android.material.textfield.TextInputLayout>
@@ -67,7 +64,7 @@
                     android:imeOptions="actionDone"
                     android:maxLines="1"
                     android:importantForAutofill="no"
-                    android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
                     android:inputType="numberDecimal"
                     tools:text="52.80"/>
             </com.google.android.material.textfield.TextInputLayout>

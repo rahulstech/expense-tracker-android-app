@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragment.PersonDetailsFragment">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="fill">
+
+            <androidx.coordinatorlayout.widget.CoordinatorLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/section_account_details"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingVertical="16dp">
+
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/photo"
+                        android:layout_width="96dp"
+                        android:layout_height="96dp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:shapeAppearance="@style/ShapeAppearance.AppTheme.RoundedImage"
+                        tools:ignore="ImageContrastCheck"
+                        tools:src="@tools:sample/avatars" />
+
+                    <TextView
+                        android:id="@+id/name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+                        android:textStyle="bold"
+                        android:textAlignment="center"
+                        app:layout_constraintTop_toBottomOf="@id/photo"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        tools:text="@tools:sample/full_names"/>
+
+                    <TextView
+                        android:id="@+id/balance"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="16dp"
+                        android:textAlignment="center"
+                        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/name"
+                        tools:ignore="TextContrastCheck"
+                        tools:text="1547845698754645787546465.32" />
+
+                    <TextView
+                        android:id="@+id/balance_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="16dp"
+                        android:textAlignment="center"
+                        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                        android:textStyle="italic"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/balance"
+                        tools:ignore="TextContrastCheck"
+                        tools:text="one lac forty five thousand seven hundred seventy eight rupees and seventy five paisa only" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+            <HorizontalScrollView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:paddingVertical="@dimen/tile_padding_medium"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:layoutDirection="ltr">
+
+                    <!-- TODO: change action button text and icon colors properly -->
+
+                    <!-- action add due -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/add_due"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="?attr/selectableItemBackground"
+                        style="@style/Widget.AppTheme.TileCard.Small">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:drawablePadding="4dp"
+                            android:maxLines="1"
+                            android:singleLine="true"
+                            android:text="@string/label_add_due"
+                            
+                            android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+                            android:textColor="@color/text_green"
+                            app:drawableTint="@color/text_green"
+                            app:drawableTopCompat="@drawable/ic_baseline_currency_rupee_24" />
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- action add borrow -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/add_borrow"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="?attr/selectableItemBackground"
+                        style="@style/Widget.AppTheme.TileCard.Small">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/label_add_borrow"
+                            android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+                            android:drawablePadding="4dp"
+                            
+                            android:maxLines="1"
+                            android:singleLine="true"
+                            app:drawableTopCompat="@drawable/ic_baseline_currency_rupee_24"
+                            app:drawableTint="@color/text_red"
+                            android:textColor="@color/text_red"/>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- action add pay due -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/add_pay_due"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="?attr/selectableItemBackground"
+                        style="@style/Widget.AppTheme.TileCard.Small">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:drawablePadding="4dp"
+                            android:maxLines="1"
+                            android:singleLine="true"
+                            android:text="@string/label_add_pay_due"
+                            
+                            android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+                            android:textColor="@color/text_green"
+                            app:drawableTint="@color/text_green"
+                            app:drawableTopCompat="@drawable/ic_baseline_currency_rupee_24" />
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- action add pay borrow -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/add_pay_borrow"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="?attr/selectableItemBackground"
+                        style="@style/Widget.AppTheme.TileCard.Small">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/label_add_pay_borrow"
+                            android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+                            android:drawablePadding="4dp"
+                            
+                            android:maxLines="1"
+                            android:singleLine="true"
+                            app:drawableTopCompat="@drawable/ic_baseline_currency_rupee_24"
+                            app:drawableTint="@color/text_red"
+                            android:textColor="@color/text_red"/>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                </LinearLayout>
+
+            </HorizontalScrollView>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:minHeight="320dp"
+                android:layout_marginTop="18dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/layout_transaction_history_item"
+                tools:itemCount="50"/>
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

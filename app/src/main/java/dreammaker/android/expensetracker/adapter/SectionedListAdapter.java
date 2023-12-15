@@ -124,7 +124,7 @@ public abstract class SectionedListAdapter<H,I,HVH extends RecyclerView.ViewHold
     }
 
     public <T> T getData(int position) {
-        return mListItems.get(position).getData();
+        return mDiffer.getCurrentList().get(position).getData();
     }
 
     @NonNull

@@ -24,23 +24,27 @@ import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.adapter.PeopleAdapter;
 import dreammaker.android.expensetracker.database.model.PersonModel;
 import dreammaker.android.expensetracker.databinding.LayoutBrowseSearchAddBinding;
+import dreammaker.android.expensetracker.dialog.DialogUtil;
+import dreammaker.android.expensetracker.itemdecoration.SimpleEmptyRecyclerViewDecoration;
 import dreammaker.android.expensetracker.listener.ChoiceModel;
 import dreammaker.android.expensetracker.listener.ModalChoiceModeListener;
 import dreammaker.android.expensetracker.listener.OnItemClickListener;
 import dreammaker.android.expensetracker.util.Constants;
-import dreammaker.android.expensetracker.viewmodel.PeopleListViewModel;
+import dreammaker.android.expensetracker.util.ResourceUtil;
+import dreammaker.android.expensetracker.viewmodel.DBViewModel;
+import dreammaker.android.expensetracker.viewmodel.PersonViewModel;
 
 @SuppressWarnings("unused")
 public class PeopleList extends Fragment implements OnItemClickListener, ModalChoiceModeListener {
 
-    private static final String TAG = "PersonsList";
+    private static final String TAG = PeopleList.class.getSimpleName();
 
     private static final String KEY_QUERY_STRING = "query_string";
 
     private NavController navController;
 
     @SuppressWarnings("FieldCanBeLocal")
-    private PeopleListViewModel mViewModel;
+    private PersonViewModel mViewModel;
 
     private ChoiceModel.SavedStateViewModel mChoiceModelSavedState;
 
@@ -60,7 +64,7 @@ public class PeopleList extends Fragment implements OnItemClickListener, ModalCh
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         mViewModel = new ViewModelProvider(this,(ViewModelProvider.Factory) ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
-                .get(PeopleListViewModel.class);
+                .get(PersonViewModel.class);
     }
 
     @Nullable
@@ -95,10 +99,12 @@ public class PeopleList extends Fragment implements OnItemClickListener, ModalCh
         mAdapter = new PeopleAdapter(requireContext());
         mBinding.list.setAdapter(mAdapter);
         mChoiceModel = new ChoiceModel(mBinding.list,mAdapter);
-        mChoiceModel.setModalChoiceModeListener(this);
         mChoiceModel.setChoiceMode(ChoiceModel.CHOICE_MODE_MULTIPLE_MODAL);
+        mChoiceModel.setModalChoiceModeListener(this);
         mChoiceModel.setOnItemClickListener(this);
         mAdapter.setChoiceModel(mChoiceModel);
+        mBinding.list.addItemDecoration(new SimpleEmptyRecyclerViewDecoration(getText(R.string.label_no_person),
+                ResourceUtil.getDrawable(requireContext(),R.drawable.ic_person_black_72)));
     }
 
     @Override
@@ -106,8 +112,8 @@ public class PeopleList extends Fragment implements OnItemClickListener, ModalCh
         super.onViewStateRestored(savedInstanceState);
         if (null != savedInstanceState) {
             mQueryString = savedInstanceState.getString(KEY_QUERY_STRING,null);
+            mChoiceModel.onRestoreInstanceState(mChoiceModelSavedState);
         }
-        mChoiceModel.onRestoreInstanceState(mChoiceModelSavedState);
     }
 
     @Override
@@ -122,6 +128,8 @@ public class PeopleList extends Fragment implements OnItemClickListener, ModalCh
     @Override
     public boolean onCreateActionMode(ActionMode mode, Menu menu) {
         updateActionMode(mode);
+        mBinding.add.hide();
+        mode.getMenuInflater().inflate(R.menu.menu_action_mode_people_list,menu);
         return true;
     }
 
@@ -132,11 +140,18 @@ public class PeopleList extends Fragment implements OnItemClickListener, ModalCh
 
     @Override
     public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.delete) {
+            onClickDeletePeople();
+            return true;
+        }
         return false;
     }
 
     @Override
-    public void onDestroyActionMode(ActionMode mode) {}
+    public void onDestroyActionMode(ActionMode mode) {
+        mBinding.add.show();
+    }
 
     @Override
     public void onItemChecked(@NonNull ActionMode mode, @NonNull View view, int position, boolean checked) {
@@ -144,7 +159,7 @@ public class PeopleList extends Fragment implements OnItemClickListener, ModalCh
     }
 
     private void setTitle() {
-        mBinding.actionBar.toolbar.setTitle(R.string.label_people);
+        requireActivity().setTitle(R.string.label_people);
     }
 
     private void updateActionMode(ActionMode mode) {
@@ -157,7 +172,34 @@ public class PeopleList extends Fragment implements OnItemClickListener, ModalCh
     }
 
     private void onClickPerson(@NonNull PersonModel person) {
-        // TODO: handle person click
+        Bundle args = new Bundle();
+        args.putLong(Constants.EXTRA_ID,person.getId());
+        navController.navigate(R.id.action_people_to_person_details,args);
+    }
+
+    private void onClickDeletePeople() {
+        int count = mChoiceModel.getCheckedCount();
+        // TODO: quantity string problem
+        CharSequence message = "will be deleted";
+        DialogUtil.createMessageDialog(requireContext(),message,
+                getText(R.string.yes),(di,which)->deleteSelectedPeople(),
+                getText(R.string.no),null,false).show();
+    }
+
+    private void deleteSelectedPeople() {
+        int count = mChoiceModel.getCheckedCount();
+        List<Object> keys = mChoiceModel.getCheckedKeys();
+        long[] ids = new long[count];
+        int i = 0;
+        for (Object key : keys) {
+            ids[i++] = (Long) key;
+        }
+        mViewModel.removePeople(ids).observe(getViewLifecycleOwner(),this::onPeopleDeleted);
+        mChoiceModel.finishActionMode();
+    }
+
+    private void onPeopleDeleted(DBViewModel.AsyncQueryResult result) {
+
     }
 
     private void submitQuery(String key) {
