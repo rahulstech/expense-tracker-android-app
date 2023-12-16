@@ -118,7 +118,8 @@
                         android:inputType="numberDecimal"
                         android:maxLines="1"
                         android:textAppearance="@style/TextAppearance.AppCompat.Title"
-                        tools:text="1802552.80" />
+                        android:text="0"
+                        tools:ignore="HardcodedText" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -146,7 +147,8 @@
                         android:inputType="numberDecimal"
                         android:maxLines="1"
                         android:textAppearance="@style/TextAppearance.AppCompat.Title"
-                        tools:text="1502552.80" />
+                        android:text="0"
+                        tools:ignore="HardcodedText" />
                 </com.google.android.material.textfield.TextInputLayout>
 
             </LinearLayout>

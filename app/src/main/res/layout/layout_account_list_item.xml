@@ -7,6 +7,7 @@
     android:background="?attr/selectableItemBackground"
     android:clickable="true"
     app:contentPaddingBottom="@dimen/tile_padding_medium"
+    android:layout_marginVertical="@dimen/tile_margin_small"
     style="@style/Widget.AppTheme.TileCard.Medium">
 
     <androidx.constraintlayout.widget.ConstraintLayout

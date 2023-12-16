@@ -62,10 +62,6 @@ public class InputAccount extends Fragment {
         super.onAttach(context);
         mViewModel = new ViewModelProvider(this, (ViewModelProvider.Factory) ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
                 .get(AccountViewModel.class);
-        if (requireActivity() instanceof ActivityModelProvider) {
-            ActivityModel model = ((ActivityModelProvider) requireActivity()).getActivityModel();
-            model.addOnBackPressedCallback(this,this::onBackPressed);
-        }
     }
 
     @Nullable
@@ -77,6 +73,10 @@ public class InputAccount extends Fragment {
             mViewModel.getAccountById(id).observe(getViewLifecycleOwner(),this::onAccountFetched);
         }
         mViewModel.setCallbackIfTaskExists(AccountViewModel.SAVE_ACCOUNT,getViewLifecycleOwner(),this::onAccountSaveComplete);
+        if (requireActivity() instanceof ActivityModelProvider) {
+            ActivityModel model = ((ActivityModelProvider) requireActivity()).getActivityModel();
+            model.addOnBackPressedCallback(getViewLifecycleOwner(),this::onBackPressed);
+        }
         return mBinding.getRoot();
     }
 
@@ -139,7 +139,7 @@ public class InputAccount extends Fragment {
         if (!validate()) {
             return;
         }
-        CharSequence name = mBinding.name.getText();
+        CharSequence name = mBinding.name.getEditableText().toString().trim();
         Currency balance = TextUtil.tryConvertToCurrencyOrNull(mBinding.balance.getText());
         Account account = new Account();
         if (isEditOperation()) {
@@ -150,47 +150,49 @@ public class InputAccount extends Fragment {
             }
             account.setId(getAccountId());
         }
-        account.setName(name.toString());
+        account.setName(name.toString().trim());
+        //noinspection ConstantConditions
         account.setBalance(balance);
         mViewModel.saveAccount(account).observe(getViewLifecycleOwner(),this::onAccountSaveComplete);
     }
 
+    @SuppressWarnings("UnusedAssignment")
     private boolean validate() {
-        CharSequence name = mBinding.name.getText();
+        CharSequence name = mBinding.name.getEditableText().toString().trim();
         CharSequence txtBalance = mBinding.balance.getText();
 
         mBinding.containerName.setError(null);
         mBinding.containerBalance.setError(null);
 
         // validate inputs
-        boolean valid = true;
+        boolean valid;
         if (TextUtils.isEmpty(name)) {
-            mBinding.containerName.setError(getString(R.string.error_empty_input));
+            mBinding.containerName.setError(getText(R.string.error_empty_input));
             valid = false;
         }
         if (TextUtils.isEmpty(txtBalance)) {
-            mBinding.containerBalance.setError(getString(R.string.error_empty_input));
+            mBinding.containerBalance.setError(getText(R.string.error_empty_input));
             valid = false;
         }
         else {
             Currency balance = TextUtil.tryConvertToCurrencyOrNull(txtBalance);
             valid = null != balance;
             if (!valid) {
-                mBinding.containerBalance.setError(getString(R.string.error_invalid_numeric_value));
+                mBinding.containerBalance.setError(getText(R.string.error_invalid_numeric_value));
             }
         }
         return valid;
     }
 
     private boolean hasAnyValueChanged() {
-        CharSequence name = mBinding.name.getText();
-        CharSequence txtBalance = mBinding.balance.getText();
+        CharSequence name = mBinding.name.getEditableText().toString().trim();
+        Currency balance = TextUtil.tryConvertToCurrencyOrNull(mBinding.balance.getEditableText().toString());
         if (isEditOperation()) {
-            return mAccountSet && (!TextUtils.equals(name, mAccount.getName())
-                    || !mAccount.getBalance().equals(TextUtil.tryConvertToCurrencyOrNull(txtBalance)));
+            return null != mAccount && (!TextUtils.equals(name, mAccount.getName())
+                    || !mAccount.getBalance().equals(balance));
         }
         else {
-            return !TextUtils.isEmpty(name) || !TextUtils.isEmpty(txtBalance);
+            return !TextUtils.isEmpty(name) || !Currency.ZERO.equals(balance);
         }
     }
 

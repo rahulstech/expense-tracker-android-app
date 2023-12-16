@@ -263,6 +263,9 @@ public abstract class TransactionHistoryDao {
 
     private boolean updateAccountBalance(long accountId, @NonNull Currency change) {
         Account account = findAccountById(accountId);
+        if (null == account) {
+            return true;
+        }
         Currency newBalance = account.getBalance().add(change);
         account.setBalance(newBalance);
         return updateAccount(account) == 1;
@@ -270,6 +273,9 @@ public abstract class TransactionHistoryDao {
 
     private boolean updatePersonDue(long personId, @NonNull Currency change) {
         Person person = findPersonById(personId);
+        if (null == person) {
+            return true;
+        }
         Currency newDue = person.getDue().add(change);
         return updatePerson(person) == 1;
     }

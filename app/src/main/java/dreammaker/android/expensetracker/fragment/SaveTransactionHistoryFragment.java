@@ -1,45 +1,49 @@
 package dreammaker.android.expensetracker.fragment;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.TextView;
 
-import java.math.BigDecimal;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import dreammaker.android.expensetracker.R;
-import dreammaker.android.expensetracker.concurrent.TaskResult;
-import dreammaker.android.expensetracker.database.model.TransactionHistory;
-import dreammaker.android.expensetracker.database.type.Date;
-import dreammaker.android.expensetracker.database.type.TransactionType;
+import dreammaker.android.expensetracker.database.entity.TransactionHistory;
+import dreammaker.android.expensetracker.databinding.FragmentSaveTransactionHistoryBinding;
 import dreammaker.android.expensetracker.util.Constants;
+import dreammaker.android.expensetracker.util.ToastUtil;
+import dreammaker.android.expensetracker.viewmodel.DBViewModel;
 import dreammaker.android.expensetracker.viewmodel.TransactionHistoryViewModel;
 
+@SuppressWarnings("unused")
 public class SaveTransactionHistoryFragment extends DialogFragment {
 
-    private static final String TAG = "SaveTranFrag";
+    private static final String TAG = SaveTransactionHistoryFragment.class.getSimpleName();
 
     private TransactionHistoryViewModel viewModel;
+
     private NavController navController;
 
-    private View containerProgress;
-    private View containerMessage;
-
-    private TextView txtProgressLabel;
-    private TextView txtMessage;
-    private Button btnPositive;
-    private Button btnNegative;
+    private FragmentSaveTransactionHistoryBinding mBinding;
 
     public SaveTransactionHistoryFragment() {}
+
+    private boolean isEditOperation() {
+        return Constants.ACTION_UPDATE.equals(requireArguments().getString(Constants.EXTRA_ACTION));
+    }
+
+    private TransactionHistoryParcelable getTransactionHistoryParcelable() {
+        return requireArguments().getParcelable(TransactionBasicDetailsInputFragment.EXTRA_TRANSACTION_HISTORY);
+    }
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -49,10 +53,21 @@ public class SaveTransactionHistoryFragment extends DialogFragment {
                 .get(TransactionHistoryViewModel.class);
     }
 
+    @NonNull
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+        AlertDialog dialog = new MaterialAlertDialogBuilder(requireContext())
+                .setPositiveButton(R.string.save,(di,which)->onClickPositiveButton())
+                .create();
+        return dialog;
+    }
+
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_save_transaction, container, false);
+        mBinding = FragmentSaveTransactionHistoryBinding.inflate(inflater,container,false);
+        viewModel.setCallbackIfTaskExists(TransactionHistoryViewModel.SAVE_HISTORY,getViewLifecycleOwner(),this::onHistorySaved);
+        return mBinding.getRoot();
     }
 
     @Override
@@ -60,15 +75,8 @@ public class SaveTransactionHistoryFragment extends DialogFragment {
         super.onViewCreated(view, savedInstanceState);
         navController = Navigation.findNavController(requireActivity(),R.id.nav_host_fragment_container);
 
-        containerProgress = view.findViewById(R.id.container_progress);
-        containerMessage = view.findViewById(R.id.container_message);
-        txtProgressLabel = view.findViewById(R.id.progress_label);
-        txtMessage = view.findViewById(R.id.message);
-        btnPositive = view.findViewById(R.id.button_positive);
-        btnNegative = view.findViewById(R.id.button_negative);
-
-        btnPositive.setOnClickListener(v->onClickPositiveButton());
-        btnNegative.setOnClickListener(v->onClickNegativeButton());
+        mBinding.buttonPositive.setOnClickListener(v->onClickPositiveButton());
+        mBinding.buttonNegative.setOnClickListener(v->onClickNegativeButton());
 
         setCancelable(false);
     }
@@ -76,94 +84,52 @@ public class SaveTransactionHistoryFragment extends DialogFragment {
     @Override
     public void onStart() {
         super.onStart();
-        onSaveTransaction();
+        //onSaveTransaction();
     }
 
     void onClickPositiveButton() {
-        removeResult();
-        //navController.popBackStack(R.id.basic_details,true);
+        saveTransaction();
     }
 
     void onClickNegativeButton() {
-        removeResult();
-        requireActivity().finish();
+
     }
 
-    private void removeResult() {
-        String opId = getArguments().getString(Constants.EXTRA_OPERATION_ID);
-        //viewModel.getTaskMaster().removeResult(opId);
+    private void saveTransaction() {
+        TransactionHistory history = getTransactionHistoryParcelable();
+        viewModel.saveTransactionHistory(history).observe(getViewLifecycleOwner(),this::onHistorySaved);
     }
 
-    private void onSaveTransaction() {
-        //TaskMaster taskMaster = viewModel.getTaskMaster();
-        Bundle args = getArguments();
-        String opId = args.getString(Constants.EXTRA_OPERATION_ID);
-
-        //TaskResult oldResult = taskMaster.getResult(opId);
-        //if (null != oldResult) {
-        //    onTransactionSaved((TransactionHistory) oldResult.parameter,oldResult);
-        //}
-        //else {
-            try {
-                //taskMaster.addTaskCallback(opId,result -> onTransactionSaved((TransactionHistory) result.parameter,result));
-            }
-            catch (Exception ex) {
-                BigDecimal amount = new BigDecimal(args.getString(Constants.EXTRA_AMOUNT));
-                Date date = Date.valueOf(args.getString(Constants.EXTRA_DATE));
-                String description = args.getString(Constants.EXTRA_DESCRIPTION);
-                TransactionType type = TransactionType.valueOf(args.getString(Constants.EXTRA_TRANSACTION_TYPE));
-                Long payeePersonId = null, payerPersonId = null, payeeAccountId = null, payerAccountId = null;
-                switch (type) {
-                    case INCOME: {
-                        payeeAccountId = args.getLong(Constants.EXTRA_ACCOUNT);
-                    }
-                    break;
-                    case EXPENSE: {
-                        payerAccountId = args.getLong(Constants.EXTRA_ACCOUNT);
-                    }
-                    break;
-                    case MONEY_TRANSFER: {
-                        payeeAccountId = args.getLong(Constants.EXTRA_PAYEE_ACCOUNT);
-                        payerAccountId = args.getLong(Constants.EXTRA_PAYER_ACCOUNT);
-                    }
-                    break;
-                    case DUE:
-                    case PAY_BORROW:{
-                        payeePersonId = args.getLong(Constants.EXTRA_PERSON);
-                        payerAccountId = args.getLong(Constants.EXTRA_ACCOUNT);
-                    }
-                    break;
-                    case PAY_DUE:
-                    case BORROW: {
-                        payerPersonId = args.getLong(Constants.EXTRA_PERSON);
-                        payeeAccountId = args.getLong(Constants.EXTRA_ACCOUNT);
-                    }
-                }
-
-                TransactionHistory transaction = new TransactionHistory();
-                transaction.setPayeePersonId(payeePersonId);
-                transaction.setPayerPersonId(payerPersonId);
-                transaction.setPayeeAccountId(payeeAccountId);
-                transaction.setPayerAccountId(payerAccountId);
-                transaction.setAmount(amount);
-                transaction.setType(type);
-                transaction.setDate(date);
-                transaction.setDescription(description);
-
-                //viewModel.saveTransactionHistory(opId,transaction,result -> onTransactionSaved(transaction,result));
-            }
-        //}
-    }
-
-    private void onTransactionSaved(@NonNull TransactionHistory transaction, @NonNull TaskResult result) {
-        containerProgress.setVisibility(View.GONE);
-        containerMessage.setVisibility(View.VISIBLE);
-
-        if (result.successful) {
-            txtMessage.setText(R.string.transaction_save_successful);
+    private void onHistorySaved(DBViewModel.AsyncQueryResult result) {
+        final TransactionHistory history = (TransactionHistory) result.getResult();
+        if (null == history) {
+            ToastUtil.showErrorShort(requireContext(),R.string.error_save);
+            exit();
+            return;
+        }
+        ToastUtil.showSuccessShort(requireContext(),R.string.transaction_history_save_successful);
+        if (isEditOperation()) {
+            // TODO: properly not exiting
+            exitHistoryInput(false);
         }
         else {
-            txtMessage.setText(R.string.account_save_unsuccessful);
+            showHistoryDetails(history);
         }
+    }
+
+    private void showHistoryDetails(TransactionHistory history) {
+        Bundle args = new Bundle();
+        args.putLong(Constants.EXTRA_ID,history.getId());
+        navController.navigate(R.id.action_save_history_to_history_details,args);
+    }
+
+    private void exit() {
+        dismiss();
+        navController.popBackStack();
+    }
+
+    private void exitHistoryInput(boolean reset) {
+        dismiss();
+        navController.popBackStack(R.id.input_history,true);
     }
 }

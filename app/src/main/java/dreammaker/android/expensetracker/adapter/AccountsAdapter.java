@@ -80,7 +80,9 @@ public class AccountsAdapter
     @NonNull
     @Override
     protected AsyncSectionBuilder<String, AccountModel> onCreateSectionBuilder(@Nullable List<AccountModel> list) {
-        return new AsyncItemBuilder(list);
+        AsyncItemBuilder builder = new AsyncItemBuilder(list);
+        builder.setQuery(getQuery());
+        return builder;
     }
 
     @NonNull
@@ -166,19 +168,26 @@ public class AccountsAdapter
     @SuppressLint("StaticFieldLeak")
     private class AsyncItemBuilder extends AsyncSectionBuilder<String,AccountModel> {
 
+        private String mQuery;
+
         public AsyncItemBuilder(@Nullable List<AccountModel> items) {
             super(items);
+        }
+
+        public void setQuery(String query) {
+            this.mQuery = query;
         }
 
         @NonNull
         @Override
         protected List<AccountModel> onBeforeBuildSections(@NonNull List<AccountModel> items) {
+            String query = this.mQuery;
             List<AccountModel> accounts;
-            if (TextUtils.isEmpty(getQuery())) {
+            if (TextUtils.isEmpty(query)) {
                 accounts = items;
             }
             else {
-                accounts = filter(items,getQuery());
+                accounts = filter(items,query);
             }
             sort(accounts);
             return accounts;
@@ -196,17 +205,20 @@ public class AccountsAdapter
         }
 
         private void sort(List<AccountModel> accounts) {
+            // TODO: non letter must show end of the list, but not working
             accounts.sort((left,right)->{
                 String nameLeft = left.getName();
                 String nameRight = right.getName();
-                String firstLeft = TextUtil.getDisplayLabel(nameLeft);
-                String firstRight = TextUtil.getDisplayLabel(nameRight);
-                if (TextUtil.isNonLetter(firstLeft) && TextUtil.isNonLetter(firstRight)) {
+                String labelLeft = TextUtil.getDisplayLabelLetterOnly(nameLeft,TextUtil.DEFAULT_DISPLAY_LABEL_NON_LETTER);
+                String labelRight = TextUtil.getDisplayLabelLetterOnly(nameRight,TextUtil.DEFAULT_DISPLAY_LABEL_NON_LETTER);
+                boolean nonLetterLeft = !TextUtil.isLetter(labelLeft.codePointAt(0));
+                boolean nonLetterRight = !TextUtil.isLetter(labelRight.codePointAt(0));
+                if (nonLetterLeft && nonLetterRight) {
                     return 0;
                 }
-                else if (TextUtil.isNonLetter(firstLeft) || TextUtil.isNonLetter(firstRight)) {
-                    // TODO: implement proper sorting for non letter
-                    return Integer.MAX_VALUE;
+                else if (nonLetterLeft || nonLetterRight) {
+                    int compare = nameLeft.compareTo(nameRight);
+                    return compare < 0 ? Integer.MAX_VALUE+compare : Integer.MAX_VALUE-compare;
                 }
                 return nameLeft.compareToIgnoreCase(nameRight);
             });
@@ -215,7 +227,7 @@ public class AccountsAdapter
         @NonNull
         @Override
         protected String onCreateSectionHeader(@NonNull AccountModel item) {
-            return TextUtil.getDisplayLabel(item.getName());
+            return TextUtil.getDisplayLabelLetterOnly(item.getName(),TextUtil.DEFAULT_DISPLAY_LABEL_NON_LETTER);
         }
 
         @Override

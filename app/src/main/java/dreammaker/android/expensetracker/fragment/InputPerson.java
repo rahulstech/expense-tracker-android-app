@@ -6,7 +6,6 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,6 +23,7 @@ import dreammaker.android.expensetracker.databinding.InputPersonBinding;
 import dreammaker.android.expensetracker.dialog.DialogUtil;
 import dreammaker.android.expensetracker.text.TextUtil;
 import dreammaker.android.expensetracker.util.Constants;
+import dreammaker.android.expensetracker.util.ToastUtil;
 import dreammaker.android.expensetracker.viewmodel.DBViewModel;
 import dreammaker.android.expensetracker.viewmodel.PersonViewModel;
 
@@ -52,10 +52,6 @@ public class InputPerson extends Fragment {
         super.onAttach(context);
         mViewModel = new ViewModelProvider(this,(ViewModelProvider.Factory) ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
                 .get(PersonViewModel.class);
-        if (requireActivity() instanceof ActivityModelProvider) {
-            ActivityModel model = ((ActivityModelProvider) requireActivity()).getActivityModel();
-            model.addOnBackPressedCallback(this,this::onBackPressed);
-        }
     }
 
     private boolean isEditOperation() {
@@ -75,6 +71,10 @@ public class InputPerson extends Fragment {
             mViewModel.getPersonById(id).observe(getViewLifecycleOwner(),this::onPersonFetched);
         }
         mViewModel.setCallbackIfTaskExists(PersonViewModel.SAVE_PERSON,getViewLifecycleOwner(),this::onPersonSaveComplete);
+        if (requireActivity() instanceof ActivityModelProvider) {
+            ActivityModel model = ((ActivityModelProvider) requireActivity()).getActivityModel();
+            model.addOnBackPressedCallback(this,this::onBackPressed);
+        }
         return mBinding.getRoot();
     }
 
@@ -121,16 +121,18 @@ public class InputPerson extends Fragment {
     private boolean hasAnyValueChanged() {
         CharSequence firstName = mBinding.firstName.getText();
         CharSequence lastName = mBinding.lastName.getText();
-        CharSequence txtDue = mBinding.due.getText();
-        CharSequence txtBorrow = mBinding.borrow.getText();
+        Currency due = TextUtil.tryConvertToCurrencyOrNull(mBinding.due.getEditableText().toString());
+        Currency borrow = TextUtil.tryConvertToCurrencyOrNull(mBinding.borrow.getEditableText().toString());
         if (isEditOperation()) {
-            return mPersonSet && (!TextUtils.equals(mPerson.getFirstName(),firstName)) || !TextUtils.equals(mPerson.getLastName(),lastName)
-                    || !mPerson.getDue().equals(TextUtil.tryConvertToCurrencyOrNull(txtDue))
-                    || !mPerson.getBorrow().equals(TextUtil.tryConvertToCurrencyOrNull(txtBorrow));
+            //noinspection ConstantConditions
+            return null != mPerson && (!TextUtils.equals(mPerson.getFirstName(),firstName))
+                    || !TextUtils.equals(mPerson.getLastName(),lastName)
+                    || !mPerson.getDue().equals(due)
+                    || !mPerson.getBorrow().equals(borrow);
         }
         else {
             return !TextUtils.isEmpty(firstName) || !TextUtils.isEmpty(lastName)
-                    || !TextUtils.isEmpty(txtDue) || !TextUtils.isEmpty(txtBorrow);
+                    || !Currency.ZERO.equals(due) || !Currency.ZERO.equals(borrow);
         }
     }
 
@@ -142,16 +144,14 @@ public class InputPerson extends Fragment {
         if (!validate()) {
             return;
         }
-
-        CharSequence firstName = mBinding.firstName.getText();
-        CharSequence lastName = mBinding.lastName.getText();
+        CharSequence firstName = mBinding.firstName.getEditableText().toString().trim();
+        CharSequence lastName = mBinding.lastName.getEditableText().toString().trim();
         Currency due = TextUtil.tryConvertToCurrencyOrNull(mBinding.due.getText());
         Currency borrow = TextUtil.tryConvertToCurrencyOrNull(mBinding.borrow.getText());
-
         Person person = new Person();
         if (isEditOperation()) {
             if (!hasAnyValueChanged()) {
-                Toast.makeText(requireContext(),R.string.message_no_change_no_save,Toast.LENGTH_SHORT).show();
+                ToastUtil.showMessageShort(requireContext(),R.string.message_no_change_no_save);
                 exit();
                 return;
             }
@@ -159,14 +159,17 @@ public class InputPerson extends Fragment {
         }
         person.setFirstName(firstName.toString());
         person.setLastName(lastName.toString());
+        //noinspection ConstantConditions
         person.setDue(due);
+        //noinspection ConstantConditions
         person.setBorrow(borrow);
         mViewModel.savePerson(person).observe(getViewLifecycleOwner(),this::onPersonSaveComplete);
     }
 
+    @SuppressWarnings("UnusedAssignment")
     private boolean validate() {
-        CharSequence firstName = mBinding.firstName.getText();
-        CharSequence txtDue = mBinding.due.getText();
+        CharSequence firstName = mBinding.firstName.getEditableText().toString().trim();
+        CharSequence txtDue = mBinding.due.getEditableText().toString().trim();
         CharSequence txtBorrow = mBinding.borrow.getText();
 
         mBinding.containerFirstName.setError(null);
@@ -190,7 +193,7 @@ public class InputPerson extends Fragment {
             }
         }
         if (TextUtils.isEmpty(txtBorrow)) {
-            mBinding.containerBorrow.setError(getString(R.string.error_empty_input));
+            mBinding.containerBorrow.setError(getText(R.string.error_empty_input));
             valid = false;
         }
         else {
@@ -205,7 +208,7 @@ public class InputPerson extends Fragment {
 
     private void onPersonFetched(@Nullable PersonModel person) {
         if (null == person) {
-            Toast.makeText(requireContext(),R.string.error_person_not_found,Toast.LENGTH_SHORT).show();
+            ToastUtil.showErrorShort(requireContext(),R.string.error_person_not_found);
             exit();
             return;
         }
@@ -222,10 +225,10 @@ public class InputPerson extends Fragment {
     private void onPersonSaveComplete(@NonNull DBViewModel.AsyncQueryResult result) {
         Person person = (Person) result.getResult();
         if (null == person) {
-            Toast.makeText(requireContext(),R.string.error_save,Toast.LENGTH_SHORT).show();
+            ToastUtil.showErrorShort(requireContext(),R.string.error_save);
             return;
         }
-        Toast.makeText(requireContext(),R.string.person_save_successful,Toast.LENGTH_SHORT).show();
+        ToastUtil.showSuccessShort(requireContext(),R.string.person_save_successful);
         if (isEditOperation()) {
             exit();
         }

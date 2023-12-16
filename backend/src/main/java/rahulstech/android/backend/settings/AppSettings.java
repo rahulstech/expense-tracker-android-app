@@ -12,9 +12,17 @@ public class AppSettings {
 
     private static final String KEY_PERSON_NAME_ORIENTATION = "person_name_orientation";
 
+    private static final String KEY_HISTORY_MONTH = "history_month";
+
     public static final int FIRST_NAME_FIRST = 1;
 
     public static final int LAST_NAME_FIRST = 2;
+
+    public static final int HISTORY_MONTH_3 = 1;
+
+    public static final int HISTORY_MONTH_6 = 2;
+
+    public static final int HISTORY_MONTH_12 = 3;
 
     @SuppressWarnings("FieldCanBeLocal")
     private final Context mContext;
@@ -37,6 +45,14 @@ public class AppSettings {
 
     public void setPreferredPersonNameOrientation(int orientation) {
         set(KEY_PERSON_NAME_ORIENTATION,orientation);
+    }
+
+    public int getShowHistoriesOfMonths() {
+        return getInt(KEY_HISTORY_MONTH,HISTORY_MONTH_6);
+    }
+
+    public void setShowHistoriesOfMonths(int months) {
+        set(KEY_HISTORY_MONTH,months);
     }
 
     private void set(String key, String value) {

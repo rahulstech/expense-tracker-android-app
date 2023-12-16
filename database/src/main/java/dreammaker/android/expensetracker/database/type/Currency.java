@@ -10,7 +10,7 @@ import androidx.annotation.NonNull;
 @SuppressWarnings("unused")
 public class Currency {
 
-    public static final Currency ZERO = new Currency(BigDecimal.ZERO);
+    public static final Currency ZERO = new Currency(BigDecimal.ZERO.stripTrailingZeros());
 
     BigDecimal mValue;
 
@@ -98,7 +98,7 @@ public class Currency {
     @NonNull
     @Override
     public String toString() {
-        return mValue.toPlainString();
+        return mValue.stripTrailingZeros().toPlainString();
     }
 
     static boolean isValueZero(@NonNull BigDecimal value) {

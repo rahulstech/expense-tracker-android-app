@@ -68,6 +68,8 @@
 
         <action android:id="@+id/action_histories_to_input_history"
             app:destination="@id/input_history"/>
+        <action android:id="@+id/action_histories_to_history_details"
+            app:destination="@id/history_details"/>
     </fragment>
 
     <fragment android:id="@+id/input_history"
@@ -119,6 +121,8 @@
             app:destination="@id/input_account"/>
         <action android:id="@+id/action_account_details_to_input_history"
             app:destination="@id/input_history"/>
+        <action android:id="@+id/action_account_details_to_history_details"
+            app:destination="@id/history_details"/>
     </fragment>
 
     <fragment android:id="@+id/person_details"
@@ -130,11 +134,24 @@
             app:destination="@id/input_person"/>
         <action android:id="@+id/action_person_details_to_input_history"
             app:destination="@id/input_history"/>
+        <action android:id="@+id/action_person_details_to_history_details"
+            app:destination="@id/history_details"/>
     </fragment>
 
-    <fragment android:id="@+id/save_history"
+    <dialog android:id="@+id/save_history"
         android:name="dreammaker.android.expensetracker.fragment.SaveTransactionHistoryFragment">
 
+        <action android:id="@+id/action_save_history_to_history_details"
+            app:destination="@id/history_details"
+            app:popUpTo="@id/input_history"
+            app:popUpToInclusive="true"/>
+    </dialog>
+
+    <fragment android:id="@+id/history_details"
+        android:name="dreammaker.android.expensetracker.fragment.TransactionHistoryDetailsFragment">
+
+        <action android:id="@+id/action_history_details_to_input_history"
+            app:destination="@id/input_history"/>
     </fragment>
 
 </navigation>

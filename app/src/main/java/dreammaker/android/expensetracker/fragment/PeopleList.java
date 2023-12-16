@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -20,6 +21,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
+import dreammaker.android.expensetracker.BuildConfig;
 import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.adapter.PeopleAdapter;
 import dreammaker.android.expensetracker.database.model.PersonModel;
@@ -31,6 +33,7 @@ import dreammaker.android.expensetracker.listener.ModalChoiceModeListener;
 import dreammaker.android.expensetracker.listener.OnItemClickListener;
 import dreammaker.android.expensetracker.util.Constants;
 import dreammaker.android.expensetracker.util.ResourceUtil;
+import dreammaker.android.expensetracker.util.ToastUtil;
 import dreammaker.android.expensetracker.viewmodel.DBViewModel;
 import dreammaker.android.expensetracker.viewmodel.PersonViewModel;
 
@@ -178,12 +181,15 @@ public class PeopleList extends Fragment implements OnItemClickListener, ModalCh
     }
 
     private void onClickDeletePeople() {
+        if (!mChoiceModel.hasSelection()) {
+            return;
+        }
         int count = mChoiceModel.getCheckedCount();
-        // TODO: quantity string problem
-        CharSequence message = "will be deleted";
+        CharSequence message = getResources().getQuantityString(R.plurals.warning_delete_persons,count,count);
         DialogUtil.createMessageDialog(requireContext(),message,
-                getText(R.string.yes),(di,which)->deleteSelectedPeople(),
-                getText(R.string.no),null,false).show();
+                getText(R.string.no),null,
+                getText(R.string.yes),(di,which)->deleteSelectedPeople(),true)
+                .show();
     }
 
     private void deleteSelectedPeople() {
@@ -199,7 +205,14 @@ public class PeopleList extends Fragment implements OnItemClickListener, ModalCh
     }
 
     private void onPeopleDeleted(DBViewModel.AsyncQueryResult result) {
-
+        Boolean success = (Boolean) result.getResult();
+        if (null == success || !success) {
+            // TODO: show proper message
+            ToastUtil.showErrorShort(requireContext(),"");
+            if (BuildConfig.DEBUG) {
+                Log.e(TAG,"fail to remove selected multiple people",result.getError());
+            }
+        }
     }
 
     private void submitQuery(String key) {

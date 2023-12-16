@@ -135,7 +135,7 @@
     <string name="error_negative_amount">negative amount not allowed</string>
     <string name="error_same_account_money_transfer">can not transfer money between same accounts</string>
     <string name="error_insufficient_balance">account does not has sufficient balance</string>
-    <string name="transaction_save_successful">transaction saved</string>
+    <string name="transaction_history_save_successful">history saved</string>
     <string name="transaction_save_unsuccessful">transaction not saved</string>
     <string name="money_transfer_successful">money transfer history saved</string>
     <string name="money_transfer_unsuccessful">money transfer history not saved</string>
@@ -278,6 +278,13 @@
     <string name="message_borrow_to_due_transfer">receivable from %1$s will be paid by %2$s</string>
     <string name="label_frequently_used">Frequently Used</string>
     <string name="label_others">Others</string>
+    <string name="label_show">Show</string>
+    <string name="label_transaction_history_details">Summary</string>
+    <string name="error_amount_zero">amount zero not allowed</string>
+    <string name="label_transaction_history_when">completed on %1$s</string>
+    <string name="label_credited_to">Credited To</string>
+    <string name="label_debited_to">Debited To</string>
+    <string name="message_borrow_transfer">payable to %1$s will be paid to %2$s</string>
 
 
     <!-- TODO: Remove or change this placeholder text -->

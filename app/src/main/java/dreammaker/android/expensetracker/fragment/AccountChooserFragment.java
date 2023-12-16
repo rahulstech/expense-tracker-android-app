@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +17,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import dreammaker.android.expensetracker.BuildConfig;
 import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.adapter.AccountsChooserAdapter;
 import dreammaker.android.expensetracker.database.model.AccountModel;
@@ -109,8 +111,8 @@ public class AccountChooserFragment extends Fragment {
         super.onViewStateRestored(savedInstanceState);
         if (null != savedInstanceState) {
             mQuery = savedInstanceState.getString(KEY_QUERY,null);
+            mChoiceModel.onRestoreInstanceState(mChoiceModelSavedState);
         }
-        mChoiceModel.onRestoreInstanceState(mChoiceModelSavedState);
     }
 
     @Override
@@ -209,6 +211,9 @@ public class AccountChooserFragment extends Fragment {
 
     private boolean validateAccount() {
         // TODO: hasSelection always returns false
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG,"checked-count="+mChoiceModel.getCheckedCount());
+        }
         if (!mChoiceModel.hasSelection()) {
             ToastUtil.showErrorShort(requireContext(), R.string.error_no_account_selected);
             return false;
@@ -217,7 +222,7 @@ public class AccountChooserFragment extends Fragment {
     }
 
     private void gotoNextDestination(TransactionHistoryParcelable history) {
-        Bundle args = new Bundle();
+        Bundle args = new Bundle(requireArguments());
         args.putParcelable(TransactionBasicDetailsInputFragment.EXTRA_TRANSACTION_HISTORY,history);
         TransactionType type = history.getType();
         switch (type) {

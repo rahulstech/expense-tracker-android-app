@@ -15,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModel;
 import androidx.recyclerview.widget.RecyclerView;
+import dreammaker.android.expensetracker.BuildConfig;
 
 /**
  * <pre>
@@ -82,6 +83,8 @@ import androidx.recyclerview.widget.RecyclerView;
  */
 @SuppressWarnings("unused")
 public class ChoiceModel implements OnItemClickListener, OnItemLongClickListener {
+
+    private static final boolean DEBUG = BuildConfig.DEBUG;
 
     private static final String TAG = ChoiceModel.class.getSimpleName();
 
@@ -174,7 +177,9 @@ public class ChoiceModel implements OnItemClickListener, OnItemLongClickListener
     }
 
     public void setChoiceMode(int mode) {
-        Log.d(TAG,"old choice-mode: "+mChoiceMode+" new choice-mode: "+mode);
+        if (DEBUG) {
+            Log.d(TAG,"old choice-mode: "+mChoiceMode+" new choice-mode: "+mode);
+        }
         if (mChoiceMode == mode) {
             return;
         }
@@ -187,7 +192,9 @@ public class ChoiceModel implements OnItemClickListener, OnItemLongClickListener
     // Methods related to state
 
     public void onRestoreInstanceState(@NonNull SavedStateViewModel savedState) {
-        Log.d(TAG,"restoreInstanceState");
+        if (DEBUG) {
+            Log.d(TAG,"restoreInstanceState");
+        }
         final int choiceMode = savedState.mChoiceMode;
         final List<Object> keys = savedState.mKeys;
         final boolean inActionMode = savedState.mInActionMode;
@@ -206,7 +213,9 @@ public class ChoiceModel implements OnItemClickListener, OnItemLongClickListener
     }
 
     public void onSaveInstanceState(@NonNull SavedStateViewModel outState) {
-        Log.d(TAG,"saveInstanceState");
+        if (DEBUG) {
+            Log.d(TAG,"saveInstanceState");
+        }
         outState.mChoiceMode = mChoiceMode;
         outState.mKeys = new ArrayList<>(mKeys);
         outState.mInActionMode = mInActionMode;
@@ -251,6 +260,9 @@ public class ChoiceModel implements OnItemClickListener, OnItemLongClickListener
     }
 
     public boolean isChecked(int position) {
+        if (!mCallback.isCheckable(position)) {
+            return false;
+        }
         Object key = mCallback.getKey(position);
         return mKeys.contains(key);
     }
@@ -263,20 +275,23 @@ public class ChoiceModel implements OnItemClickListener, OnItemLongClickListener
         boolean checkable = mCallback.isCheckable(position);
         Object key = mCallback.getKey(position);
         Objects.requireNonNull(key,"ChoiceModel key at position "+position+" is null");
-        Log.d(TAG,"mode="+mChoiceMode+" position="+position+" checkable="+checkable+" check="+check);
+        if (DEBUG) {
+            Log.d(TAG,"mode="+mChoiceMode+" position="+position+" checkable="+checkable+" check="+check);
+        }
         if (!checkable) {
             return;
         }
         if (mChoiceMode == CHOICE_MODE_SINGLE) {
             if (check) {
                 Object selectedKey = getSelectedKey();
+                boolean differentKey = !key.equals(selectedKey);
                 if (null != selectedKey) {
                     mKeys.remove(selectedKey);
-                    if (!key.equals(selectedKey)){
+                    if (differentKey){
                         notifyAdapterItemChanged(mCallback.getPosition(selectedKey));
                     }
                 }
-                if (!key.equals(selectedKey)) {
+                if (differentKey) {
                     mKeys.add(key);
                 }
             }
@@ -367,7 +382,9 @@ public class ChoiceModel implements OnItemClickListener, OnItemLongClickListener
 
     @Override
     public void onClickItem(@NonNull RecyclerView recyclerView, @NonNull View view, int position) {
-        Log.d(TAG,"itemClicked@"+position);
+        if (DEBUG) {
+            Log.d(TAG,"itemClicked@"+position);
+        }
         if (null != mClickListener
                 && (mChoiceMode == CHOICE_MODE_NONE
                 || (mChoiceMode == CHOICE_MODE_MULTIPLE_MODAL && !mInActionMode))) {
@@ -380,7 +397,9 @@ public class ChoiceModel implements OnItemClickListener, OnItemLongClickListener
 
     @Override
     public void onLongClickItem(@NonNull RecyclerView rv, @NonNull View view, int position) {
-        Log.d(TAG,"itemLongClicked@"+position);
+        if (DEBUG) {
+            Log.d(TAG,"itemLongClicked@"+position);
+        }
         if (mChoiceMode == CHOICE_MODE_MULTIPLE_MODAL){
             if (mCallback.isCheckable(position) && !mInActionMode) {
                 boolean actionModeStated = startActionMode();
@@ -420,6 +439,9 @@ public class ChoiceModel implements OnItemClickListener, OnItemLongClickListener
     }
 
     private void notifyListeners(int position, boolean checked) {
+        if (DEBUG) {
+            Log.d(TAG,"notifyListeners: position="+position+" checked="+checked);
+        }
         if (mChoiceMode == CHOICE_MODE_MULTIPLE_MODAL) {
             mModalModeListener.onItemChecked(mChoiceActionMode,
                     getItemViewForAdapterPosition(position),position,checked);

@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.ui.NavigationUI;
 import dreammaker.android.expensetracker.R;
 
 public class MainActivity extends AppCompatActivity implements ActivityModelProvider {
@@ -27,15 +28,14 @@ public class MainActivity extends AppCompatActivity implements ActivityModelProv
         }
     }
 
-    private NavController navController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mActivityModel = new ActivityModel(this);
         setContentView(R.layout.main);
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.nav_host_fragment_container);
-        navController = navHostFragment.getNavController();
         //drawerLayout = findViewById(R.id.drawer_layout);
         Toolbar toolbar = findViewById(R.id.toolbar);
         //drawer = findViewById(R.id.drawer);
@@ -44,10 +44,8 @@ public class MainActivity extends AppCompatActivity implements ActivityModelProv
         /*drawerToggle = new ActionBarDrawerToggle(this, drawerLayout,
                 toolbar, 0, 0);
         drawerToggle.setDrawerSlideAnimationEnabled(true);
-        drawer.setNavigationItemSelectedListener(this::onClickLeftDrawerItem);
-        NavigationUI.setupWithNavController(toolbar,navHostFragment.getNavController(),drawerLayout);*/
-
-        mActivityModel = new ActivityModel(this);
+        drawer.setNavigationItemSelectedListener(this::onClickLeftDrawerItem);*/
+        NavigationUI.setupWithNavController(toolbar,navHostFragment.getNavController());
     }
 
     @Override

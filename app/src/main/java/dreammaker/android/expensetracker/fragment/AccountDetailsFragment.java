@@ -3,6 +3,8 @@ package dreammaker.android.expensetracker.fragment;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -12,29 +14,30 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.RecyclerView;
+import dreammaker.android.expensetracker.BuildConfig;
 import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.database.model.AccountModel;
+import dreammaker.android.expensetracker.database.model.TransactionHistoryModel;
 import dreammaker.android.expensetracker.database.type.Currency;
 import dreammaker.android.expensetracker.database.type.TransactionType;
 import dreammaker.android.expensetracker.databinding.FragmentAccountDetailsBinding;
 import dreammaker.android.expensetracker.dialog.DialogUtil;
 import dreammaker.android.expensetracker.drawable.DrawableUtil;
-import dreammaker.android.expensetracker.itemdecoration.SimpleEmptyRecyclerViewDecoration;
-import dreammaker.android.expensetracker.listener.ChoiceModel;
+import dreammaker.android.expensetracker.text.SpannableStringUtil;
+import dreammaker.android.expensetracker.text.Spans;
 import dreammaker.android.expensetracker.text.TextUtil;
 import dreammaker.android.expensetracker.util.Constants;
-import dreammaker.android.expensetracker.util.ResourceUtil;
 import dreammaker.android.expensetracker.util.ToastUtil;
 import dreammaker.android.expensetracker.viewmodel.AccountViewModel;
 import dreammaker.android.expensetracker.viewmodel.DBViewModel;
-import dreammaker.android.expensetracker.viewmodel.TransactionHistoryViewModel;
+import rahulstech.android.backend.settings.AppSettings;
 
 @SuppressWarnings("unused")
-public class AccountDetailsFragment extends Fragment {
+public class AccountDetailsFragment extends BaseEntityWithTransactionHistoriesFragment {
 
     private static final String TAG = AccountDetailsFragment.class.getSimpleName();
 
@@ -43,14 +46,12 @@ public class AccountDetailsFragment extends Fragment {
     private NavController navController;
 
     private AccountViewModel mAccountVM;
-    
-    private TransactionHistoryViewModel mHistoryVM;
-
-    private ChoiceModel mChoiceModel;
 
     private AccountModel mAccount;
 
-    public AccountDetailsFragment() {}
+    private AppSettings mSettings;
+
+    public AccountDetailsFragment() {super();}
 
     private long getExtraAccountId() {
         return requireArguments().getLong(Constants.EXTRA_ID);
@@ -65,10 +66,9 @@ public class AccountDetailsFragment extends Fragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
+        mSettings = AppSettings.get(context);
         mAccountVM = new ViewModelProvider(this,(ViewModelProvider.Factory) ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
                 .get(AccountViewModel.class);
-        mHistoryVM = new ViewModelProvider(this,(ViewModelProvider.Factory) ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
-                .get(TransactionHistoryViewModel.class);
         mAccountVM.setCallbackIfTaskExists(AccountViewModel.DELETE_ACCOUNTS,this,this::onAccountDeleted);
     }
 
@@ -77,6 +77,7 @@ public class AccountDetailsFragment extends Fragment {
                              Bundle savedInstanceState) {
         mBinding = FragmentAccountDetailsBinding.inflate(inflater,container,false);
         mAccountVM.getAccountById(getExtraAccountId()).observe(getViewLifecycleOwner(),this::onAccountFetched);
+        loadHistories(ENTITY_ACCOUNTS,getExtraAccountId());
         return mBinding.getRoot();
     }
 
@@ -88,8 +89,11 @@ public class AccountDetailsFragment extends Fragment {
         mBinding.addMoneyTransfer.setOnClickListener(v->onClickMoneyTransfer());
         mBinding.addExpense.setOnClickListener(v->onClickAddExpense());
         mBinding.addIncome.setOnClickListener(v->onClickAddIncome());
-        mBinding.list.addItemDecoration(new SimpleEmptyRecyclerViewDecoration(getText(R.string.label_no_history),
-                ResourceUtil.getDrawable(requireContext(),R.drawable.ic_baseline_history_72)));
+    }
+
+    @Override
+    protected RecyclerView getHistoryList() {
+        return mBinding.list;
     }
 
     @Override
@@ -113,17 +117,30 @@ public class AccountDetailsFragment extends Fragment {
     }
 
     @Override
-    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-        super.onViewStateRestored(savedInstanceState);
+    public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+        super.onCreateActionMode(mode,menu);
+        updateActionTitle(mode);
+        return true;
     }
 
     @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
+    public void onDestroyActionMode(ActionMode mode) {
+        super.onDestroyActionMode(mode);
+        updateActionTitle(mode);
+    }
+
+    @Override
+    public void onItemChecked(@NonNull ActionMode mode, @NonNull View view, int position, boolean checked) {
+        super.onItemChecked(mode,view,position,checked);
+        updateActionTitle(mode);
     }
 
     private void setTitle() {
-        requireActivity().setTitle(R.string.label_person_details);
+        requireActivity().setTitle(R.string.label_account_details);
+    }
+
+    private void updateActionTitle(ActionMode mode) {
+        mode.setTitle(getString(R.string.message_selection_count,getHistoryChoiceModel().getCheckedCount()));
     }
 
     private void onAccountFetched(@Nullable AccountModel account) {
@@ -149,14 +166,22 @@ public class AccountDetailsFragment extends Fragment {
         }
     }
 
+    @Override
+    protected void onClickHistory(@NonNull TransactionHistoryModel history) {
+        Bundle args = new Bundle();
+        args.putLong(Constants.EXTRA_ID,history.getId());
+        navController.navigate(R.id.action_account_details_to_history_details,args);
+    }
+
     private void onClickDeleteAccount() {
-        // TODO: highlight the account name
         final long id = mAccount.getId();
         final String name = mAccount.getName();
-        String message = getResources().getQuantityString(R.plurals.warning_delete_accounts, 1,name);
-        DialogUtil.createMessageDialog(requireContext(),message,
-                getText(R.string.yes),(dialog, which) -> deleteAccount(id),
-                getText(R.string.no),null,false)
+        CharSequence message = getResources().getQuantityString(R.plurals.warning_delete_accounts, 1);
+        CharSequence highlighted = new SpannableStringUtil(message).append("\n\n")
+                .append(name, new Object[]{Spans.bold(),Spans.relativeSize(2)}).toSpannableString();
+        DialogUtil.createMessageDialog(requireContext(),highlighted,
+                        getText(R.string.no),null,
+                        getText(R.string.yes),(dialog, which) -> deleteAccount(id), true)
                 .show();
     }
 
@@ -172,10 +197,13 @@ public class AccountDetailsFragment extends Fragment {
     }
 
     private void onAccountDeleted(DBViewModel.AsyncQueryResult result) {
-        Integer count = (Integer) result.getResult();
-        if (null == count || count != 0) {
+        Boolean success = (Boolean) result.getResult();
+        if (null == success || !success ) {
             // TODO: show the error message
             ToastUtil.showErrorShort(requireContext(),"");
+            if (BuildConfig.DEBUG) {
+                Log.e(TAG,"fail to remove account with id="+getExtraAccountId(),result.getError());
+            }
         }
     }
 

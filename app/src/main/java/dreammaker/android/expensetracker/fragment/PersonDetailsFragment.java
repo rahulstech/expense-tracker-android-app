@@ -3,6 +3,8 @@ package dreammaker.android.expensetracker.fragment;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -12,35 +14,34 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.RecyclerView;
+import dreammaker.android.expensetracker.BuildConfig;
 import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.database.model.PersonModel;
+import dreammaker.android.expensetracker.database.model.TransactionHistoryModel;
 import dreammaker.android.expensetracker.database.type.Currency;
 import dreammaker.android.expensetracker.database.type.TransactionType;
 import dreammaker.android.expensetracker.databinding.FragmentPersonDetailsBinding;
 import dreammaker.android.expensetracker.dialog.DialogUtil;
 import dreammaker.android.expensetracker.drawable.DrawableUtil;
-import dreammaker.android.expensetracker.itemdecoration.SimpleEmptyRecyclerViewDecoration;
+import dreammaker.android.expensetracker.text.SpannableStringUtil;
+import dreammaker.android.expensetracker.text.Spans;
 import dreammaker.android.expensetracker.text.TextUtil;
 import dreammaker.android.expensetracker.util.Constants;
-import dreammaker.android.expensetracker.util.ResourceUtil;
 import dreammaker.android.expensetracker.util.ToastUtil;
 import dreammaker.android.expensetracker.viewmodel.DBViewModel;
 import dreammaker.android.expensetracker.viewmodel.PersonViewModel;
-import dreammaker.android.expensetracker.viewmodel.TransactionHistoryViewModel;
 import rahulstech.android.backend.settings.AppSettings;
 
 @SuppressWarnings("unused")
-public class PersonDetailsFragment extends Fragment {
+public class PersonDetailsFragment extends BaseEntityWithTransactionHistoriesFragment {
 
     private static final String TAG = PersonDetailsFragment.class.getSimpleName();
 
     private PersonViewModel mPersonVM;
-
-    private TransactionHistoryViewModel mHistoryVM;
 
     private FragmentPersonDetailsBinding mBinding;
 
@@ -50,7 +51,7 @@ public class PersonDetailsFragment extends Fragment {
 
     private AppSettings mSettings;
 
-    public PersonDetailsFragment() {}
+    public PersonDetailsFragment() {super();}
 
     private long getExtraPersonId() {
         return requireArguments().getLong(Constants.EXTRA_ID);
@@ -68,8 +69,6 @@ public class PersonDetailsFragment extends Fragment {
         mSettings = AppSettings.get(context);
         mPersonVM = new ViewModelProvider(this,(ViewModelProvider.Factory) ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
                 .get(PersonViewModel.class);
-        mHistoryVM = new ViewModelProvider(this,(ViewModelProvider.Factory) ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
-                .get(TransactionHistoryViewModel.class);
         mPersonVM.setCallbackIfTaskExists(PersonViewModel.DELETE_PEOPLE,this,this::onPersonDeleted);
     }
 
@@ -78,6 +77,7 @@ public class PersonDetailsFragment extends Fragment {
                              Bundle savedInstanceState) {
         mBinding = FragmentPersonDetailsBinding.inflate(inflater,container,false);
         mPersonVM.getPersonById(getExtraPersonId()).observe(getViewLifecycleOwner(),this::onPersonFetched);
+        loadHistories(ENTITY_PEOPLE,getExtraPersonId());
         return mBinding.getRoot();
     }
 
@@ -90,13 +90,11 @@ public class PersonDetailsFragment extends Fragment {
         mBinding.addBorrow.setOnClickListener(v->onClickAddBorrow());
         mBinding.addPayDue.setOnClickListener(v->onClickAddPayDue());
         mBinding.addPayBorrow.setOnClickListener(v->onClickAddPayBorrow());
-        mBinding.list.addItemDecoration(new SimpleEmptyRecyclerViewDecoration(getText(R.string.label_no_history),
-                ResourceUtil.getDrawable(requireContext(),R.drawable.ic_baseline_history_72)));
     }
 
     @Override
-    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-        super.onViewStateRestored(savedInstanceState);
+    protected RecyclerView getHistoryList() {
+        return mBinding.list;
     }
 
     @Override
@@ -120,8 +118,26 @@ public class PersonDetailsFragment extends Fragment {
     }
 
     @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
+    public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+        super.onCreateActionMode(mode,menu);
+        updateActionTitle(mode);
+        return true;
+    }
+
+    @Override
+    public void onDestroyActionMode(ActionMode mode) {
+        super.onDestroyActionMode(mode);
+        updateActionTitle(mode);
+    }
+
+    @Override
+    public void onItemChecked(@NonNull ActionMode mode, @NonNull View view, int position, boolean checked) {
+        super.onItemChecked(mode,view,position,checked);
+        updateActionTitle(mode);
+    }
+
+    private void updateActionTitle(ActionMode mode) {
+        mode.setTitle(getString(R.string.message_selection_count,getHistoryChoiceModel().getCheckedCount()));
     }
 
     private void setTitle() {
@@ -151,15 +167,25 @@ public class PersonDetailsFragment extends Fragment {
         return AppSettings.FIRST_NAME_FIRST == mSettings.getPreferredPersonNameOrientation();
     }
 
+    @Override
+    protected void onClickHistory(TransactionHistoryModel history) {
+        Bundle args = new Bundle();
+        args.putLong(Constants.EXTRA_ID,history.getId());
+        navController.navigate(R.id.action_person_details_to_history_details,args);
+    }
+
     private void onClickDeletePerson() {
-        // TODO: highlight the person display name
         final long id = mPerson.getId();
         final String displayName = TextUtil.getDisplayNameForPerson(mPerson.getFirstName(),mPerson.getLastName(),
                 isFirstNameFirst(),getString(R.string.label_unknown));
-        String message = getResources().getQuantityString(R.plurals.warning_delete_persons,1,displayName);
-        DialogUtil.createMessageDialog(requireContext(),message,
+        CharSequence message = getResources().getQuantityString(R.plurals.warning_delete_persons,1,displayName);
+        CharSequence highlighted = new SpannableStringUtil(message).append("\n\n")
+                .append(displayName,new Object[]{Spans.bold(),Spans.relativeSize(2)})
+                .toSpannableString();
+        DialogUtil.createMessageDialog(requireContext(),highlighted,
+                getText(R.string.no),null,
                 getText(R.string.yes),(di,which)->deletePerson(id),
-                getText(R.string.no),null,false).show();
+                false).show();
     }
 
     private void onClickEditPerson() {
@@ -175,10 +201,13 @@ public class PersonDetailsFragment extends Fragment {
     }
 
     private void onPersonDeleted(DBViewModel.AsyncQueryResult result) {
-        Integer count = (Integer) result.getResult();
-        if (null == count || count != 0) {
+        Boolean success = (Boolean) result.getResult();
+        if (null == success || !success) {
             // TODO: show not deleted error
             ToastUtil.showErrorShort(requireContext(),"");
+            if (BuildConfig.DEBUG) {
+                Log.e(TAG,"fail to delete person with id="+getExtraPersonId(),result.getError());
+            }
         }
     }
 
@@ -210,6 +239,15 @@ public class PersonDetailsFragment extends Fragment {
             args.putLong(Constants.EXTRA_PAYEE_PERSON,id);
         }
         navController.navigate(R.id.action_person_details_to_input_history,args);
+    }
+
+    private boolean isStillLoading() {
+        if (null == mPerson) {
+            // TODO: show proper message
+            ToastUtil.showMessageShort(requireContext(),"");
+            return true;
+        }
+        return false;
     }
 
     private void exit() {

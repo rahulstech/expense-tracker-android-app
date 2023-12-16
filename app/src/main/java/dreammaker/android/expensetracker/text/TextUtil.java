@@ -1,31 +1,31 @@
 package dreammaker.android.expensetracker.text;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.text.TextUtils;
-
-import java.util.Locale;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import dreammaker.android.expensetracker.R;
-import dreammaker.android.expensetracker.database.model.PersonModel;
 import dreammaker.android.expensetracker.database.type.Currency;
 import dreammaker.android.expensetracker.database.type.TransactionType;
 
 @SuppressWarnings("unused")
 public class TextUtil {
 
-    public static final int FIRST_NAME_FIRST = 1;
+    public static final String DEFAULT_DISPLAY_LABEL_NON_LETTER = "#";
 
-    public static final int LAST_NAME_FIRST = 2;
-
+    @Deprecated
     public static boolean isNonLetter(String s) {
-        return null != s && s.matches("[\\s\\d!-/:-@\\[-`{-~\\]]");
+        return null == s || s.matches("[\\s\\d!-/:-@\\[-`{-~\\]]");
+    }
+
+    public static boolean isLetter(int codePoint) {
+        return Character.isLetter(codePoint);
     }
 
     public static boolean isNumber(String text) {
-        if (null == text) return false;
-        return text.matches("^(\\-){0,1}\\d{0,}(\\.){0,1}\\d+$");
+        return null != text && text.matches("^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?");
     }
 
     public static boolean containsIgnoreCase(CharSequence where, CharSequence what) {
@@ -39,23 +39,16 @@ public class TextUtil {
         return where.toString().toLowerCase().indexOf(what.toString().toLowerCase());
     }
 
-    @NonNull
-    public static String getDisplayLabel(@NonNull String text) {
-        return getDisplayLabel(text,1);
-    }
-
-    @NonNull
-    public static String getDisplayLabel(@NonNull String text, int len) {
-        String first = text.substring(0,len);
-        if (first.matches("[A-Za-z]")) {
-            return first.toUpperCase(Locale.ENGLISH);
+    public static String getDisplayLabelLetterOnly(String text, String ifEmpty) {
+        if (TextUtils.isEmpty(text)) {
+            return ifEmpty;
         }
-        else if (isNonLetter(first)) {
-            return "#";
+        String first = text.substring(0,1);
+        int code = text.codePointAt(0);
+        if (isLetter(code)) {
+            return first.toUpperCase();
         }
-        else {
-            return first;
-        }
+        return ifEmpty;
     }
 
     public static String getDisplayNameForPerson(String firstName, String lastName, boolean firstNameFirst, String ifEmpty) {
@@ -76,9 +69,25 @@ public class TextUtil {
         return ifEmpty;
     }
 
-    public static String getDisplayLabelForPerson(String firstName, String lastName, boolean firstNameFirst, String ifEmpty) {
+    public static String getDisplayLabelForAccount(String name) {
+        return getDisplayLabelForAccount(name,null);
+    }
+
+    public static String getDisplayLabelForAccount(String name, String ifEmpty) {
+        if (TextUtils.isEmpty(name)) {
+            return ifEmpty;
+        }
+        String first = name.substring(0,1);
+        return first.toUpperCase();
+    }
+
+    public static String getDisplayLabelForPerson(String firstName, String lastName, boolean firstNameFirst) {
+        return getDisplayLabelForPerson(firstName,lastName,firstNameFirst,null);
+    }
+
+    public static String getDisplayLabelForPerson(String firstName, String lastName, boolean firstNameFirst, String isEmpty) {
         if (!firstNameFirst) {
-            return getDisplayLabelForPerson(lastName,firstName,true,ifEmpty);
+            return getDisplayLabelForPerson(lastName,firstName,true, isEmpty);
         }
         String fn1, ln1;
         if (!TextUtils.isEmpty(firstName)) {
@@ -104,12 +113,15 @@ public class TextUtil {
             label = ln1;
         }
         else {
-            return ifEmpty;
+            return isEmpty;
         }
         return label.toUpperCase();
     }
 
-    @NonNull
+    public static String prettyFormatCurrency(Currency currency) {
+        return currency.toString();
+    }
+
     public static CharSequence currencyToText(@NonNull Context context, @NonNull Currency currency) {
         return "";
     }
@@ -124,36 +136,49 @@ public class TextUtil {
         return null;
     }
 
-    public static String getTransactionHistoryDescription(Context context, TransactionType type, String payer, String payee, String original) {
+    public static String getTransactionHistoryDescription(Resources res, TransactionType type,
+                                                          @Nullable CharSequence payer, @Nullable String payee, String original) {
+        if (!TextUtils.isEmpty(original)) {
+            return original;
+        }
+        if (null == payee) {
+            payee = res.getString(R.string.label_unknown);
+        }
+        if (null == payer) {
+            payer = res.getString(R.string.label_unknown);
+        }
         switch (type) {
             case EXPENSE: {
-                return context.getString(R.string.message_expense,payer);
+                return res.getString(R.string.message_expense,payer);
             }
             case INCOME: {
-                return context.getString(R.string.message_income,payee);
+                return res.getString(R.string.message_income,payee);
             }
             case DUE: {
-                return context.getString(R.string.message_due,payee,payer);
+                return res.getString(R.string.message_due,payee,payer);
             }
             case BORROW: {
-                return context.getString(R.string.message_borrow,payer,payee);
+                return res.getString(R.string.message_borrow,payer,payee);
             }
             case PAY_DUE: {
-                return context.getString(R.string.message_pay_due,payer,payee);
+                return res.getString(R.string.message_pay_due,payer,payee);
             }
             case PAY_BORROW: {
-                return context.getString(R.string.message_pay_borrow,payee,payer);
+                return res.getString(R.string.message_pay_borrow,payee,payer);
             }
             case MONEY_TRANSFER: {
-                return context.getString(R.string.message_money_transfer,payer,payee);
+                return res.getString(R.string.message_money_transfer,payer,payee);
             }
             case DUE_TRANSFER: {
-                return context.getString(R.string.message_due_transfer,payer,payee);
+                return res.getString(R.string.message_due_transfer,payer,payee);
             }
             case BORROW_TO_DUE_TRANSFER: {
-                return context.getString(R.string.message_borrow_to_due_transfer,payee,payer);
+                return res.getString(R.string.message_borrow_to_due_transfer,payer,payee);
+            }
+            case BORROW_TRANSFER: {
+                return res.getString(R.string.message_borrow_transfer,payer,payee);
             }
         }
-        return original;
+        return null;
     }
 }

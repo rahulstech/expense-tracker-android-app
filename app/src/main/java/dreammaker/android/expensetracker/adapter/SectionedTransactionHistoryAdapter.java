@@ -2,8 +2,8 @@ package dreammaker.android.expensetracker.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
-import android.util.SparseLongArray;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -24,7 +24,6 @@ import dreammaker.android.expensetracker.database.model.TransactionHistoryModel;
 import dreammaker.android.expensetracker.database.type.TransactionType;
 import dreammaker.android.expensetracker.databinding.LayoutTransactionHistoryItemBinding;
 import dreammaker.android.expensetracker.drawable.DrawableUtil;
-import dreammaker.android.expensetracker.listener.ChoiceModel;
 import dreammaker.android.expensetracker.text.TextUtil;
 
 @SuppressWarnings("unused")
@@ -40,7 +39,7 @@ public class SectionedTransactionHistoryAdapter
             if (type == SECTION_ITEM_TYPE) {
                 return Objects.equals(((TransactionHistoryModel) oldData).getId(),((TransactionHistoryModel) newData).getId());
             }
-            return Objects.equals(oldData,newData);
+            return oldData.hashCode() == newData.hashCode();
         }
 
         @Override
@@ -145,11 +144,18 @@ public class SectionedTransactionHistoryAdapter
         }
 
         @NonNull
-        @Override
-        public String toString() {
+        public String toString(Resources res) {
             if (type == HEADER_DATE) {
                 LocalDate date = (LocalDate) data;
-                return DATE_FORMAT.format(date);
+                if (LocalDate.now().isEqual(date)) {
+                    return res.getString(R.string.today);
+                }
+                else if (LocalDate.now().minusDays(1).isEqual(date)) {
+                    return res.getString(R.string.yesterday);
+                }
+                else {
+                    return DATE_FORMAT.format(date);
+                }
             }
             else {
                 Month month = (Month) data;
@@ -182,7 +188,7 @@ public class SectionedTransactionHistoryAdapter
 
         @Override
         protected void onBindNonNull(@NonNull HeaderData item) {
-            text1.setText(item.toString());
+            text1.setText(item.toString(getContext().getResources()));
         }
     }
 
@@ -216,6 +222,7 @@ public class SectionedTransactionHistoryAdapter
                 mBinding.logoSecondary.setImageDrawable(null);
             }
             else {
+                mBinding.logoPrimary.setImageDrawable(getPayeeDefaultDrawable(item));
                 mBinding.logoSecondary.setImageDrawable(getPayerDefaultDrawable(item));
                 switch (type) {
                     case DUE:
@@ -228,7 +235,8 @@ public class SectionedTransactionHistoryAdapter
                     }
                     case MONEY_TRANSFER:
                     case DUE_TRANSFER:
-                    case BORROW_TO_DUE_TRANSFER: {
+                    case BORROW_TO_DUE_TRANSFER:
+                    case BORROW_TRANSFER:{
                         mBinding.labelSecondary.setText(getContext().getString(R.string.label_transferred_from));
                     }
                 }
@@ -242,17 +250,17 @@ public class SectionedTransactionHistoryAdapter
             else if (null != item.getPayeePerson()) {
                 return getPersonDefaultPhoto(item.getPayeePerson());
             }
-            return null;
+            return DrawableUtil.getDrawableUnknown();
         }
 
         Drawable getPayerDefaultDrawable(TransactionHistoryModel item) {
-            if (null != item.getPayeeAccount()) {
-                return DrawableUtil.getAccountDefaultLogo(item.getPayeeAccount().getName());
+            if (null != item.getPayerAccount()) {
+                return DrawableUtil.getAccountDefaultLogo(item.getPayerAccount().getName());
             }
-            else if (null != item.getPayeePerson()) {
-                return getPersonDefaultPhoto(item.getPayeePerson());
+            else if (null != item.getPayerPerson()) {
+                return getPersonDefaultPhoto(item.getPayerPerson());
             }
-            return null;
+            return DrawableUtil.getDrawableUnknown();
         }
 
         Drawable getPersonDefaultPhoto(PersonModel person) {
@@ -277,7 +285,7 @@ public class SectionedTransactionHistoryAdapter
                 payee = null;
             }
             if (item.getPayerAccount() != null) {
-                payer = item.getPayeeAccount().getName();
+                payer = item.getPayerAccount().getName();
             }
             else if (item.getPayerPerson() != null) {
                 PersonModel person = item.getPayerPerson();
@@ -287,7 +295,7 @@ public class SectionedTransactionHistoryAdapter
             else {
                 payer = null;
             }
-            return TextUtil.getTransactionHistoryDescription(getContext(),type,payer,payee,description);
+            return TextUtil.getTransactionHistoryDescription(getContext().getResources(),type,payer,payee,description);
         }
     }
 
@@ -305,7 +313,7 @@ public class SectionedTransactionHistoryAdapter
         @NonNull
         @Override
         protected List<TransactionHistoryModel> onBeforeBuildSections(@NonNull List<TransactionHistoryModel> items) {
-            return super.onBeforeBuildSections(items);
+            return items;
         }
 
         @NonNull

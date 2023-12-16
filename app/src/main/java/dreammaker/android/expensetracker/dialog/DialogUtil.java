@@ -37,4 +37,18 @@ public class DialogUtil {
         builder.setCancelable(false);
         return builder.create();
     }
+
+    @NonNull
+    public static Dialog createMessageDialog(@NonNull Context context, @NonNull CharSequence message,
+                                             CharSequence btnPositiveText, @Nullable DialogInterface.OnClickListener onClickPositiveButton,
+                                             CharSequence btnNegativeText, @Nullable DialogInterface.OnClickListener onClickNegativeButton,
+                                             CharSequence btnNeutralText, @Nullable DialogInterface.OnClickListener onClickNeutralButton,
+                                             boolean cancelOnTouchOutside) {
+        AlertDialog.Builder builder = new MaterialAlertDialogBuilder(context);
+        builder.setMessage(message);
+        builder.setPositiveButton(btnPositiveText,onClickPositiveButton);
+        builder.setNegativeButton(btnNegativeText,onClickNegativeButton);
+        builder.setCancelable(false);
+        return builder.create();
+    }
 }

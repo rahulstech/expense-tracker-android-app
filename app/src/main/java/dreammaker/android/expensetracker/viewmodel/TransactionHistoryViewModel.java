@@ -4,10 +4,10 @@ import android.app.Application;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
-import dreammaker.android.expensetracker.database.ExpensesDatabase;
 import dreammaker.android.expensetracker.database.dao.TransactionHistoryDao;
 import dreammaker.android.expensetracker.database.entity.TransactionHistory;
 import dreammaker.android.expensetracker.database.model.TransactionHistoryModel;
@@ -15,7 +15,11 @@ import dreammaker.android.expensetracker.database.model.TransactionHistoryModel;
 @SuppressWarnings("unused")
 public class TransactionHistoryViewModel extends DBViewModel {
 
+    private static final String TAG = TransactionHistoryViewModel.class.getSimpleName();
+
     public static final int SAVE_HISTORY = 1;
+
+    public static final int DELETE_HISTORIES = 2;
 
     private LiveData<List<TransactionHistoryModel>> mTransactions;
 
@@ -38,7 +42,7 @@ public class TransactionHistoryViewModel extends DBViewModel {
     }
 
     @NonNull
-    public LiveData<List<TransactionHistoryModel>> getTransactionsForPeopleBetweenDates(long id, @NonNull LocalDate start, @NonNull LocalDate end) {
+    public LiveData<List<TransactionHistoryModel>> getTransactionsForPersonBetweenDates(long id, @NonNull LocalDate start, @NonNull LocalDate end) {
         if (null == mTransactions) {
             mTransactions = getTransactionHistoryDao().getAllTransactionHistoriesForPeopleBetweenLive(id,start,end);
         }
@@ -51,5 +55,36 @@ public class TransactionHistoryViewModel extends DBViewModel {
             mTransaction = getTransactionHistoryDao().getTransactionHistoryByIdLive(id);
         }
         return mTransaction;
+    }
+
+    @NonNull
+    public LiveData<AsyncQueryResult> saveTransactionHistory(TransactionHistory history) {
+        return execute(SAVE_HISTORY,()->{
+            if (history.getId() > 0) {
+                if (getTransactionHistoryDao().updateTransactionHistory(history) != 1) {
+                    return null;
+                }
+            }
+            else {
+                long id = getTransactionHistoryDao().addTransactionHistory(history);
+                if (id <= 0) {
+                    return null;
+                }
+                history.setId(id);
+            }
+            return history;
+        });
+    }
+
+    @NonNull
+    public LiveData<AsyncQueryResult> removeTransactionHistories(long[] ids) {
+        Objects.requireNonNull(ids,"array of history ids is null");
+        return execute(DELETE_HISTORIES,()->{
+            if (ids.length == 0) {
+                return true;
+            }
+            int count = getTransactionHistoryDao().removeTransactionHistories(ids);
+            return ids.length == count;
+        });
     }
 }

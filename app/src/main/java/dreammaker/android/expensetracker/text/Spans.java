@@ -2,8 +2,8 @@ package dreammaker.android.expensetracker.text;
 
 import android.graphics.Typeface;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
-import android.text.style.TypefaceSpan;
 
 import androidx.annotation.ColorInt;
 
@@ -18,5 +18,9 @@ public class Spans {
 
     public static Object bold() {
         return new StyleSpan(Typeface.BOLD);
+    }
+
+    public static Object relativeSize(float percentage) {
+        return new RelativeSizeSpan(percentage);
     }
 }

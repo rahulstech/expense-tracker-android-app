@@ -26,6 +26,7 @@ import dreammaker.android.expensetracker.drawable.DrawableUtil;
 import dreammaker.android.expensetracker.text.SpannableStringUtil;
 import dreammaker.android.expensetracker.text.Spans;
 import dreammaker.android.expensetracker.text.TextUtil;
+import dreammaker.android.expensetracker.util.Constants;
 import dreammaker.android.expensetracker.util.ResourceUtil;
 
 @SuppressWarnings("unused")
@@ -96,7 +97,9 @@ public class AccountsChooserAdapter
     @NonNull
     @Override
     protected AsyncSectionBuilder<Integer, AccountModel> onCreateSectionBuilder(@Nullable List<AccountModel> list) {
-        return new AsyncItemBuilder(list,mHeaders);
+        AsyncItemBuilder builder = new AsyncItemBuilder(list,mHeaders);
+        builder.setQuery(getQuery());
+        return builder;
     }
 
     @NonNull
@@ -198,18 +201,22 @@ public class AccountsChooserAdapter
     @SuppressLint("StaticFieldLeak")
     private class AsyncItemBuilder extends AsyncSectionBuilder<Integer,AccountModel> {
 
-        private static final int FREQUENTLY_USED_ACCOUNT_COUNT = 3;
+        private List<AccountModel> mFrequentlyUsed;
 
-        private List<AccountModel> mFrequentlyUsed = Collections.emptyList();
+        private String mQuery;
 
         public AsyncItemBuilder(@Nullable List<AccountModel> items, @Nullable List<Integer> headers) {
             super(items, headers);
         }
 
+        public void setQuery(String query) {
+            this.mQuery = query;
+        }
+
         @NonNull
         @Override
         protected List<AccountModel> onBeforeBuildSections(@NonNull List<AccountModel> items) {
-            final String query = getQuery();
+            final String query = this.mQuery;
             List<AccountModel> accounts;
             if (TextUtils.isEmpty(query)) {
                 accounts = items;
@@ -233,14 +240,13 @@ public class AccountsChooserAdapter
         }
 
         private void sort(List<AccountModel> items) {
-            // TODO: sort accounts
             if (items.isEmpty()) {
                 return;
             }
-            items.sort(Comparator.comparingInt(AccountModel::getUsageCount));
-            if (items.size() > FREQUENTLY_USED_ACCOUNT_COUNT) {
+            items.sort(Comparator.comparingInt(AccountModel::getUsageCount).reversed());
+            if (items.size() > Constants.FREQUENTLY_USED_DISPLAY_COUNT) {
                 ArrayList<AccountModel> frequent = new ArrayList<>();
-                for (int i=0; i<FREQUENTLY_USED_ACCOUNT_COUNT; i++) {
+                for (int i=0; i<Constants.FREQUENTLY_USED_DISPLAY_COUNT; i++) {
                     AccountModel account = items.get(i);
                     if (account.getUsageCount() > 0) {
                         frequent.add(items.get(i));
@@ -255,7 +261,7 @@ public class AccountsChooserAdapter
         @NonNull
         @Override
         protected Integer onCreateSectionHeader(@NonNull AccountModel item) {
-            if (mFrequentlyUsed.contains(item)) {
+            if (null != mFrequentlyUsed && mFrequentlyUsed.contains(item)) {
                 return HEADER_FREQUENTLY_USED;
             }
             return HEADER_OTHERS;

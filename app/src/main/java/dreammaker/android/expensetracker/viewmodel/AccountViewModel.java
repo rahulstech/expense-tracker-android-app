@@ -81,7 +81,7 @@ public class AccountViewModel extends DBViewModel {
             if (ids.length == 0) {
                 return 0;
             }
-            return getAccountDao().removeAccounts(ids);
+            return ids.length == getAccountDao().removeAccounts(ids);
         });
     }
 }

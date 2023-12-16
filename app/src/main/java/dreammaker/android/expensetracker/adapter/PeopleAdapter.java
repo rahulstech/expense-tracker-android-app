@@ -63,6 +63,10 @@ public class PeopleAdapter
         return mHighlightColor;
     }
 
+    private boolean isFirstNameFirst() {
+        return false;
+    }
+
     @Override
     public void submitList(@Nullable List<PersonModel> list) {
         throw new RuntimeException("use filter(List,String) instead");
@@ -88,8 +92,8 @@ public class PeopleAdapter
     @Override
     protected AsyncSectionBuilder<String, PersonModel> onCreateSectionBuilder(@Nullable List<PersonModel> list) {
         AsyncItemBuild build = new AsyncItemBuild(list);
-        build.setQuery(mQuery);
-        build.setDisplayFirstNameFirst(true);
+        build.setQuery(getQuery());
+        build.setFirstNameFirst(isFirstNameFirst());
         return build;
     }
 
@@ -148,8 +152,8 @@ public class PeopleAdapter
 
         @Override
         protected void onBindNonNull(@NonNull PersonModel item) {
-            String displayName = TextUtil.getDisplayNameForPerson(item.getFirstName(),item.getLastName(),true,getContext().getString(R.string.label_unknown));
-            Drawable placeholder = DrawableUtil.getPersonDefaultPhoto(item.getFirstName(),item.getLastName(),true);
+            String displayName = TextUtil.getDisplayNameForPerson(item.getFirstName(),item.getLastName(),isFirstNameFirst(),getContext().getString(R.string.label_unknown));
+            Drawable placeholder = DrawableUtil.getPersonDefaultPhoto(item.getFirstName(),item.getLastName(),isFirstNameFirst());
             mBinding.name.setText(highlight(displayName,getQuery()));
             mBinding.photo.setImageDrawable(placeholder);
             mBinding.due.setText(item.getDue().toString());
@@ -175,8 +179,6 @@ public class PeopleAdapter
     @SuppressLint("StaticFieldLeak")
     private class AsyncItemBuild extends AsyncSectionBuilder<String,PersonModel> {
 
-        private static final String HEADER_OTHERS = "#";
-
         private String mQuery;
 
         private boolean mFirstNameFirst = true;
@@ -185,23 +187,24 @@ public class PeopleAdapter
             super(items);
         }
 
-        public void setQuery(String mQuery) {
-            this.mQuery = mQuery;
+        public void setQuery(String query) {
+            this.mQuery = query;
         }
 
-        public void setDisplayFirstNameFirst(boolean firstNameFirst) {
-            mFirstNameFirst = firstNameFirst;
+        public void setFirstNameFirst(boolean isFirst) {
+            this.mFirstNameFirst = isFirst;
         }
 
         @NonNull
         @Override
         protected List<PersonModel> onBeforeBuildSections(@NonNull List<PersonModel> items) {
+            String query = this.mQuery;
             List<PersonModel> people;
-            if (TextUtils.isEmpty(mQuery)) {
+            if (TextUtils.isEmpty(query)) {
                 people = items;
             }
             else {
-                people = filter(items,mQuery);
+                people = filter(items,query);
             }
             sort(people);
             return people;
@@ -220,12 +223,11 @@ public class PeopleAdapter
         }
 
         private void sort(List<PersonModel> people) {
+            // TODO: properly handle sorting
             people.sort((left,right)->{
                 String displayNameLeft = TextUtil.getDisplayNameForPerson(left.getFirstName(),left.getLastName(),mFirstNameFirst,null);
                 String displayNameRight = TextUtil.getDisplayNameForPerson(right.getFirstName(),right.getLastName(),mFirstNameFirst,null);
-                if (TextUtils.isEmpty(displayNameLeft) && TextUtils.isEmpty(displayNameRight)) {
-                    return 0;
-                }
+
                 return displayNameLeft.compareToIgnoreCase(displayNameRight);
             });
         }
@@ -233,15 +235,8 @@ public class PeopleAdapter
         @NonNull
         @Override
         protected String onCreateSectionHeader(@NonNull PersonModel item) {
-            final String label = TextUtil.getDisplayLabelForPerson(item.getFirstName(),item.getLastName(),mFirstNameFirst, HEADER_OTHERS);
-            String header;
-            if (label.length() > 1) {
-                header = label.substring(0,1);
-            }
-            else {
-                header = label;
-            }
-            return header;
+            final String label = TextUtil.getDisplayLabelForPerson(item.getFirstName(),item.getLastName(),mFirstNameFirst);
+            return label.substring(0,1);
         }
 
         @Override

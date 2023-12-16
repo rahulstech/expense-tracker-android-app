@@ -210,7 +210,7 @@ public class PersonChooserFragment extends Fragment {
     }
 
     private void gotoNextDestination(TransactionHistoryParcelable history) {
-        Bundle args = new Bundle();
+        Bundle args = new Bundle(requireArguments());
         args.putParcelable(TransactionBasicDetailsInputFragment.EXTRA_TRANSACTION_HISTORY,history);
         TransactionType type = history.getType();
         switch (type) {

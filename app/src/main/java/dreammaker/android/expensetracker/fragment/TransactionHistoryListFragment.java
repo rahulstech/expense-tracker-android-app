@@ -41,14 +41,6 @@ public class TransactionHistoryListFragment extends Fragment {
 
     public TransactionHistoryListFragment() {}
 
-    public long getEntityId() {
-        return requireArguments().getLong(Constants.EXTRA_ID);
-    }
-
-    public int getEntityType() {
-        return requireArguments().getInt(Constants.EXTRA_ENTITY);
-    }
-
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -56,18 +48,11 @@ public class TransactionHistoryListFragment extends Fragment {
         mViewModel = new ViewModelProvider(this,(ViewModelProvider.Factory) ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
                 .get(TransactionHistoryListFragmentViewModel.class);
 
-        long id = getEntityId();
-        int entity = getEntityType();
         LocalDate start = LocalDate.MIN; // TODO: change date start
         LocalDate end = LocalDate.MAX; // TODO: change date end
         LiveData<List<TransactionHistoryModel>> liveData;
-        if (entity == Constants.ENTITY_ACCOUNTS) {
-            liveData = mViewModel.getTransactionsForAccountBetweenDates(id, start,end);
-        }
-        else {
-            liveData = mViewModel.getTransactionsForPeopleBetweenDates(id,start,end);
-        }
-        liveData.observe(this, this::onTransactionHistoryListFetched);
+
+        //liveData.observe(this, this::onTransactionHistoryListFetched);
     }
 
     @Override
@@ -93,8 +78,8 @@ public class TransactionHistoryListFragment extends Fragment {
 
     private void onClickAddTransaction() {
         // TODO: implement onClickAddTransaction
-        long id = getEntityId();
-        int entity = getEntityType();
+        //long id = getEntityId();
+        //int entity = getEntityType();
 
         Bundle args = new Bundle();
 

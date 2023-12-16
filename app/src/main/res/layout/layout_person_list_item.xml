@@ -7,6 +7,7 @@
     android:background="?attr/selectableItemBackground"
     android:clickable="true"
     app:contentPaddingBottom="@dimen/tile_padding_medium"
+    android:layout_marginVertical="@dimen/tile_margin_small"
     style="@style/Widget.AppTheme.TileCard.Medium">
 
     <!-- TODO: update layout -->
@@ -17,8 +18,8 @@
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/photo"
-        android:layout_width="@dimen/tile_icon_size_medium"
-        android:layout_height="@dimen/tile_icon_size_medium"
+        android:layout_width="@dimen/tile_icon_size_large"
+        android:layout_height="@dimen/tile_icon_size_large"
         android:layout_marginStart="@dimen/tile_margin_small"
         android:layout_marginTop="@dimen/tile_margin_small"
         app:layout_constraintStart_toStartOf="parent"

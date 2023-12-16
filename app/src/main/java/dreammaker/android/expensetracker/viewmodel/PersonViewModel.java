@@ -81,7 +81,7 @@ public class PersonViewModel extends DBViewModel{
             if (ids.length == 0) {
                 return 0;
             }
-            return getPersonDao().removePeople(ids);
+            return ids.length == getPersonDao().removePeople(ids);
         });
     }
 }

@@ -3,18 +3,11 @@ package dreammaker.android.expensetracker.util;
 @SuppressWarnings("unused")
 public class Constants {
 
+    public static final String EXTRA_ACTION = "extra_action";
 
     public static final String ACTION_INSERT = "action_insert";
 
     public static final String ACTION_UPDATE = "action_update";
-
-
-
-    public static final String ACTION_INCOME_EXPENSE = "action_income_expense";
-
-    public static final String ACTION_PAYMENT_DUE = "action_credit_debit";
-
-    public static final String ACTION_MONEY_TRANSFER = "action_money_transfer";
 
     public static final String EXTRA_PERSON = "extra_person";
 
@@ -40,10 +33,6 @@ public class Constants {
 
     public static final String EXTRA_OPERATION_ID = "operation_id";
 
-
-
-    public static final String EXTRA_ACTION = "extra_action";
-
     public static final String EXTRA_ID = "extra_id";
 
     public static final String EXTRA_ENTITY = "extra_entity";
@@ -52,14 +41,5 @@ public class Constants {
 
     public static final int ENTITY_PEOPLE = 20;
 
-
-
-
-    public static final int DB_INSERT = 1;
-
-    public static final int DB_UPDATE = 2;
-
-    public static final int DB_DELETE = 3;
-
-    public static final int DB_QUERY = 4;
+    public static final int FREQUENTLY_USED_DISPLAY_COUNT = 3;
 }

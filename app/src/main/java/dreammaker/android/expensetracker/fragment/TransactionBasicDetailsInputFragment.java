@@ -41,6 +41,8 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
 
     private static final String KEY_PICKED_DATE = "picked_date";
 
+    private static final String KEY_HISTORY_SET = "history_set";
+
     public static final String EXTRA_TRANSACTION_HISTORY = "extra_transaction_history";
 
     @SuppressWarnings("FieldCanBeLocal")
@@ -55,6 +57,8 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
 
     private TransactionHistoryModel mHistory;
 
+    private boolean mHistorySet = false;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,10 +72,6 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
         super.onAttach(context);
         mViewModel = new ViewModelProvider(this,(ViewModelProvider.Factory) ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
                 .get(TransactionHistoryViewModel.class);
-        if (requireActivity() instanceof ActivityModelProvider) {
-            ActivityModel model = ((ActivityModelProvider) requireActivity()).getActivityModel();
-            model.addOnBackPressedCallback(this,this::onBackPressed);
-        }
     }
 
     @Nullable
@@ -80,6 +80,10 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
         mBinding = FragmentTransactionBasicDetailsInputBinding.inflate(inflater,container,false);
         if (isEditOperation()) {
             mViewModel.getTransactionById(getExtraTransactionId()).observe(getViewLifecycleOwner(),this::onTransactionHistoryFetched);
+        }
+        if (requireActivity() instanceof ActivityModelProvider) {
+            ActivityModel model = ((ActivityModelProvider) requireActivity()).getActivityModel();
+            model.addOnBackPressedCallback(getViewLifecycleOwner(),this::onBackPressed);
         }
         return mBinding.getRoot();
     }
@@ -105,6 +109,7 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
         if (null != savedInstanceState) {
             String pickedDateValue = savedInstanceState.getString(KEY_PICKED_DATE);
             pickedDate = LocalDate.parse(pickedDateValue,DateTimeFormatter.ISO_LOCAL_DATE.withLocale(Locale.ENGLISH));
+            mHistorySet = savedInstanceState.getBoolean(KEY_HISTORY_SET,false);
         }
     }
 
@@ -112,6 +117,7 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString(KEY_PICKED_DATE,pickedDate.format(DateTimeFormatter.ISO_LOCAL_DATE.withLocale(Locale.ENGLISH)));
+        outState.putBoolean(KEY_HISTORY_SET,mHistorySet);
     }
 
     private void setTitle() {
@@ -124,20 +130,28 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
             exit();
         }
         mHistory = history;
-        //noinspection ConstantConditions
-        changeTransactionWhen(history.getWhen());
-        setAmount(history.getAmount());
-        mBinding.description.setText(history.getDescription());
+        if (!mHistorySet) {
+            //noinspection ConstantConditions
+            changeTransactionWhen(history.getWhen());
+            setAmount(history.getAmount());
+            mBinding.description.setText(history.getDescription());
+            mHistorySet = true;
+        }
     }
 
     private boolean validateAmount() {
         String txtAmount = mBinding.amount.getEditableText().toString();
         if (TextUtils.isEmpty(txtAmount)) {
-            mBinding.containerAmount.setError(getString(R.string.error_no_amount));
+            mBinding.containerAmount.setError(getText(R.string.error_empty_input));
             return false;
         }
-        if (!TextUtil.isNumber(txtAmount)) {
-            mBinding.containerAmount.setError(getString(R.string.error_invalid_amount));
+        Currency amount = TextUtil.tryConvertToCurrencyOrNull(txtAmount);
+        if (null == amount) {
+            mBinding.containerAmount.setError(getText(R.string.error_invalid_amount));
+            return false;
+        }
+        if (Currency.ZERO.equals(amount)) {
+            mBinding.containerAmount.setError(getText(R.string.error_amount_zero));
             return false;
         }
         mBinding.containerAmount.setError(null);
@@ -169,12 +183,17 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
         if (!validateAmount()) {
             return;
         }
-        String txtAmount = mBinding.amount.getEditableText().toString();
-        Currency amount = Currency.valueOf(txtAmount);
+        if (isEditOperation() && !hasAnyValueChanged()) {
+            ToastUtil.showMessageShort(requireContext(),R.string.message_no_change_no_save);
+            exit();
+            return;
+        }
+        Currency amount = TextUtil.tryConvertToCurrencyOrNull(mBinding.amount.getEditableText());
         String description = mBinding.description.getEditableText().toString();
         TransactionHistoryParcelable history = new TransactionHistoryParcelable();
         history.setId(getExtraTransactionId());
         history.setWhen(pickedDate);
+        //noinspection ConstantConditions
         history.setAmount(amount);
         history.setDescription(description);
         if (isEditOperation()) {
@@ -196,7 +215,7 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
     }
 
     private boolean onBackPressed() {
-        if (!hasExtraDescription()) {
+        if (hasAnyValueChanged()) {
             DialogUtil.createMessageDialog(requireContext(),R.string.warning_not_saved,
                     R.string.label_discard,null,
                     R.string.label_exit,(di,which)->exit(),
@@ -214,6 +233,9 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
         Currency amount;
         String description;
         if (isEditOperation()) {
+            if (!mHistorySet) {
+                return false;
+            }
             when = mHistory.getWhen();
             amount = mHistory.getAmount();
             description = mHistory.getDescription();
@@ -228,7 +250,7 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
     }
 
     private void gotoNextDestination(TransactionHistoryParcelable history) {
-        Bundle args = new Bundle();
+        Bundle args = new Bundle(requireArguments());
         args.putParcelable(EXTRA_TRANSACTION_HISTORY,history);
         if (isEditOperation()) {
             navController.navigate(R.id.action_input_history_to_edit_history,args);
@@ -238,7 +260,7 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
         TransactionType type = history.getType();
         switch (type) {
             case INCOME: {
-                if (!hasExtraPayerAccountId()) {
+                if (!hasExtraPayeeAccountId()) {
                     navController.navigate(R.id.action_input_history_to_account_chooser,args);
                 }
                 else {
@@ -247,7 +269,7 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
             }
             break;
             case EXPENSE: {
-                if (!hasExtraPayeeAccountId()) {
+                if (!hasExtraPayerAccountId()) {
                     navController.navigate(R.id.action_input_history_to_account_chooser,args);
                 }
                 else {
