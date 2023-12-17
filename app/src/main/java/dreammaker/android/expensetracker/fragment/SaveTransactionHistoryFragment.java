@@ -1,17 +1,13 @@
 package dreammaker.android.expensetracker.fragment;
 
-import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
@@ -21,7 +17,9 @@ import dreammaker.android.expensetracker.database.entity.TransactionHistory;
 import dreammaker.android.expensetracker.databinding.FragmentSaveTransactionHistoryBinding;
 import dreammaker.android.expensetracker.util.Constants;
 import dreammaker.android.expensetracker.util.ToastUtil;
+import dreammaker.android.expensetracker.viewmodel.AccountViewModel;
 import dreammaker.android.expensetracker.viewmodel.DBViewModel;
+import dreammaker.android.expensetracker.viewmodel.PersonViewModel;
 import dreammaker.android.expensetracker.viewmodel.TransactionHistoryViewModel;
 
 @SuppressWarnings("unused")
@@ -31,11 +29,15 @@ public class SaveTransactionHistoryFragment extends DialogFragment {
 
     private TransactionHistoryViewModel viewModel;
 
+    private AccountViewModel mAccountVM;
+
+    private PersonViewModel mPersonVM;
+
     private NavController navController;
 
     private FragmentSaveTransactionHistoryBinding mBinding;
 
-    public SaveTransactionHistoryFragment() {}
+    public SaveTransactionHistoryFragment() {super();}
 
     private boolean isEditOperation() {
         return Constants.ACTION_UPDATE.equals(requireArguments().getString(Constants.EXTRA_ACTION));
@@ -51,15 +53,10 @@ public class SaveTransactionHistoryFragment extends DialogFragment {
         viewModel = new ViewModelProvider(this,
                 (ViewModelProvider.Factory) ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
                 .get(TransactionHistoryViewModel.class);
-    }
-
-    @NonNull
-    @Override
-    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        AlertDialog dialog = new MaterialAlertDialogBuilder(requireContext())
-                .setPositiveButton(R.string.save,(di,which)->onClickPositiveButton())
-                .create();
-        return dialog;
+        mAccountVM = new ViewModelProvider(this,(ViewModelProvider.Factory) ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
+                .get(AccountViewModel.class);
+        mPersonVM = new ViewModelProvider(this,(ViewModelProvider.Factory) ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
+                .get(PersonViewModel.class);
     }
 
     @Override
@@ -67,6 +64,7 @@ public class SaveTransactionHistoryFragment extends DialogFragment {
                              Bundle savedInstanceState) {
         mBinding = FragmentSaveTransactionHistoryBinding.inflate(inflater,container,false);
         viewModel.setCallbackIfTaskExists(TransactionHistoryViewModel.SAVE_HISTORY,getViewLifecycleOwner(),this::onHistorySaved);
+
         return mBinding.getRoot();
     }
 
@@ -84,7 +82,7 @@ public class SaveTransactionHistoryFragment extends DialogFragment {
     @Override
     public void onStart() {
         super.onStart();
-        //onSaveTransaction();
+        saveTransaction();
     }
 
     void onClickPositiveButton() {
@@ -130,6 +128,6 @@ public class SaveTransactionHistoryFragment extends DialogFragment {
 
     private void exitHistoryInput(boolean reset) {
         dismiss();
-        navController.popBackStack(R.id.input_history,true);
+        navController.popBackStack(R.id.input_history,!reset);
     }
 }

@@ -10,12 +10,17 @@ import androidx.annotation.NonNull;
 @SuppressWarnings("unused")
 public class Currency {
 
-    public static final Currency ZERO = new Currency(BigDecimal.ZERO.stripTrailingZeros());
+    public static final Currency ZERO = new Currency(BigDecimal.ZERO);
 
     BigDecimal mValue;
 
     Currency(@NonNull BigDecimal value) {
-        this.mValue = value.setScale(2, RoundingMode.DOWN);
+        if (Objects.equals(BigDecimal.ZERO, value)) {
+            this.mValue = value.setScale(0,RoundingMode.DOWN);
+        }
+        else {
+            this.mValue = value.setScale(2, RoundingMode.DOWN);
+        }
     }
 
     @NonNull

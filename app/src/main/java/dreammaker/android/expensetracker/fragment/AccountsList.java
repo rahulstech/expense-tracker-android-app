@@ -40,7 +40,7 @@ public class AccountsList extends Fragment implements OnItemClickListener {
 
     private NavController navController;
 
-    private AccountViewModel mViewModel;
+    AccountViewModel mViewModel;
 
     private LayoutBrowseSearchAddBinding mBinding;
 

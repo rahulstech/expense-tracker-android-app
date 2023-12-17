@@ -14,6 +14,8 @@ import dreammaker.android.expensetracker.database.model.AccountModel;
 @SuppressWarnings("unused")
 public class AccountViewModel extends DBViewModel {
 
+    private static final String TAG = AccountViewModel.class.getSimpleName();
+
     public static final int SAVE_ACCOUNT = 2;
 
     public static final int DELETE_ACCOUNTS = 3;

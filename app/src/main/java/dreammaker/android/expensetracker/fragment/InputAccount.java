@@ -69,8 +69,7 @@ public class InputAccount extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mBinding = InputAccountBinding.inflate(inflater,container,false);
         if (isEditOperation()) {
-            long id = getAccountId();
-            mViewModel.getAccountById(id).observe(getViewLifecycleOwner(),this::onAccountFetched);
+            mViewModel.getAccountById(getAccountId()).observe(this,this::onAccountFetched);
         }
         mViewModel.setCallbackIfTaskExists(AccountViewModel.SAVE_ACCOUNT,getViewLifecycleOwner(),this::onAccountSaveComplete);
         if (requireActivity() instanceof ActivityModelProvider) {
@@ -110,9 +109,10 @@ public class InputAccount extends Fragment {
 
     private boolean onBackPressed() {
         if (hasAnyValueChanged()) {
-            DialogUtil.createMessageDialog(requireContext(),R.string.warning_not_saved,
-                    R.string.label_discard, null,
-                    R.string.label_exit, (di,which)->exit(),
+            DialogUtil.createMessageDialog(requireContext(),getText(R.string.warning_not_saved),
+                    getText(R.string.label_discard),null,
+                    null,null,
+                    getText(R.string.label_exit),(di,which)->exit(),
                     false).show();
             return true;
         }

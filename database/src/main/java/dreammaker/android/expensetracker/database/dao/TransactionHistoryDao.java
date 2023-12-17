@@ -22,6 +22,8 @@ import dreammaker.android.expensetracker.database.type.TransactionType;
 @SuppressWarnings("unused")
 public abstract class TransactionHistoryDao {
 
+    private static final String TAG = TransactionHistoryDao.class.getSimpleName();
+
     @Transaction
     public long addTransactionHistory(TransactionHistory history) {
         long id = insert_transactionHistory(history);
@@ -260,31 +262,26 @@ public abstract class TransactionHistoryDao {
     @Query("SELECT * FROM `transaction_histories` WHERE DATE(`when`) BETWEEN DATE(:start) AND DATE(:end) AND (`payerPersonId` = :id OR `payeePersonId` = :id) ORDER BY DATE(`when`) DESC")
     public abstract LiveData<List<TransactionHistoryModel>> getAllTransactionHistoriesForPeopleBetweenLive(long id, LocalDate start, LocalDate end);
 
-
     private boolean updateAccountBalance(long accountId, @NonNull Currency change) {
-        Account account = findAccountById(accountId);
-        if (null == account) {
-            return true;
-        }
-        Currency newBalance = account.getBalance().add(change);
-        account.setBalance(newBalance);
-        return updateAccount(account) == 1;
+        return 1 == query_updateAccountBalance(accountId,change);
     }
 
     private boolean updatePersonDue(long personId, @NonNull Currency change) {
-        Person person = findPersonById(personId);
-        if (null == person) {
-            return true;
-        }
-        Currency newDue = person.getDue().add(change);
-        return updatePerson(person) == 1;
+        return 1 == query_updatePersonDue(personId,change);
     }
 
     private boolean updatePersonBorrow(long personId, @NonNull Currency change) {
-        Person person = findPersonById(personId);
-        Currency newBorrow = person.getBorrow().add(change);
-        return updatePerson(person) == 1;
+        return 1 == query_updatePersonBorrow(personId,change);
     }
+
+    @Query("UPDATE `accounts` SET `balance` = `balance` + :change WHERE `id` = :id" )
+    protected abstract int query_updateAccountBalance(long id, Currency change);
+
+    @Query("UPDATE `people` SET `due` = `due` + :change WHERE `id` = :id" )
+    protected abstract int query_updatePersonDue(long id, Currency change);
+
+    @Query("UPDATE `people` SET `borrow` = `borrow` + :change WHERE `id` = :id" )
+    protected abstract int query_updatePersonBorrow(long id, Currency change);
 
     @Query("SELECT * FROM `accounts` WHERE `id` = :id")
     protected abstract Account findAccountById(long id);

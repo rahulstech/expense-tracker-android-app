@@ -69,7 +69,6 @@ public class PersonDetailsFragment extends BaseEntityWithTransactionHistoriesFra
         mSettings = AppSettings.get(context);
         mPersonVM = new ViewModelProvider(this,(ViewModelProvider.Factory) ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
                 .get(PersonViewModel.class);
-        mPersonVM.setCallbackIfTaskExists(PersonViewModel.DELETE_PEOPLE,this,this::onPersonDeleted);
     }
 
     @Override
@@ -78,6 +77,7 @@ public class PersonDetailsFragment extends BaseEntityWithTransactionHistoriesFra
         mBinding = FragmentPersonDetailsBinding.inflate(inflater,container,false);
         mPersonVM.getPersonById(getExtraPersonId()).observe(getViewLifecycleOwner(),this::onPersonFetched);
         loadHistories(ENTITY_PEOPLE,getExtraPersonId());
+        mPersonVM.setCallbackIfTaskExists(PersonViewModel.DELETE_PEOPLE,this,this::onPersonDeleted);
         return mBinding.getRoot();
     }
 
@@ -90,6 +90,8 @@ public class PersonDetailsFragment extends BaseEntityWithTransactionHistoriesFra
         mBinding.addBorrow.setOnClickListener(v->onClickAddBorrow());
         mBinding.addPayDue.setOnClickListener(v->onClickAddPayDue());
         mBinding.addPayBorrow.setOnClickListener(v->onClickAddPayBorrow());
+        mBinding.addSendDue.setOnClickListener(v->onClickSendDue());
+        mBinding.addSendBorrow.setOnClickListener(v->onClickSendBorrow());
     }
 
     @Override
@@ -155,20 +157,50 @@ public class PersonDetailsFragment extends BaseEntityWithTransactionHistoriesFra
         Drawable photo = DrawableUtil.getPersonDefaultPhoto(person.getFirstName(),person.getLastName(),isFirstNameFirst());
         mBinding.name.setText(displayName);
         mBinding.photo.setImageDrawable(photo);
-        setPersonDue(person.getDue());
-        setPersonBorrow(person.getBorrow());
+        setPersonRealDueAndRealBorrow();
     }
 
-    private void setPersonDue(Currency due) {}
+    private Currency getRealDue() {
+        Currency due = mPerson.getDue();
+        Currency borrow = mPerson.getBorrow();
+        Currency realDue = Currency.ZERO;
+        if (!due.isNegative()) {
+            realDue = realDue.add(due);
+        }
+        if (borrow.isNegative()) {
+            realDue = realDue.add(borrow.negate());
+        }
+        return realDue;
+    }
 
-    private void setPersonBorrow(Currency borrow) {}
+    private Currency getRealBorrow() {
+        Currency due = mPerson.getDue();
+        Currency borrow = mPerson.getBorrow();
+        Currency realBorrow = Currency.ZERO;
+        if (due.isNegative()){
+            realBorrow = realBorrow.add(due);
+        }
+        if (!borrow.isNegative()) {
+            realBorrow = realBorrow.add(borrow.negate());
+        }
+        return realBorrow;
+    }
+
+    private void setPersonRealDueAndRealBorrow() {
+        Currency realDue = getRealDue();
+        Currency realBorrow = getRealBorrow();
+        mBinding.due.setText(TextUtil.prettyFormatCurrency(realDue));
+        mBinding.dueText.setText(TextUtil.currencyToText(requireContext(),realDue));
+        mBinding.borrow.setText(TextUtil.prettyFormatCurrency(realBorrow));
+        mBinding.borrowText.setText(TextUtil.currencyToText(requireContext(),realBorrow));
+    }
 
     private boolean isFirstNameFirst() {
         return AppSettings.FIRST_NAME_FIRST == mSettings.getPreferredPersonNameOrientation();
     }
 
     @Override
-    protected void onClickHistory(TransactionHistoryModel history) {
+    protected void onClickHistory(@NonNull TransactionHistoryModel history) {
         Bundle args = new Bundle();
         args.putLong(Constants.EXTRA_ID,history.getId());
         navController.navigate(R.id.action_person_details_to_history_details,args);
@@ -227,9 +259,40 @@ public class PersonDetailsFragment extends BaseEntityWithTransactionHistoriesFra
         navigateToInputTransaction(TransactionType.PAY_BORROW,false);
     }
 
+    private void onClickSendDue() {
+        Currency due = getRealDue();
+        if (due.equals(Currency.ZERO)) {
+            // TODO: show proper message
+            ToastUtil.showMessageShort(requireContext(),"");
+            return;
+        }
+        Bundle extras = new Bundle();
+        extras.putString(Constants.EXTRA_AMOUNT,due.toString());
+        navigateToInputTransaction(TransactionType.DUE_TRANSFER,true,extras);
+    }
+
+    private void onClickSendBorrow() {
+        Currency borrow = getRealBorrow();
+        if (borrow.equals(Currency.ZERO)) {
+            // TODO: show proper message
+            ToastUtil.showMessageShort(requireContext(),"");
+            return;
+        }
+        Bundle extras = new Bundle();
+        extras.putString(Constants.EXTRA_AMOUNT,borrow.toString());
+        navigateToInputTransaction(TransactionType.BORROW_TRANSFER,true,extras);
+    }
+
     private void navigateToInputTransaction(TransactionType type, boolean payer) {
+        navigateToInputTransaction(type,payer,null);
+    }
+
+    private void navigateToInputTransaction(TransactionType type, boolean payer, Bundle extras) {
         final long id = mPerson.getId();
         Bundle args = new Bundle();
+        if (null != extras) {
+            args.putAll(extras);
+        }
         args.putString(Constants.EXTRA_ACTION,Constants.ACTION_INSERT);
         args.putString(Constants.EXTRA_TRANSACTION_TYPE,type.name());
         if (payer) {

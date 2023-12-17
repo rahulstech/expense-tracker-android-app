@@ -24,35 +24,29 @@ import androidx.recyclerview.widget.RecyclerView;
 import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.adapter.SectionedTransactionHistoryAdapter;
 import dreammaker.android.expensetracker.database.model.TransactionHistoryModel;
-import dreammaker.android.expensetracker.util.Constants;
-import dreammaker.android.expensetracker.viewmodel.TransactionHistoryListFragmentViewModel;
+import dreammaker.android.expensetracker.databinding.FragmentTransactionHistoryListBinding;
+import dreammaker.android.expensetracker.viewmodel.TransactionHistoryViewModel;
 
 @SuppressWarnings("unused")
 public class TransactionHistoryListFragment extends Fragment {
 
     private static final String TAG = TransactionHistoryListFragment.class.getSimpleName();
 
-    private RecyclerView mList;
-    private FloatingActionButton btnAddHistory;
     private SectionedTransactionHistoryAdapter mTransactionsAdapter;
 
-    private TransactionHistoryListFragmentViewModel mViewModel;
+    private TransactionHistoryViewModel mViewModel;
+
     private NavController mNavController;
 
-    public TransactionHistoryListFragment() {}
+    private FragmentTransactionHistoryListBinding mBinding;
+
+    public TransactionHistoryListFragment() {super();}
 
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-
         mViewModel = new ViewModelProvider(this,(ViewModelProvider.Factory) ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
-                .get(TransactionHistoryListFragmentViewModel.class);
-
-        LocalDate start = LocalDate.MIN; // TODO: change date start
-        LocalDate end = LocalDate.MAX; // TODO: change date end
-        LiveData<List<TransactionHistoryModel>> liveData;
-
-        //liveData.observe(this, this::onTransactionHistoryListFetched);
+                .get(TransactionHistoryViewModel.class);
     }
 
     @Override
@@ -65,11 +59,7 @@ public class TransactionHistoryListFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         mNavController = Navigation.findNavController(view);
-        mList = view.findViewById(R.id.list);
-        btnAddHistory = view.findViewById(R.id.btnAddHistory);
         mTransactionsAdapter = new SectionedTransactionHistoryAdapter(requireContext());
-        mList.setAdapter(mTransactionsAdapter);
-        btnAddHistory.setOnClickListener(v->onClickAddTransaction());
     }
 
     private void onTransactionHistoryListFetched(List<TransactionHistoryModel> histories) {

@@ -69,7 +69,6 @@ public class AccountDetailsFragment extends BaseEntityWithTransactionHistoriesFr
         mSettings = AppSettings.get(context);
         mAccountVM = new ViewModelProvider(this,(ViewModelProvider.Factory) ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
                 .get(AccountViewModel.class);
-        mAccountVM.setCallbackIfTaskExists(AccountViewModel.DELETE_ACCOUNTS,this,this::onAccountDeleted);
     }
 
     @Override
@@ -77,6 +76,7 @@ public class AccountDetailsFragment extends BaseEntityWithTransactionHistoriesFr
                              Bundle savedInstanceState) {
         mBinding = FragmentAccountDetailsBinding.inflate(inflater,container,false);
         mAccountVM.getAccountById(getExtraAccountId()).observe(getViewLifecycleOwner(),this::onAccountFetched);
+        mAccountVM.setCallbackIfTaskExists(AccountViewModel.DELETE_ACCOUNTS,getViewLifecycleOwner(),this::onAccountDeleted);
         loadHistories(ENTITY_ACCOUNTS,getExtraAccountId());
         return mBinding.getRoot();
     }

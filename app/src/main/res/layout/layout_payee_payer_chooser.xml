@@ -54,30 +54,31 @@
 
     </LinearLayout>
 
+    <!-- TODO: FABs have problem with layout direction -->
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btn_next"
         android:layout_width="@dimen/fab_size_medium"
         android:layout_height="@dimen/fab_size_medium"
-        android:layout_gravity="bottom|right"
+        android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
         android:contentDescription="@string/description_button_next"
         android:src="@drawable/ic_baseline_arrow_forward_24"
         app:fabCustomSize="@dimen/fab_size_medium"
         app:tint="@color/fab_icon_tint"
-        tools:ignore="RtlHardcoded,ImageContrastCheck" />
+        tools:ignore="ImageContrastCheck" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btn_previous"
         android:layout_width="@dimen/fab_size_medium"
         android:layout_height="@dimen/fab_size_medium"
-        android:layout_gravity="bottom|left"
+        android:layout_gravity="bottom|start"
         android:layout_margin="@dimen/fab_margin"
         android:contentDescription="@string/description_button_previous"
-        android:rotation="180"
-        android:src="@drawable/ic_baseline_arrow_forward_24"
+        android:src="@drawable/ic_baseline_arrow_back_24"
         app:fabCustomSize="@dimen/fab_size_medium"
         app:tint="@color/fab_icon_tint"
-        tools:ignore="RtlHardcoded,ImageContrastCheck" />
+        tools:ignore="ImageContrastCheck" />
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -212,7 +212,6 @@
 
     <string name="label_unknown">Unknown</string>
 
-
     <string name="text_transaction_history_description_due">Amount paid on behalf of %1$s from %2$s</string>
     <string name="text_transaction_history_description_borrow">Amount borrowed from %1$s, received in %2$s</string>
     <string name="text_transaction_history_description_pay_due">Due paid by %1$s, received in %2$s</string>
@@ -222,16 +221,17 @@
     <string name="text_amount_paid">amount paid from %1$s on behalf of %2$s</string>
     <string name="text_amount_sent">amount sent from %1$s to %2$s </string>
 
-
     <string name="description_add_account">add account</string>
     <string name="label_paid_from">Paid From</string>
     <string name="label_paid_by">Paid By</string>
     <string name="label_transferred_from">Sent From</string>
-    <string name="message_debit_without_amount">Debited</string>
-    <string name="message_credit_without_amount">Credited</string>
-    <string name="message_received_in_without_amount">Received in %1$s</string>
-    <string name="message_paid_to_without_amount">Paid to %1$s</string>
-    <string name="message_transferred_to_without_amount">Sent to %1$s</string>
+    <string name="label_receive_in">Receive In</string>
+    <string name="label_pay_from">Pay From</string>
+    <string name="label_send_to">Send To</string>
+    <string name="label_send_from">Send From</string>
+    <string name="label_pay_for">Pay for</string>
+    <string name="label_pay_to">Pay to</string>
+    <string name="label_receive_from">Receive From</string>
     <string name="error_account_not_found">account not found</string>
     <string name="error_save">not saved</string>
     <string name="message_save">saved</string>
@@ -245,14 +245,7 @@
     <string name="label_transaction_history_amount_and_details">Amount and Details</string>
     <string name="description_button_next">goto next</string>
     <string name="description_button_previous">goto previous</string>
-    <string name="label_receive_in">Receive in</string>
-    <string name="label_pay_from">Pay from</string>
-    <string name="label_send_to">Send to</string>
-    <string name="label_send_from">Send from</string>
     <string name="message_selection_count">Selected %1$d</string>
-    <string name="label_pay_for">Pay for</string>
-    <string name="label_pay_to">Pay to</string>
-    <string name="label_receive_from">Receive from</string>
     <string name="description_add_transaction_history">add new transaction</string>
     <string name="label_transaction_histories">Histories</string>
     <string name="label_account_details">Account Details</string>
@@ -263,7 +256,7 @@
     <string name="label_no_account">No Account</string>
     <string name="label_no_person">No Person</string>
     <string name="label_add_due">Add Due</string>
-    <string name="label_add_pay_due">Pay Due</string>
+    <string name="label_add_pay_due">Receive Due</string>
     <string name="label_add_borrow">Add Borrow</string>
     <string name="label_add_pay_borrow">Pay Borrow</string>
     <string name="error_transaction_history_not_found">history not found</string>
@@ -285,6 +278,8 @@
     <string name="label_credited_to">Credited To</string>
     <string name="label_debited_to">Debited To</string>
     <string name="message_borrow_transfer">payable to %1$s will be paid to %2$s</string>
+    <string name="label_add_due_transfer">Send Due</string>
+    <string name="label_add_borrow_transfer">Send Borrow</string>
 
 
     <!-- TODO: Remove or change this placeholder text -->

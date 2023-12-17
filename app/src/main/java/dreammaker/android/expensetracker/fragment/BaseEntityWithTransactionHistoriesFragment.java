@@ -156,11 +156,11 @@ public abstract class BaseEntityWithTransactionHistoriesFragment extends Fragmen
     }
 
     protected void onHistoriesDeleted(DBViewModel.AsyncQueryResult result) {
+        final int selections = mChoiceModel.getCheckedCount();
         mChoiceModel.finishActionMode();
         Boolean success = (Boolean) result.getResult();
         if (null == success || !success) {
-            // TODO: show proper message
-            ToastUtil.showErrorShort(requireContext(),"");
+            ToastUtil.showErrorShort(requireContext(),getResources().getQuantityString(R.plurals.error_delete_transaction_histories,0));
             if (BuildConfig.DEBUG) {
                 Log.e(TAG,"fail to remove multiple transaction histories",result.getError());
             }

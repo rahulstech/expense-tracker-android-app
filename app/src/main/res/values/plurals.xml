@@ -18,4 +18,8 @@
         <item quantity="other">You are going to DELETE some money transfer histories PERMANENTLY.
             Once deleted the balance of the related accounts will also be rollbacked. Are you sure?</item>
     </plurals>
+    <plurals name="error_delete_transaction_histories">
+        <item quantity="one">history not deleted</item>
+        <item quantity="other">histories not deleted</item>
+    </plurals>
 </resources>

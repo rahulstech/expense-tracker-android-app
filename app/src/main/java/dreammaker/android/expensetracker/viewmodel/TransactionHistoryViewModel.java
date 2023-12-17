@@ -1,6 +1,7 @@
 package dreammaker.android.expensetracker.viewmodel;
 
 import android.app.Application;
+import android.util.Log;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -8,8 +9,10 @@ import java.util.Objects;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
+import dreammaker.android.expensetracker.BuildConfig;
 import dreammaker.android.expensetracker.database.dao.TransactionHistoryDao;
 import dreammaker.android.expensetracker.database.entity.TransactionHistory;
+import dreammaker.android.expensetracker.database.model.PersonModel;
 import dreammaker.android.expensetracker.database.model.TransactionHistoryModel;
 
 @SuppressWarnings("unused")
@@ -60,6 +63,9 @@ public class TransactionHistoryViewModel extends DBViewModel {
     @NonNull
     public LiveData<AsyncQueryResult> saveTransactionHistory(TransactionHistory history) {
         return execute(SAVE_HISTORY,()->{
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG,"saveTransactionHistory: history="+history);
+            }
             if (history.getId() > 0) {
                 if (getTransactionHistoryDao().updateTransactionHistory(history) != 1) {
                     return null;

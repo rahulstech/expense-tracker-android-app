@@ -109,7 +109,8 @@
             app:destination="@id/account_chooser"/>
         <action android:id="@+id/action_person_chooser_to_person_chooser"
             app:destination="@id/person_chooser"/>
-
+        <action android:id="@+id/action_person_chooser_to_save_history"
+            app:destination="@id/save_history"/>
     </fragment>
 
     <fragment android:id="@+id/account_details"

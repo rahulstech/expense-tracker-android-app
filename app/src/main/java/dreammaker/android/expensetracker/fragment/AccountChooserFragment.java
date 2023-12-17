@@ -72,6 +72,7 @@ public class AccountChooserFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mBinding = LayoutPayeePayerChooserBinding.inflate(inflater,container,false);
+        mViewModel.getAllAccountsWithUsageCount().observe(getViewLifecycleOwner(),this::onAccountsLoaded);
         return mBinding.getRoot();
     }
 
@@ -80,7 +81,6 @@ public class AccountChooserFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         setTitle();
         navController = Navigation.findNavController(view);
-        mViewModel.getAllAccountsWithUsageCount().observe(getViewLifecycleOwner(),this::onAccountsLoaded);
         mChoiceModelSavedState = new ViewModelProvider(this).get(ChoiceModel.SavedStateViewModel.class);
         mBinding.search.setHint(R.string.search_account);
         mBinding.search.addTextChangedListener(new TextWatcher() {
@@ -227,8 +227,23 @@ public class AccountChooserFragment extends Fragment {
         TransactionType type = history.getType();
         switch (type) {
             case DUE:
-            case BORROW: {
-                navController.navigate(R.id.action_account_chooser_to_person_chooser,args);
+            case PAY_BORROW:{
+                if (null == history.getPayeePersonId()) {
+                    navController.navigate(R.id.action_account_chooser_to_person_chooser,args);
+                }
+                else {
+                    navController.navigate(R.id.action_account_chooser_to_save_history,args);
+                }
+            }
+            break;
+            case BORROW:
+            case PAY_DUE:{
+                if (null == history.getPayerPersonId()) {
+                    navController.navigate(R.id.action_account_chooser_to_person_chooser,args);
+                }
+                else {
+                    navController.navigate(R.id.action_account_chooser_to_save_history,args);
+                }
             }
             break;
             case MONEY_TRANSFER: {

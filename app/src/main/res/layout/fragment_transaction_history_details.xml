@@ -52,17 +52,19 @@
         <com.google.android.material.divider.MaterialDivider
             android:id="@+id/divider1"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            app:dividerColor="@color/border_color"/>
 
         <TextView
             android:id="@+id/label_payee"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
             android:layout_marginLeft="16dp"
+            android:layout_marginTop="16dp"
             android:layout_marginRight="16dp"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
-            tools:text="Payee"/>
+            tools:ignore="TextContrastCheck"
+            tools:text="Payee" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -99,7 +101,8 @@
         <com.google.android.material.divider.MaterialDivider
             android:id="@+id/divider2"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            app:dividerColor="@color/border_color"/>
 
         <TextView
             android:id="@+id/label_payer"
@@ -145,7 +148,8 @@
         <com.google.android.material.divider.MaterialDivider
             android:id="@+id/divider3"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            app:dividerColor="@color/border_color"/>
 
         <TextView
             android:id="@+id/timestamp"
@@ -157,7 +161,6 @@
             android:layout_marginBottom="16dp"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
             tools:text="@tools:sample/date/ddmmyy"/>
-
 
     </LinearLayout>
 

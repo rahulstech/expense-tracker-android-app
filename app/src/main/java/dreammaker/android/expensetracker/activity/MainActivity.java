@@ -20,15 +20,6 @@ public class MainActivity extends AppCompatActivity implements ActivityModelProv
 
     private ActivityModel mActivityModel;
 
-    @Deprecated
-    public static void showQuickMessage(Activity activity, @StringRes int messageID, @StringRes int actionID) {
-        if (activity instanceof MainActivity) {
-            ((MainActivity) activity).showQuickMessage(activity.getString(messageID), activity.getString(actionID),
-                    v -> ((MainActivity) activity).dismissQuickMessage());
-        }
-    }
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,25 +86,6 @@ public class MainActivity extends AppCompatActivity implements ActivityModelProv
             startActivity(new Intent(this,SettingsActivity.class));
             return true;
         }
-        return false;
-    }
-
-    public void showQuickMessage(String message, String action, View.OnClickListener onClickAction) {
-        dismissQuickMessage();
-        //current = Snackbar.make(getWindow().getDecorView(), message, Snackbar.LENGTH_LONG);
-        //if (!Check.isEmptyString(action)) current.setAction(action, v -> {
-        //    if (null != onClickAction)
-        //        onClickAction.onClick(v);
-       // });
-        //current.show();
-    }
-
-    public boolean dismissQuickMessage() {
-        //if (Check.isNonNull(current) && current.isShown()) {
-        //    current.dismiss();
-        //    current = null;
-        //    return true;
-        //}
         return false;
     }
 

@@ -70,6 +70,7 @@ public class PersonChooserFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mBinding = LayoutPayeePayerChooserBinding.inflate(inflater,container,false);
+        mViewModel.getAllPeopleWithUsageCount().observe(getViewLifecycleOwner(),this::onPeopleLoaded);
         return mBinding.getRoot();
     }
 
@@ -78,7 +79,6 @@ public class PersonChooserFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         setTitle();
         navController = Navigation.findNavController(view);
-        mViewModel.getAllPeopleWithUsageCount().observe(getViewLifecycleOwner(),this::onPeopleLoaded);
         mChoiceModelSavedState = new ViewModelProvider(this).get(ChoiceModel.SavedStateViewModel.class);
         mBinding.search.setHint(R.string.search_person);
         mBinding.search.addTextChangedListener(new TextWatcher() {
@@ -109,8 +109,8 @@ public class PersonChooserFragment extends Fragment {
         super.onViewStateRestored(savedInstanceState);
         if (null != savedInstanceState) {
             mQuery = savedInstanceState.getString(KEY_QUERY,null);
+            mChoiceModel.onRestoreInstanceState(mChoiceModelSavedState);
         }
-        mChoiceModel.onRestoreInstanceState(mChoiceModelSavedState);
     }
 
     @Override
@@ -199,6 +199,7 @@ public class PersonChooserFragment extends Fragment {
                 }
             }
         }
+        gotoNextDestination(mHistory);
     }
 
     private boolean validatePerson() {
@@ -218,9 +219,11 @@ public class PersonChooserFragment extends Fragment {
             case PAY_BORROW: {
                 if (mHistory.getPayerAccountId() == null) {
                     // TODO: proceed to account chooser
+                    navController.navigate(R.id.action_person_chooser_to_account_chooser,args);
                 }
                 else {
                     // TODO: proceed to save
+                    navController.navigate(R.id.action_person_chooser_to_save_history,args);
                 }
             }
             break;
@@ -228,9 +231,11 @@ public class PersonChooserFragment extends Fragment {
             case PAY_DUE: {
                 if (mHistory.getPayeeAccountId() == null) {
                     // TODO: proceed to account chooser
+                    navController.navigate(R.id.action_person_chooser_to_account_chooser,args);
                 }
                 else {
                     // TODO: proceed to save
+                    navController.navigate(R.id.action_person_chooser_to_save_history,args);
                 }
             }
             break;
@@ -239,9 +244,11 @@ public class PersonChooserFragment extends Fragment {
             case BORROW_TO_DUE_TRANSFER: {
                 if (history.getPayeePersonId() != null && history.getPayerPersonId() != null) {
                     // TODO: proceed to save
+                    navController.navigate(R.id.action_person_chooser_to_save_history,args);
                 }
                 else {
                     // TODO: proceed to payer chooser
+                    navController.navigate(R.id.action_person_chooser_to_person_chooser,args);
                 }
             }
         }

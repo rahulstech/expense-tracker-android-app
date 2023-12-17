@@ -68,7 +68,7 @@ public class InputPerson extends Fragment {
         mBinding = InputPersonBinding.inflate(inflater,container,false);
         if (isEditOperation()) {
             long id = getPersonId();
-            mViewModel.getPersonById(id).observe(getViewLifecycleOwner(),this::onPersonFetched);
+            mViewModel.getPersonById(id).observe(this,this::onPersonFetched);
         }
         mViewModel.setCallbackIfTaskExists(PersonViewModel.SAVE_PERSON,getViewLifecycleOwner(),this::onPersonSaveComplete);
         if (requireActivity() instanceof ActivityModelProvider) {
@@ -109,9 +109,10 @@ public class InputPerson extends Fragment {
 
     private boolean onBackPressed() {
         if (hasAnyValueChanged()) {
-            DialogUtil.createMessageDialog(requireContext(),R.string.warning_not_saved,
-                    R.string.label_discard,null,
-                    R.string.label_exit,(di,which)->exit(),
+            DialogUtil.createMessageDialog(requireContext(),getText(R.string.warning_not_saved),
+                    getText(R.string.label_discard),null,
+                    null,null,
+                    getText(R.string.label_exit),(di,which)->exit(),
                     false).show();
             return true;
         }

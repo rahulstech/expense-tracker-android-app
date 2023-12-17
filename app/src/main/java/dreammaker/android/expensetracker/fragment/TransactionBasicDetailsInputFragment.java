@@ -163,6 +163,7 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
             LocalDate date = LocalDate.of(year, month+1,dayOfMonth);
             changeTransactionWhen(date);
         }, pickedDate.getYear(),pickedDate.getMonthValue()-1,pickedDate.getDayOfMonth());
+        dialog.getDatePicker().setMaxDate(System.currentTimeMillis());
         dialog.show();
     }
 
@@ -216,9 +217,10 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
 
     private boolean onBackPressed() {
         if (hasAnyValueChanged()) {
-            DialogUtil.createMessageDialog(requireContext(),R.string.warning_not_saved,
-                    R.string.label_discard,null,
-                    R.string.label_exit,(di,which)->exit(),
+            DialogUtil.createMessageDialog(requireContext(),getText(R.string.warning_not_saved),
+                    getText(R.string.label_discard),null,
+                    null,null,
+                    getText(R.string.label_exit),(di,which)->exit(),
                     false).show();
             return true;
         }
@@ -256,7 +258,6 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
             navController.navigate(R.id.action_input_history_to_edit_history,args);
             return;
         }
-
         TransactionType type = history.getType();
         switch (type) {
             case INCOME: {
@@ -286,7 +287,8 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
             }
             break;
             case DUE_TRANSFER:
-            case BORROW_TO_DUE_TRANSFER:{
+            case BORROW_TO_DUE_TRANSFER:
+            case BORROW_TRANSFER:{
                 navController.navigate(R.id.action_input_history_to_person_chooser,args);
             }
         }

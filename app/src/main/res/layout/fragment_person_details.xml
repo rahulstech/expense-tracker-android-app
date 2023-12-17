@@ -45,7 +45,7 @@
                         android:layout_marginStart="16dp"
                         android:layout_marginTop="16dp"
                         android:layout_marginEnd="16dp"
-                        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+                        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
                         android:textStyle="bold"
                         android:textAlignment="center"
                         app:layout_constraintTop_toBottomOf="@id/photo"
@@ -53,152 +53,247 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         tools:text="@tools:sample/full_names"/>
 
+                    <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/guideline1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        app:layout_constraintGuide_percent=".5"/>
+
+                    <!-- amount due -->
+
                     <TextView
-                        android:id="@+id/balance"
-                        android:layout_width="match_parent"
+                        android:id="@+id/label_due"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
                         android:layout_marginTop="8dp"
                         android:layout_marginEnd="16dp"
+                        android:text="@string/label_total_due"
+                        android:maxLines="2"
+                        android:ellipsize="end"
                         android:textAlignment="center"
-                        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
-                        app:layout_constraintEnd_toEndOf="parent"
+                        android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+                        app:layout_constraintEnd_toStartOf="@id/guideline1"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/name"
+                        tools:ignore="TextContrastCheck"/>
+
+                    <TextView
+                        android:id="@+id/due"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="16dp"
+                        android:maxLines="2"
+                        android:ellipsize="end"
+                        android:textAlignment="center"
+                        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                        android:textStyle="bold"
+                        app:layout_constraintEnd_toStartOf="@id/guideline1"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/label_due"
                         tools:ignore="TextContrastCheck"
                         tools:text="1547845698754645787546465.32" />
 
                     <TextView
-                        android:id="@+id/balance_text"
-                        android:layout_width="match_parent"
+                        android:id="@+id/due_text"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
                         android:layout_marginTop="8dp"
                         android:layout_marginEnd="16dp"
                         android:textAlignment="center"
-                        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                        android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
                         android:textStyle="italic"
-                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/guideline1"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/balance"
+                        app:layout_constraintTop_toBottomOf="@id/due"
                         tools:ignore="TextContrastCheck"
                         tools:text="one lac forty five thousand seven hundred seventy eight rupees and seventy five paisa only" />
+
+                    <!-- amount borrow -->
+
+                    <TextView
+                        android:id="@+id/label_borrow"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="16dp"
+                        android:text="@string/label_total_borrow"
+                        android:maxLines="2"
+                        android:ellipsize="end"
+                        android:textAlignment="center"
+                        android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="@id/guideline1"
+                        app:layout_constraintTop_toBottomOf="@id/name"
+                        tools:ignore="TextContrastCheck"/>
+
+                    <TextView
+                        android:id="@+id/borrow"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="16dp"
+                        android:maxLines="2"
+                        android:ellipsize="end"
+                        android:textAlignment="center"
+                        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                        android:textStyle="bold"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="@id/guideline1"
+                        app:layout_constraintTop_toBottomOf="@id/label_borrow"
+                        tools:ignore="TextContrastCheck"
+                        tools:text="1547845698754645787546465.32" />
+
+                    <TextView
+                        android:id="@+id/borrow_text"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="16dp"
+                        android:textAlignment="center"
+                        android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+                        android:textStyle="italic"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="@id/guideline1"
+                        app:layout_constraintTop_toBottomOf="@id/borrow"
+                        tools:ignore="TextContrastCheck"
+                        tools:text="one lac forty five thousand seven hundred seventy eight rupees and seventy five paisa only" />
+
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
             </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-            <HorizontalScrollView
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:scrollbars="none">
+                android:layout_gravity="center_horizontal"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:layout_marginTop="16dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp">
 
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingVertical="@dimen/tile_padding_medium"
-                    android:orientation="horizontal"
-                    android:gravity="center"
-                    android:layoutDirection="ltr">
+                    android:orientation="horizontal">
 
-                    <!-- TODO: change action button text and icon colors properly -->
-
-                    <!-- action add due -->
-                    <com.google.android.material.card.MaterialCardView
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/add_due"
-                        android:layout_width="wrap_content"
+                        style="@style/Widget.AppTheme.ActionButton"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="?attr/selectableItemBackground"
-                        style="@style/Widget.AppTheme.TileCard.Small">
+                        android:layout_weight="1"
+                        android:text="@string/label_add_due"
+                        android:textColor="@color/text_red"
+                        app:icon="@drawable/ic_rupee_remove"
+                        app:iconTint="@color/text_red"
+                        tools:ignore="TextContrastCheck" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:drawablePadding="4dp"
-                            android:maxLines="1"
-                            android:singleLine="true"
-                            android:text="@string/label_add_due"
-                            
-                            android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
-                            android:textColor="@color/text_green"
-                            app:drawableTint="@color/text_green"
-                            app:drawableTopCompat="@drawable/ic_baseline_currency_rupee_24" />
+                    <com.google.android.material.divider.MaterialDivider
+                        android:layout_width="1dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="0"
+                        app:dividerColor="@color/border_color"/>
 
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <!-- action add borrow -->
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/add_borrow"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="?attr/selectableItemBackground"
-                        style="@style/Widget.AppTheme.TileCard.Small">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/label_add_borrow"
-                            android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
-                            android:drawablePadding="4dp"
-                            
-                            android:maxLines="1"
-                            android:singleLine="true"
-                            app:drawableTopCompat="@drawable/ic_baseline_currency_rupee_24"
-                            app:drawableTint="@color/text_red"
-                            android:textColor="@color/text_red"/>
-
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <!-- action add pay due -->
-                    <com.google.android.material.card.MaterialCardView
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/add_pay_due"
-                        android:layout_width="wrap_content"
+                        style="@style/Widget.AppTheme.ActionButton"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="?attr/selectableItemBackground"
-                        style="@style/Widget.AppTheme.TileCard.Small">
+                        android:layout_weight="1"
+                        android:text="@string/label_add_pay_due"
+                        android:textColor="@color/text_green"
+                        app:icon="@drawable/ic_rupee_add"
+                        app:iconTint="@color/text_green"
+                        tools:ignore="TextContrastCheck" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:drawablePadding="4dp"
-                            android:maxLines="1"
-                            android:singleLine="true"
-                            android:text="@string/label_add_pay_due"
-                            
-                            android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
-                            android:textColor="@color/text_green"
-                            app:drawableTint="@color/text_green"
-                            app:drawableTopCompat="@drawable/ic_baseline_currency_rupee_24" />
+                    <com.google.android.material.divider.MaterialDivider
+                        android:layout_width="1dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="0"
+                        app:dividerColor="@color/border_color"/>
 
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <!-- action add pay borrow -->
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/add_pay_borrow"
-                        android:layout_width="wrap_content"
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/add_send_due"
+                        style="@style/Widget.AppTheme.ActionButton"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="?attr/selectableItemBackground"
-                        style="@style/Widget.AppTheme.TileCard.Small">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/label_add_pay_borrow"
-                            android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
-                            android:drawablePadding="4dp"
-                            
-                            android:maxLines="1"
-                            android:singleLine="true"
-                            app:drawableTopCompat="@drawable/ic_baseline_currency_rupee_24"
-                            app:drawableTint="@color/text_red"
-                            android:textColor="@color/text_red"/>
-
-                    </com.google.android.material.card.MaterialCardView>
-
+                        android:layout_weight="1"
+                        android:text="@string/label_add_due_transfer"
+                        android:textColor="@color/text_green"
+                        app:icon="@drawable/ic_baseline_send_24"
+                        app:iconTint="@color/text_green"
+                        tools:ignore="TextContrastCheck" />
                 </LinearLayout>
 
-            </HorizontalScrollView>
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    app:dividerColor="@color/border_color"/>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/add_borrow"
+                        style="@style/Widget.AppTheme.ActionButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/label_add_borrow"
+                        android:textColor="@color/text_green"
+                        app:icon="@drawable/ic_rupee_add"
+                        app:iconTint="@color/text_green"
+                        tools:ignore="TextContrastCheck" />
+
+                    <com.google.android.material.divider.MaterialDivider
+                        android:layout_width="1dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="0"
+                        app:dividerColor="@color/border_color"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/add_pay_borrow"
+                        style="@style/Widget.AppTheme.ActionButton"
+                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent"
+                        android:layout_weight="1"
+                        app:icon="@drawable/ic_rupee_remove"
+                        app:iconTint="@color/text_red"
+                        android:text="@string/label_add_pay_borrow"
+                        android:textColor="@color/text_red"/>
+
+                    <com.google.android.material.divider.MaterialDivider
+                        android:layout_width="1dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="0"
+                        app:dividerColor="@color/border_color"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/add_send_borrow"
+                        style="@style/Widget.AppTheme.ActionButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/label_add_borrow_transfer"
+                        android:textColor="@color/text_red"
+                        app:icon="@drawable/ic_baseline_send_24"
+                        app:iconTint="@color/text_red"
+                        tools:ignore="TextContrastCheck" />
+                </LinearLayout>
+
+            </LinearLayout>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/list"

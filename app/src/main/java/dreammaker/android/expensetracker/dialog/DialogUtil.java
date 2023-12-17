@@ -3,6 +3,7 @@ package dreammaker.android.expensetracker.dialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.text.TextUtils;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
@@ -32,8 +33,12 @@ public class DialogUtil {
                                              boolean cancelOnTouchOutside) {
         AlertDialog.Builder builder = new MaterialAlertDialogBuilder(context);
         builder.setMessage(message);
-        builder.setPositiveButton(btnPositiveText,onClickPositiveButton);
-        builder.setNegativeButton(btnNegativeText,onClickNegativeButton);
+        if (!TextUtils.isEmpty(btnPositiveText)) {
+            builder.setPositiveButton(btnPositiveText,onClickPositiveButton);
+        }
+        if (!TextUtils.isEmpty(btnNegativeText)) {
+            builder.setNegativeButton(btnNegativeText,onClickNegativeButton);
+        }
         builder.setCancelable(false);
         return builder.create();
     }
@@ -46,8 +51,15 @@ public class DialogUtil {
                                              boolean cancelOnTouchOutside) {
         AlertDialog.Builder builder = new MaterialAlertDialogBuilder(context);
         builder.setMessage(message);
-        builder.setPositiveButton(btnPositiveText,onClickPositiveButton);
-        builder.setNegativeButton(btnNegativeText,onClickNegativeButton);
+        if (!TextUtils.isEmpty(btnPositiveText)) {
+            builder.setPositiveButton(btnPositiveText,onClickPositiveButton);
+        }
+        if (!TextUtils.isEmpty(btnNegativeText)) {
+            builder.setNegativeButton(btnNegativeText,onClickNegativeButton);
+        }
+        if (!TextUtils.isEmpty(btnNeutralText)) {
+            builder.setNeutralButton(btnNeutralText,onClickNeutralButton);
+        }
         builder.setCancelable(false);
         return builder.create();
     }
