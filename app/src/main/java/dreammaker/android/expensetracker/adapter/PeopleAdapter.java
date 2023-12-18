@@ -18,7 +18,9 @@ import androidx.annotation.Nullable;
 import androidx.collection.SparseArrayCompat;
 import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.database.model.PersonModel;
+import dreammaker.android.expensetracker.database.type.Currency;
 import dreammaker.android.expensetracker.databinding.LayoutPersonListItemBinding;
+import dreammaker.android.expensetracker.drawable.CheckableDrawableWrapper;
 import dreammaker.android.expensetracker.drawable.DrawableUtil;
 import dreammaker.android.expensetracker.text.SpannableStringUtil;
 import dreammaker.android.expensetracker.text.Spans;
@@ -145,6 +147,8 @@ public class PeopleAdapter
 
         private final LayoutPersonListItemBinding mBinding;
 
+        private CheckableDrawableWrapper mWrapper;
+
         public ChildViewHolder(LayoutPersonListItemBinding binding) {
             super(binding.getRoot());
             mBinding = binding;
@@ -154,13 +158,16 @@ public class PeopleAdapter
         protected void onBindNonNull(@NonNull PersonModel item) {
             String displayName = TextUtil.getDisplayNameForPerson(item.getFirstName(),item.getLastName(),isFirstNameFirst(),getContext().getString(R.string.label_unknown));
             Drawable placeholder = DrawableUtil.getPersonDefaultPhoto(item.getFirstName(),item.getLastName(),isFirstNameFirst());
+            mWrapper = new CheckableDrawableWrapper(getContext(),placeholder);
             mBinding.name.setText(highlight(displayName,getQuery()));
-            mBinding.photo.setImageDrawable(placeholder);
-            mBinding.due.setText(item.getDue().toString());
-            mBinding.borrow.setText(item.getBorrow().toString());
+            mBinding.photo.setImageDrawable(mWrapper);
+            mBinding.due.setText(TextUtil.prettyFormatCurrency(getRealDue(item)));
+            mBinding.borrow.setText(TextUtil.prettyFormatCurrency(getRealBorrow(item)));
         }
 
-        public void setChecked(boolean checked) {}
+        public void setChecked(boolean checked) {
+            mWrapper.setChecked(checked);
+        }
 
         private CharSequence highlight(CharSequence text, CharSequence phrase) {
             if (TextUtils.isEmpty(phrase)) {
@@ -173,6 +180,32 @@ public class PeopleAdapter
             return new SpannableStringUtil()
                     .append(text,span,start,end)
                     .toSpannableString();
+        }
+
+        private Currency getRealDue(PersonModel person) {
+            Currency due = person.getDue();
+            Currency borrow = person.getBorrow();
+            Currency realDue = Currency.ZERO;
+            if (!due.isNegative()) {
+                realDue = realDue.add(due);
+            }
+            if (borrow.isNegative()) {
+                realDue = realDue.add(borrow.negate());
+            }
+            return realDue;
+        }
+
+        private Currency getRealBorrow(PersonModel person) {
+            Currency due = person.getDue();
+            Currency borrow = person.getBorrow();
+            Currency realBorrow = Currency.ZERO;
+            if (due.isNegative()){
+                realBorrow = realBorrow.add(due.negate());
+            }
+            if (!borrow.isNegative()) {
+                realBorrow = realBorrow.add(borrow);
+            }
+            return realBorrow;
         }
     }
 

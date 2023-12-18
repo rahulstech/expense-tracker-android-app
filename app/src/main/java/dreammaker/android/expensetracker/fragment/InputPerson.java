@@ -107,6 +107,32 @@ public class InputPerson extends Fragment {
         requireActivity().setTitle(title);
     }
 
+    private Currency getRealDue() {
+        Currency due = mPerson.getDue();
+        Currency borrow = mPerson.getBorrow();
+        Currency realDue = Currency.ZERO;
+        if (!due.isNegative()) {
+            realDue = realDue.add(due);
+        }
+        if (borrow.isNegative()) {
+            realDue = realDue.add(borrow.negate());
+        }
+        return realDue;
+    }
+
+    private Currency getRealBorrow() {
+        Currency due = mPerson.getDue();
+        Currency borrow = mPerson.getBorrow();
+        Currency realBorrow = Currency.ZERO;
+        if (due.isNegative()){
+            realBorrow = realBorrow.add(due.negate());
+        }
+        if (!borrow.isNegative()) {
+            realBorrow = realBorrow.add(borrow);
+        }
+        return realBorrow;
+    }
+
     private boolean onBackPressed() {
         if (hasAnyValueChanged()) {
             DialogUtil.createMessageDialog(requireContext(),getText(R.string.warning_not_saved),
@@ -217,10 +243,10 @@ public class InputPerson extends Fragment {
         if (!mPersonSet) {
             mBinding.firstName.setText(person.getFirstName());
             mBinding.lastName.setText(person.getLastName());
-            mBinding.due.setText(person.getDue().toString());
-            mBinding.borrow.setText(person.getBorrow().toString());
+            mBinding.due.setText(getRealDue().toString());
+            mBinding.borrow.setText(getRealBorrow().toString());
+            mPersonSet = true;
         }
-        mPersonSet = true;
     }
 
     private void onPersonSaveComplete(@NonNull DBViewModel.AsyncQueryResult result) {

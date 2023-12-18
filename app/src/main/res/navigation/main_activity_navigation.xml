@@ -74,8 +74,7 @@
 
     <fragment android:id="@+id/input_history"
         tools:layout="@layout/fragment_transaction_basic_details_input"
-        android:name="dreammaker.android.expensetracker.fragment.TransactionBasicDetailsInputFragment"
-        android:label="@string/label_transaction_history_amount_and_details">
+        android:name="dreammaker.android.expensetracker.fragment.TransactionBasicDetailsInputFragment">
 
         <action android:id="@+id/action_input_history_to_account_chooser"
             app:destination="@id/account_chooser"/>
@@ -128,8 +127,7 @@
 
     <fragment android:id="@+id/person_details"
         tools:layout="@layout/fragment_person_details"
-        android:name="dreammaker.android.expensetracker.fragment.PersonDetailsFragment"
-        android:label="@string/label_person_details">
+        android:name="dreammaker.android.expensetracker.fragment.PersonDetailsFragment">
 
         <action android:id="@+id/action_person_details_to_input_person"
             app:destination="@id/input_person"/>
@@ -140,7 +138,8 @@
     </fragment>
 
     <dialog android:id="@+id/save_history"
-        android:name="dreammaker.android.expensetracker.fragment.SaveTransactionHistoryFragment">
+        android:name="dreammaker.android.expensetracker.fragment.SaveTransactionHistoryFragment"
+        tools:layout="@layout/fragment_save_transaction_history">
 
         <action android:id="@+id/action_save_history_to_history_details"
             app:destination="@id/history_details"
@@ -149,7 +148,9 @@
     </dialog>
 
     <fragment android:id="@+id/history_details"
-        android:name="dreammaker.android.expensetracker.fragment.TransactionHistoryDetailsFragment">
+        android:name="dreammaker.android.expensetracker.fragment.TransactionHistoryDetailsFragment"
+        android:label="@string/label_transaction_history_details"
+        tools:layout="@layout/fragment_transaction_history_details">
 
         <action android:id="@+id/action_history_details_to_input_history"
             app:destination="@id/input_history"/>

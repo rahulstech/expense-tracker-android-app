@@ -12,7 +12,6 @@ import androidx.room.TypeConverters;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import dreammaker.android.expensetracker.database.dao.AccountDao;
 import dreammaker.android.expensetracker.database.dao.AnalyticsDao;
-import dreammaker.android.expensetracker.database.dao.PeopleDao;
 import dreammaker.android.expensetracker.database.dao.PersonDao;
 import dreammaker.android.expensetracker.database.dao.TransactionHistoryDao;
 import dreammaker.android.expensetracker.database.entity.Account;
@@ -68,14 +67,9 @@ public abstract class ExpensesDatabase extends RoomDatabase
     }
 
     @Deprecated
-    public ExpensesDao getDao() {return null;}
-
-    @Deprecated
     public ExpensesBackupDao getBackupDao() { return null; }
 
     public abstract AccountDao getAccountDao();
-
-    public abstract PeopleDao getPeopleDao();
 
     public abstract PersonDao getPersonDao();
 

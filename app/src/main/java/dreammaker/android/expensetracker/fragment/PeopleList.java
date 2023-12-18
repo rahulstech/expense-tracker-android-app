@@ -80,7 +80,6 @@ public class PeopleList extends Fragment implements OnItemClickListener, ModalCh
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        setTitle();
         navController = Navigation.findNavController(view);
         mViewModel.getAllPeople().observe(getViewLifecycleOwner(),this::onPeopleLoadingComplete);
         mChoiceModelSavedState = new ViewModelProvider(this).get(ChoiceModel.SavedStateViewModel.class);
@@ -98,6 +97,7 @@ public class PeopleList extends Fragment implements OnItemClickListener, ModalCh
             }
         });
         mBinding.add.setContentDescription(getText(R.string.description_add_person));
+        mBinding.add.setImageDrawable(ResourceUtil.getDrawable(requireContext(),R.drawable.ic_add_person));
         mBinding.add.setOnClickListener(v -> onClickAddPerson());
         mAdapter = new PeopleAdapter(requireContext());
         mBinding.list.setAdapter(mAdapter);
@@ -161,10 +161,6 @@ public class PeopleList extends Fragment implements OnItemClickListener, ModalCh
         updateActionMode(mode);
     }
 
-    private void setTitle() {
-        requireActivity().setTitle(R.string.label_people);
-    }
-
     private void updateActionMode(ActionMode mode) {
         mode.setTitle(getString(R.string.message_selection_count,mChoiceModel.getCheckedCount()));
     }
@@ -207,8 +203,7 @@ public class PeopleList extends Fragment implements OnItemClickListener, ModalCh
     private void onPeopleDeleted(DBViewModel.AsyncQueryResult result) {
         Boolean success = (Boolean) result.getResult();
         if (null == success || !success) {
-            // TODO: show proper message
-            ToastUtil.showErrorShort(requireContext(),"");
+            ToastUtil.showErrorShort(requireContext(),getResources().getQuantityString(R.plurals.error_delete_people,0));
             if (BuildConfig.DEBUG) {
                 Log.e(TAG,"fail to remove selected multiple people",result.getError());
             }

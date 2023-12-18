@@ -25,6 +25,7 @@ import dreammaker.android.expensetracker.databinding.LayoutPayeePayerChooserBind
 import dreammaker.android.expensetracker.itemdecoration.SimpleEmptyRecyclerViewDecoration;
 import dreammaker.android.expensetracker.listener.ChoiceModel;
 import dreammaker.android.expensetracker.util.ResourceUtil;
+import dreammaker.android.expensetracker.util.ToastUtil;
 import dreammaker.android.expensetracker.viewmodel.PersonViewModel;
 
 @SuppressWarnings("unused")
@@ -153,7 +154,8 @@ public class PersonChooserFragment extends Fragment {
 
     private void onPeopleLoaded(@Nullable List<PersonModel> people) {
         if (null == people) {
-            // TODO: notify and exit
+            String message = getString(R.string.no_person).toLowerCase();
+            ToastUtil.showErrorShort(requireContext(),message);
             onClickPrevious();
         }
         else {
@@ -218,11 +220,9 @@ public class PersonChooserFragment extends Fragment {
             case DUE:
             case PAY_BORROW: {
                 if (mHistory.getPayerAccountId() == null) {
-                    // TODO: proceed to account chooser
                     navController.navigate(R.id.action_person_chooser_to_account_chooser,args);
                 }
                 else {
-                    // TODO: proceed to save
                     navController.navigate(R.id.action_person_chooser_to_save_history,args);
                 }
             }
@@ -230,11 +230,9 @@ public class PersonChooserFragment extends Fragment {
             case BORROW:
             case PAY_DUE: {
                 if (mHistory.getPayeeAccountId() == null) {
-                    // TODO: proceed to account chooser
                     navController.navigate(R.id.action_person_chooser_to_account_chooser,args);
                 }
                 else {
-                    // TODO: proceed to save
                     navController.navigate(R.id.action_person_chooser_to_save_history,args);
                 }
             }
@@ -243,11 +241,9 @@ public class PersonChooserFragment extends Fragment {
             case BORROW_TRANSFER:
             case BORROW_TO_DUE_TRANSFER: {
                 if (history.getPayeePersonId() != null && history.getPayerPersonId() != null) {
-                    // TODO: proceed to save
                     navController.navigate(R.id.action_person_chooser_to_save_history,args);
                 }
                 else {
-                    // TODO: proceed to payer chooser
                     navController.navigate(R.id.action_person_chooser_to_person_chooser,args);
                 }
             }

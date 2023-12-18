@@ -116,6 +116,14 @@ public class PersonDetailsFragment extends BaseEntityWithTransactionHistoriesFra
             onClickEditPerson();
             return true;
         }
+        else if (id == R.id.group_daily) {
+            onClickShowAs(AppSettings.GROUP_DAILY);
+            return true;
+        }
+        else if (id == R.id.group_monthly) {
+            onClickShowAs(AppSettings.GROUP_MONTHLY);
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -178,10 +186,10 @@ public class PersonDetailsFragment extends BaseEntityWithTransactionHistoriesFra
         Currency borrow = mPerson.getBorrow();
         Currency realBorrow = Currency.ZERO;
         if (due.isNegative()){
-            realBorrow = realBorrow.add(due);
+            realBorrow = realBorrow.add(due.negate());
         }
         if (!borrow.isNegative()) {
-            realBorrow = realBorrow.add(borrow.negate());
+            realBorrow = realBorrow.add(borrow);
         }
         return realBorrow;
     }
@@ -228,6 +236,10 @@ public class PersonDetailsFragment extends BaseEntityWithTransactionHistoriesFra
         navController.navigate(R.id.action_person_details_to_input_person,args);
     }
 
+    private void onClickShowAs(int groupBy) {
+        changeHistoryGrouping(groupBy);
+    }
+
     private void deletePerson(final long id) {
         mPersonVM.removePeople(new long[]{id}).observe(this,this::onPersonDeleted);
     }
@@ -235,8 +247,7 @@ public class PersonDetailsFragment extends BaseEntityWithTransactionHistoriesFra
     private void onPersonDeleted(DBViewModel.AsyncQueryResult result) {
         Boolean success = (Boolean) result.getResult();
         if (null == success || !success) {
-            // TODO: show not deleted error
-            ToastUtil.showErrorShort(requireContext(),"");
+            ToastUtil.showErrorShort(requireContext(),getResources().getQuantityString(R.plurals.error_delete_people,1));
             if (BuildConfig.DEBUG) {
                 Log.e(TAG,"fail to delete person with id="+getExtraPersonId(),result.getError());
             }
@@ -262,8 +273,7 @@ public class PersonDetailsFragment extends BaseEntityWithTransactionHistoriesFra
     private void onClickSendDue() {
         Currency due = getRealDue();
         if (due.equals(Currency.ZERO)) {
-            // TODO: show proper message
-            ToastUtil.showMessageShort(requireContext(),"");
+            ToastUtil.showMessageShort(requireContext(),R.string.error_due_send_zero);
             return;
         }
         Bundle extras = new Bundle();
@@ -274,8 +284,7 @@ public class PersonDetailsFragment extends BaseEntityWithTransactionHistoriesFra
     private void onClickSendBorrow() {
         Currency borrow = getRealBorrow();
         if (borrow.equals(Currency.ZERO)) {
-            // TODO: show proper message
-            ToastUtil.showMessageShort(requireContext(),"");
+            ToastUtil.showMessageShort(requireContext(),R.string.error_borrow_send_zero);
             return;
         }
         Bundle extras = new Bundle();
@@ -305,12 +314,7 @@ public class PersonDetailsFragment extends BaseEntityWithTransactionHistoriesFra
     }
 
     private boolean isStillLoading() {
-        if (null == mPerson) {
-            // TODO: show proper message
-            ToastUtil.showMessageShort(requireContext(),"");
-            return true;
-        }
-        return false;
+        return null == mPerson;
     }
 
     private void exit() {

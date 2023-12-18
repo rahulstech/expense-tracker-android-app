@@ -2,6 +2,7 @@ package dreammaker.android.expensetracker.fragment;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,7 @@ import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import dreammaker.android.expensetracker.BuildConfig;
 import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.database.entity.TransactionHistory;
 import dreammaker.android.expensetracker.databinding.FragmentSaveTransactionHistoryBinding;
@@ -95,6 +97,9 @@ public class SaveTransactionHistoryFragment extends DialogFragment {
 
     private void saveTransaction() {
         TransactionHistory history = getTransactionHistoryParcelable();
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "saveTransaction: history="+history);
+        }
         viewModel.saveTransactionHistory(history).observe(getViewLifecycleOwner(),this::onHistorySaved);
     }
 
@@ -107,7 +112,6 @@ public class SaveTransactionHistoryFragment extends DialogFragment {
         }
         ToastUtil.showSuccessShort(requireContext(),R.string.transaction_history_save_successful);
         if (isEditOperation()) {
-            // TODO: properly not exiting
             exitHistoryInput(false);
         }
         else {

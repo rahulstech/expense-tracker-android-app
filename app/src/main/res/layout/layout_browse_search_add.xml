@@ -59,7 +59,6 @@
         app:fabCustomSize="@dimen/fab_size_medium"
         android:layout_gravity="bottom|right"
         android:layout_margin="@dimen/fab_margin"
-        android:src="@drawable/ic_add"
         app:tint="@color/fab_icon_tint"
         tools:ignore="ContentDescription,RtlHardcoded,SpeakableTextPresentCheck" />
 

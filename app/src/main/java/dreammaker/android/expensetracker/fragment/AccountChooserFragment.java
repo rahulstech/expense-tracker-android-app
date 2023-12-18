@@ -186,8 +186,8 @@ public class AccountChooserFragment extends Fragment {
 
     private void onAccountsLoaded(@Nullable List<AccountModel> accounts) {
         if (null == accounts) {
-            // TODO: notify and exit
-            ToastUtil.showErrorShort(requireContext(),"");
+            String message = getString(R.string.no_account).toLowerCase();
+            ToastUtil.showErrorShort(requireContext(),message);
             exit();
         }
         else {
@@ -210,7 +210,6 @@ public class AccountChooserFragment extends Fragment {
     }
 
     private boolean validateAccount() {
-        // TODO: hasSelection always returns false
         if (BuildConfig.DEBUG) {
             Log.d(TAG,"checked-count="+mChoiceModel.getCheckedCount());
         }

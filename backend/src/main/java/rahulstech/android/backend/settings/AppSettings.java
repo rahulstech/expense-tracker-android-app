@@ -14,6 +14,8 @@ public class AppSettings {
 
     private static final String KEY_HISTORY_MONTH = "history_month";
 
+    private static final String KEY_HISTORY_GROUPING = "history_grouping";
+
     public static final int FIRST_NAME_FIRST = 1;
 
     public static final int LAST_NAME_FIRST = 2;
@@ -23,6 +25,10 @@ public class AppSettings {
     public static final int HISTORY_MONTH_6 = 2;
 
     public static final int HISTORY_MONTH_12 = 3;
+
+    public static final int GROUP_DAILY = 1;
+
+    public static final int GROUP_MONTHLY = 2;
 
     @SuppressWarnings("FieldCanBeLocal")
     private final Context mContext;
@@ -34,7 +40,7 @@ public class AppSettings {
         mSpf = context.getSharedPreferences(SHARED_PREFERENCE_NAME,Context.MODE_PRIVATE);
     }
 
-    public static final AppSettings get(Context context) {
+    public static AppSettings get(Context context) {
         Objects.requireNonNull(context.getApplicationContext(),"context = null");
         return new AppSettings(context);
     }
@@ -53,6 +59,14 @@ public class AppSettings {
 
     public void setShowHistoriesOfMonths(int months) {
         set(KEY_HISTORY_MONTH,months);
+    }
+
+    public int getHistoryGrouping() {
+        return getInt(KEY_HISTORY_GROUPING,GROUP_DAILY);
+    }
+
+    public void setHistoryGrouping(int value) {
+        set(KEY_HISTORY_GROUPING, value);
     }
 
     private void set(String key, String value) {

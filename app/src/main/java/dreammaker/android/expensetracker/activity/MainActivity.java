@@ -1,19 +1,12 @@
 package dreammaker.android.expensetracker.activity;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.navigation.NavController;
-import androidx.navigation.fragment.NavHostFragment;
-import androidx.navigation.ui.NavigationUI;
 import dreammaker.android.expensetracker.R;
 
 public class MainActivity extends AppCompatActivity implements ActivityModelProvider {
@@ -25,18 +18,11 @@ public class MainActivity extends AppCompatActivity implements ActivityModelProv
         super.onCreate(savedInstanceState);
         mActivityModel = new ActivityModel(this);
         setContentView(R.layout.main);
-        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.nav_host_fragment_container);
-        //drawerLayout = findViewById(R.id.drawer_layout);
+        //getSupportFragmentManager()
+        //        .findFragmentById(R.id.nav_host_fragment_container);
         Toolbar toolbar = findViewById(R.id.toolbar);
-        //drawer = findViewById(R.id.drawer);
-
+        mActivityModel.setSupportToolbar(toolbar);
         setSupportActionBar(toolbar);
-        /*drawerToggle = new ActionBarDrawerToggle(this, drawerLayout,
-                toolbar, 0, 0);
-        drawerToggle.setDrawerSlideAnimationEnabled(true);
-        drawer.setNavigationItemSelectedListener(this::onClickLeftDrawerItem);*/
-        NavigationUI.setupWithNavController(toolbar,navHostFragment.getNavController());
     }
 
     @Override
@@ -55,12 +41,6 @@ public class MainActivity extends AppCompatActivity implements ActivityModelProv
 
     @Override
     public void onBackPressed() {
-        //if (!dismissQuickMessage()) {
-            //if (drawerLayout.isDrawerOpen(drawer))
-            //    drawerLayout.closeDrawer(drawer);
-            //else
-            //    super.onBackPressed();
-        //}
         if (!mActivityModel.onBackPressed()) {
             super.onBackPressed();
         }
@@ -73,20 +53,6 @@ public class MainActivity extends AppCompatActivity implements ActivityModelProv
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private boolean onClickLeftDrawerItem(MenuItem item) {
-        //drawerLayout.closeDrawer(drawer);
-        int id = item.getItemId();
-        if (R.id.backup_restore == id) {
-            startActivity(new Intent(MainActivity.this, BackupRestoreActivity.class));
-            return true;
-        }
-        else if (R.id.settings == id) {
-            startActivity(new Intent(this,SettingsActivity.class));
-            return true;
-        }
-        return false;
     }
 
     @Override

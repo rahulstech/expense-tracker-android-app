@@ -121,7 +121,12 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
     }
 
     private void setTitle() {
-        requireActivity().setTitle(R.string.label_transaction_history_amount_and_details);
+        if (isEditOperation()) {
+            requireActivity().setTitle(R.string.label_edit_transaction_history);
+        }
+        else {
+            requireActivity().setTitle(R.string.label_transaction_history_amount_and_details);
+        }
     }
 
     private void onTransactionHistoryFetched(@Nullable TransactionHistoryModel history) {

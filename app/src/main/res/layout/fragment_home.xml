@@ -1,9 +1,11 @@
 <androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawerLayout"
     android:orientation="vertical"
     android:layout_height="match_parent"
-    android:layout_width="match_parent">
+    android:layout_width="match_parent"
+    tools:context=".fragment.HomeFragment">
     
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
@@ -149,87 +151,192 @@
                 </com.google.android.material.card.MaterialCardView>
                 
                 <!-- section navigation -->
-                
+
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
+                    android:layout_gravity="center_horizontal"
                     android:gravity="center"
-                    android:layout_marginTop="24dp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
+                    android:orientation="vertical"
+                    android:layout_marginTop="36dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"
                     app:layout_constraintTop_toBottomOf="@id/container_total_due"
-                    android:layoutDirection="ltr">
-                    
-                    <!-- nav accounts -->
-                    
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/nav_accounts"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent">
+
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginVertical="@dimen/tile_margin_medium"
-                        android:background="?attr/selectableItemBackground"
-                        style="@style/Widget.AppTheme.TileCard.Small">
+                        android:orientation="horizontal">
 
-                        <TextView
-                            android:layout_width="wrap_content"
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/nav_accounts"
+                            style="@style/Widget.AppTheme.ActionButton"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:layout_weight="1"
                             android:text="@string/label_accounts"
-                            android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
-                            android:drawablePadding="4dp"
-                            android:textAllCaps="false"
-                            android:maxLines="1"
-                            android:singleLine="true"
-                            app:drawableTopCompat="@drawable/ic_account_black"/>
-                        
-                    </com.google.android.material.card.MaterialCardView>
-                    
-                    <!-- nav people -->
+                            app:icon="@drawable/ic_account_black"
+                            android:textColor="@color/secondary_text_color"
+                            app:iconTint="@color/secondary_text_color"
+                            tools:ignore="TextContrastCheck" />
 
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/nav_people"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginVertical="@dimen/tile_margin_medium"
-                        android:background="?attr/selectableItemBackground"
-                        style="@style/Widget.AppTheme.TileCard.Small">
+                        <com.google.android.material.divider.MaterialDivider
+                            android:layout_width="1dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="0"
+                            app:dividerColor="@color/border_color"/>
 
-                        <TextView
-                            android:layout_width="wrap_content"
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/nav_people"
+                            style="@style/Widget.AppTheme.ActionButton"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:layout_weight="1"
                             android:text="@string/label_people"
-                            android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
-                            android:drawablePadding="4dp"
-                            android:textAllCaps="false"
-                            android:maxLines="1"
-                            android:singleLine="true"
-                            app:drawableTopCompat="@drawable/ic_person_black"/>
+                            app:icon="@drawable/ic_person_black"
+                            android:textColor="@color/secondary_text_color"
+                            app:iconTint="@color/secondary_text_color"
+                            tools:ignore="TextContrastCheck" />
 
-                    </com.google.android.material.card.MaterialCardView>
-                    
-                    <!-- nav histories -->
+                        <com.google.android.material.divider.MaterialDivider
+                            android:layout_width="1dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="0"
+                            app:dividerColor="@color/border_color"/>
 
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/nav_histories"
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/nav_histories"
+                            style="@style/Widget.AppTheme.ActionButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/label_transaction_histories"
+                            app:icon="@drawable/ic_baseline_history_24"
+                            android:textColor="@color/secondary_text_color"
+                            app:iconTint="@color/secondary_text_color"
+                            tools:ignore="TextContrastCheck" />
+                    </LinearLayout>
+
+                    <com.google.android.material.divider.MaterialDivider
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        app:dividerColor="@color/border_color"/>
+
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginVertical="@dimen/tile_margin_medium"
-                        android:background="?attr/selectableItemBackground"
-                        style="@style/Widget.AppTheme.TileCard.Small">
+                        android:orientation="horizontal">
 
-                        <TextView
-                            android:layout_width="wrap_content"
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/add_income"
+                            style="@style/Widget.AppTheme.ActionButton"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/label_transaction_histories"
-                            android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
-                            android:drawablePadding="4dp"
-                            android:textAllCaps="false"
-                            android:maxLines="1"
-                            android:singleLine="true"
-                            app:drawableTopCompat="@drawable/ic_baseline_history_24"/>
+                            android:layout_weight="1"
+                            android:text="@string/label_add_income"
+                            app:icon="@drawable/ic_rupee_add"
+                            android:textColor="@color/secondary_text_color"
+                            app:iconTint="@color/secondary_text_color"
+                            tools:ignore="TextContrastCheck" />
 
-                    </com.google.android.material.card.MaterialCardView>
-                    
+                        <com.google.android.material.divider.MaterialDivider
+                            android:layout_width="1dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="0"
+                            app:dividerColor="@color/border_color"/>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/add_expense"
+                            style="@style/Widget.AppTheme.ActionButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/label_add_expense"
+                            app:icon="@drawable/ic_rupee_remove"
+                            android:textColor="@color/secondary_text_color"
+                            app:iconTint="@color/secondary_text_color"
+                            tools:ignore="TextContrastCheck" />
+
+                        <com.google.android.material.divider.MaterialDivider
+                            android:layout_width="1dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="0"
+                            app:dividerColor="@color/border_color"/>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/add_money_transfer"
+                            style="@style/Widget.AppTheme.ActionButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/label_money_transfer"
+                            app:icon="@drawable/ic_baseline_send_24"
+                            android:textColor="@color/secondary_text_color"
+                            app:iconTint="@color/secondary_text_color"
+                            tools:ignore="TextContrastCheck" />
+                    </LinearLayout>
+
+                    <com.google.android.material.divider.MaterialDivider
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        app:dividerColor="@color/border_color"/>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/add_due"
+                            style="@style/Widget.AppTheme.ActionButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/label_add_due"
+                            app:icon="@drawable/ic_rupee_remove"
+                            android:textColor="@color/secondary_text_color"
+                            app:iconTint="@color/secondary_text_color"
+                            tools:ignore="TextContrastCheck" />
+
+                        <com.google.android.material.divider.MaterialDivider
+                            android:layout_width="1dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="0"
+                            app:dividerColor="@color/border_color"/>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/add_pay_due"
+                            style="@style/Widget.AppTheme.ActionButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/label_add_pay_due"
+                            app:icon="@drawable/ic_rupee_add"
+                            android:textColor="@color/secondary_text_color"
+                            app:iconTint="@color/secondary_text_color"
+                            tools:ignore="TextContrastCheck" />
+
+                        <com.google.android.material.divider.MaterialDivider
+                            android:layout_width="1dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="0"
+                            app:dividerColor="@color/border_color"/>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/add_borrow"
+                            style="@style/Widget.AppTheme.ActionButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/label_add_borrow"
+                            app:icon="@drawable/ic_rupee_arrow_inward"
+                            android:textColor="@color/secondary_text_color"
+                            app:iconTint="@color/secondary_text_color"
+                            tools:ignore="TextContrastCheck" />
+                    </LinearLayout>
+
                 </LinearLayout>
                 
                 <!-- section shortcut -->
@@ -238,18 +345,6 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.core.widget.NestedScrollView>
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/add_history"
-            android:layout_width="@dimen/fab_size_medium"
-            android:layout_height="@dimen/fab_size_medium"
-            android:layout_gravity="bottom|right"
-            android:layout_margin="@dimen/fab_margin"
-            android:contentDescription="@string/description_add_transaction_history"
-            android:src="@drawable/ic_add"
-            app:fabCustomSize="@dimen/fab_size_medium"
-            app:tint="@color/fab_icon_tint"
-            tools:ignore="RtlHardcoded,ImageContrastCheck" />
         
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

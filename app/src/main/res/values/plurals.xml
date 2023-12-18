@@ -19,7 +19,15 @@
             Once deleted the balance of the related accounts will also be rollbacked. Are you sure?</item>
     </plurals>
     <plurals name="error_delete_transaction_histories">
-        <item quantity="one">history not deleted</item>
+        <item quantity="one">fail to delete history not</item>
         <item quantity="other">histories not deleted</item>
+    </plurals>
+    <plurals name="error_delete_accounts">
+        <item quantity="one">fail to delete account</item>
+        <item quantity="other">accounts not deleted</item>
+    </plurals>
+    <plurals name="error_delete_people">
+        <item quantity="one">fail to delete person</item>
+        <item quantity="other">people not deleted</item>
     </plurals>
 </resources>

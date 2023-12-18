@@ -255,6 +255,10 @@ public abstract class TransactionHistoryDao {
     public abstract LiveData<List<TransactionHistoryModel>> getAllTransactionHistoriesForDateLive(LocalDate date);
 
     @Transaction
+    @Query("SELECT * FROM `transaction_histories` WHERE DATE(`when`) BETWEEN :start AND :end ORDER BY `when` DESC")
+    public abstract LiveData<List<TransactionHistoryModel>> getAllTransactionHistoriesBetweenLive(LocalDate start,LocalDate end);
+
+    @Transaction
     @Query("SELECT * FROM `transaction_histories` WHERE DATE(`when`) BETWEEN DATE(:start) AND DATE(:end) AND (`payerAccountId` = :id OR `payeeAccountId` = :id) ORDER BY DATE(`when`) DESC")
     public abstract LiveData<List<TransactionHistoryModel>> getAllTransactionHistoriesForAccountsBetweenLive(long id, LocalDate start, LocalDate end);
 
@@ -263,25 +267,34 @@ public abstract class TransactionHistoryDao {
     public abstract LiveData<List<TransactionHistoryModel>> getAllTransactionHistoriesForPeopleBetweenLive(long id, LocalDate start, LocalDate end);
 
     private boolean updateAccountBalance(long accountId, @NonNull Currency change) {
-        return 1 == query_updateAccountBalance(accountId,change);
+        Account account = findAccountById(accountId);
+        if (null == account) {
+            return true;
+        }
+        Currency newBalance = account.getBalance().add(change);
+        account.setBalance(newBalance);
+        return updateAccount(account) == 1;
     }
 
     private boolean updatePersonDue(long personId, @NonNull Currency change) {
-        return 1 == query_updatePersonDue(personId,change);
+        Person person = findPersonById(personId);
+        if (null == person) {
+            return true;
+        }
+        Currency newDue = person.getDue().add(change);
+        person.setDue(newDue);
+        return updatePerson(person) == 1;
     }
 
     private boolean updatePersonBorrow(long personId, @NonNull Currency change) {
-        return 1 == query_updatePersonBorrow(personId,change);
+        Person person = findPersonById(personId);
+        if (person == null) {
+            return true;
+        }
+        Currency newBorrow = person.getBorrow().add(change);
+        person.setBorrow(newBorrow);
+        return updatePerson(person) == 1;
     }
-
-    @Query("UPDATE `accounts` SET `balance` = `balance` + :change WHERE `id` = :id" )
-    protected abstract int query_updateAccountBalance(long id, Currency change);
-
-    @Query("UPDATE `people` SET `due` = `due` + :change WHERE `id` = :id" )
-    protected abstract int query_updatePersonDue(long id, Currency change);
-
-    @Query("UPDATE `people` SET `borrow` = `borrow` + :change WHERE `id` = :id" )
-    protected abstract int query_updatePersonBorrow(long id, Currency change);
 
     @Query("SELECT * FROM `accounts` WHERE `id` = :id")
     protected abstract Account findAccountById(long id);

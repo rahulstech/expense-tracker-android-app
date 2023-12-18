@@ -8,7 +8,10 @@ import java.util.List;
 import java.util.Objects;
 
 import androidx.annotation.NonNull;
+import androidx.core.util.Pair;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Transformations;
 import dreammaker.android.expensetracker.BuildConfig;
 import dreammaker.android.expensetracker.database.dao.TransactionHistoryDao;
 import dreammaker.android.expensetracker.database.entity.TransactionHistory;
@@ -28,8 +31,26 @@ public class TransactionHistoryViewModel extends DBViewModel {
 
     private LiveData<TransactionHistoryModel> mTransaction;
 
+    private MutableLiveData<SourceData> mSourceDataLiveData;
+
     public TransactionHistoryViewModel(@NonNull Application application) {
         super(application);
+        mSourceDataLiveData = new MutableLiveData<>();
+        mTransactions = Transformations.switchMap(mSourceDataLiveData,(source)->{
+          int entity = source.entity;
+          LocalDate start = source.start;
+          LocalDate end = source.end;
+          long id = source.id;
+          if (entity == SourceData.ENTITY_ACCOUNT) {
+              return getTransactionHistoryDao().getAllTransactionHistoriesForAccountsBetweenLive(id,start,end);
+          }
+          else if (entity == SourceData.ENTITY_PERSON) {
+              return getTransactionHistoryDao().getAllTransactionHistoriesForPeopleBetweenLive(id,start,end);
+          }
+          else {
+              return getTransactionHistoryDao().getAllTransactionHistoriesBetweenLive(start,end);
+          }
+        });
     }
 
     private TransactionHistoryDao getTransactionHistoryDao() {
@@ -37,18 +58,34 @@ public class TransactionHistoryViewModel extends DBViewModel {
     }
 
     @NonNull
+    public LiveData<List<TransactionHistoryModel>> getTransactionsBetweenDates(@NonNull LocalDate start, @NonNull LocalDate end) {
+        SourceData source = new SourceData();
+        source.start = start;
+        source.end = end;
+        source.entity = SourceData.ENTITY_ALL;
+        mSourceDataLiveData.postValue(source);
+        return mTransactions;
+    }
+
+    @NonNull
     public LiveData<List<TransactionHistoryModel>> getTransactionsForAccountBetweenDates(long id, @NonNull LocalDate start, @NonNull LocalDate end) {
-        if (null == mTransactions) {
-            mTransactions = getTransactionHistoryDao().getAllTransactionHistoriesForAccountsBetweenLive(id,start,end);
-        }
+        SourceData source = new SourceData();
+        source.start = start;
+        source.end = end;
+        source.id = id;
+        source.entity = SourceData.ENTITY_ACCOUNT;
+        mSourceDataLiveData.postValue(source);
         return mTransactions;
     }
 
     @NonNull
     public LiveData<List<TransactionHistoryModel>> getTransactionsForPersonBetweenDates(long id, @NonNull LocalDate start, @NonNull LocalDate end) {
-        if (null == mTransactions) {
-            mTransactions = getTransactionHistoryDao().getAllTransactionHistoriesForPeopleBetweenLive(id,start,end);
-        }
+        SourceData source = new SourceData();
+        source.start = start;
+        source.end = end;
+        source.id = id;
+        source.entity = SourceData.ENTITY_PERSON;
+        mSourceDataLiveData.postValue(source);
         return mTransactions;
     }
 
@@ -92,5 +129,37 @@ public class TransactionHistoryViewModel extends DBViewModel {
             int count = getTransactionHistoryDao().removeTransactionHistories(ids);
             return ids.length == count;
         });
+    }
+
+    private static class SourceData {
+
+        public static final int ENTITY_ALL = 0;
+
+        public static final int ENTITY_ACCOUNT = 1;
+
+        public static final int ENTITY_PERSON = 2;
+
+        public LocalDate start;
+
+        public LocalDate end;
+
+        public long id;
+
+        public int entity = ENTITY_ALL;
+
+        public SourceData() {}
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof SourceData)) return false;
+            SourceData that = (SourceData) o;
+            return id == that.id && entity == that.entity && Objects.equals(start, that.start) && Objects.equals(end, that.end);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(start, end, id, entity);
+        }
     }
 }

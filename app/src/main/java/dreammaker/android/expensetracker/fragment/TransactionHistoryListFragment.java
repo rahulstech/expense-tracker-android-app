@@ -2,26 +2,18 @@ package dreammaker.android.expensetracker.fragment;
 
 import android.content.Context;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
-import java.time.LocalDate;
 import java.util.List;
 
-import androidx.lifecycle.LiveData;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
-import androidx.recyclerview.widget.RecyclerView;
-import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.adapter.SectionedTransactionHistoryAdapter;
 import dreammaker.android.expensetracker.database.model.TransactionHistoryModel;
 import dreammaker.android.expensetracker.databinding.FragmentTransactionHistoryListBinding;
@@ -50,10 +42,11 @@ public class TransactionHistoryListFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_transaction_history_list, container, false);
+        mBinding = FragmentTransactionHistoryListBinding.inflate(inflater,container,false);
+
+        return mBinding.getRoot();
     }
 
     @Override
@@ -68,9 +61,6 @@ public class TransactionHistoryListFragment extends Fragment {
 
     private void onClickAddTransaction() {
         // TODO: implement onClickAddTransaction
-        //long id = getEntityId();
-        //int entity = getEntityType();
-
         Bundle args = new Bundle();
 
     }

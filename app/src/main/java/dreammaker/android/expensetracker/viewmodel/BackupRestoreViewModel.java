@@ -4,7 +4,7 @@ import android.app.Application;
 
 import androidx.annotation.NonNull;
 
-public class BackupRestoreViewModel extends BaseViewModel {
+public class BackupRestoreViewModel extends DBViewModel {
 
     //private LiveData<List<WorkInfo>> backupWorkInfoLiveData;
     //private WorkManager workManager;

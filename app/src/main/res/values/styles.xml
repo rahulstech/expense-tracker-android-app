@@ -51,6 +51,7 @@
     </style>
 
     <style name="Widget.AppTheme.ActionButton" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:maxWidth">64dp</item>
         <item name="iconGravity">textTop</item>
         <item name="android:insetLeft">0dp</item>
         <item name="android:insetTop">0dp</item>
@@ -69,5 +70,11 @@
         <item name="android:singleLine">false</item>
     </style>
 
+    <!-- TODO: action mode background not working -->
+    <style name="AppTheme.ActionMode" parent="Widget.AppCompat.ActionMode">
+        <item name="actionModeBackground">?attr/colorPrimary</item>
+        <item name="android:actionModeBackground">?attr/colorPrimary</item>
+    </style>
 
+    <style name="AppTheme.ActionMode.Popup" parent="AppTheme.ActionBar.Popup"/>
 </resources>

@@ -93,6 +93,7 @@ public abstract class BaseEntityWithTransactionHistoriesFragment extends Fragmen
         mChoiceModel.setModalChoiceModeListener(this);
         mChoiceModel.setOnItemClickListener(this);
         mAdapter.setChoiceModel(mChoiceModel);
+        changeHistoryAdapterHeaderTypeForHistoryGrouping(mSettings.getHistoryGrouping());
         mHistoryVM.setCallbackIfTaskExists(TransactionHistoryViewModel.DELETE_HISTORIES,getViewLifecycleOwner(),this::onHistoriesDeleted);
     }
 
@@ -107,7 +108,9 @@ public abstract class BaseEntityWithTransactionHistoriesFragment extends Fragmen
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        mChoiceModel.onSaveInstanceState(mChoiceModelSavedStated);
+        if(null != mChoiceModel) {
+            mChoiceModel.onSaveInstanceState(mChoiceModelSavedStated);
+        }
     }
 
     @Override
@@ -184,7 +187,6 @@ public abstract class BaseEntityWithTransactionHistoriesFragment extends Fragmen
     }
 
     /**
-     *
      * index 0 -> date start
      * index 1 -> date end
      */
@@ -218,7 +220,28 @@ public abstract class BaseEntityWithTransactionHistoriesFragment extends Fragmen
         }
     }
 
-    private void submitHistories() {
+    protected void changeHistoryGrouping(int groupBy) {
+        final int oldGroupBy = mSettings.getHistoryGrouping();
+        if (oldGroupBy == groupBy) {
+            return;
+        }
+        mSettings.setHistoryGrouping(groupBy);
+        changeHistoryAdapterHeaderTypeForHistoryGrouping(groupBy);
+    }
+
+    protected void changeHistoryAdapterHeaderTypeForHistoryGrouping(int groupBy) {
+        int headerType;
+        if (groupBy == AppSettings.GROUP_MONTHLY) {
+            headerType = SectionedTransactionHistoryAdapter.HEADER_MONTH;
+        }
+        else {
+            headerType = SectionedTransactionHistoryAdapter.HEADER_DATE;
+        }
+        getHistoryAdapter().setHeaderType(headerType);
+        submitHistories();
+    }
+
+    protected final void submitHistories() {
         mAdapter.submitList(mHistories);
     }
 }

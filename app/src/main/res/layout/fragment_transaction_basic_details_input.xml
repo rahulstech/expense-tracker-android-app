@@ -37,7 +37,7 @@
                 app:iconSize="@dimen/text_icon_size_primary"
                 app:iconGravity="textStart"
                 android:textAppearance="@style/TextAppearance.AppCompat.Title"
-                android:textColor="@color/primary_text_color"
+                android:textColor="@color/border_color"
                 tools:text="12/12/2023"/>
 
             <com.google.android.material.textfield.TextInputLayout

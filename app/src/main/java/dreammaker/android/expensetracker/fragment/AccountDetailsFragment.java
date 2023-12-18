@@ -20,6 +20,7 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 import dreammaker.android.expensetracker.BuildConfig;
 import dreammaker.android.expensetracker.R;
+import dreammaker.android.expensetracker.adapter.SectionedTransactionHistoryAdapter;
 import dreammaker.android.expensetracker.database.model.AccountModel;
 import dreammaker.android.expensetracker.database.model.TransactionHistoryModel;
 import dreammaker.android.expensetracker.database.type.Currency;
@@ -113,6 +114,14 @@ public class AccountDetailsFragment extends BaseEntityWithTransactionHistoriesFr
             onClickEditAccount();
             return true;
         }
+        else if (id == R.id.group_daily) {
+            onClickShowAs(AppSettings.GROUP_DAILY);
+            return true;
+        }
+        else if (id == R.id.group_monthly) {
+            onClickShowAs(AppSettings.GROUP_MONTHLY);
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -192,6 +201,10 @@ public class AccountDetailsFragment extends BaseEntityWithTransactionHistoriesFr
         navController.navigate(R.id.action_account_details_to_input_account,args);
     }
 
+    private void onClickShowAs(int groupBy) {
+        changeHistoryGrouping(groupBy);
+    }
+
     private void deleteAccount(long id) {
         mAccountVM.removeAccounts(new long[]{id}).observe(this,this::onAccountDeleted);
     }
@@ -199,8 +212,7 @@ public class AccountDetailsFragment extends BaseEntityWithTransactionHistoriesFr
     private void onAccountDeleted(DBViewModel.AsyncQueryResult result) {
         Boolean success = (Boolean) result.getResult();
         if (null == success || !success ) {
-            // TODO: show the error message
-            ToastUtil.showErrorShort(requireContext(),"");
+            ToastUtil.showErrorShort(requireContext(),getResources().getQuantityString(R.plurals.error_delete_accounts,1));
             if (BuildConfig.DEBUG) {
                 Log.e(TAG,"fail to remove account with id="+getExtraAccountId(),result.getError());
             }

@@ -70,7 +70,6 @@ public class AccountsList extends Fragment implements OnItemClickListener {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        setTitle();
         navController = Navigation.findNavController(view);
         mBinding.search.setHint(R.string.search_account);
         mBinding.search.addTextChangedListener(new TextWatcher() {
@@ -86,6 +85,7 @@ public class AccountsList extends Fragment implements OnItemClickListener {
             }
         });
         mBinding.add.setContentDescription(getText(R.string.description_add_account));
+        mBinding.add.setImageDrawable(ResourceUtil.getDrawable(requireContext(),R.drawable.ic_add_person));
         mBinding.add.setOnClickListener(v->onClickAddAccount());
         mAdapter = new AccountsAdapter(requireContext());
         mBinding.list.setAdapter(mAdapter);
@@ -107,10 +107,6 @@ public class AccountsList extends Fragment implements OnItemClickListener {
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString(KEY_QUERY_STRING,mQueryString);
-    }
-
-    private void setTitle() {
-        requireActivity().setTitle(R.string.label_accounts);
     }
 
     private void submitQuery(String key) {

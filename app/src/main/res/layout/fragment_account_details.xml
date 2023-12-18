@@ -17,7 +17,7 @@
             android:orientation="vertical"
             android:gravity="fill">
 
-            <androidx.coordinatorlayout.widget.CoordinatorLayout
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
@@ -87,93 +87,64 @@
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
-            </androidx.coordinatorlayout.widget.CoordinatorLayout>
+            </FrameLayout>
 
-            <HorizontalScrollView
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:scrollbars="none">
+                android:orientation="horizontal"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="24dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp">
 
-                <LinearLayout
-                    android:layout_width="0dp"
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/add_income"
+                    style="@style/Widget.AppTheme.ActionButton"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingVertical="@dimen/tile_padding_medium"
-                    android:orientation="horizontal"
-                    android:gravity="center"
-                    android:layoutDirection="ltr">
+                    android:layout_weight="1"
+                    android:text="@string/label_add_income"
+                    android:textColor="@color/text_green"
+                    app:icon="@drawable/ic_rupee_add"
+                    app:iconTint="@color/text_green"
+                    tools:ignore="TextContrastCheck" />
 
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/add_income"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="?attr/selectableItemBackground"
-                        style="@style/Widget.AppTheme.TileCard.Small">
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0"
+                    app:dividerColor="@color/border_color"/>
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:drawablePadding="4dp"
-                            android:maxLines="1"
-                            android:singleLine="true"
-                            android:text="@string/label_add_income"
-                            android:textAllCaps="false"
-                            android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
-                            android:textColor="@color/text_green"
-                            app:drawableTint="@color/text_green"
-                            app:drawableTopCompat="@drawable/ic_rupee_add" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/add_expense"
+                    style="@style/Widget.AppTheme.ActionButton"
+                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    android:layout_weight="1"
+                    app:icon="@drawable/ic_rupee_remove"
+                    app:iconTint="@color/text_red"
+                    android:text="@string/label_add_expense"
+                    android:textColor="@color/text_red"/>
 
-                    </com.google.android.material.card.MaterialCardView>
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0"
+                    app:dividerColor="@color/border_color"/>
 
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/add_expense"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="?attr/selectableItemBackground"
-                        style="@style/Widget.AppTheme.TileCard.Small">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/label_add_expense"
-                            android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
-                            android:drawablePadding="4dp"
-                            android:textAllCaps="false"
-                            android:maxLines="1"
-                            android:singleLine="true"
-                            app:drawableTopCompat="@drawable/ic_rupee_remove"
-                            app:drawableTint="@color/text_red"
-                            android:textColor="@color/text_red"/>
-
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/add_money_transfer"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="?attr/selectableItemBackground"
-                        style="@style/Widget.AppTheme.TileCard.Small">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/label_money_transfer"
-                            android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
-                            android:drawablePadding="4dp"
-                            android:textAllCaps="false"
-                            android:maxLines="1"
-                            android:singleLine="true"
-                            app:drawableTopCompat="@drawable/ic_baseline_send_24"
-                            app:drawableTint="@color/light_blue"
-                            android:textColor="@color/light_blue"/>
-
-                    </com.google.android.material.card.MaterialCardView>
-
-                </LinearLayout>
-
-            </HorizontalScrollView>
-
-
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/add_money_transfer"
+                    style="@style/Widget.AppTheme.ActionButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/label_money_transfer"
+                    android:textColor="@color/light_blue"
+                    app:icon="@drawable/ic_baseline_send_24"
+                    app:iconTint="@color/light_blue"
+                    tools:ignore="TextContrastCheck" />
+            </LinearLayout>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/list"
@@ -181,7 +152,7 @@
                 android:layout_height="match_parent"
                 android:minHeight="320dp"
                 android:clipToPadding="false"
-                android:layout_marginTop="18dp"
+                android:layout_marginTop="16dp"
                 android:paddingBottom="81dp"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 tools:listitem="@layout/layout_transaction_history_item"

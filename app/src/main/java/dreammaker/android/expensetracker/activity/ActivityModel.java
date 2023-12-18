@@ -8,6 +8,9 @@ import java.util.Iterator;
 import java.util.Objects;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
@@ -20,11 +23,22 @@ public class ActivityModel {
 
     private final Activity mActivity;
 
+    private Toolbar mToolbar;
+
     private ArrayDeque<OnBackPressedCallback> mOnBackPressedCallbacks;
 
     public ActivityModel(Activity activity) {
         Objects.requireNonNull(activity,"null activity given");
         mActivity = activity;
+    }
+
+    public void setSupportToolbar(Toolbar toolbar) {
+        mToolbar = toolbar;
+    }
+
+    @Nullable
+    public Toolbar getSupportToolbar() {
+        return mToolbar;
     }
 
     public void addOnBackPressedCallback(LifecycleOwner owner, OnBackPressedCallback callback) {

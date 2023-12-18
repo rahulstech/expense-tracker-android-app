@@ -252,8 +252,7 @@ public class TransactionHistoryDetailsFragment extends Fragment {
     private void onHistoryDeleted(DBViewModel.AsyncQueryResult result) {
         Boolean success = (Boolean) result.getResult();
         if (null == success || !success) {
-            // TODO: show proper error message
-            ToastUtil.showErrorShort(requireContext(),"");
+            ToastUtil.showErrorShort(requireContext(),getResources().getQuantityString(R.plurals.error_delete_transaction_histories,1));
             if (BuildConfig.DEBUG) {
                 Log.e(TAG,"remove transaction history failed for id="+getExtraId(),result.getError());
             }
@@ -292,11 +291,6 @@ public class TransactionHistoryDetailsFragment extends Fragment {
     }
 
     private boolean isStillLoading() {
-        if (null == mHistory) {
-            // TODO: show proper message
-            ToastUtil.showMessageShort(requireContext(),"");
-            return true;
-        }
-        return false;
+        return null == mHistory;
     }
 }

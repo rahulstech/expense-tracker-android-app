@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.time.LocalDate;
-import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
@@ -58,7 +57,7 @@ public class SectionedTransactionHistoryAdapter
         super(context, CALLBACK);
     }
 
-    public void changeHeaderType(int type) {
+    public void setHeaderType(int type) {
         mHeaderType = type;
     }
 
@@ -122,7 +121,7 @@ public class SectionedTransactionHistoryAdapter
 
         private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("EEE, dd-MMM-yyyy");
 
-        private static final DateTimeFormatter MONTH_FORMAT = DateTimeFormatter.ofPattern("MMM yyyy");
+        private static final DateTimeFormatter MONTH_FORMAT = DateTimeFormatter.ofPattern("MMMM yyyy");
 
         private final int type;
 
@@ -158,7 +157,7 @@ public class SectionedTransactionHistoryAdapter
                 }
             }
             else {
-                Month month = (Month) data;
+                LocalDate month = (LocalDate) data;
                 return MONTH_FORMAT.format(month);
             }
         }
@@ -319,28 +318,31 @@ public class SectionedTransactionHistoryAdapter
         @NonNull
         @Override
         protected HeaderData onCreateSectionHeader(@NonNull TransactionHistoryModel item) {
+            LocalDate data = LocalDate.from(item.getWhen());
             if (mHeaderType == HEADER_DATE) {
-                LocalDate data = LocalDate.from(item.getWhen());
                 return new HeaderData(HEADER_DATE,data);
             }
             else {
-                Month data = Month.from(item.getWhen());
                 return new HeaderData(HEADER_MONTH,data);
             }
         }
 
         @Override
         protected boolean belongsToSection(@NonNull TransactionHistoryModel item, @NonNull HeaderData header) {
+            LocalDate when = item.getWhen();
             if (mHeaderType == HEADER_DATE) {
-                return item.getWhen().isEqual(header.getData());
+                return when.isEqual(header.getData());
             }
             else {
-                return item.getWhen().getMonth().equals(header.getData());
+                LocalDate month = (LocalDate) header.getData();
+                return when.getMonthValue() == month.getMonthValue()
+                        && when.getYear() == month.getYear();
             }
         }
 
         @Override
-        protected void onAfterBuildSections(@NonNull List<TransactionHistoryModel> items, @NonNull List<HeaderData> headers, @NonNull List<ListItem> listItems) {
+        protected void onAfterBuildSections(@NonNull List<TransactionHistoryModel> items, @NonNull List<HeaderData> headers,
+                                            @NonNull List<ListItem> listItems) {
             SparseArrayCompat<Object> map = prepareChoiceKeyMap(listItems);
             if (!isCancelled()) {
                 postChoiceKeyMap(map);

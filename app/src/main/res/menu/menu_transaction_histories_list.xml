@@ -1,16 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item
-        android:id="@+id/edit"
-        android:icon="@drawable/ic_baseline_edit_24"
-        android:title="@string/menu_edit"
-        app:showAsAction="ifRoom" />
     <item android:id="@+id/group_by"
         android:title="@string/label_group_transaction_histories"
         android:icon="@drawable/ic_baseline_visibility_24"
-        app:showAsAction="never">
+        app:showAsAction="ifRoom">
         <menu>
             <item
                 android:id="@+id/group_daily"
@@ -22,8 +17,4 @@
                 app:showAsAction="never" />
         </menu>
     </item>
-    <item
-        android:id="@+id/delete"
-        android:title="@string/menu_delete"
-        app:showAsAction="never"/>
 </menu>
