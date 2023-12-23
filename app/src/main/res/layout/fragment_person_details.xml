@@ -22,7 +22,6 @@
                 android:layout_height="wrap_content">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/section_account_details"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingVertical="16dp">
@@ -58,7 +57,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        app:layout_constraintGuide_begin="240dp" />
+                        app:layout_constraintGuide_percent=".5" />
 
                     <!-- amount due -->
 
@@ -193,9 +192,9 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/label_add_due"
-                        android:textColor="@color/text_red"
+                        android:textColor="@color/secondary_text_color"
                         app:icon="@drawable/ic_rupee_remove"
-                        app:iconTint="@color/text_red"
+                        app:iconTint="@color/secondary_text_color"
                         tools:ignore="TextContrastCheck" />
 
                     <com.google.android.material.divider.MaterialDivider
@@ -211,9 +210,9 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/label_add_pay_due"
-                        android:textColor="@color/text_green"
+                        android:textColor="@color/secondary_text_color"
                         app:icon="@drawable/ic_rupee_add"
-                        app:iconTint="@color/text_green"
+                        app:iconTint="@color/secondary_text_color"
                         tools:ignore="TextContrastCheck" />
 
                     <com.google.android.material.divider.MaterialDivider
@@ -229,9 +228,9 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/label_add_due_transfer"
-                        android:textColor="@color/text_green"
-                        app:icon="@drawable/ic_baseline_send_24"
-                        app:iconTint="@color/text_green"
+                        android:textColor="@color/secondary_text_color"
+                        app:icon="@drawable/ic_due_transfer"
+                        app:iconTint="@color/secondary_text_color"
                         tools:ignore="TextContrastCheck" />
                 </LinearLayout>
 
@@ -252,9 +251,9 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/label_add_borrow"
-                        android:textColor="@color/text_green"
+                        android:textColor="@color/secondary_text_color"
                         app:icon="@drawable/ic_rupee_arrow_inward"
-                        app:iconTint="@color/text_green"
+                        app:iconTint="@color/secondary_text_color"
                         tools:ignore="TextContrastCheck" />
 
                     <com.google.android.material.divider.MaterialDivider
@@ -270,9 +269,9 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/label_add_pay_borrow"
-                        android:textColor="@color/text_red"
+                        android:textColor="@color/secondary_text_color"
                         app:icon="@drawable/ic_rupee_arrow_outward"
-                        app:iconTint="@color/text_red"
+                        app:iconTint="@color/secondary_text_color"
                         tools:ignore="TextContrastCheck" />
 
                     <com.google.android.material.divider.MaterialDivider
@@ -288,20 +287,22 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/label_add_borrow_transfer"
-                        android:textColor="@color/text_red"
-                        app:icon="@drawable/ic_baseline_send_24"
-                        app:iconTint="@color/text_red"
+                        android:textColor="@color/secondary_text_color"
+                        app:icon="@drawable/ic_borrow_transfer"
+                        app:iconTint="@color/secondary_text_color"
                         tools:ignore="TextContrastCheck" />
                 </LinearLayout>
 
             </LinearLayout>
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/list"
+                android:id="@id/list"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:minHeight="320dp"
                 android:layout_marginTop="18dp"
+                android:clipToPadding="false"
+                android:paddingBottom="81dp"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 tools:listitem="@layout/layout_transaction_history_item"
                 tools:itemCount="50"/>
@@ -309,5 +310,17 @@
         </LinearLayout>
 
     </androidx.core.widget.NestedScrollView>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/filter"
+        android:layout_width="@dimen/fab_size_medium"
+        android:layout_height="@dimen/fab_size_medium"
+        android:layout_gravity="bottom|right"
+        android:layout_margin="@dimen/fab_margin"
+        android:contentDescription="@string/description_filter_transaction_history"
+        app:fabCustomSize="@dimen/fab_size_medium"
+        app:srcCompat="@drawable/ic_filter"
+        app:tint="@color/fab_icon_tint"
+        tools:ignore="RtlHardcoded,ImageContrastCheck"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -2,6 +2,7 @@ package dreammaker.android.expensetracker.util;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.util.TypedValue;
 
@@ -17,14 +18,28 @@ public class ResourceUtil {
 
     private ResourceUtil() {}
 
+    public static float dpToPixed(Resources res, float dp) {
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,dp,
+                res.getDisplayMetrics());
+    }
+
     @ColorInt
-    public static int getColor(Context context, @ColorRes int res) {
-        return ResourcesCompat.getColor(context.getResources(),res,context.getTheme());
+    public static int getColor(Context context, @ColorRes int value) {
+        return ResourcesCompat.getColor(context.getResources(),value,context.getTheme());
      }
 
      public static Drawable getDrawable(Context context, @DrawableRes int res) {
         return ResourcesCompat.getDrawable(context.getResources(),res,context.getTheme());
      }
+
+    public static Drawable getDrawable(Context context, @DrawableRes int res, float sizeDp) {
+        Drawable drawable = getDrawable(context,res);
+        if (null != drawable) {
+            int sizePx = (int) dpToPixed(context.getResources(),sizeDp);
+            drawable.setBounds(0,0,sizePx,sizePx);
+        }
+        return drawable;
+    }
 
     @ColorInt
     public static int getThemeColor(Context context, @AttrRes int attr) {
@@ -35,6 +50,12 @@ public class ResourceUtil {
     public static ColorStateList getThemeColorStateList(Context context, @AttrRes int attr) {
         TypedValue value = obtainTypedValue(context,attr);
         return ContextCompat.getColorStateList(context,value.resourceId);
+    }
+
+    public static float getDisplayMaxDimension(Resources res) {
+        float height = res.getDisplayMetrics().heightPixels;
+        float width = res.getDisplayMetrics().widthPixels;
+        return Math.max(height,width);
     }
 
     static TypedValue obtainTypedValue(Context context, @AttrRes int attr) {

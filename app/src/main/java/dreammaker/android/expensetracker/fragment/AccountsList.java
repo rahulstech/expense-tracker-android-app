@@ -85,12 +85,12 @@ public class AccountsList extends Fragment implements OnItemClickListener {
             }
         });
         mBinding.add.setContentDescription(getText(R.string.description_add_account));
-        mBinding.add.setImageDrawable(ResourceUtil.getDrawable(requireContext(),R.drawable.ic_add_person));
+        mBinding.add.setImageDrawable(ResourceUtil.getDrawable(requireContext(),R.drawable.ic_add_account));
         mBinding.add.setOnClickListener(v->onClickAddAccount());
         mAdapter = new AccountsAdapter(requireContext());
         mBinding.list.setAdapter(mAdapter);
         mBinding.list.addItemDecoration(new SimpleEmptyRecyclerViewDecoration(getText(R.string.label_no_account),
-                ResourceUtil.getDrawable(requireContext(),R.drawable.ic_account_black_72)));
+                ResourceUtil.getDrawable(requireContext(),R.drawable.ic_account_72)));
         RecyclerViewItemClickHelper mClickHelper = new RecyclerViewItemClickHelper(mBinding.list);
         mClickHelper.setOnItemClickListener(this);
     }

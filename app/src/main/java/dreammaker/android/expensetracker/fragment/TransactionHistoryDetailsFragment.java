@@ -151,7 +151,7 @@ public class TransactionHistoryDetailsFragment extends Fragment {
         }
         else if (history.getPayerPerson() != null) {
             PersonModel person = history.getPayerPerson();
-            payer = TextUtil.getDisplayNameForPerson(person.getFirstName(),person.getLastName(),true,
+            payer = TextUtil.getDisplayNameForPerson(person.getFirstName(),person.getLastName(),isFirstNameFirst(),
                     getContext().getString(R.string.label_unknown));
             payerPhoto = DrawableUtil.getPersonDefaultPhoto(person.getFirstName(),person.getLastName(),isFirstNameFirst());
         }
@@ -176,26 +176,26 @@ public class TransactionHistoryDetailsFragment extends Fragment {
             break;
             case DUE:
             case PAY_BORROW: {
-                updatePayee(R.string.label_pay_for,payee,payeePhoto);
+                updatePayee(R.string.label_paid_for,payee,payeePhoto);
                 updatePayer(R.string.label_paid_from,payer,payerPhoto);
             }
             break;
             case BORROW:
             case PAY_DUE: {
-                updatePayee(R.string.label_receive_in,payee,payeePhoto);
+                updatePayee(R.string.label_received_in,payee,payeePhoto);
                 updatePayer(R.string.label_paid_by,payer,payerPhoto);
             }
             break;
             case MONEY_TRANSFER: {
-                updatePayee(R.string.label_receive_in,payee,payeePhoto);
-                updatePayer(R.string.label_send_from,payer,payerPhoto);
+                updatePayee(R.string.label_received_in,payee,payeePhoto);
+                updatePayer(R.string.label_sent_from,payer,payerPhoto);
             }
             break;
             case DUE_TRANSFER:
             case BORROW_TO_DUE_TRANSFER:
             case BORROW_TRANSFER: {
-                updatePayee(R.string.label_send_to,payee,payeePhoto);
-                updatePayer(R.string.label_send_from,payer,payerPhoto);
+                updatePayee(R.string.label_sent_to,payee,payeePhoto);
+                updatePayer(R.string.label_sent_from,payer,payerPhoto);
             }
         }
     }

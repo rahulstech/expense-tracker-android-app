@@ -9,6 +9,10 @@ public class Constants {
 
     public static final String ACTION_UPDATE = "action_update";
 
+    public static final String ACTION_PICK = "action_pick";
+
+    public static final String ACTION_PICK_MULTIPLE = "action_pick_multiple";
+
     public static final String EXTRA_PERSON = "extra_person";
 
     public static final String EXTRA_ACCOUNT = "extra_account";

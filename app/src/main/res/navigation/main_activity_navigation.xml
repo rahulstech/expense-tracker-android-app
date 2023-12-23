@@ -70,6 +70,8 @@
             app:destination="@id/input_history"/>
         <action android:id="@+id/action_histories_to_history_details"
             app:destination="@id/history_details"/>
+        <action android:id="@+id/action_histories_to_filter_history"
+            app:destination="@id/filter_history"/>
     </fragment>
 
     <fragment android:id="@+id/input_history"
@@ -80,36 +82,32 @@
             app:destination="@id/account_chooser"/>
         <action android:id="@+id/action_input_history_to_person_chooser"
             app:destination="@id/person_chooser"/>
-        <action android:id="@+id/action_input_history_to_save_history"
-            app:destination="@id/save_history"/>
-        <action android:id="@+id/action_input_history_to_edit_history"
-            app:destination="@id/save_history"
-            app:popUpTo="@id/input_history"
-            app:popUpToInclusive="true"/>
+        <action android:id="@+id/action_input_history_to_history_details"
+            app:destination="@id/history_details"
+            app:popUpToInclusive="true"
+            app:popUpTo="@id/input_history"/>
     </fragment>
 
     <fragment android:id="@+id/account_chooser"
-        tools:layout="@layout/layout_payee_payer_chooser"
-        android:name="dreammaker.android.expensetracker.fragment.AccountChooserFragment">
+        tools:layout="@layout/layout_chooser_with_search"
+        android:name="dreammaker.android.expensetracker.fragment.AccountChooserWithSearchFragment"
+        android:label="@string/label_choose_account">
 
         <action android:id="@+id/action_account_chooser_to_account_chooser"
             app:destination="@id/account_chooser"/>
         <action android:id="@+id/action_account_chooser_to_person_chooser"
             app:destination="@id/person_chooser"/>
-        <action android:id="@+id/action_account_chooser_to_save_history"
-            app:destination="@id/save_history"/>
     </fragment>
 
     <fragment android:id="@+id/person_chooser"
-        tools:layout="@layout/layout_payee_payer_chooser"
-        android:name="dreammaker.android.expensetracker.fragment.PersonChooserFragment">
+        tools:layout="@layout/layout_chooser_with_search"
+        android:name="dreammaker.android.expensetracker.fragment.PersonChooserFragment"
+        android:label="@string/label_choose_person">
 
         <action android:id="@+id/action_person_chooser_to_account_chooser"
             app:destination="@id/account_chooser"/>
         <action android:id="@+id/action_person_chooser_to_person_chooser"
             app:destination="@id/person_chooser"/>
-        <action android:id="@+id/action_person_chooser_to_save_history"
-            app:destination="@id/save_history"/>
     </fragment>
 
     <fragment android:id="@+id/account_details"
@@ -123,6 +121,8 @@
             app:destination="@id/input_history"/>
         <action android:id="@+id/action_account_details_to_history_details"
             app:destination="@id/history_details"/>
+        <action android:id="@+id/action_account_details_to_filter_history"
+            app:destination="@id/filter_history"/>
     </fragment>
 
     <fragment android:id="@+id/person_details"
@@ -135,17 +135,9 @@
             app:destination="@id/input_history"/>
         <action android:id="@+id/action_person_details_to_history_details"
             app:destination="@id/history_details"/>
+        <action android:id="@+id/action_person_details_to_filter_history"
+            app:destination="@id/filter_history"/>
     </fragment>
-
-    <dialog android:id="@+id/save_history"
-        android:name="dreammaker.android.expensetracker.fragment.SaveTransactionHistoryFragment"
-        tools:layout="@layout/fragment_save_transaction_history">
-
-        <action android:id="@+id/action_save_history_to_history_details"
-            app:destination="@id/history_details"
-            app:popUpTo="@id/input_history"
-            app:popUpToInclusive="true"/>
-    </dialog>
 
     <fragment android:id="@+id/history_details"
         android:name="dreammaker.android.expensetracker.fragment.TransactionHistoryDetailsFragment"
@@ -154,6 +146,17 @@
 
         <action android:id="@+id/action_history_details_to_input_history"
             app:destination="@id/input_history"/>
+    </fragment>
+
+    <fragment android:id="@+id/filter_history"
+        android:name="dreammaker.android.expensetracker.fragment.FilterHistoryBottomSheet"
+        android:label="@string/label_filter_transaction_history"
+        tools:layout="@layout/fragment_filter_history_bottom_sheet">
+
+        <action android:id="@+id/action_filter_history_to_account_chooser"
+            app:destination="@id/account_chooser"/>
+        <action android:id="@+id/action_filter_history_to_person_chooser"
+            app:destination="@id/person_chooser"/>
     </fragment>
 
 </navigation>

@@ -116,14 +116,6 @@ public class PersonDetailsFragment extends BaseEntityWithTransactionHistoriesFra
             onClickEditPerson();
             return true;
         }
-        else if (id == R.id.group_daily) {
-            onClickShowAs(AppSettings.GROUP_DAILY);
-            return true;
-        }
-        else if (id == R.id.group_monthly) {
-            onClickShowAs(AppSettings.GROUP_MONTHLY);
-            return true;
-        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -234,10 +226,6 @@ public class PersonDetailsFragment extends BaseEntityWithTransactionHistoriesFra
         args.putString(Constants.EXTRA_ACTION,Constants.ACTION_UPDATE);
         args.putLong(Constants.EXTRA_ID,id);
         navController.navigate(R.id.action_person_details_to_input_person,args);
-    }
-
-    private void onClickShowAs(int groupBy) {
-        changeHistoryGrouping(groupBy);
     }
 
     private void deletePerson(final long id) {

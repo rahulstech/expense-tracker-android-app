@@ -165,8 +165,7 @@ public class AccountsAdapter
         }
     }
 
-    @SuppressLint("StaticFieldLeak")
-    private class AsyncItemBuilder extends AsyncSectionBuilder<String,AccountModel> {
+    private static class AsyncItemBuilder extends AsyncSectionBuilder<String,AccountModel> {
 
         private String mQuery;
 
@@ -205,23 +204,31 @@ public class AccountsAdapter
         }
 
         private void sort(List<AccountModel> accounts) {
-            // TODO: non letter must show end of the list, but not working
+            // extract the accounts with name stating with non letters
+            ArrayList<AccountModel> sublist = new ArrayList<>();
+            for (AccountModel account : accounts) {
+                String name = account.getName();
+                int code0 = name.codePointAt(0);
+                if (!TextUtil.isLetter(code0)) {
+                    sublist.add(account);
+                }
+            }
+            // remove the extracted sublist
+            accounts.removeAll(sublist);
+            // sort remaining list by name
             accounts.sort((left,right)->{
                 String nameLeft = left.getName();
                 String nameRight = right.getName();
-                String labelLeft = TextUtil.getDisplayLabelLetterOnly(nameLeft,TextUtil.DEFAULT_DISPLAY_LABEL_NON_LETTER);
-                String labelRight = TextUtil.getDisplayLabelLetterOnly(nameRight,TextUtil.DEFAULT_DISPLAY_LABEL_NON_LETTER);
-                boolean nonLetterLeft = !TextUtil.isLetter(labelLeft.codePointAt(0));
-                boolean nonLetterRight = !TextUtil.isLetter(labelRight.codePointAt(0));
-                if (nonLetterLeft && nonLetterRight) {
-                    return 0;
-                }
-                else if (nonLetterLeft || nonLetterRight) {
-                    int compare = nameLeft.compareTo(nameRight);
-                    return compare < 0 ? Integer.MAX_VALUE+compare : Integer.MAX_VALUE-compare;
-                }
                 return nameLeft.compareToIgnoreCase(nameRight);
             });
+            // sort the extracted sublist by name
+            sublist.sort((left,right)->{
+                String nameLeft = left.getName();
+                String nameRight = right.getName();
+                return nameLeft.compareToIgnoreCase(nameRight);
+            });
+            // append the sublist
+            accounts.addAll(sublist);
         }
 
         @NonNull

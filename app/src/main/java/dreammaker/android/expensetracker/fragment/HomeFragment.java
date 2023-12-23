@@ -1,26 +1,20 @@
 package dreammaker.android.expensetracker.fragment;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
-import androidx.navigation.ui.NavigationUI;
 import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.activity.ActivityModel;
 import dreammaker.android.expensetracker.activity.ActivityModelProvider;
-import dreammaker.android.expensetracker.activity.BackupRestoreActivity;
-import dreammaker.android.expensetracker.activity.SettingsActivity;
 import dreammaker.android.expensetracker.database.type.Currency;
 import dreammaker.android.expensetracker.database.type.TransactionType;
 import dreammaker.android.expensetracker.database.view.AssetLiabilitySummary;
@@ -40,6 +34,7 @@ public class HomeFragment extends Fragment {
 
     private FragmentHomeBinding mBinding;
 
+    @SuppressWarnings("FieldCanBeLocal")
     private ActivityModel mActivityModel;
 
     public HomeFragment() {super();}
@@ -71,17 +66,10 @@ public class HomeFragment extends Fragment {
         mBinding.navHistories.setOnClickListener(v -> onClickHistories());
         mBinding.addIncome.setOnClickListener(v->onClickAddIncome());
         mBinding.addExpense.setOnClickListener(v->onClickAddExpense());
-        mBinding.addMoneyTransfer.setOnClickListener(v->onClickAddHistory());
+        mBinding.addMoneyTransfer.setOnClickListener(v-> onClickMoneyTransfer());
         mBinding.addDue.setOnClickListener(v->onClickAddDue());
         mBinding.addPayDue.setOnClickListener(v->onClickAddPayDue());
         mBinding.addBorrow.setOnClickListener(v->onClickAddBorrow());
-
-        ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle(requireActivity(), mBinding.drawerLayout,
-                mActivityModel.getSupportToolbar(), 0, 0);
-        drawerToggle.setDrawerSlideAnimationEnabled(true);
-        mBinding.drawer.setNavigationItemSelectedListener(this::onClickLeftDrawerItem);
-        //noinspection ConstantConditions
-        NavigationUI.setupWithNavController(mActivityModel.getSupportToolbar(),navController,mBinding.drawerLayout);
     }
 
     private void setTitle() {
@@ -89,24 +77,6 @@ public class HomeFragment extends Fragment {
     }
 
     private boolean onBackPressed() {
-        if (mBinding.drawerLayout.isDrawerOpen(mBinding.drawer)) {
-            mBinding.drawerLayout.closeDrawer(mBinding.drawer);
-            return true;
-        }
-        return false;
-    }
-
-    private boolean onClickLeftDrawerItem(MenuItem item) {
-        mBinding.drawerLayout.closeDrawer(mBinding.drawer);
-        int id = item.getItemId();
-        if (R.id.backup_restore == id) {
-            //startActivity(new Intent(requireContext(), BackupRestoreActivity.class));
-            return true;
-        }
-        else if (R.id.settings == id) {
-            //startActivity(new Intent(requireContext(), SettingsActivity.class));
-            return true;
-        }
         return false;
     }
 
@@ -122,7 +92,7 @@ public class HomeFragment extends Fragment {
         navController.navigate(R.id.action_home_to_histories);
     }
 
-    private void onClickAddHistory() {
+    private void onClickMoneyTransfer() {
         navigateToInputTransaction(TransactionType.MONEY_TRANSFER);
     }
 

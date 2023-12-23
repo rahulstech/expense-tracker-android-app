@@ -105,9 +105,9 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/label_add_income"
-                    android:textColor="@color/text_green"
-                    app:icon="@drawable/ic_rupee_add"
-                    app:iconTint="@color/text_green"
+                    android:textColor="@color/secondary_text_color"
+                    app:icon="@drawable/ic_baseline_arrow_inward_24"
+                    app:iconTint="@color/secondary_text_color"
                     tools:ignore="TextContrastCheck" />
 
                 <com.google.android.material.divider.MaterialDivider
@@ -119,13 +119,15 @@
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/add_expense"
                     style="@style/Widget.AppTheme.ActionButton"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_width="match_parent"
+                    android:maxWidth="128dp"
                     android:layout_weight="1"
-                    app:icon="@drawable/ic_rupee_remove"
-                    app:iconTint="@color/text_red"
                     android:text="@string/label_add_expense"
-                    android:textColor="@color/text_red"/>
+                    android:textColor="@color/secondary_text_color"
+                    app:icon="@drawable/ic_baseline_arrow_outward_24"
+                    app:iconTint="@color/secondary_text_color"
+                    tools:ignore="TextContrastCheck,TextContrastCheck" />
 
                 <com.google.android.material.divider.MaterialDivider
                     android:layout_width="1dp"
@@ -140,14 +142,14 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/label_money_transfer"
-                    android:textColor="@color/light_blue"
+                    android:textColor="@color/secondary_text_color"
                     app:icon="@drawable/ic_baseline_send_24"
-                    app:iconTint="@color/light_blue"
+                    app:iconTint="@color/secondary_text_color"
                     tools:ignore="TextContrastCheck" />
             </LinearLayout>
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/list"
+                android:id="@id/list"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:minHeight="320dp"
@@ -161,5 +163,17 @@
         </LinearLayout>
 
     </androidx.core.widget.NestedScrollView>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/filter"
+        android:layout_width="@dimen/fab_size_medium"
+        android:layout_height="@dimen/fab_size_medium"
+        android:layout_gravity="bottom|right"
+        android:layout_margin="@dimen/fab_margin"
+        android:contentDescription="@string/description_filter_transaction_history"
+        app:fabCustomSize="@dimen/fab_size_medium"
+        app:srcCompat="@drawable/ic_filter"
+        app:tint="@color/fab_icon_tint"
+        tools:ignore="RtlHardcoded,ImageContrastCheck"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

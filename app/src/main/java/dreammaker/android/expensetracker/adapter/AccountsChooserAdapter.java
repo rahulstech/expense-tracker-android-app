@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.database.model.AccountModel;
 import dreammaker.android.expensetracker.databinding.LayoutAccountListItemBinding;
+import dreammaker.android.expensetracker.drawable.CheckableDrawableWrapper;
 import dreammaker.android.expensetracker.drawable.DrawableUtil;
 import dreammaker.android.expensetracker.text.SpannableStringUtil;
 import dreammaker.android.expensetracker.text.Spans;
@@ -161,6 +162,8 @@ public class AccountsChooserAdapter
 
         private final LayoutAccountListItemBinding mBinding;
 
+        private CheckableDrawableWrapper mWrapper;
+
         public SectionItemViewHolder(LayoutAccountListItemBinding binding) {
             super(binding.getRoot());
             mBinding = binding;
@@ -170,13 +173,14 @@ public class AccountsChooserAdapter
         protected void onBindNonNull(@NonNull AccountModel item) {
             String name = item.getName();
             Drawable logo = getDefaultAccountLogo(item);
-            mBinding.logo.setImageDrawable(logo);
+            mWrapper = new CheckableDrawableWrapper(getContext(),logo);
+            mBinding.logo.setImageDrawable(mWrapper);
             mBinding.name.setText(highlight(name,getQuery()));
             mBinding.balance.setText(item.getBalance().toString());
         }
 
         public void setChecked(boolean checked) {
-
+            mWrapper.setChecked(checked);
         }
 
         private Drawable getDefaultAccountLogo(AccountModel account) {

@@ -66,6 +66,6 @@ public class ToastUtil {
     }
 
     private static void show(Context context, CharSequence text, int duration, int type) {
-        Toast.makeText(context, text, duration).show();
+        Toast.makeText(context,text,duration).show();
     }
 }

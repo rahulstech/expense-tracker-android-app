@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:end="6dp"
+        android:end="8dp"
         android:drawable="@drawable/ic_baseline_currency_rupee_24"/>
-    <item android:drawable="@drawable/ic_baseline_arrow_inward_24"
-        android:height="12dp"
-        android:width="12dp"
-        android:top="2dp"
-        android:end="2dp"
-        android:gravity="top|end"/>
+    <item  android:height="16dp"
+        android:width="16dp"
+        android:gravity="center_vertical|end">
+        <rotate android:drawable="@drawable/ic_baseline_arrow_forward_24"
+            android:fromDegrees="180"/>
+    </item>
 </layer-list>

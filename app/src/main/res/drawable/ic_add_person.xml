@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@drawable/ic_person_black"
-        android:end="4dp"/>
+    <item android:drawable="@drawable/ic_person_24"
+        android:right="6dp"/>
     <item android:drawable="@drawable/ic_add"
-        android:height="12dp"
-        android:width="12dp"
-        android:top="2dp"
-        android:gravity="center_vertical|end" />
+        android:height="16dp"
+        android:width="16dp"
+        android:gravity="center_vertical|right" />
 </layer-list>

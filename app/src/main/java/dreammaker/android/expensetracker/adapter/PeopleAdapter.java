@@ -256,19 +256,54 @@ public class PeopleAdapter
         }
 
         private void sort(List<PersonModel> people) {
-            // TODO: properly handle sorting
+            ArrayList<PersonModel> sublist = new ArrayList<>();
+            for (PersonModel person : people) {
+                String displayName = TextUtil.getDisplayNameForPerson(person.getFirstName(),person.getLastName(),mFirstNameFirst,null);
+                if (null == displayName) {
+                    sublist.add(person);
+                    continue;
+                }
+                int code0 = displayName.codePointAt(0);
+                if (!TextUtil.isLetter(code0)) {
+                    sublist.add(person);
+                }
+            }
+
+            people.removeAll(sublist);
+
             people.sort((left,right)->{
                 String displayNameLeft = TextUtil.getDisplayNameForPerson(left.getFirstName(),left.getLastName(),mFirstNameFirst,null);
                 String displayNameRight = TextUtil.getDisplayNameForPerson(right.getFirstName(),right.getLastName(),mFirstNameFirst,null);
-
                 return displayNameLeft.compareToIgnoreCase(displayNameRight);
             });
+
+            sublist.sort((left,right)->{
+                String displayNameLeft = TextUtil.getDisplayNameForPerson(left.getFirstName(),left.getLastName(),mFirstNameFirst,null);
+                String displayNameRight = TextUtil.getDisplayNameForPerson(right.getFirstName(),right.getLastName(),mFirstNameFirst,null);
+                boolean emptyLeft = TextUtils.isEmpty(displayNameLeft);
+                boolean emptyRight = TextUtils.isEmpty(displayNameRight);
+                if (emptyLeft && emptyRight) {
+                    return 0;
+                }
+                else if (emptyLeft || emptyRight) {
+                    return -1;
+                }
+                else {
+                    return displayNameLeft.compareToIgnoreCase(displayNameRight);
+                }
+            });
+
+            people.addAll(sublist);
         }
 
         @NonNull
         @Override
         protected String onCreateSectionHeader(@NonNull PersonModel item) {
             final String label = TextUtil.getDisplayLabelForPerson(item.getFirstName(),item.getLastName(),mFirstNameFirst);
+            int code0 = label.codePointAt(0);
+            if (!TextUtil.isLetter(code0)) {
+                return TextUtil.DEFAULT_DISPLAY_LABEL_NON_LETTER;
+            }
             return label.substring(0,1);
         }
 

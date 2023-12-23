@@ -61,6 +61,14 @@ public class AccountParcelable extends Account implements Parcelable {
     @Override
     public int describeContents() {return 0;}
 
+    public AccountModel asAccountModel() {
+        AccountModel model = new AccountModel();
+        model.setId(getId());
+        model.setBalance(getBalance());
+        model.setName(getName());
+        return model;
+    }
+
     public static final Creator<AccountParcelable> CREATOR = new Creator<AccountParcelable>() {
         @Override
         public AccountParcelable createFromParcel(Parcel in) {

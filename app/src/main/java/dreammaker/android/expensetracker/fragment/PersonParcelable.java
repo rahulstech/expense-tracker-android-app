@@ -83,6 +83,16 @@ public class PersonParcelable extends Person implements Parcelable {
     @Override
     public int describeContents() {return 0;}
 
+    public PersonModel asPersonModel() {
+        PersonModel model = new PersonModel();
+        model.setId(getId());
+        model.setFirstName(getFirstName());
+        model.setLastName(getLastName());
+        model.setDue(getDue());
+        model.setBorrow(getBorrow());
+        return model;
+    }
+
     public static final Creator<PersonParcelable> CREATOR = new Creator<PersonParcelable>() {
         @Override
         public PersonParcelable createFromParcel(Parcel in) {

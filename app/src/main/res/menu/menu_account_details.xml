@@ -7,23 +7,7 @@
         android:icon="@drawable/ic_baseline_edit_24"
         android:title="@string/menu_edit"
         app:showAsAction="ifRoom" />
-    <item android:id="@+id/group_by"
-        android:title="@string/label_group_transaction_histories"
-        android:icon="@drawable/ic_baseline_visibility_24"
-        app:showAsAction="never">
-        <menu>
-            <group android:checkableBehavior="single">
-                <item
-                    android:id="@+id/group_daily"
-                    android:title="@string/label_group_transaction_histories_daily"
-                    app:showAsAction="never" />
-                <item
-                    android:id="@+id/group_monthly"
-                    android:title="@string/label_group_transaction_histories_monthly"
-                    app:showAsAction="never" />
-            </group>
-        </menu>
-    </item>
+
     <item
         android:id="@+id/delete"
         android:title="@string/menu_delete"

@@ -1,361 +1,342 @@
-<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/drawerLayout"
-    android:orientation="vertical"
-    android:layout_height="match_parent"
     android:layout_width="match_parent"
-    tools:context=".fragment.HomeFragment">
-    
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
+    android:layout_height="match_parent">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 
-        <androidx.core.widget.NestedScrollView 
-            android:layout_height="wrap_content"
+        <!-- TODO: redesign this layout -->
+
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:clipToPadding="false"
-            android:paddingBottom="81dp"
-            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+            android:layout_height="wrap_content">
 
-            <!-- TODO: redesign this layout -->
+            <!-- section asset liability -->
 
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/container_total_balance"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                
-                <!-- section asset liability -->
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:contentPadding="@dimen/tile_padding_small"
+                style="@style/Widget.AppTheme.TileCard.Large">
 
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/container_total_balance"
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:contentPadding="@dimen/tile_padding_small"
-                    style="@style/Widget.AppTheme.TileCard.Large">
+                    android:orientation="vertical"
+                    android:gravity="center_horizontal">
 
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:id="@+id/label_total_asset"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:gravity="center_horizontal">
+                        android:text="@string/label_total_asset"
+                        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                        android:textStyle="bold"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"/>
 
-                        <TextView
-                            android:id="@+id/label_total_asset"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/label_total_asset"
-                            android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-                            android:textStyle="bold"
-                            app:layout_constraintTop_toTopOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"/>
+                    <TextView
+                        android:id="@+id/total_asset"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/tile_margin_small"
+                        android:layout_marginEnd="@dimen/tile_padding_small"
+                        android:textAlignment="center"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                        android:textColor="@color/text_green"
+                        android:textStyle="bold"
+                        tools:text="333333333333333333333333333333333333333.56"
+                        app:layout_constraintTop_toBottomOf="@id/label_total_asset"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/asset_more"/>
 
-                        <TextView
-                            android:id="@+id/total_asset"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/tile_margin_small"
-                            android:layout_marginEnd="@dimen/tile_padding_small"
-                            android:textAlignment="center"
-                            android:textAppearance="@style/TextAppearance.AppCompat.Title"
-                            android:textColor="@color/text_green"
-                            android:textStyle="bold"
-                            tools:text="333333333333333333333333333333333333333.56"
-                            app:layout_constraintTop_toBottomOf="@id/label_total_asset"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintEnd_toStartOf="@id/asset_more"/>
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/asset_more"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="@dimen/tile_icon_size_medium"
+                        android:layout_height="@dimen/tile_icon_size_medium"
+                        android:layout_marginTop="@dimen/tile_margin_small"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        android:checkable="true"
+                        app:icon="@drawable/ic_baseline_keyboard_arrow_down_24"
+                        app:iconGravity="textStart"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/label_total_asset"
+                        app:shapeAppearance="@style/ShapeAppearance.AppTheme.RoundedImage"
+                        tools:ignore="TouchTargetSizeCheck,DuplicateSpeakableTextCheck" />
 
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/asset_more"
-                            style="@style/Widget.MaterialComponents.Button.TextButton"
-                            android:layout_width="@dimen/tile_icon_size_medium"
-                            android:layout_height="@dimen/tile_icon_size_medium"
-                            android:layout_marginTop="@dimen/tile_margin_small"
-                            android:insetTop="0dp"
-                            android:insetBottom="0dp"
-                            android:checkable="true"
-                            app:icon="@drawable/ic_baseline_keyboard_arrow_down_24"
-                            app:iconGravity="textStart"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/label_total_asset"
-                            app:shapeAppearance="@style/ShapeAppearance.AppTheme.RoundedImage"
-                            tools:ignore="TouchTargetSizeCheck,DuplicateSpeakableTextCheck" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-                    </androidx.constraintlayout.widget.ConstraintLayout>
-                </com.google.android.material.card.MaterialCardView>
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/container_total_due"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                app:layout_constraintTop_toBottomOf="@id/container_total_balance"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:contentPadding="@dimen/tile_margin_small"
+                style="@style/Widget.AppTheme.TileCard.Large">
 
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/container_total_due"
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    app:layout_constraintTop_toBottomOf="@id/container_total_balance"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:contentPadding="@dimen/tile_margin_small"
-                    style="@style/Widget.AppTheme.TileCard.Large">
+                    android:orientation="vertical"
+                    android:gravity="center_horizontal">
 
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:id="@+id/label_total_liability"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:gravity="center_horizontal">
+                        android:text="@string/label_total_liability"
+                        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                        android:textStyle="bold"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"/>
 
-                        <TextView
-                            android:id="@+id/label_total_liability"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/label_total_liability"
-                            android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-                            android:textStyle="bold"
-                            app:layout_constraintTop_toTopOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"/>
+                    <TextView
+                        android:id="@+id/total_liability"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/tile_margin_small"
+                        android:layout_marginEnd="@dimen/tile_margin_small"
+                        android:textAlignment="center"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                        android:textColor="@color/text_red"
+                        android:textStyle="bold"
+                        tools:text="30333330000000011111000000000.56"
+                        app:layout_constraintTop_toBottomOf="@id/label_total_liability"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/liability_more" />
 
-                        <TextView
-                            android:id="@+id/total_liability"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/tile_margin_small"
-                            android:layout_marginEnd="@dimen/tile_margin_small"
-                            android:textAlignment="center"
-                            android:textAppearance="@style/TextAppearance.AppCompat.Title"
-                            android:textColor="@color/text_red"
-                            android:textStyle="bold"
-                            tools:text="30333330000000011111000000000.56"
-                            app:layout_constraintTop_toBottomOf="@id/label_total_liability"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintEnd_toStartOf="@id/liability_more" />
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/liability_more"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="@dimen/tile_icon_size_medium"
+                        android:layout_height="@dimen/tile_icon_size_medium"
+                        android:layout_marginTop="@dimen/tile_margin_small"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        android:checkable="true"
+                        app:icon="@drawable/ic_baseline_keyboard_arrow_down_24"
+                        app:iconGravity="textStart"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/label_total_liability"
+                        app:shapeAppearance="@style/ShapeAppearance.AppTheme.RoundedImage"
+                        tools:ignore="TouchTargetSizeCheck" />
 
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/liability_more"
-                            style="@style/Widget.MaterialComponents.Button.TextButton"
-                            android:layout_width="@dimen/tile_icon_size_medium"
-                            android:layout_height="@dimen/tile_icon_size_medium"
-                            android:layout_marginTop="@dimen/tile_margin_small"
-                            android:insetTop="0dp"
-                            android:insetBottom="0dp"
-                            android:checkable="true"
-                            app:icon="@drawable/ic_baseline_keyboard_arrow_down_24"
-                            app:iconGravity="textStart"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/label_total_liability"
-                            app:shapeAppearance="@style/ShapeAppearance.AppTheme.RoundedImage"
-                            tools:ignore="TouchTargetSizeCheck" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-                    </androidx.constraintlayout.widget.ConstraintLayout>
-                </com.google.android.material.card.MaterialCardView>
-                
-                <!-- section navigation -->
+            <!-- section navigation -->
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:layout_marginTop="36dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                app:layout_constraintTop_toBottomOf="@id/container_total_due"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
 
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:gravity="center"
-                    android:orientation="vertical"
-                    android:layout_marginTop="36dp"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginRight="16dp"
-                    app:layout_constraintTop_toBottomOf="@id/container_total_due"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent">
+                    android:orientation="horizontal">
 
-                    <LinearLayout
-                        android:layout_width="wrap_content"
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/nav_accounts"
+                        style="@style/Widget.AppTheme.ActionButton"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/nav_accounts"
-                            style="@style/Widget.AppTheme.ActionButton"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/label_accounts"
-                            app:icon="@drawable/ic_account_black"
-                            android:textColor="@color/secondary_text_color"
-                            app:iconTint="@color/secondary_text_color"
-                            tools:ignore="TextContrastCheck" />
-
-                        <com.google.android.material.divider.MaterialDivider
-                            android:layout_width="1dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="0"
-                            app:dividerColor="@color/border_color"/>
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/nav_people"
-                            style="@style/Widget.AppTheme.ActionButton"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/label_people"
-                            app:icon="@drawable/ic_person_black"
-                            android:textColor="@color/secondary_text_color"
-                            app:iconTint="@color/secondary_text_color"
-                            tools:ignore="TextContrastCheck" />
-
-                        <com.google.android.material.divider.MaterialDivider
-                            android:layout_width="1dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="0"
-                            app:dividerColor="@color/border_color"/>
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/nav_histories"
-                            style="@style/Widget.AppTheme.ActionButton"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/label_transaction_histories"
-                            app:icon="@drawable/ic_baseline_history_24"
-                            android:textColor="@color/secondary_text_color"
-                            app:iconTint="@color/secondary_text_color"
-                            tools:ignore="TextContrastCheck" />
-                    </LinearLayout>
+                        android:layout_weight="1"
+                        android:text="@string/label_accounts"
+                        app:icon="@drawable/ic_account_24"
+                        android:textColor="@color/secondary_text_color"
+                        app:iconTint="@color/secondary_text_color"
+                        tools:ignore="TextContrastCheck" />
 
                     <com.google.android.material.divider.MaterialDivider
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
+                        android:layout_width="1dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="0"
                         app:dividerColor="@color/border_color"/>
 
-                    <LinearLayout
-                        android:layout_width="wrap_content"
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/nav_people"
+                        style="@style/Widget.AppTheme.ActionButton"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/add_income"
-                            style="@style/Widget.AppTheme.ActionButton"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/label_add_income"
-                            app:icon="@drawable/ic_rupee_add"
-                            android:textColor="@color/secondary_text_color"
-                            app:iconTint="@color/secondary_text_color"
-                            tools:ignore="TextContrastCheck" />
-
-                        <com.google.android.material.divider.MaterialDivider
-                            android:layout_width="1dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="0"
-                            app:dividerColor="@color/border_color"/>
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/add_expense"
-                            style="@style/Widget.AppTheme.ActionButton"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/label_add_expense"
-                            app:icon="@drawable/ic_rupee_remove"
-                            android:textColor="@color/secondary_text_color"
-                            app:iconTint="@color/secondary_text_color"
-                            tools:ignore="TextContrastCheck" />
-
-                        <com.google.android.material.divider.MaterialDivider
-                            android:layout_width="1dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="0"
-                            app:dividerColor="@color/border_color"/>
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/add_money_transfer"
-                            style="@style/Widget.AppTheme.ActionButton"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/label_money_transfer"
-                            app:icon="@drawable/ic_baseline_send_24"
-                            android:textColor="@color/secondary_text_color"
-                            app:iconTint="@color/secondary_text_color"
-                            tools:ignore="TextContrastCheck" />
-                    </LinearLayout>
+                        android:layout_weight="1"
+                        android:text="@string/label_people"
+                        app:icon="@drawable/ic_person_24"
+                        android:textColor="@color/secondary_text_color"
+                        app:iconTint="@color/secondary_text_color"
+                        tools:ignore="TextContrastCheck" />
 
                     <com.google.android.material.divider.MaterialDivider
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
+                        android:layout_width="1dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="0"
                         app:dividerColor="@color/border_color"/>
 
-                    <LinearLayout
-                        android:layout_width="wrap_content"
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/nav_histories"
+                        style="@style/Widget.AppTheme.ActionButton"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/add_due"
-                            style="@style/Widget.AppTheme.ActionButton"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/label_add_due"
-                            app:icon="@drawable/ic_rupee_remove"
-                            android:textColor="@color/secondary_text_color"
-                            app:iconTint="@color/secondary_text_color"
-                            tools:ignore="TextContrastCheck" />
-
-                        <com.google.android.material.divider.MaterialDivider
-                            android:layout_width="1dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="0"
-                            app:dividerColor="@color/border_color"/>
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/add_pay_due"
-                            style="@style/Widget.AppTheme.ActionButton"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/label_add_pay_due"
-                            app:icon="@drawable/ic_rupee_add"
-                            android:textColor="@color/secondary_text_color"
-                            app:iconTint="@color/secondary_text_color"
-                            tools:ignore="TextContrastCheck" />
-
-                        <com.google.android.material.divider.MaterialDivider
-                            android:layout_width="1dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="0"
-                            app:dividerColor="@color/border_color"/>
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/add_borrow"
-                            style="@style/Widget.AppTheme.ActionButton"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/label_add_borrow"
-                            app:icon="@drawable/ic_rupee_arrow_inward"
-                            android:textColor="@color/secondary_text_color"
-                            app:iconTint="@color/secondary_text_color"
-                            tools:ignore="TextContrastCheck" />
-                    </LinearLayout>
-
+                        android:layout_weight="1"
+                        android:text="@string/label_transaction_histories"
+                        app:icon="@drawable/ic_baseline_history_24"
+                        android:textColor="@color/secondary_text_color"
+                        app:iconTint="@color/secondary_text_color"
+                        tools:ignore="TextContrastCheck" />
                 </LinearLayout>
-                
-                <!-- section shortcut -->
+
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    app:dividerColor="@color/border_color"/>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/add_income"
+                        style="@style/Widget.AppTheme.ActionButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/label_add_income"
+                        app:icon="@drawable/ic_baseline_arrow_inward_24"
+                        android:textColor="@color/secondary_text_color"
+                        app:iconTint="@color/secondary_text_color"
+                        tools:ignore="TextContrastCheck" />
+
+                    <com.google.android.material.divider.MaterialDivider
+                        android:layout_width="1dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="0"
+                        app:dividerColor="@color/border_color"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/add_expense"
+                        style="@style/Widget.AppTheme.ActionButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/label_add_expense"
+                        app:icon="@drawable/ic_baseline_arrow_outward_24"
+                        android:textColor="@color/secondary_text_color"
+                        app:iconTint="@color/secondary_text_color"
+                        tools:ignore="TextContrastCheck" />
+
+                    <com.google.android.material.divider.MaterialDivider
+                        android:layout_width="1dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="0"
+                        app:dividerColor="@color/border_color"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/add_money_transfer"
+                        style="@style/Widget.AppTheme.ActionButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/label_money_transfer"
+                        app:icon="@drawable/ic_baseline_send_24"
+                        android:textColor="@color/secondary_text_color"
+                        app:iconTint="@color/secondary_text_color"
+                        tools:ignore="TextContrastCheck" />
+                </LinearLayout>
+
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    app:dividerColor="@color/border_color"/>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/add_due"
+                        style="@style/Widget.AppTheme.ActionButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/label_add_due"
+                        app:icon="@drawable/ic_rupee_remove"
+                        android:textColor="@color/secondary_text_color"
+                        app:iconTint="@color/secondary_text_color"
+                        tools:ignore="TextContrastCheck" />
+
+                    <com.google.android.material.divider.MaterialDivider
+                        android:layout_width="1dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="0"
+                        app:dividerColor="@color/border_color"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/add_pay_due"
+                        style="@style/Widget.AppTheme.ActionButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/label_add_pay_due"
+                        app:icon="@drawable/ic_rupee_add"
+                        android:textColor="@color/secondary_text_color"
+                        app:iconTint="@color/secondary_text_color"
+                        tools:ignore="TextContrastCheck" />
+
+                    <com.google.android.material.divider.MaterialDivider
+                        android:layout_width="1dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="0"
+                        app:dividerColor="@color/border_color"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/add_borrow"
+                        style="@style/Widget.AppTheme.ActionButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/label_add_borrow"
+                        app:icon="@drawable/ic_rupee_arrow_inward"
+                        android:textColor="@color/secondary_text_color"
+                        app:iconTint="@color/secondary_text_color"
+                        tools:ignore="TextContrastCheck" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- section shortcut -->
 
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-        </androidx.core.widget.NestedScrollView>
-        
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+    </androidx.core.widget.NestedScrollView>
 
-    <com.google.android.material.navigation.NavigationView
-        android:id="@+id/drawer"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        app:headerLayout="@layout/left_drawer_header"
-        app:menu="@menu/home_navigation_drawer_menu"/>
-    
-</androidx.drawerlayout.widget.DrawerLayout>
-
-
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

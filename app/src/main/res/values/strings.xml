@@ -23,7 +23,7 @@
     <string name="label_edit_money_transfer">Edit Money Transfer</string>
     <string name="label_total_balance">Total Balance</string>
     <string name="label_total_due">Receivable</string>
-    <string name="label_filter_transaction">Filter Transactions</string>
+    <string name="label_filter_transaction_history">Filter</string>
     <string name="label_loading">Loading</string>
 
     <string name="account_name">Account Name</string>
@@ -187,7 +187,7 @@
     <string name="pay_due">Pay Due</string>
     <string name="send_money">Send Money</string>
     <string name="error_no_person_selected">No Person Selected</string>
-    <string name="error_no_account_selected">No Account Selected</string>
+    <string name="error_no_account_selected">no account selected</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="message_ask_add_more_transaction">Want to add more?</string>
@@ -280,5 +280,18 @@
     <string name="error_due_send_zero">you don\'t have any receivable to send</string>
     <string name="error_borrow_send_zero">you don\'t have any payable to send</string>
     <string name="label_edit_transaction_history">Edit History</string>
+    <string name="description_filter_transaction_history">filter histories</string>
+    <string name="label_paid_for">Paid For</string>
+    <string name="label_received_in">Received In</string>
+    <string name="label_sent_from">Sent From</string>
+    <string name="label_sent_to">Sent To</string>
+    <string name="label_credit_to">Credit To</string>
+    <string name="label_debit_to">Debit To</string>
+    <string name="label_choose_account">Choose Account</string>
+    <string name="label_choose_person">Choose Person</string>
+    <string name="label_add_transaction_history">Add History</string>
+    <string name="label_add_borrow_to_due_transfer">Add History</string>
+    <string name="description_button_close">close current screen</string>
+    <string name="description_button_pick">pick items</string>
 
 </resources>

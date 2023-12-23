@@ -2,19 +2,25 @@ package dreammaker.android.expensetracker.fragment;
 
 import android.app.DatePickerDialog;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Objects;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
@@ -22,15 +28,25 @@ import androidx.navigation.Navigation;
 import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.activity.ActivityModel;
 import dreammaker.android.expensetracker.activity.ActivityModelProvider;
+import dreammaker.android.expensetracker.database.entity.TransactionHistory;
+import dreammaker.android.expensetracker.database.model.AccountModel;
+import dreammaker.android.expensetracker.database.model.PersonModel;
 import dreammaker.android.expensetracker.database.model.TransactionHistoryModel;
 import dreammaker.android.expensetracker.database.type.Currency;
 import dreammaker.android.expensetracker.database.type.TransactionType;
 import dreammaker.android.expensetracker.databinding.FragmentTransactionBasicDetailsInputBinding;
 import dreammaker.android.expensetracker.dialog.DialogUtil;
+import dreammaker.android.expensetracker.drawable.DrawableUtil;
 import dreammaker.android.expensetracker.text.TextUtil;
 import dreammaker.android.expensetracker.util.Constants;
+import dreammaker.android.expensetracker.util.ResourceUtil;
 import dreammaker.android.expensetracker.util.ToastUtil;
+import dreammaker.android.expensetracker.util.ViewUtil;
+import dreammaker.android.expensetracker.viewmodel.AccountViewModel;
+import dreammaker.android.expensetracker.viewmodel.DBViewModel;
+import dreammaker.android.expensetracker.viewmodel.PersonViewModel;
 import dreammaker.android.expensetracker.viewmodel.TransactionHistoryViewModel;
+import rahulstech.android.backend.settings.AppSettings;
 
 @SuppressWarnings("unused")
 public class TransactionBasicDetailsInputFragment extends Fragment {
@@ -43,13 +59,23 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
 
     private static final String KEY_HISTORY_SET = "history_set";
 
-    public static final String EXTRA_TRANSACTION_HISTORY = "extra_transaction_history";
+    private static final String KEY_SELECTED_PAYEE = "key_selected_payee";
+
+    private static final String KEY_SELECTED_PAYER = "key_selected_payer";
+
+    private static final int REQUEST_CODE_PAYEE = 1;
+
+    private static final int REQUEST_CODE_PAYER = 2;
 
     @SuppressWarnings("FieldCanBeLocal")
     private NavController navController;
 
     @SuppressWarnings("FieldCanBeLocal")
     private TransactionHistoryViewModel mViewModel;
+
+    private AccountViewModel mAccountVM;
+
+    private PersonViewModel mPersonVM;
 
     private LocalDate pickedDate = LocalDate.now();
 
@@ -59,19 +85,30 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
 
     private boolean mHistorySet = false;
 
+    private AppSettings mSettings;
+
+    private Parcelable mSelectedPayee;
+
+    private Parcelable mSelectedPayer;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (!isEditOperation() && !hasExtraTransactionType()) {
-            throw new IllegalArgumentException("invalid TransactionType given as argument");
+            throw new IllegalArgumentException("TransactionType not given as argument");
         }
     }
 
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
+        mSettings = AppSettings.get(context);
         mViewModel = new ViewModelProvider(this,(ViewModelProvider.Factory) ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
                 .get(TransactionHistoryViewModel.class);
+        mAccountVM = new ViewModelProvider(this,(ViewModelProvider.Factory) ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
+                .get(AccountViewModel.class);
+        mPersonVM = new ViewModelProvider(this,(ViewModelProvider.Factory) ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
+                .get(PersonViewModel.class);
     }
 
     @Nullable
@@ -81,10 +118,37 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
         if (isEditOperation()) {
             mViewModel.getTransactionById(getExtraTransactionId()).observe(getViewLifecycleOwner(),this::onTransactionHistoryFetched);
         }
-        if (requireActivity() instanceof ActivityModelProvider) {
-            ActivityModel model = ((ActivityModelProvider) requireActivity()).getActivityModel();
-            model.addOnBackPressedCallback(getViewLifecycleOwner(),this::onBackPressed);
+        else {
+            Long accountId;
+            Long personId;
+            if (hasExtraPayeeAccountId()) {
+                accountId = getExtraPayeeAccountId();
+            }
+            else if (hasExtraPayerAccountId()) {
+                accountId = getExtraPayerAccountId();
+            }
+            else {
+                accountId = null;
+            }
+            if (hasExtraPayeePersonId()) {
+                personId = getExtraPayeePersonId();
+            }
+            else if (hasExtraPayerPersonId()) {
+                personId = getExtraPayerPersonId();
+            }
+            else {
+                personId = null;
+            }
+            if (accountId != null) {
+                mAccountVM.getAccountById(accountId).observe(getViewLifecycleOwner(),this::onAccountFetched);
+            }
+            if (personId != null) {
+                mPersonVM.getPersonById(personId).observe(getViewLifecycleOwner(),this::onPersonFetched);
+            }
         }
+        ActivityModel model = ((ActivityModelProvider) requireActivity()).getActivityModel();
+        model.addOnBackPressedCallback(getViewLifecycleOwner(),this::onBackPressed);
+        mViewModel.setCallbackIfTaskExists(TransactionHistoryViewModel.SAVE_HISTORY,getViewLifecycleOwner(),this::onHistorySaved);
         return mBinding.getRoot();
     }
 
@@ -93,14 +157,69 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         setTitle();
         navController = Navigation.findNavController(view);
+        //noinspection ConstantConditions
+        navController.getCurrentBackStackEntry().getSavedStateHandle()
+                .<Bundle>getLiveData(BaseChooserWithSearchFragment.KEY_RESULT)
+                .observe(getViewLifecycleOwner(),this::onFragmentResult);
         mBinding.date.setOnClickListener(v->onClickDate());
-        mBinding.btnNext.setOnClickListener(v->onClickNext());
+        mBinding.choosePayee.setOnClickListener(v->onClickChoosePayee());
+        mBinding.choosePayer.setOnClickListener(v->onClickChoosePayer());
+        mBinding.btnSave.setOnClickListener(v-> onClickSave());
         mBinding.containerAmount.setEndIconOnClickListener(v->onToggleCalculator());
         LocalDate when = getExtraWhen();
-        changeTransactionWhen(pickedDate);
         Currency amount = getExtraAmount();
+        String description = getExtraDescription();
+        changeTransactionWhen(pickedDate);
         setAmount(amount);
-        mBinding.description.setText(getExtraDescription());
+        mBinding.description.setText(description);
+        if (!isEditOperation()) {
+            TransactionType type = getExtraTransactionType();
+            switch (type) {
+                case INCOME: {
+                    hidePayerSection();
+                    if (null == getExtraPayeeAccountId()) {
+                        preparePayeeChooser(R.string.label_choose_account,R.drawable.ic_account_24);
+                    }
+                }
+                break;
+                case EXPENSE: {
+                    hidePayeeSection();
+                    if (null == getExtraPayerAccountId()) {
+                        preparePayerChooser(R.string.label_choose_account,R.drawable.ic_account_24);
+                    }
+                }
+                break;
+                case DUE:
+                case PAY_BORROW: {
+                    preparePayerChooser(R.string.label_choose_account,R.drawable.ic_account_24);
+                    if (null == getExtraPayeePersonId()) {
+                        preparePayeeChooser(R.string.label_choose_person,R.drawable.ic_person_24);
+                    }
+                }
+                break;
+                case DUE_TRANSFER:
+                case BORROW_TRANSFER:
+                case BORROW_TO_DUE_TRANSFER: {
+                    preparePayeeChooser(R.string.label_choose_person,R.drawable.ic_person_24);
+                }
+                break;
+                case BORROW:
+                case PAY_DUE:{
+                    preparePayeeChooser(R.string.label_choose_account,R.drawable.ic_account_24);
+                    if (null == getExtraPayerPersonId()) {
+                        preparePayerChooser(R.string.label_choose_person,R.drawable.ic_person_24);
+                    }
+                }
+                break;
+                case MONEY_TRANSFER: {
+                    preparePayeeChooser(R.string.label_choose_account,R.drawable.ic_account_24);
+                    if (null == getExtraPayerPersonId()) {
+                        preparePayerChooser(R.string.label_choose_account,R.drawable.ic_account_24);
+                    }
+                }
+            }
+            setPayeePayerLabels(type);
+        }
     }
 
     @Override
@@ -109,8 +228,12 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
         if (null != savedInstanceState) {
             String pickedDateValue = savedInstanceState.getString(KEY_PICKED_DATE);
             pickedDate = LocalDate.parse(pickedDateValue,DateTimeFormatter.ISO_LOCAL_DATE.withLocale(Locale.ENGLISH));
-            mHistorySet = savedInstanceState.getBoolean(KEY_HISTORY_SET,false);
+            mHistorySet = savedInstanceState.getBoolean(KEY_HISTORY_SET);
+            mSelectedPayee = savedInstanceState.getParcelable(KEY_SELECTED_PAYEE);
+            mSelectedPayer = savedInstanceState.getParcelable(KEY_SELECTED_PAYER);
         }
+        setPayeeParcelable(mSelectedPayee);
+        setPayerParcelable(mSelectedPayer);
     }
 
     @Override
@@ -118,15 +241,74 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
         super.onSaveInstanceState(outState);
         outState.putString(KEY_PICKED_DATE,pickedDate.format(DateTimeFormatter.ISO_LOCAL_DATE.withLocale(Locale.ENGLISH)));
         outState.putBoolean(KEY_HISTORY_SET,mHistorySet);
+        outState.putParcelable(KEY_SELECTED_PAYEE,mSelectedPayee);
+        outState.putParcelable(KEY_SELECTED_PAYER,mSelectedPayer);
     }
 
     private void setTitle() {
+        CharSequence title;
         if (isEditOperation()) {
-            requireActivity().setTitle(R.string.label_edit_transaction_history);
+            title = getText(R.string.label_edit_transaction_history);
         }
         else {
-            requireActivity().setTitle(R.string.label_transaction_history_amount_and_details);
+            TransactionType type = getExtraTransactionType();
+            switch (type) {
+                case INCOME: {
+                    title = getText(R.string.label_add_income);
+                }
+                break;
+                case EXPENSE: {
+                    title = getText(R.string.label_add_expense);
+                }
+                break;
+                case DUE: {
+                    title = getText(R.string.label_add_due);
+                }
+                break;
+                case PAY_DUE: {
+                    title = getText(R.string.label_add_pay_due);
+                }
+                break;
+                case BORROW: {
+                    title = getText(R.string.label_add_borrow);
+                }
+                break;
+                case PAY_BORROW: {
+                    title = getText(R.string.label_add_pay_borrow);
+                }
+                break;
+                case DUE_TRANSFER: {
+                    title = getText(R.string.label_add_due_transfer);
+                }
+                break;
+                case BORROW_TRANSFER: {
+                    title = getText(R.string.label_add_borrow_transfer);
+                }
+                break;
+                case MONEY_TRANSFER: {
+                    title = getText(R.string.label_money_transfer);
+                }
+                break;
+                case BORROW_TO_DUE_TRANSFER: {
+                    title = getText(R.string.label_add_borrow_to_due_transfer);
+                }
+                break;
+                default: {
+                    title = getText(R.string.label_add_transaction_history);
+                }
+            }
         }
+        requireActivity().setTitle(title);
+    }
+
+    private void hidePayerSection() {
+        mBinding.choosePayer.setVisibility(View.GONE);
+        mBinding.labelPayer.setVisibility(View.GONE);
+    }
+
+    private void hidePayeeSection() {
+        mBinding.choosePayee.setVisibility(View.GONE);
+        mBinding.labelPayee.setVisibility(View.GONE);
     }
 
     private void onTransactionHistoryFetched(@Nullable TransactionHistoryModel history) {
@@ -140,8 +322,221 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
             changeTransactionWhen(history.getWhen());
             setAmount(history.getAmount());
             mBinding.description.setText(history.getDescription());
+            setPayeePayerLabels(history.getType());
+            if (null != history.getPayeeAccount()) {
+                setPayee(history.getPayeeAccount());
+            }
+            else if (null != history.getPayeePerson()) {
+                setPayee(history.getPayeePerson());
+            }
+            else {
+                hidePayeeSection();
+            }
+            if (null != history.getPayerAccount()) {
+                setPayer(history.getPayerAccount());
+            }
+            else if (null != history.getPayerPerson()) {
+                setPayer(history.getPayerPerson());
+            }
+            else {
+                hidePayerSection();
+            }
             mHistorySet = true;
         }
+    }
+
+    private void onAccountFetched(@Nullable AccountModel account) {
+        if (null != account) {
+            TransactionType type = getExtraTransactionType();
+            switch (type) {
+                case INCOME:
+                case PAY_DUE:
+                case BORROW: {
+                    setPayee(account);
+                }
+                break;
+                case EXPENSE:
+                case DUE:
+                case PAY_BORROW:
+                case MONEY_TRANSFER: {
+                    setPayer(account);
+                }
+            }
+        }
+    }
+
+    private void onPersonFetched(@Nullable PersonModel person) {
+        if (null != person) {
+            TransactionType type = getExtraTransactionType();
+            switch (type) {
+                case PAY_DUE:
+                case BORROW:
+                case BORROW_TRANSFER:
+                case DUE_TRANSFER:
+                case BORROW_TO_DUE_TRANSFER:{
+                    setPayer(person);
+                }
+                break;
+                case DUE:
+                case PAY_BORROW: {
+                   setPayee(person);
+                }
+            }
+        }
+    }
+
+    private void onFragmentResult(Bundle result) {
+        int code = result.getInt(BaseChooserWithSearchFragment.EXTRA_REQUEST_CODE);
+        Parcelable selection = result.getParcelable(BaseChooserWithSearchFragment.KEY_RESULT);
+        if (code == REQUEST_CODE_PAYEE) {
+            mSelectedPayee = selection;
+            setPayeeParcelable(selection);
+        }
+        else {
+            mSelectedPayer = selection;
+            setPayerParcelable(selection);
+        }
+    }
+
+    private void setPayeePayerLabels(TransactionType type) {
+        switch (type) {
+            case INCOME: {
+                mBinding.labelPayee.setText(R.string.label_credit_to);
+            }
+            break;
+            case EXPENSE: {
+                mBinding.labelPayer.setText(R.string.label_debit_to);
+            }
+            break;
+            case DUE:
+            case PAY_BORROW: {
+                mBinding.labelPayee.setText(R.string.label_pay_for);
+                mBinding.labelPayer.setText(R.string.label_pay_from);
+            }
+            break;
+            case BORROW:
+            case PAY_DUE: {
+                mBinding.labelPayee.setText(R.string.label_receive_in);
+                mBinding.labelPayer.setText(R.string.label_paid_by);
+            }
+            break;
+            case MONEY_TRANSFER: {
+                mBinding.labelPayee.setText(R.string.label_receive_in);
+                mBinding.labelPayer.setText(R.string.label_send_from);
+            }
+            break;
+            case DUE_TRANSFER:
+            case BORROW_TO_DUE_TRANSFER:
+            case BORROW_TRANSFER: {
+                mBinding.labelPayee.setText(R.string.label_send_to);
+                mBinding.labelPayer.setText(R.string.label_send_from);
+            }
+        }
+    }
+
+    private void setPayeeParcelable(Parcelable parcelable) {
+        if (parcelable instanceof AccountParcelable) {
+            AccountModel account = ((AccountParcelable) parcelable).asAccountModel();
+            setPayee(account);
+        }
+        else if (parcelable instanceof PersonParcelable) {
+            PersonModel person = ((PersonParcelable) parcelable).asPersonModel();
+            setPayee(person);
+        }
+    }
+
+    private void setPayerParcelable(Parcelable parcelable) {
+        if (parcelable instanceof AccountParcelable) {
+            AccountModel account = ((AccountParcelable) parcelable).asAccountModel();
+            setPayer(account);
+        }
+        else if (parcelable instanceof PersonParcelable) {
+            PersonModel person = ((PersonParcelable) parcelable).asPersonModel();
+            setPayer(person);
+        }
+    }
+
+    private void setPayee(Object payee) {
+        Button view = mBinding.choosePayee;
+        if (payee instanceof AccountModel) {
+            setAccount((AccountModel) payee,view);
+        }
+        else if (payee instanceof PersonModel) {
+            setPerson((PersonModel) payee,view);
+        }
+        // TODO: handle null payee
+    }
+
+    private void setPayer(Object payer) {
+        Button view = mBinding.choosePayer;
+        if (payer instanceof AccountModel) {
+            setAccount((AccountModel) payer,view);
+        }
+        else if (payer instanceof PersonModel) {
+            setPerson((PersonModel) payer,view);
+        }
+        // TODO: handle null payer
+    }
+
+    private void setAccount(AccountModel account, Button view) {
+        CharSequence name = account.getName();
+        Drawable logo = DrawableUtil.getAccountDefaultLogo(account.getName());
+        boolean clickable;
+        if (isEditOperation()) {
+            clickable = false;
+        }
+        else {
+            Long accountId;
+            if (hasExtraPayeeAccountId()) {
+                accountId = getExtraPayeeAccountId();
+            }
+            else if (hasExtraPayerAccountId()) {
+                accountId = getExtraPayerAccountId();
+            }
+            else {
+                accountId = null;
+            }
+            clickable = !account.getId().equals(accountId);
+        }
+        prepareChooser(view,name,logo,clickable);
+    }
+
+    private void setPerson(PersonModel person, Button view) {
+        CharSequence name = TextUtil.getDisplayNameForPerson(person.getFirstName(),person.getLastName(),
+                isFirstNameFirst(), getString(R.string.label_unknown));
+        Drawable photo = DrawableUtil.getPersonDefaultPhoto(person.getFirstName(),person.getLastName(),isFirstNameFirst());
+        boolean clickable;
+        if (isEditOperation()) {
+            clickable = false;
+        }
+        else {
+            Long personId;
+            if (hasExtraPayeePersonId()) {
+                personId = getExtraPayeePersonId();
+            }
+            else if (hasExtraPayerPersonId()) {
+                personId = getExtraPayerPersonId();
+            }
+            else {
+                personId = null;
+            }
+            clickable = !person.getId().equals(personId);
+        }
+        prepareChooser(view,name,photo,clickable);
+    }
+
+    private void preparePayeeChooser(@StringRes int name, @DrawableRes int drawable) {
+        prepareChooser(mBinding.choosePayee,getText(name),ResourceUtil.getDrawable(requireContext(),drawable),true);
+    }
+
+    private void preparePayerChooser(@StringRes int name, @DrawableRes int drawable) {
+        prepareChooser(mBinding.choosePayer,getText(name),ResourceUtil.getDrawable(requireContext(),drawable),true);
+    }
+
+    private void prepareChooser(Button view, CharSequence name, Drawable drawable, boolean clickable) {
+        view.setText(name);
+        ViewUtil.setTextViewLeftDrawableNoTint(view,drawable, (int) ResourceUtil.dpToPixed(getResources(),36));
+        view.setClickable(clickable);
     }
 
     private boolean validateAmount() {
@@ -185,7 +580,53 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
         // TODO: implement toggle calculator
     }
 
-    private void onClickNext() {
+    private void onClickChoosePayee() {
+        TransactionType type = getExtraTransactionType();
+        Bundle args = new Bundle();
+        args.putInt(BaseChooserWithSearchFragment.EXTRA_REQUEST_CODE,REQUEST_CODE_PAYEE);
+        args.putString(Constants.EXTRA_ACTION,Constants.ACTION_PICK);
+        switch (type) {
+            case INCOME:
+            case MONEY_TRANSFER:
+            case BORROW:
+            case PAY_DUE:{
+                navController.navigate(R.id.action_input_history_to_account_chooser,args);
+            }
+            break;
+            case DUE:
+            case PAY_BORROW:
+            case DUE_TRANSFER:
+            case BORROW_TRANSFER:
+            case BORROW_TO_DUE_TRANSFER: {
+                navController.navigate(R.id.action_input_history_to_person_chooser,args);
+            }
+        }
+    }
+
+    private void onClickChoosePayer() {
+        TransactionType type = getExtraTransactionType();
+        Bundle args = new Bundle();
+        args.putInt(BaseChooserWithSearchFragment.EXTRA_REQUEST_CODE,REQUEST_CODE_PAYER);
+        args.putString(Constants.EXTRA_ACTION,Constants.ACTION_PICK);
+        switch (type) {
+            case EXPENSE:
+            case MONEY_TRANSFER:
+            case DUE:
+            case PAY_BORROW:{
+                navController.navigate(R.id.action_input_history_to_account_chooser,args);
+            }
+            break;
+            case BORROW:
+            case PAY_DUE:
+            case DUE_TRANSFER:
+            case BORROW_TRANSFER:
+            case BORROW_TO_DUE_TRANSFER: {
+                navController.navigate(R.id.action_input_history_to_person_chooser,args);
+            }
+        }
+    }
+
+    private void onClickSave() {
         if (!validateAmount()) {
             return;
         }
@@ -196,7 +637,7 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
         }
         Currency amount = TextUtil.tryConvertToCurrencyOrNull(mBinding.amount.getEditableText());
         String description = mBinding.description.getEditableText().toString();
-        TransactionHistoryParcelable history = new TransactionHistoryParcelable();
+        TransactionHistory history = new TransactionHistory();
         history.setId(getExtraTransactionId());
         history.setWhen(pickedDate);
         //noinspection ConstantConditions
@@ -210,14 +651,63 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
             history.setPayerPersonId(mHistory.getPayerPersonId());
         }
         else {
-            //noinspection ConstantConditions
             history.setType(getExtraTransactionType());
-            history.setPayerAccountId(getExtraPayerAccountId());
-            history.setPayeeAccountId(getExtraPayeeAccountId());
-            history.setPayeePersonId(getExtraPayeePersonId());
-            history.setPayerPersonId(getExtraPayerPersonId());
+            if (hasExtraPayerAccountId()) {
+                history.setPayerAccountId(getExtraPayerAccountId());
+            }
+            else if (hasExtraPayerPersonId()) {
+                history.setPayerPersonId(getExtraPayerPersonId());
+            }
+            else if (null != mSelectedPayer) {
+                if (mSelectedPayer instanceof AccountParcelable) {
+                    AccountParcelable account = (AccountParcelable) mSelectedPayer;
+                    history.setPayerAccountId(account.getId());
+                }
+                else if (mSelectedPayer instanceof PersonParcelable) {
+                    PersonParcelable person = (PersonParcelable) mSelectedPayer;
+                    history.setPayerPersonId(person.getId());
+                }
+            }
+            if (hasExtraPayeeAccountId()) {
+                history.setPayeeAccountId(getExtraPayeeAccountId());
+            }
+            else if (hasExtraPayeePersonId()) {
+                history.setPayeePersonId(getExtraPayeePersonId());
+            }
+            else if (null != mSelectedPayee){
+                if (mSelectedPayee instanceof AccountParcelable) {
+                    AccountParcelable account = (AccountParcelable) mSelectedPayee;
+                    history.setPayeeAccountId(account.getId());
+                }
+                else if (mSelectedPayee instanceof PersonParcelable) {
+                    PersonParcelable person = (PersonParcelable) mSelectedPayee;
+                    history.setPayeePersonId(person.getId());
+                }
+            }
         }
-        gotoNextDestination(history);
+        mViewModel.saveTransactionHistory(history).observe(getViewLifecycleOwner(),this::onHistorySaved);
+    }
+
+    private void onHistorySaved(DBViewModel.AsyncQueryResult result) {
+        final TransactionHistory history = (TransactionHistory) result.getResult();
+        if (null == history) {
+            ToastUtil.showErrorShort(requireContext(),R.string.error_save);
+            Log.e(TAG, "onHistorySaved: ", result.getError());
+            return;
+        }
+        ToastUtil.showSuccessShort(requireContext(),R.string.transaction_history_save_successful);
+        if (isEditOperation()) {
+            exit();
+        }
+        else {
+            showHistoryDetails(history);
+        }
+    }
+
+    private void showHistoryDetails(TransactionHistory history) {
+        Bundle args = new Bundle();
+        args.putLong(Constants.EXTRA_ID,history.getId());
+        navController.navigate(R.id.action_input_history_to_history_details,args);
     }
 
     private boolean onBackPressed() {
@@ -235,7 +725,8 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
     private boolean hasAnyValueChanged() {
         final LocalDate inWhen = pickedDate;
         final Currency inAmount = TextUtil.tryConvertToCurrencyOrNull(mBinding.amount.getEditableText());
-        final String inDescription = mBinding.description.getEditableText().toString();
+        CharSequence editableDescription = mBinding.description.getEditableText();
+        final String inDescription = editableDescription.length() == 0 ? null : editableDescription.toString();
         LocalDate when;
         Currency amount;
         String description;
@@ -254,49 +745,6 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
         }
         return !when.isEqual(inWhen) || !amount.equals(inAmount)
                 || !Objects.equals(description,inDescription);
-    }
-
-    private void gotoNextDestination(TransactionHistoryParcelable history) {
-        Bundle args = new Bundle(requireArguments());
-        args.putParcelable(EXTRA_TRANSACTION_HISTORY,history);
-        if (isEditOperation()) {
-            navController.navigate(R.id.action_input_history_to_edit_history,args);
-            return;
-        }
-        TransactionType type = history.getType();
-        switch (type) {
-            case INCOME: {
-                if (!hasExtraPayeeAccountId()) {
-                    navController.navigate(R.id.action_input_history_to_account_chooser,args);
-                }
-                else {
-                    navController.navigate(R.id.action_input_history_to_save_history,args);
-                }
-            }
-            break;
-            case EXPENSE: {
-                if (!hasExtraPayerAccountId()) {
-                    navController.navigate(R.id.action_input_history_to_account_chooser,args);
-                }
-                else {
-                    navController.navigate(R.id.action_input_history_to_save_history,args);
-                }
-            }
-            break;
-            case DUE:
-            case BORROW:
-            case PAY_DUE:
-            case PAY_BORROW:
-            case MONEY_TRANSFER: {
-                navController.navigate(R.id.action_input_history_to_account_chooser,args);
-            }
-            break;
-            case DUE_TRANSFER:
-            case BORROW_TO_DUE_TRANSFER:
-            case BORROW_TRANSFER:{
-                navController.navigate(R.id.action_input_history_to_person_chooser,args);
-            }
-        }
     }
 
     private void exit() {
@@ -320,10 +768,8 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
         return requireArguments().containsKey(Constants.EXTRA_TRANSACTION_TYPE);
     }
 
+    @NonNull
     private TransactionType getExtraTransactionType() {
-        if (!hasExtraTransactionType()) {
-            return null;
-        }
         String value = requireArguments().getString(Constants.EXTRA_TRANSACTION_TYPE);
         return TransactionType.valueOf(value);
     }
@@ -404,4 +850,12 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
     private String getExtraDescription() {
         return requireArguments().getString(Constants.EXTRA_DESCRIPTION,null);
     }
+
+    private boolean isFirstNameFirst() {
+        return AppSettings.FIRST_NAME_FIRST == mSettings.getPreferredPersonNameOrientation();
+    }
+
+    //////////////////////////////////////////////////////////////////
+    ///                       Helper Class                         ///
+    /////////////////////////////////////////////////////////////////
 }

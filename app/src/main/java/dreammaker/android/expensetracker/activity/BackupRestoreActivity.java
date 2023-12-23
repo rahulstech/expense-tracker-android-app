@@ -22,6 +22,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
@@ -29,7 +30,7 @@ import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.view.BaseSpinnerAdapter;
 import dreammaker.android.expensetracker.viewmodel.BackupRestoreViewModel;
 
-public class BackupRestoreActivity extends BaseActivity implements View.OnClickListener {
+public class BackupRestoreActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "BackupRestoreActivity";
 

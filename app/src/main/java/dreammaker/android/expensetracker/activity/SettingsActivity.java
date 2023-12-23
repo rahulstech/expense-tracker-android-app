@@ -5,12 +5,13 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.database.type.Date;
 
-public class SettingsActivity extends BaseActivity {
+public class SettingsActivity extends AppCompatActivity {
 
     private static final String TAG = "SettingsActivity";
 

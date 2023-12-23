@@ -46,7 +46,8 @@ public class SaveTransactionHistoryFragment extends DialogFragment {
     }
 
     private TransactionHistoryParcelable getTransactionHistoryParcelable() {
-        return requireArguments().getParcelable(TransactionBasicDetailsInputFragment.EXTRA_TRANSACTION_HISTORY);
+        //return requireArguments().getParcelable(TransactionBasicDetailsInputFragment.EXTRA_TRANSACTION_HISTORY);
+        return null;
     }
 
     @Override

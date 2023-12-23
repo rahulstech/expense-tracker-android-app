@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +17,7 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 import dreammaker.android.expensetracker.BuildConfig;
@@ -39,8 +41,13 @@ public abstract class BaseEntityWithTransactionHistoriesFragment extends Fragmen
 
     private static final String TAG = BaseEntityWithTransactionHistoriesFragment.class.getSimpleName();
 
+    /** show histories for all people and accounts */
+    public static final int ENTITY_ALL = 0;
+
+    /** show histories for account with given id */
     public static final int ENTITY_ACCOUNTS = 1;
 
+    /** show histories for person with given id */
     public static final int ENTITY_PEOPLE = 2;
 
     private TransactionHistoryViewModel mHistoryVM;
@@ -56,6 +63,12 @@ public abstract class BaseEntityWithTransactionHistoriesFragment extends Fragmen
     private AppSettings mSettings;
 
     protected BaseEntityWithTransactionHistoriesFragment() {super();}
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -111,6 +124,40 @@ public abstract class BaseEntityWithTransactionHistoriesFragment extends Fragmen
         if(null != mChoiceModel) {
             mChoiceModel.onSaveInstanceState(mChoiceModelSavedStated);
         }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.menu_history_groupping,menu);
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(@NonNull Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        int groupBy = mSettings.getHistoryGrouping();
+        if (groupBy == AppSettings.GROUP_MONTHLY) {
+            MenuItem item = menu.findItem(R.id.group_monthly);
+            item.setChecked(true);
+        }
+        else {
+            MenuItem item = menu.findItem(R.id.group_daily);
+            item.setChecked(true);
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.group_daily) {
+            changeHistoryGrouping(AppSettings.GROUP_DAILY);
+            return true;
+        }
+        else if (id == R.id.group_monthly) {
+            changeHistoryGrouping(AppSettings.GROUP_MONTHLY);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -205,19 +252,25 @@ public abstract class BaseEntityWithTransactionHistoriesFragment extends Fragmen
         return new LocalDate[]{start,end};
     }
 
+    protected final void loadAllHistories() {
+        loadHistories(ENTITY_ALL,0);
+    }
+
     protected final void loadHistories(int entity, long id) {
         LocalDate[] range = getShowHistoryDateRange(mSettings.getShowHistoriesOfMonths());
         LocalDate start = range[1];
         LocalDate end = range[0];
+        LiveData<List<TransactionHistoryModel>> histories;
         if (entity == ENTITY_ACCOUNTS) {
-            mHistoryVM.getTransactionsForAccountBetweenDates(id,start,end).observe(getViewLifecycleOwner(),this::onHistoriesFetched);
+            histories = mHistoryVM.getTransactionsForAccountBetweenDates(id,start,end);
         }
         else if (entity == ENTITY_PEOPLE) {
-            mHistoryVM.getTransactionsForPersonBetweenDates(id,start,end).observe(getViewLifecycleOwner(),this::onHistoriesFetched);
+            histories = mHistoryVM.getTransactionsForPersonBetweenDates(id,start,end);
         }
         else {
-            throw new IllegalArgumentException("unknown entity="+entity);
+            histories = mHistoryVM.getTransactionsBetweenDates(start,end);
         }
+        histories.observe(getViewLifecycleOwner(),this::onHistoriesFetched);
     }
 
     protected void changeHistoryGrouping(int groupBy) {

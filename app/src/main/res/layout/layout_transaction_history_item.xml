@@ -8,6 +8,7 @@
     android:clickable="true"
     app:contentPaddingBottom="@dimen/tile_margin_medium"
     android:layout_marginVertical="@dimen/tile_margin_small"
+    android:layoutDirection="ltr"
     style="@style/Widget.AppTheme.TileCard.Medium">
 
     <androidx.constraintlayout.widget.ConstraintLayout

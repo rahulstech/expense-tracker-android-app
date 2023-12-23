@@ -1,6 +1,8 @@
 package dreammaker.android.expensetracker.activity;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
+import android.os.Build;
 import android.util.Log;
 
 import java.util.ArrayDeque;
@@ -39,6 +41,19 @@ public class ActivityModel {
     @Nullable
     public Toolbar getSupportToolbar() {
         return mToolbar;
+    }
+
+    public android.app.ActionBar getActionBar() {
+        return mActivity.getActionBar();
+    }
+
+    @Nullable
+    public androidx.appcompat.app.ActionBar getSupportActionBar() {
+        if (mActivity instanceof AppCompatActivity) {
+            AppCompatActivity compat = ((AppCompatActivity) mActivity);
+            return compat.getSupportActionBar();
+        }
+        return null;
     }
 
     public void addOnBackPressedCallback(LifecycleOwner owner, OnBackPressedCallback callback) {

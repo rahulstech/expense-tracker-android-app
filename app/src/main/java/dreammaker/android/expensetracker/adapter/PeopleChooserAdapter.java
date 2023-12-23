@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.database.model.PersonModel;
 import dreammaker.android.expensetracker.databinding.LayoutPersonListItemBinding;
+import dreammaker.android.expensetracker.drawable.CheckableDrawableWrapper;
 import dreammaker.android.expensetracker.drawable.DrawableUtil;
 import dreammaker.android.expensetracker.text.SpannableStringUtil;
 import dreammaker.android.expensetracker.text.Spans;
@@ -164,6 +165,8 @@ public class PeopleChooserAdapter
 
         private final LayoutPersonListItemBinding mBinding;
 
+        private CheckableDrawableWrapper mWrapper;
+
         public ChildViewHolder(LayoutPersonListItemBinding binding) {
             super(binding.getRoot());
             mBinding = binding;
@@ -173,13 +176,16 @@ public class PeopleChooserAdapter
         protected void onBindNonNull(@NonNull PersonModel item) {
             String displayName = TextUtil.getDisplayNameForPerson(item.getFirstName(),item.getLastName(),isFirstNameFirst(),getContext().getString(R.string.label_unknown));
             Drawable placeholder = DrawableUtil.getPersonDefaultPhoto(item.getFirstName(),item.getLastName(),isFirstNameFirst());
+            mWrapper = new CheckableDrawableWrapper(getContext(),placeholder);
             mBinding.name.setText(highlight(displayName,getQuery()));
-            mBinding.photo.setImageDrawable(placeholder);
+            mBinding.photo.setImageDrawable(mWrapper);
             mBinding.due.setText(item.getDue().toString());
             mBinding.borrow.setText(item.getBorrow().toString());
         }
 
-        public void setChecked(boolean checked) {}
+        public void setChecked(boolean checked) {
+            mWrapper.setChecked(checked);
+        }
 
         private CharSequence highlight(CharSequence text, CharSequence phrase) {
             if (TextUtils.isEmpty(phrase)) {

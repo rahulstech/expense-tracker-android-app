@@ -10,14 +10,15 @@
     <androidx.core.widget.NestedScrollView
         android:layout_height="match_parent"
         android:layout_width="match_parent"
-        android:layout_weight="1"
-        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+        android:clipToPadding="false"
+        android:paddingBottom="81dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingBottom="16dp"
+            android:paddingBottom="24dp"
+            android:paddingTop="24dp"
             android:gravity="center">
 
             <com.google.android.material.button.MaterialButton
@@ -28,7 +29,6 @@
                 app:strokeWidth="1dp"
                 app:strokeColor="@color/primary_text_color"
                 android:padding="16dp"
-                android:layout_marginTop="24dp"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
                 app:icon="@drawable/ic_baseline_calendar_month"
@@ -60,7 +60,8 @@
                     android:inputType="numberDecimal"
                     android:maxLines="1"
                     android:singleLine="true"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                    android:textStyle="bold"
                     tools:ignore="TextContrastCheck"
                     tools:text="52.80" />
             </com.google.android.material.textfield.TextInputLayout>
@@ -79,9 +80,8 @@
                     android:id="@+id/description"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:imeOptions="actionDone"
                     android:importantForAutofill="no"
-                    android:inputType="textShortMessage|textImeMultiLine"
+                    android:inputType="textMultiLine"
                     android:maxLines="5"
                     android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
                     tools:ignore="TextContrastCheck"
@@ -89,19 +89,88 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-        </LinearLayout>
+            <TextView
+                android:id="@+id/label_payee"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_gravity="start"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                tools:ignore="TextContrastCheck"
+                tools:text="Payee" />
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/choose_payee"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginTop="16dp"
+                android:paddingTop="16dp"
+                android:paddingBottom="16dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                app:strokeColor="@color/border_color"
+                app:drawableRightCompat="@drawable/ic_baseline_arrow_forward_24"
+                tools:drawableLeftCompat="@drawable/ic_person_24"
+                android:drawablePadding="12dp"
+                app:drawableTint="@color/primary_text_color"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                android:textColor="@color/primary_text_color"
+                android:textAllCaps="false"
+                android:maxLines="1"
+                tools:text="Choose Payee"/>
+
+            <TextView
+                android:id="@+id/label_payer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_gravity="start"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                tools:ignore="TextContrastCheck"
+                tools:text="Payer" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/choose_payer"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginTop="16dp"
+                android:paddingTop="16dp"
+                android:paddingBottom="16dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                app:strokeColor="@color/border_color"
+                app:drawableRightCompat="@drawable/ic_baseline_arrow_forward_24"
+                tools:drawableLeftCompat="@drawable/ic_account_24"
+                app:drawableTint="@color/primary_text_color"
+                android:drawablePadding="12dp"
+                android:textColor="@color/primary_text_color"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                android:textAllCaps="false"
+                android:maxLines="1"
+                tools:text="Choose Payer"/>
+
+        </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/btn_next"
+        android:id="@+id/btnSave"
         android:layout_width="@dimen/fab_size_medium"
         android:layout_height="@dimen/fab_size_medium"
         android:layout_gravity="bottom|right"
         android:layout_margin="@dimen/fab_margin"
-        android:contentDescription="@string/description_button_next"
+        android:contentDescription="@string/description_save"
         app:fabCustomSize="@dimen/fab_size_medium"
-        android:src="@drawable/ic_baseline_arrow_forward_24"
+        android:src="@drawable/ic_baseline_save_alt_24"
         app:tint="@color/fab_icon_tint"
         tools:ignore="RtlHardcoded,ImageContrastCheck" />
 

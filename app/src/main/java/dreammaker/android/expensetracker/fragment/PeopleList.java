@@ -107,7 +107,7 @@ public class PeopleList extends Fragment implements OnItemClickListener, ModalCh
         mChoiceModel.setOnItemClickListener(this);
         mAdapter.setChoiceModel(mChoiceModel);
         mBinding.list.addItemDecoration(new SimpleEmptyRecyclerViewDecoration(getText(R.string.label_no_person),
-                ResourceUtil.getDrawable(requireContext(),R.drawable.ic_person_black_72)));
+                ResourceUtil.getDrawable(requireContext(),R.drawable.ic_person_72)));
     }
 
     @Override
