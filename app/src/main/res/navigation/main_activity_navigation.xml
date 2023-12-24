@@ -76,7 +76,7 @@
 
     <fragment android:id="@+id/input_history"
         tools:layout="@layout/fragment_transaction_basic_details_input"
-        android:name="dreammaker.android.expensetracker.fragment.TransactionBasicDetailsInputFragment">
+        android:name="dreammaker.android.expensetracker.fragment.TransactionHistoryInputFragment">
 
         <action android:id="@+id/action_input_history_to_account_chooser"
             app:destination="@id/account_chooser"/>
@@ -90,7 +90,7 @@
 
     <fragment android:id="@+id/account_chooser"
         tools:layout="@layout/layout_chooser_with_search"
-        android:name="dreammaker.android.expensetracker.fragment.AccountChooserWithSearchFragment"
+        android:name="dreammaker.android.expensetracker.fragment.AccountChooserFragment"
         android:label="@string/label_choose_account">
 
         <action android:id="@+id/action_account_chooser_to_account_chooser"
@@ -151,7 +151,7 @@
     <fragment android:id="@+id/filter_history"
         android:name="dreammaker.android.expensetracker.fragment.FilterHistoryBottomSheet"
         android:label="@string/label_filter_transaction_history"
-        tools:layout="@layout/fragment_filter_history_bottom_sheet">
+        tools:layout="@layout/fragment_filter_history">
 
         <action android:id="@+id/action_filter_history_to_account_chooser"
             app:destination="@id/account_chooser"/>

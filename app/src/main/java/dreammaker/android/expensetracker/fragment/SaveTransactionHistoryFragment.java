@@ -17,6 +17,7 @@ import dreammaker.android.expensetracker.BuildConfig;
 import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.database.entity.TransactionHistory;
 import dreammaker.android.expensetracker.databinding.FragmentSaveTransactionHistoryBinding;
+import dreammaker.android.expensetracker.fragment.parcelable.TransactionHistoryParcelable;
 import dreammaker.android.expensetracker.util.Constants;
 import dreammaker.android.expensetracker.util.ToastUtil;
 import dreammaker.android.expensetracker.viewmodel.AccountViewModel;
@@ -123,7 +124,7 @@ public class SaveTransactionHistoryFragment extends DialogFragment {
     private void showHistoryDetails(TransactionHistory history) {
         Bundle args = new Bundle();
         args.putLong(Constants.EXTRA_ID,history.getId());
-        navController.navigate(R.id.action_save_history_to_history_details,args);
+        //navController.navigate(R.id.action_save_history_to_history_details,args);
     }
 
     private void exit() {

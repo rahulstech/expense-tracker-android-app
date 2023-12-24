@@ -20,6 +20,7 @@ import dreammaker.android.expensetracker.BuildConfig;
 import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.adapter.AccountsChooserAdapter;
 import dreammaker.android.expensetracker.database.model.AccountModel;
+import dreammaker.android.expensetracker.fragment.parcelable.AccountParcelable;
 import dreammaker.android.expensetracker.itemdecoration.SimpleEmptyRecyclerViewDecoration;
 import dreammaker.android.expensetracker.listener.ChoiceModel;
 import dreammaker.android.expensetracker.util.Constants;
@@ -28,9 +29,9 @@ import dreammaker.android.expensetracker.util.ToastUtil;
 import dreammaker.android.expensetracker.viewmodel.AccountViewModel;
 
 @SuppressWarnings("unused")
-public class AccountChooserWithSearchFragment extends BaseChooserWithSearchFragment {
+public class AccountChooserFragment extends BaseChooserWithSearchFragment {
 
-    private static final String TAG = AccountChooserWithSearchFragment.class.getSimpleName();
+    private static final String TAG = AccountChooserFragment.class.getSimpleName();
 
     @SuppressWarnings("FieldCanBeLocal")
     private AccountViewModel mViewModel;
@@ -143,6 +144,23 @@ public class AccountChooserWithSearchFragment extends BaseChooserWithSearchFragm
         else {
             mLoadedAccounts = accounts;
             submitAccounts();
+            if (!accounts.isEmpty() && hasExtraInitial()) {
+                if (Constants.ACTION_PICK_MULTIPLE.equals(getAction())) {
+                    ArrayList<AccountParcelable> initials = getExtraInitial();
+                    if (!initials.isEmpty()) {
+                        ArrayList<Object> keys = new ArrayList<>();
+                        for (AccountParcelable account : initials) {
+                            keys.add(account.getId());
+                        }
+                        getChoiceModel().setChecked(keys,true);
+                    }
+                }
+                else {
+                    AccountParcelable initial = getExtraInitial();
+                    Object key = initial.getId();
+                    getChoiceModel().setChecked(key,true);
+                }
+            }
         }
     }
 

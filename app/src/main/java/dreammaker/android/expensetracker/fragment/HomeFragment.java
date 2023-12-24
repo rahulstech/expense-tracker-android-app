@@ -3,15 +3,19 @@ package dreammaker.android.expensetracker.fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.navigation.ui.NavigationUI;
 import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.activity.ActivityModel;
 import dreammaker.android.expensetracker.activity.ActivityModelProvider;
@@ -44,13 +48,13 @@ public class HomeFragment extends Fragment {
         super.onAttach(context);
         mViewModel = new ViewModelProvider(this,(ViewModelProvider.Factory) ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
                 .get(HomeViewModel.class);
-        mActivityModel = ((ActivityModelProvider) requireActivity()).getActivityModel();
-        mActivityModel.addOnBackPressedCallback(this,this::onBackPressed);
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        mActivityModel = ((ActivityModelProvider) requireActivity()).getActivityModel();
+        mActivityModel.addOnBackPressedCallback(this,this::onBackPressed);
         mBinding = FragmentHomeBinding.inflate(inflater,container,false);
         mViewModel.getAssetLiabilitySummaryLiveData().observe(getViewLifecycleOwner(),this::onAssetLiabilitySummeryFetched);
         return mBinding.getRoot();
@@ -70,6 +74,15 @@ public class HomeFragment extends Fragment {
         mBinding.addDue.setOnClickListener(v->onClickAddDue());
         mBinding.addPayDue.setOnClickListener(v->onClickAddPayDue());
         mBinding.addBorrow.setOnClickListener(v->onClickAddBorrow());
+
+        ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle(requireActivity(), mBinding.drawerLayout,
+                mActivityModel.getSupportToolbar(), 0, 0);
+        drawerToggle.setDrawerSlideAnimationEnabled(true);
+        mBinding.drawer.setNavigationItemSelectedListener(this::onClickLeftDrawerItem);
+        Toolbar toolbar = mActivityModel.getSupportToolbar();
+        if (null != toolbar) {
+            NavigationUI.setupWithNavController(toolbar, navController, mBinding.drawerLayout);
+        }
     }
 
     private void setTitle() {
@@ -77,6 +90,10 @@ public class HomeFragment extends Fragment {
     }
 
     private boolean onBackPressed() {
+        if (mBinding.drawerLayout.isDrawerOpen(mBinding.drawer)) {
+            mBinding.drawerLayout.closeDrawer(mBinding.drawer);
+            return true;
+        }
         return false;
     }
 
@@ -114,6 +131,20 @@ public class HomeFragment extends Fragment {
 
     private void onClickAddBorrow() {
         navigateToInputTransaction(TransactionType.BORROW);
+    }
+
+    private boolean onClickLeftDrawerItem(MenuItem item) {
+        mBinding.drawerLayout.closeDrawer(mBinding.drawer);
+        int id = item.getItemId();
+        if (R.id.backup_restore == id) {
+            //startActivity(new Intent(requireContext(), BackupRestoreActivity.class));
+            return true;
+        }
+        else if (R.id.settings == id) {
+            //startActivity(new Intent(requireContext(), SettingsActivity.class));
+            return true;
+        }
+        return false;
     }
 
     private void onAssetLiabilitySummeryFetched(@Nullable AssetLiabilitySummary summary) {

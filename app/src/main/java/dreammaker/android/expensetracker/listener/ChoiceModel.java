@@ -203,13 +203,15 @@ public class ChoiceModel implements OnItemClickListener, OnItemLongClickListener
         if (null != keys) {
             mKeys.addAll(keys);
         }
-        if (inActionMode && !(mInActionMode = startActionMode())) {
-            return;
+        if (inActionMode) {
+            if (!(mInActionMode = startActionMode())) {
+                mKeys.clear();
+                return;
+            }
         }
-        else {
-            mKeys.clear();
+        if (!mKeys.isEmpty()) {
+            notifyAdapterItemChanged(getCheckedPositionsAsArray());
         }
-        notifyAdapterItemChanged(getCheckedPositionsAsArray());
     }
 
     public void onSaveInstanceState(@NonNull SavedStateViewModel outState) {
@@ -269,6 +271,24 @@ public class ChoiceModel implements OnItemClickListener, OnItemLongClickListener
 
     public void toggle(int position) {
         setChecked(position,!isChecked(position));
+    }
+
+    public void setChecked(List<Object> keys, boolean check) {
+        if (null == keys || keys.isEmpty()) {
+            return;
+        }
+        for (Object key : keys) {
+            setChecked(key,check);
+        }
+    }
+
+    public void setChecked(Object key, boolean check) {
+        Objects.requireNonNull(key,"ChoiceModel key is null");
+        int position = mCallback.getPosition(key);
+        mKeys.add(key);
+        if (position >= 0) {
+            setChecked(position, check);
+        }
     }
 
     public void setChecked(int position, boolean check) {

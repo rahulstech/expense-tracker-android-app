@@ -62,7 +62,7 @@
             android:layout_marginLeft="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginRight="16dp"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
             tools:ignore="TextContrastCheck"
             tools:text="Payee" />
 
@@ -111,7 +111,7 @@
             android:layout_marginTop="16dp"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
             tools:text="Payer"/>
 
         <LinearLayout
@@ -137,11 +137,12 @@
                 android:id="@+id/payer_details"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:layout_marginLeft="8dp"
                 android:layout_marginRight="8dp"
+                android:layout_weight="1"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-                tools:text="@tools:sample/full_names"/>
+                tools:ignore="TextContrastCheck"
+                tools:text="@tools:sample/full_names" />
 
         </LinearLayout>
 

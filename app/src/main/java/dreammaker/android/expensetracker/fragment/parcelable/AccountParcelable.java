@@ -1,4 +1,4 @@
-package dreammaker.android.expensetracker.fragment;
+package dreammaker.android.expensetracker.fragment.parcelable;
 
 import android.os.Parcel;
 import android.os.Parcelable;

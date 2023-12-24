@@ -15,7 +15,6 @@ import android.widget.Button;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
-import java.util.Objects;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
@@ -28,6 +27,7 @@ import androidx.navigation.Navigation;
 import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.activity.ActivityModel;
 import dreammaker.android.expensetracker.activity.ActivityModelProvider;
+import dreammaker.android.expensetracker.animation.AnimatorUtil;
 import dreammaker.android.expensetracker.database.entity.TransactionHistory;
 import dreammaker.android.expensetracker.database.model.AccountModel;
 import dreammaker.android.expensetracker.database.model.PersonModel;
@@ -37,6 +37,8 @@ import dreammaker.android.expensetracker.database.type.TransactionType;
 import dreammaker.android.expensetracker.databinding.FragmentTransactionBasicDetailsInputBinding;
 import dreammaker.android.expensetracker.dialog.DialogUtil;
 import dreammaker.android.expensetracker.drawable.DrawableUtil;
+import dreammaker.android.expensetracker.fragment.parcelable.AccountParcelable;
+import dreammaker.android.expensetracker.fragment.parcelable.PersonParcelable;
 import dreammaker.android.expensetracker.text.TextUtil;
 import dreammaker.android.expensetracker.util.Constants;
 import dreammaker.android.expensetracker.util.ResourceUtil;
@@ -49,9 +51,9 @@ import dreammaker.android.expensetracker.viewmodel.TransactionHistoryViewModel;
 import rahulstech.android.backend.settings.AppSettings;
 
 @SuppressWarnings("unused")
-public class TransactionBasicDetailsInputFragment extends Fragment {
+public class TransactionHistoryInputFragment extends Fragment {
 
-    private static final String TAG = TransactionBasicDetailsInputFragment.class.getSimpleName();
+    private static final String TAG = TransactionHistoryInputFragment.class.getSimpleName();
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
@@ -232,8 +234,14 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
             mSelectedPayee = savedInstanceState.getParcelable(KEY_SELECTED_PAYEE);
             mSelectedPayer = savedInstanceState.getParcelable(KEY_SELECTED_PAYER);
         }
-        setPayeeParcelable(mSelectedPayee);
-        setPayerParcelable(mSelectedPayer);
+        if (!isEditOperation()) {
+            if (null != mSelectedPayee) {
+                setPayee(mSelectedPayee);
+            }
+            if (null != mSelectedPayer) {
+                setPayer(mSelectedPayer);
+            }
+        }
     }
 
     @Override
@@ -346,41 +354,37 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
     }
 
     private void onAccountFetched(@Nullable AccountModel account) {
-        if (null != account) {
-            TransactionType type = getExtraTransactionType();
-            switch (type) {
-                case INCOME:
-                case PAY_DUE:
-                case BORROW: {
-                    setPayee(account);
-                }
-                break;
-                case EXPENSE:
-                case DUE:
-                case PAY_BORROW:
-                case MONEY_TRANSFER: {
-                    setPayer(account);
-                }
+        TransactionType type = getExtraTransactionType();
+        switch (type) {
+            case INCOME:
+            case PAY_DUE:
+            case BORROW: {
+                setPayee(account);
+            }
+            break;
+            case EXPENSE:
+            case DUE:
+            case PAY_BORROW:
+            case MONEY_TRANSFER: {
+                setPayer(account);
             }
         }
     }
 
     private void onPersonFetched(@Nullable PersonModel person) {
-        if (null != person) {
-            TransactionType type = getExtraTransactionType();
-            switch (type) {
-                case PAY_DUE:
-                case BORROW:
-                case BORROW_TRANSFER:
-                case DUE_TRANSFER:
-                case BORROW_TO_DUE_TRANSFER:{
-                    setPayer(person);
-                }
-                break;
-                case DUE:
-                case PAY_BORROW: {
-                   setPayee(person);
-                }
+        TransactionType type = getExtraTransactionType();
+        switch (type) {
+            case PAY_DUE:
+            case BORROW:
+            case BORROW_TRANSFER:
+            case DUE_TRANSFER:
+            case BORROW_TO_DUE_TRANSFER:{
+                setPayer(person);
+            }
+            break;
+            case DUE:
+            case PAY_BORROW: {
+                setPayee(person);
             }
         }
     }
@@ -388,13 +392,14 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
     private void onFragmentResult(Bundle result) {
         int code = result.getInt(BaseChooserWithSearchFragment.EXTRA_REQUEST_CODE);
         Parcelable selection = result.getParcelable(BaseChooserWithSearchFragment.KEY_RESULT);
+        if (null == selection) {
+            return;
+        }
         if (code == REQUEST_CODE_PAYEE) {
-            mSelectedPayee = selection;
-            setPayeeParcelable(selection);
+            setPayee(selection);
         }
         else {
-            mSelectedPayer = selection;
-            setPayerParcelable(selection);
+            setPayer(selection);
         }
     }
 
@@ -434,48 +439,60 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
         }
     }
 
-    private void setPayeeParcelable(Parcelable parcelable) {
-        if (parcelable instanceof AccountParcelable) {
-            AccountModel account = ((AccountParcelable) parcelable).asAccountModel();
-            setPayee(account);
-        }
-        else if (parcelable instanceof PersonParcelable) {
-            PersonModel person = ((PersonParcelable) parcelable).asPersonModel();
-            setPayee(person);
-        }
-    }
-
-    private void setPayerParcelable(Parcelable parcelable) {
-        if (parcelable instanceof AccountParcelable) {
-            AccountModel account = ((AccountParcelable) parcelable).asAccountModel();
-            setPayer(account);
-        }
-        else if (parcelable instanceof PersonParcelable) {
-            PersonModel person = ((PersonParcelable) parcelable).asPersonModel();
-            setPayer(person);
-        }
-    }
-
     private void setPayee(Object payee) {
         Button view = mBinding.choosePayee;
         if (payee instanceof AccountModel) {
-            setAccount((AccountModel) payee,view);
+            AccountModel account = (AccountModel) payee;
+            mSelectedPayee = new AccountParcelable(account);
+            setAccount(account,view);
         }
         else if (payee instanceof PersonModel) {
-            setPerson((PersonModel) payee,view);
+            PersonModel person = (PersonModel) payee;
+            mSelectedPayee = new PersonParcelable(person);
+            setPerson(person,view);
         }
-        // TODO: handle null payee
+        else if (payee instanceof AccountParcelable) {
+            AccountParcelable parcelable = (AccountParcelable) payee;
+            mSelectedPayee = parcelable;
+            setAccount(parcelable.asAccountModel(),view);
+        }
+        else if (payee instanceof PersonParcelable) {
+            PersonParcelable parcelable = (PersonParcelable) payee;
+            mSelectedPayee = parcelable;
+            setPerson(parcelable.asPersonModel(),view);
+        }
+        else {
+            mSelectedPayee = null;
+            prepareChooser(view,getText(R.string.label_unknown),DrawableUtil.getDrawableUnknown(),false);
+        }
     }
 
     private void setPayer(Object payer) {
         Button view = mBinding.choosePayer;
         if (payer instanceof AccountModel) {
-            setAccount((AccountModel) payer,view);
+            AccountModel model = (AccountModel) payer;
+            mSelectedPayer = new AccountParcelable(model);
+            setAccount(model,view);
         }
         else if (payer instanceof PersonModel) {
-            setPerson((PersonModel) payer,view);
+            PersonModel model = (PersonModel) payer;
+            mSelectedPayer = new PersonParcelable(model);
+            setPerson(model,view);
         }
-        // TODO: handle null payer
+        else if (payer instanceof AccountParcelable) {
+            AccountParcelable parcelable = (AccountParcelable) payer;
+            mSelectedPayer = parcelable;
+            setAccount(parcelable.asAccountModel(),view);
+        }
+        else if (payer instanceof PersonParcelable) {
+            PersonParcelable parcelable = (PersonParcelable) payer;
+            mSelectedPayer = parcelable;
+            setPerson(parcelable.asPersonModel(),view);
+        }
+        else {
+            mSelectedPayer = null;
+            prepareChooser(view,getText(R.string.label_unknown),DrawableUtil.getDrawableUnknown(),false);
+        }
     }
 
     private void setAccount(AccountModel account, Button view) {
@@ -539,6 +556,104 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
         view.setClickable(clickable);
     }
 
+    private boolean validate() {
+        if (!validateAmount()) {
+            return false;
+        }
+        if (isEditOperation()) {
+            return true;
+        }
+        TransactionType type = getExtraTransactionType();
+        StringBuilder message = new StringBuilder();
+        boolean payeeSelected = true, payerSelected = true;
+        switch (type) {
+            case INCOME: {
+                if (null == mSelectedPayee) {
+                    payeeSelected = false;
+                    message.append(
+                            getString(R.string.error_field_not_set,getString(R.string.label_credit_to)));
+                }
+            }
+            break;
+            case EXPENSE: {
+                if (null == mSelectedPayer) {
+                    payerSelected = false;
+                    message.append(
+                            getString(R.string.error_field_not_set,getString(R.string.label_debit_to)));
+                }
+            }
+            break;
+            case DUE:
+            case PAY_BORROW: {
+                if (null == mSelectedPayee) {
+                    payeeSelected = false;
+                    message.append(getString(R.string.error_field_not_set,getString(R.string.label_pay_for)))
+                            .append("\n");
+                }
+                if (null == mSelectedPayer) {
+                    payerSelected = false;
+                    message.append(
+                            getString(R.string.error_field_not_set,getString(R.string.label_pay_from)));
+                }
+            }
+            break;
+            case BORROW:
+            case PAY_DUE: {
+                if (null == mSelectedPayee) {
+                    payeeSelected = false;
+                    message.append(getString(R.string.error_field_not_set,getString(R.string.label_receive_in)))
+                            .append("\n");
+                }
+                if (null == mSelectedPayer) {
+                    payerSelected = false;
+                    message.append(
+                            getString(R.string.error_field_not_set,getString(R.string.label_paid_by)));
+                }
+            }
+            break;
+            case MONEY_TRANSFER: {
+                if (null == mSelectedPayee) {
+                    payeeSelected = false;
+                    message.append(getString(R.string.error_field_not_set,getString(R.string.label_receive_in)))
+                            .append("\n");
+                }
+                if (null == mSelectedPayer) {
+                    payerSelected = false;
+                    message.append(
+                            getString(R.string.error_field_not_set,getString(R.string.label_send_from)));
+                }
+            }
+            break;
+            case DUE_TRANSFER:
+            case BORROW_TO_DUE_TRANSFER:
+            case BORROW_TRANSFER: {
+                if (null == mSelectedPayee) {
+                    payeeSelected = false;
+                    message.append(getString(R.string.error_field_not_set,getString(R.string.label_send_to)))
+                            .append("\n");
+                }
+                if (null == mSelectedPayer) {
+                    payeeSelected = false;
+                    message.append(
+                            getString(R.string.error_field_not_set,getString(R.string.label_send_from)));
+                }
+            }
+        }
+        boolean valid = payeeSelected && payerSelected;
+        if (!valid) {
+            ToastUtil.showErrorShort(requireContext(),message);
+        }
+        if (!payeeSelected) {
+            AnimatorUtil.shakeX(mBinding.choosePayee,12,5)
+                    .setDuration(AnimatorUtil.SHORT_ANIM_DURATION).start();
+        }
+        if (!payerSelected) {
+            AnimatorUtil.shakeX(mBinding.choosePayer,12,5)
+                    .setDuration(AnimatorUtil.SHORT_ANIM_DURATION).start();
+        }
+        return valid;
+    }
+
     private boolean validateAmount() {
         String txtAmount = mBinding.amount.getEditableText().toString();
         if (TextUtils.isEmpty(txtAmount)) {
@@ -585,6 +700,9 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
         Bundle args = new Bundle();
         args.putInt(BaseChooserWithSearchFragment.EXTRA_REQUEST_CODE,REQUEST_CODE_PAYEE);
         args.putString(Constants.EXTRA_ACTION,Constants.ACTION_PICK);
+        if (null != mSelectedPayee) {
+            args.putParcelable(BaseChooserWithSearchFragment.EXTRA_INITIAL,mSelectedPayee);
+        }
         switch (type) {
             case INCOME:
             case MONEY_TRANSFER:
@@ -608,6 +726,9 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
         Bundle args = new Bundle();
         args.putInt(BaseChooserWithSearchFragment.EXTRA_REQUEST_CODE,REQUEST_CODE_PAYER);
         args.putString(Constants.EXTRA_ACTION,Constants.ACTION_PICK);
+        if (null != mSelectedPayer) {
+            args.putParcelable(BaseChooserWithSearchFragment.EXTRA_INITIAL,mSelectedPayer);
+        }
         switch (type) {
             case EXPENSE:
             case MONEY_TRANSFER:
@@ -627,7 +748,10 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
     }
 
     private void onClickSave() {
-        if (!validateAmount()) {
+        if (isEditOperation() && !mHistorySet) {
+            return;
+        }
+        if (!validate()) {
             return;
         }
         if (isEditOperation() && !hasAnyValueChanged()) {
@@ -652,37 +776,17 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
         }
         else {
             history.setType(getExtraTransactionType());
-            if (hasExtraPayerAccountId()) {
-                history.setPayerAccountId(getExtraPayerAccountId());
+            if (mSelectedPayee instanceof AccountParcelable) {
+                history.setPayeeAccountId(((AccountParcelable) mSelectedPayee).getId());
             }
-            else if (hasExtraPayerPersonId()) {
-                history.setPayerPersonId(getExtraPayerPersonId());
+            else if (mSelectedPayee instanceof PersonParcelable) {
+                history.setPayeeAccountId(((PersonParcelable) mSelectedPayee).getId());
             }
-            else if (null != mSelectedPayer) {
-                if (mSelectedPayer instanceof AccountParcelable) {
-                    AccountParcelable account = (AccountParcelable) mSelectedPayer;
-                    history.setPayerAccountId(account.getId());
-                }
-                else if (mSelectedPayer instanceof PersonParcelable) {
-                    PersonParcelable person = (PersonParcelable) mSelectedPayer;
-                    history.setPayerPersonId(person.getId());
-                }
+            if (mSelectedPayer instanceof AccountParcelable) {
+                history.setPayeeAccountId(((AccountParcelable) mSelectedPayer).getId());
             }
-            if (hasExtraPayeeAccountId()) {
-                history.setPayeeAccountId(getExtraPayeeAccountId());
-            }
-            else if (hasExtraPayeePersonId()) {
-                history.setPayeePersonId(getExtraPayeePersonId());
-            }
-            else if (null != mSelectedPayee){
-                if (mSelectedPayee instanceof AccountParcelable) {
-                    AccountParcelable account = (AccountParcelable) mSelectedPayee;
-                    history.setPayeeAccountId(account.getId());
-                }
-                else if (mSelectedPayee instanceof PersonParcelable) {
-                    PersonParcelable person = (PersonParcelable) mSelectedPayee;
-                    history.setPayeePersonId(person.getId());
-                }
+            else if (mSelectedPayer instanceof PersonParcelable) {
+                history.setPayeeAccountId(((PersonParcelable) mSelectedPayer).getId());
             }
         }
         mViewModel.saveTransactionHistory(history).observe(getViewLifecycleOwner(),this::onHistorySaved);
@@ -711,6 +815,9 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
     }
 
     private boolean onBackPressed() {
+        if (isEditOperation() && !mHistorySet) {
+            return false;
+        }
         if (hasAnyValueChanged()) {
             DialogUtil.createMessageDialog(requireContext(),getText(R.string.warning_not_saved),
                     getText(R.string.label_discard),null,
@@ -722,18 +829,25 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
         return false;
     }
 
+    /**
+     * Checks weather input values are changed. In case of edit operation
+     * i.e. action is {@link Constants#ACTION_UPDATE} it
+     * matches against the fetched TransactionHistoryModel; but it does
+     * not checks if the TransactionHistoryModel is fetched or not. Caller need
+     * to ensure this first otherwise it will throws {@link NullPointerException}.
+     * In case of insert operation i.e. action is {@link Constants#ACTION_INSERT}
+     * it checks against the fragment arguments i.e. extras and the picked values.
+     *
+     * @return true if at least any field has changed, false otherwise
+     */
     private boolean hasAnyValueChanged() {
         final LocalDate inWhen = pickedDate;
         final Currency inAmount = TextUtil.tryConvertToCurrencyOrNull(mBinding.amount.getEditableText());
-        CharSequence editableDescription = mBinding.description.getEditableText();
-        final String inDescription = editableDescription.length() == 0 ? null : editableDescription.toString();
+        final CharSequence inDescription = mBinding.description.getEditableText();
         LocalDate when;
         Currency amount;
         String description;
         if (isEditOperation()) {
-            if (!mHistorySet) {
-                return false;
-            }
             when = mHistory.getWhen();
             amount = mHistory.getAmount();
             description = mHistory.getDescription();
@@ -742,9 +856,10 @@ public class TransactionBasicDetailsInputFragment extends Fragment {
             when = getExtraWhen();
             amount = getExtraAmount();
             description = getExtraDescription();
+            // TODO: check for payee payer changes
         }
         return !when.isEqual(inWhen) || !amount.equals(inAmount)
-                || !Objects.equals(description,inDescription);
+                || !TextUtil.equals(description,inDescription);
     }
 
     private void exit() {

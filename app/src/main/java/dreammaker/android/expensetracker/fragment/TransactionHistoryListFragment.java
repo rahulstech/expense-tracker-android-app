@@ -3,8 +3,6 @@ package dreammaker.android.expensetracker.fragment;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
-import android.content.Context;
 import android.os.Bundle;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
@@ -47,21 +45,18 @@ public class TransactionHistoryListFragment extends BaseEntityWithTransactionHis
 
     private boolean mRevealMenuOpened = false;
 
+    private Animator mRevealAnimation;
+
     @SuppressWarnings("FieldCanBeLocal")
     private ActivityModel mActivityModel;
 
     public TransactionHistoryListFragment() {super();}
 
     @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        mActivityModel = ((ActivityModelProvider) requireActivity()).getActivityModel();
-        mActivityModel.addOnBackPressedCallback(this,this::onBackPressed);
-    }
-
-    @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        mActivityModel = ((ActivityModelProvider) requireActivity()).getActivityModel();
+        mActivityModel.addOnBackPressedCallback(this,this::onBackPressed);
         mBinding = FragmentTransactionHistoryListBinding.inflate(inflater,container,false);
         loadAllHistories();
         return mBinding.getRoot();
@@ -94,9 +89,7 @@ public class TransactionHistoryListFragment extends BaseEntityWithTransactionHis
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (null != mQuery) {
-            outState.putParcelable(KEY_QUERY,mQuery);
-        }
+        outState.putParcelable(KEY_QUERY,mQuery);
     }
 
     @Override
@@ -125,6 +118,7 @@ public class TransactionHistoryListFragment extends BaseEntityWithTransactionHis
 
     @Override
     public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+        super.onCreateActionMode(mode,menu);
         mBinding.btnAddHistory.hide();
         updateActionTitle(mode);
         return true;
@@ -132,11 +126,13 @@ public class TransactionHistoryListFragment extends BaseEntityWithTransactionHis
 
     @Override
     public void onItemChecked(@NonNull ActionMode mode, @NonNull View view, int position, boolean checked) {
+        super.onItemChecked(mode,view,position,checked);
         updateActionTitle(mode);
     }
 
     @Override
     public void onDestroyActionMode(ActionMode mode) {
+        super.onDestroyActionMode(mode);
         updateActionTitle(mode);
         mBinding.btnAddHistory.show();
     }
@@ -173,17 +169,12 @@ public class TransactionHistoryListFragment extends BaseEntityWithTransactionHis
     }
 
     private void toggleRevealMenu(@Nullable Animator.AnimatorListener listener) {
-        float rotationFrom, rotationTo;
-        if (mRevealMenuOpened) {
-            rotationFrom = 45;
-            rotationTo = 0;
-        }
-        else {
-            rotationFrom = 0;
-            rotationTo = 45;
-        }
-        ObjectAnimator rotationAnimator = ObjectAnimator.ofFloat(mBinding.btnAddHistory,"rotation",rotationFrom,rotationTo);
-        rotationAnimator.setDuration(AnimatorUtil.LONG_ANIM_DURATION);
+        // TODO: improve the animation behaviour when toggled before running animation completed
+        //if (mRevealAnimation != null && mRevealAnimation.isRunning()) {
+        //    return;
+        //}
+        Animator rotationAnimator = AnimatorUtil.rotate(mBinding.btnAddHistory,-45)
+                .setDuration(AnimatorUtil.LONG_ANIM_DURATION);
         Animator revealAnimator = AnimatorUtil.circularReveal(mBinding.btnAddHistory,mBinding.revealMenu,!mRevealMenuOpened);
         revealAnimator.setDuration(AnimatorUtil.SHORT_ANIM_DURATION);
         revealAnimator.addListener(new AnimatorListenerAdapter() {
@@ -205,23 +196,25 @@ public class TransactionHistoryListFragment extends BaseEntityWithTransactionHis
         AnimatorSet set = new AnimatorSet();
         Toolbar toolbar = mActivityModel.getSupportToolbar();
         if (null != toolbar) {
-            int height = toolbar.getMeasuredHeight();
-            int fromY, toY;
-            if (mRevealMenuOpened) {
-                fromY = -height;
-                toY = 0;
-            }
-            else {
-                fromY = 0;
-                toY = -height;
-            }
-            ObjectAnimator translateAnimator = ObjectAnimator.ofFloat(toolbar,"translationY",fromY,toY);
-            translateAnimator.setDuration(AnimatorUtil.SHORT_ANIM_DURATION);
+            float height = toolbar.getMeasuredHeight();
+            Animator translateAnimator = AnimatorUtil.translateY(toolbar,-height)
+                    .setDuration(AnimatorUtil.SHORT_ANIM_DURATION);
             set.playTogether(revealAnimator,rotationAnimator,translateAnimator);
         }
         else {
             set.playTogether(revealAnimator,rotationAnimator);
         }
+        set.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                mRevealAnimation = animation;
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mRevealAnimation = null;
+            }
+        });
         if (null != listener) {
             set.addListener(listener);
         }

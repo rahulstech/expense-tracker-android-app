@@ -31,8 +31,8 @@ public class CheckableDrawableWrapper extends Drawable implements Checkable {
         Objects.requireNonNull(context,"given null Context");
         Objects.requireNonNull(drawable,"given null Drawable");
         mDrawable = drawable;
-        mCheckMark = ResourceUtil.getDrawable(context, R.drawable.ic_baseline_check_circle_24);
-        int tint = ResourceUtil.getThemeColor(context,R.attr.colorAccent);
+        mCheckMark = ResourceUtil.getDrawable(context, R.drawable.ic_baseline_check_circle_36);
+        int tint = ResourceUtil.getThemeColor(context,R.attr.colorPrimary);
         DrawableCompat.setTint(mCheckMark,tint);
     }
 

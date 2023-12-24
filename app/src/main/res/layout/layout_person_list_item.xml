@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:clickable="true"
-    app:contentPaddingBottom="@dimen/tile_padding_medium"
+    app:contentPaddingBottom="@dimen/tile_padding_small"
     android:layout_marginVertical="@dimen/tile_margin_small"
     style="@style/Widget.AppTheme.TileCard.Medium">
 
@@ -17,8 +17,8 @@
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/photo"
-        android:layout_width="@dimen/tile_icon_size_large"
-        android:layout_height="@dimen/tile_icon_size_large"
+        android:layout_width="@dimen/tile_icon_size_medium"
+        android:layout_height="@dimen/tile_icon_size_medium"
         android:layout_marginStart="@dimen/tile_margin_small"
         android:layout_marginTop="@dimen/tile_margin_small"
         app:layout_constraintStart_toStartOf="parent"
@@ -62,6 +62,8 @@
         android:layout_marginEnd="@dimen/tile_margin_small"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
         android:textStyle="bold"
+        android:maxLines="1"
+        android:ellipsize="end"
         android:textColor="@color/text_green"
         app:layout_constraintTop_toBottomOf="@id/name"
         app:layout_constraintStart_toEndOf="@id/label_due"
@@ -89,6 +91,8 @@
         android:layout_marginEnd="@dimen/tile_margin_small"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
         android:textStyle="bold"
+        android:maxLines="1"
+        android:ellipsize="end"
         android:textColor="@color/text_red"
         app:layout_constraintTop_toBottomOf="@id/due"
         app:layout_constraintStart_toEndOf="@id/label_borrow"

@@ -5,12 +5,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.material.datepicker.MaterialDatePicker;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.util.Pair;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
-import dreammaker.android.expensetracker.databinding.FragmentFilterHistoryBottomSheetBinding;
+import dreammaker.android.expensetracker.databinding.FragmentFilterHistoryBinding;
 
 @SuppressWarnings("unused")
 public class FilterHistoryBottomSheet extends Fragment {
@@ -21,12 +24,12 @@ public class FilterHistoryBottomSheet extends Fragment {
 
     private NavController navController;
 
-    private FragmentFilterHistoryBottomSheetBinding mBinding;
+    private FragmentFilterHistoryBinding mBinding;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        mBinding = FragmentFilterHistoryBottomSheetBinding.inflate(inflater,container,false);
+        mBinding = FragmentFilterHistoryBinding.inflate(inflater,container,false);
         return mBinding.getRoot();
     }
 
@@ -34,5 +37,8 @@ public class FilterHistoryBottomSheet extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         navController = Navigation.findNavController(view);
+
+        MaterialDatePicker.Builder<Pair<Long,Long>> picker = MaterialDatePicker.Builder.dateRangePicker();
+        picker.build().showNow(getChildFragmentManager(),null);
     }
 }

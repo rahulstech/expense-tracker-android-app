@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -125,6 +126,7 @@ public class PeopleAdapter
     @Override
     protected void onBindSectionItemViewHolder(@NonNull ChildViewHolder holder, int adapterPosition) {
         holder.bind(getData(adapterPosition));
+        Log.d(TAG, "onBindSectionItemViewHolder: position="+adapterPosition+" checked="+getChoiceModel().isChecked(adapterPosition));
         holder.setChecked(getChoiceModel().isChecked(adapterPosition));
     }
 

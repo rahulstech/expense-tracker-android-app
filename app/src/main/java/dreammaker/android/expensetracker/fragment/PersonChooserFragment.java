@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.adapter.PeopleChooserAdapter;
 import dreammaker.android.expensetracker.database.model.PersonModel;
+import dreammaker.android.expensetracker.fragment.parcelable.PersonParcelable;
 import dreammaker.android.expensetracker.itemdecoration.SimpleEmptyRecyclerViewDecoration;
 import dreammaker.android.expensetracker.listener.ChoiceModel;
 import dreammaker.android.expensetracker.util.Constants;
@@ -120,6 +121,23 @@ public class PersonChooserFragment extends BaseChooserWithSearchFragment {
         else {
             mLoadedPeople = people;
             submitPeople();
+            if (!people.isEmpty() && hasExtraInitial()) {
+                if (Constants.ACTION_PICK_MULTIPLE.equals(getAction())) {
+                    ArrayList<PersonParcelable> initials = getExtraInitial();
+                    if (null != initials && !initials.isEmpty()) {
+                        ArrayList<Object> keys = new ArrayList<>();
+                        for (PersonParcelable person : initials) {
+                            keys.add(person.getId());
+                        }
+                        getChoiceModel().setChecked(keys,true);
+                    }
+                }
+                else {
+                    PersonParcelable initial = getExtraInitial();
+                    Object key = initial.getId();
+                    getChoiceModel().setChecked(key,true);
+                }
+            }
         }
     }
 

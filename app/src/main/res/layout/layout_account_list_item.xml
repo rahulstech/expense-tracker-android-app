@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:clickable="true"
-    app:contentPaddingBottom="@dimen/tile_padding_medium"
+    app:contentPaddingBottom="@dimen/tile_padding_small"
     android:layout_marginVertical="@dimen/tile_margin_small"
     style="@style/Widget.AppTheme.TileCard.Medium">
 
@@ -56,10 +56,12 @@
             android:layout_marginStart="@dimen/tile_margin_small"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
             android:textStyle="bold"
+            android:maxLines="1"
+            android:ellipsize="end"
             app:layout_constraintTop_toBottomOf="@id/name"
             app:layout_constraintStart_toEndOf="@id/label_balance"
             app:layout_constraintEnd_toEndOf="parent"
-            tools:text="156.23"/>
+            tools:text="154654879461321346548798561313798754213213215464566.23"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

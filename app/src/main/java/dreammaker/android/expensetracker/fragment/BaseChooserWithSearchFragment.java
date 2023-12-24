@@ -30,7 +30,9 @@ public abstract class BaseChooserWithSearchFragment extends Fragment implements 
 
     public static final String KEY_SELECTIONS = "key_selections";
 
-    public static final String EXTRA_REQUEST_CODE = "key_request_code";
+    public static final String EXTRA_REQUEST_CODE = "extra_request_code";
+
+    public static final String EXTRA_INITIAL = "extra_initial";
 
     private LayoutChooserWithSearchBinding mBinding;
 
@@ -50,7 +52,7 @@ public abstract class BaseChooserWithSearchFragment extends Fragment implements 
         return requireArguments().getString(EXTRA_TITLE);
     }
 
-    public final boolean hasExtraAction() {
+    public boolean hasExtraAction() {
         return requireArguments().containsKey(Constants.EXTRA_ACTION);
     }
 
@@ -58,12 +60,22 @@ public abstract class BaseChooserWithSearchFragment extends Fragment implements 
         return requireArguments().getString(Constants.EXTRA_ACTION,Constants.ACTION_PICK);
     }
 
-    public final boolean hasRequestCode() {
+    public boolean hasRequestCode() {
         return requireArguments().containsKey(EXTRA_REQUEST_CODE);
     }
 
     public int getExtraRequestCode() {
         return requireArguments().getInt(EXTRA_REQUEST_CODE,0);
+    }
+
+
+    public boolean hasExtraInitial() {
+        return requireArguments().containsKey(EXTRA_INITIAL);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T getExtraInitial() {
+        return (T) requireArguments().get(EXTRA_INITIAL);
     }
 
     @Override

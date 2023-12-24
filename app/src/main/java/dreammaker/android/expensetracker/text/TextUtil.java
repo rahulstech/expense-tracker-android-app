@@ -39,6 +39,13 @@ public class TextUtil {
         return where.toString().toLowerCase().indexOf(what.toString().toLowerCase());
     }
 
+    public static boolean equals(CharSequence x, CharSequence y) {
+        if (TextUtils.isEmpty(x) && TextUtils.isEmpty(y)) {
+            return true;
+        }
+        return TextUtils.equals(x,y);
+    }
+
     public static String getDisplayLabelLetterOnly(String text, String ifEmpty) {
         if (TextUtils.isEmpty(text)) {
             return ifEmpty;

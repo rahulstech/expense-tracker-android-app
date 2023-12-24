@@ -293,5 +293,6 @@
     <string name="label_add_borrow_to_due_transfer">Add History</string>
     <string name="description_button_close">close current screen</string>
     <string name="description_button_pick">pick items</string>
+    <string name="error_field_not_set">%1$s not set</string>
 
 </resources>
