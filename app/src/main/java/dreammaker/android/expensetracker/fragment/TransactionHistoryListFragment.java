@@ -41,11 +41,9 @@ public class TransactionHistoryListFragment extends BaseEntityWithTransactionHis
 
     private FragmentTransactionHistoryListBinding mBinding;
 
-    private SectionedTransactionHistoryAdapter.HistoryFilterData mQuery;
-
     private boolean mRevealMenuOpened = false;
 
-    private Animator mRevealAnimation;
+    //private Animator mRevealAnimation;
 
     @SuppressWarnings("FieldCanBeLocal")
     private ActivityModel mActivityModel;
@@ -89,14 +87,14 @@ public class TransactionHistoryListFragment extends BaseEntityWithTransactionHis
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelable(KEY_QUERY,mQuery);
+        //outState.putParcelable(KEY_QUERY,mQuery);
     }
 
     @Override
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
         if (null != savedInstanceState) {
-            mQuery = savedInstanceState.getParcelable(KEY_QUERY);
+            //mQuery = savedInstanceState.getParcelable(KEY_QUERY);
         }
     }
 
@@ -164,15 +162,11 @@ public class TransactionHistoryListFragment extends BaseEntityWithTransactionHis
 
     private void onClickFilterHistory() {
         Bundle args = new Bundle();
-        args.putParcelable(FilterHistoryBottomSheet.EXTRA_HISTORY_FILTER_DATA,mQuery);
+        //args.putParcelable(FilterHistoryBottomSheet.EXTRA_HISTORY_FILTER_DATA,mQuery);
         navController.navigate(R.id.action_histories_to_filter_history,args);
     }
 
     private void toggleRevealMenu(@Nullable Animator.AnimatorListener listener) {
-        // TODO: improve the animation behaviour when toggled before running animation completed
-        //if (mRevealAnimation != null && mRevealAnimation.isRunning()) {
-        //    return;
-        //}
         Animator rotationAnimator = AnimatorUtil.rotate(mBinding.btnAddHistory,-45)
                 .setDuration(AnimatorUtil.LONG_ANIM_DURATION);
         Animator revealAnimator = AnimatorUtil.circularReveal(mBinding.btnAddHistory,mBinding.revealMenu,!mRevealMenuOpened);
@@ -204,17 +198,6 @@ public class TransactionHistoryListFragment extends BaseEntityWithTransactionHis
         else {
             set.playTogether(revealAnimator,rotationAnimator);
         }
-        set.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-                mRevealAnimation = animation;
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                mRevealAnimation = null;
-            }
-        });
         if (null != listener) {
             set.addListener(listener);
         }

@@ -8,14 +8,12 @@ import java.util.List;
 import java.util.Objects;
 
 import androidx.annotation.NonNull;
-import androidx.core.util.Pair;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import dreammaker.android.expensetracker.BuildConfig;
 import dreammaker.android.expensetracker.database.dao.TransactionHistoryDao;
 import dreammaker.android.expensetracker.database.entity.TransactionHistory;
-import dreammaker.android.expensetracker.database.model.PersonModel;
 import dreammaker.android.expensetracker.database.model.TransactionHistoryModel;
 
 @SuppressWarnings("unused")
@@ -27,11 +25,11 @@ public class TransactionHistoryViewModel extends DBViewModel {
 
     public static final int DELETE_HISTORIES = 2;
 
-    private LiveData<List<TransactionHistoryModel>> mTransactions;
+    private final LiveData<List<TransactionHistoryModel>> mTransactions;
 
     private LiveData<TransactionHistoryModel> mTransaction;
 
-    private MutableLiveData<SourceData> mSourceDataLiveData;
+    private final MutableLiveData<SourceData> mSourceDataLiveData;
 
     public TransactionHistoryViewModel(@NonNull Application application) {
         super(application);

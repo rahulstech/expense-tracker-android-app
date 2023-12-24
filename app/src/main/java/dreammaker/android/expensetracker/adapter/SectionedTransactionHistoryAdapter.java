@@ -32,6 +32,8 @@ import dreammaker.android.expensetracker.database.type.TransactionType;
 import dreammaker.android.expensetracker.databinding.LayoutTransactionHistoryItemBinding;
 import dreammaker.android.expensetracker.drawable.CheckableDrawableWrapper;
 import dreammaker.android.expensetracker.drawable.DrawableUtil;
+import dreammaker.android.expensetracker.fragment.parcelable.AccountParcelable;
+import dreammaker.android.expensetracker.fragment.parcelable.PersonParcelable;
 import dreammaker.android.expensetracker.text.TextUtil;
 
 @SuppressWarnings("unused")
@@ -62,7 +64,6 @@ public class SectionedTransactionHistoryAdapter
 
     private int mHeaderType = HEADER_DATE;
 
-    private HistoryFilterData mQuery;
     public SectionedTransactionHistoryAdapter(@NonNull Context context) {
         super(context, CALLBACK);
     }
@@ -73,11 +74,6 @@ public class SectionedTransactionHistoryAdapter
 
     public int getHeaderType() {
         return mHeaderType;
-    }
-
-    public void filter(@Nullable List<TransactionHistoryModel> items, @Nullable HistoryFilterData data) {
-        mQuery = data;
-        super.submitList(items);
     }
 
     @Override
@@ -92,7 +88,6 @@ public class SectionedTransactionHistoryAdapter
     @Override
     protected AsyncSectionBuilder<HeaderData, TransactionHistoryModel> onCreateSectionBuilder(@Nullable List<TransactionHistoryModel> list) {
         AsyncItemBuilder builder = new AsyncItemBuilder(list,mHeaderType);
-        builder.setQuery(mQuery);
         return builder;
     }
 
@@ -335,80 +330,15 @@ public class SectionedTransactionHistoryAdapter
 
         private final int mHeaderType;
 
-        private HistoryFilterData mQuery;
-
         public AsyncItemBuilder(@Nullable List<TransactionHistoryModel> items, int headerType) {
             super(items);
             mHeaderType = headerType;
         }
 
-        public void setQuery(HistoryFilterData query) {
-            this.mQuery = query;
-        }
-
         @NonNull
         @Override
         protected List<TransactionHistoryModel> onBeforeBuildSections(@NonNull List<TransactionHistoryModel> items) {
-            final HistoryFilterData query = mQuery;
-            List<TransactionHistoryModel> histories;
-            if (null == query) {
-                histories = items;
-            }
-            else {
-                histories = filter(items,query);
-            }
-            return histories;
-        }
-
-        private List<TransactionHistoryModel> filter(List<TransactionHistoryModel> histories, HistoryFilterData query) {
-            if (BuildConfig.DEBUG) {
-                Log.d(TAG, "filter: query="+query);
-            }
-            ArrayList<TransactionHistoryModel> filtered = new ArrayList<>();
-            for (TransactionHistoryModel history : histories) {
-                if (match(history,query)) {
-                    filtered.add(history);
-                }
-            }
-            return filtered;
-        }
-
-        private boolean match(TransactionHistoryModel history, HistoryFilterData query) {
-            final LocalDate rangeStart = query.rangeStart;
-            final LocalDate rangeEnd = query.rangeEnd;
-            final ArraySet<Long> people = query.people;
-            final ArraySet<Long> accounts = query.accounts;
-            final ArraySet<TransactionType> types = query.types;
-            final CharSequence text = query.text;
-
-            final LocalDate when = history.getWhen();
-            final Long payeeAccountId = history.getPayeeAccountId();
-            final Long payerAccountId = history.getPayerAccountId();
-            final Long payeePersonId = history.getPayeePersonId();
-            final Long payerPersonId = history.getPayerPersonId();
-            final TransactionType type = history.getType();
-            final String description = history.getDescription();
-
-            boolean matched = true;
-            if (null != rangeStart) {
-                matched = rangeStart.compareTo(when) <= 0;
-            }
-            if (null != rangeEnd) {
-                matched &= rangeEnd.compareTo(when) >= 0;
-            }
-            if (null != people) {
-                matched &= people.contains(payeePersonId) || people.contains(payerPersonId);
-            }
-            if (null != accounts) {
-                matched &= accounts.contains(payeeAccountId) || accounts.contains(payerAccountId);
-            }
-            if (null != types) {
-                matched &= types.contains(type);
-            }
-            if (null != text) {
-                matched &= TextUtil.containsIgnoreCase(description,text);
-            }
-            return matched;
+            return items;
         }
 
         @NonNull
@@ -442,277 +372,6 @@ public class SectionedTransactionHistoryAdapter
             SparseArrayCompat<Object> map = prepareChoiceKeyMap(listItems);
             if (!isCancelled()) {
                 postChoiceKeyMap(map);
-            }
-        }
-    }
-
-    public static class HistoryFilterData implements Parcelable {
-
-        LocalDate rangeStart;
-        LocalDate rangeEnd;
-        ArraySet<Long> people;
-        ArraySet<Long> accounts;
-        ArraySet<TransactionType> types;
-        String text;
-
-        public HistoryFilterData() {}
-
-        protected HistoryFilterData(Parcel in) {
-            if (ParcelCompat.readBoolean(in)) {
-                String value = in.readString();
-                rangeStart = LocalDate.parse(value,DateTimeFormatter.ISO_LOCAL_DATE);
-            }
-            if (ParcelCompat.readBoolean(in)) {
-                String value = in.readString();
-                rangeEnd = LocalDate.parse(value,DateTimeFormatter.ISO_LOCAL_DATE);
-            }
-            people = readLongArraySet(in);
-            accounts = readLongArraySet(in);
-            types = readTransactionTypeArraySet(in);
-            text = in.readString();
-        }
-
-        public static final Creator<HistoryFilterData> CREATOR = new Creator<HistoryFilterData>() {
-            @Override
-            public HistoryFilterData createFromParcel(Parcel in) {
-                return new HistoryFilterData(in);
-            }
-
-            @Override
-            public HistoryFilterData[] newArray(int size) {
-                return new HistoryFilterData[size];
-            }
-        };
-
-        public HistoryFilterData setRangeStart(LocalDate rangeStart) {
-            this.rangeStart = rangeStart;
-            return this;
-        }
-
-        public HistoryFilterData setRangeEnd(LocalDate rangeEnd) {
-            this.rangeEnd = rangeEnd;
-            return this;
-        }
-
-        public HistoryFilterData addPerson(long id) {
-            if (null == people) {
-                people = new ArraySet<>();
-            }
-            people.add(id);
-            return this;
-        }
-
-        public HistoryFilterData addAllPeople(long[] ids) {
-            if (null == ids || ids.length == 0) {
-                return this;
-            }
-            if (null == people) {
-                people = new ArraySet<>();
-            }
-            for (long id : ids) {
-                people.add(id);
-            }
-            return this;
-        }
-
-        public HistoryFilterData removePerson(long id) {
-            if (null == people) {
-                return this;
-            }
-            people.remove(id);
-            if (people.isEmpty()) {
-                people = null;
-            }
-            return this;
-        }
-
-        public HistoryFilterData removeAllPeople() {
-            if (null == people) {
-                return this;
-            }
-            people.clear();
-            people = null;
-            return this;
-        }
-
-        public HistoryFilterData addAccount(long id) {
-            if (null == accounts) {
-                accounts = new ArraySet<>();
-            }
-            accounts.add(id);
-            return this;
-        }
-
-        public HistoryFilterData addAllAccounts(long[] ids) {
-            if (null == ids || ids.length == 0) {
-                return this;
-            }
-            if (null == accounts) {
-                accounts = new ArraySet<>();
-            }
-            for (long id : ids) {
-                accounts.add(id);
-            }
-            return this;
-        }
-
-        public HistoryFilterData removeAccount(long id) {
-            if (null == accounts) {
-                return this;
-            }
-            accounts.remove(id);
-            if (accounts.isEmpty()) {
-                accounts = null;
-            }
-            return this;
-        }
-
-        public HistoryFilterData removeAllAccounts() {
-            if (null == accounts) {
-                return this;
-            }
-            accounts.clear();
-            accounts = null;
-            return this;
-        }
-
-        public HistoryFilterData addType(TransactionType type) {
-            if (null == types) {
-                types = new ArraySet<>();
-            }
-            types.add(type);
-            return this;
-        }
-
-        public HistoryFilterData addAllTypes(TransactionType[] types) {
-            if (null == types || types.length == 0) {
-                return this;
-            }
-            if (null == this.types) {
-                this.types = new ArraySet<>();
-            }
-            this.types.addAll(Arrays.asList(types));
-            return this;
-        }
-
-        public HistoryFilterData removeType(TransactionType type) {
-            if (null == types) {
-                return this;
-            }
-            types.remove(type);
-            return this;
-        }
-
-        public HistoryFilterData removeAllTypes() {
-            if (null == this.types) {
-                return this;
-            }
-            types.clear();
-            types = null;
-            return this;
-        }
-
-        public HistoryFilterData setText(String text) {
-            this.text = text;
-            return this;
-        }
-
-        @NonNull
-        @Override
-        public String toString() {
-            return "HistoryFilterData{" +
-                    "rangeStart=" + rangeStart +
-                    ", rangeEnd=" + rangeEnd +
-                    ", people=" + people +
-                    ", accounts=" + accounts +
-                    ", types=" + types +
-                    ", text=" + text +
-                    '}';
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof HistoryFilterData)) return false;
-            HistoryFilterData that = (HistoryFilterData) o;
-            return Objects.equals(rangeStart, that.rangeStart) && Objects.equals(rangeEnd, that.rangeEnd) && Objects.equals(people, that.people) && Objects.equals(accounts, that.accounts) && Objects.equals(types, that.types) && Objects.equals(text, that.text);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(rangeStart, rangeEnd, people, accounts, types, text);
-        }
-
-        @Override
-        public int describeContents() {return 0;}
-
-        @Override
-        public void writeToParcel(Parcel dest, int flags) {
-            boolean hasRangeStart = null != rangeStart;
-            boolean hasRangeEnd = null != rangeEnd;
-            ParcelCompat.writeBoolean(dest,hasRangeStart);
-            if (hasRangeStart) {
-                dest.writeString(rangeStart.format(DateTimeFormatter.ISO_LOCAL_DATE));
-            }
-            ParcelCompat.writeBoolean(dest,hasRangeEnd);
-            if (hasRangeEnd) {
-                dest.writeString(rangeEnd.format(DateTimeFormatter.ISO_LOCAL_DATE));
-            }
-            writeLongArraySet(dest,people);
-            writeLongArraySet(dest,accounts);
-            writeTransactionTypeArraySet(dest,types);
-            dest.writeString(text);
-        }
-
-        private ArraySet<Long> readLongArraySet(Parcel in) {
-            int count = in.readInt();
-            if (0 == count) {
-                return null;
-            }
-            ArraySet<Long> set = new ArraySet<>(count);
-            for (int i=0; i<count; i++) {
-                long val = in.readLong();
-                Long value = val == RecyclerView.NO_ID ? null : val;
-                set.add(value);
-            }
-            return set;
-        }
-
-        private void writeLongArraySet(Parcel dest, @Nullable ArraySet<Long> set) {
-            int count = null == set ? 0 : set.size();
-            dest.writeInt(count);
-            if (count > 0) {
-                Long[] values = set.toArray(new Long[0]);
-                for (Long value : values) {
-                    long val = null == value ? RecyclerView.NO_ID : value;
-                    dest.writeLong(val);
-                }
-            }
-        }
-
-        private ArraySet<TransactionType> readTransactionTypeArraySet(Parcel in) {
-            int count = in.readInt();
-            if (0 == count) {
-                return null;
-            }
-            ArraySet<TransactionType> set = new ArraySet<>(count);
-            for (int i=0; i<count; i++) {
-                String value = in.readString();
-                TransactionType type = TransactionType.valueOf(value);
-                set.add(type);
-            }
-            return set;
-        }
-
-        private void writeTransactionTypeArraySet(Parcel dest, @Nullable ArraySet<TransactionType> set) {
-            int count = null == set ? 0 : set.size();
-            dest.writeInt(count);
-            if (count > 0) {
-                TransactionType[] values = set.toArray(new TransactionType[0]);
-                for (TransactionType value : values) {
-                    String val = value.name();
-                    dest.writeString(val);
-                }
             }
         }
     }
