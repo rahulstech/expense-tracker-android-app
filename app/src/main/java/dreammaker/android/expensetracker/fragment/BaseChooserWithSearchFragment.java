@@ -24,15 +24,10 @@ import dreammaker.android.expensetracker.util.Constants;
 @SuppressWarnings("unused")
 public abstract class BaseChooserWithSearchFragment extends Fragment implements OnItemCheckedListener {
 
+    protected static final String KEY_SELECTIONS = "key_selections";
+
+    @Deprecated
     public static final String EXTRA_TITLE = "extra_title";
-
-    public static final String KEY_RESULT = "key_result";
-
-    public static final String KEY_SELECTIONS = "key_selections";
-
-    public static final String EXTRA_REQUEST_CODE = "extra_request_code";
-
-    public static final String EXTRA_INITIAL = "extra_initial";
 
     private LayoutChooserWithSearchBinding mBinding;
 
@@ -45,11 +40,11 @@ public abstract class BaseChooserWithSearchFragment extends Fragment implements 
     public BaseChooserWithSearchFragment() { super(); }
 
     public final boolean hasExtraTitle() {
-        return requireArguments().containsKey(EXTRA_TITLE);
+        return requireArguments().containsKey(Constants.EXTRA_TITLE);
     }
 
     public CharSequence getExtraTitle() {
-        return requireArguments().getString(EXTRA_TITLE);
+        return requireArguments().getString(Constants.EXTRA_TITLE);
     }
 
     public boolean hasExtraAction() {
@@ -61,21 +56,21 @@ public abstract class BaseChooserWithSearchFragment extends Fragment implements 
     }
 
     public boolean hasRequestCode() {
-        return requireArguments().containsKey(EXTRA_REQUEST_CODE);
+        return requireArguments().containsKey(Constants.KEY_REQUEST_CODE);
     }
 
     public int getExtraRequestCode() {
-        return requireArguments().getInt(EXTRA_REQUEST_CODE,0);
+        return requireArguments().getInt(Constants.KEY_REQUEST_CODE,0);
     }
 
 
     public boolean hasExtraInitial() {
-        return requireArguments().containsKey(EXTRA_INITIAL);
+        return requireArguments().containsKey(Constants.EXTRA_INITIALS);
     }
 
     @SuppressWarnings("unchecked")
     public <T> T getExtraInitial() {
-        return (T) requireArguments().get(EXTRA_INITIAL);
+        return (T) requireArguments().get(Constants.EXTRA_INITIALS);
     }
 
     @Override
@@ -177,9 +172,8 @@ public abstract class BaseChooserWithSearchFragment extends Fragment implements 
     public abstract ChoiceModel.Callback getChoiceModelCallback();
 
     public final void setResult(@NonNull Bundle result) {
-        result.putInt(EXTRA_REQUEST_CODE,getExtraRequestCode());
         //noinspection ConstantConditions
-        navController.getPreviousBackStackEntry().getSavedStateHandle().set(KEY_RESULT,result);
+        navController.getPreviousBackStackEntry().getSavedStateHandle().set(Constants.KEY_RESULT,result);
     }
 
     @NonNull
@@ -194,6 +188,7 @@ public abstract class BaseChooserWithSearchFragment extends Fragment implements 
 
     protected void onClickPick() {
         Bundle result = onPrepareResult();
+        result.putInt(Constants.KEY_REQUEST_CODE,getExtraRequestCode());
         setResult(result);
         exit();
     }

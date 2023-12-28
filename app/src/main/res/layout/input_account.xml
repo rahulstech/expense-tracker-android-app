@@ -34,9 +34,10 @@
                     android:layout_height="wrap_content"
                     android:imeOptions="actionNext"
                     android:importantForAutofill="no"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
                     android:maxLines="1"
-                    tools:text="@tools:sample/lorem"/>
+                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    tools:ignore="TextContrastCheck"
+                    tools:text="@tools:sample/lorem" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -51,6 +52,7 @@
                 android:layout_marginEnd="16dp"
                 app:endIconMode="custom"
                 app:endIconDrawable="@drawable/ic_calculator"
+                app:errorIconDrawable="@null"
                 app:endIconScaleType="center"
                 android:hint="@string/balance"
                 app:hintEnabled="true"
@@ -61,13 +63,14 @@
                     android:id="@+id/balance"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:contentDescription="@string/description_total_balance"
                     android:imeOptions="actionDone"
-                    android:maxLines="1"
                     android:importantForAutofill="no"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
                     android:inputType="numberDecimal"
+                    android:maxLines="1"
                     android:text="0"
-                    tools:ignore="HardcodedText"/>
+                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    tools:ignore="HardcodedText,EditableContentDescCheck,TextContrastCheck" />
             </com.google.android.material.textfield.TextInputLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -78,12 +81,12 @@
         android:id="@+id/button_save"
         android:layout_width="@dimen/fab_size_medium"
         android:layout_height="@dimen/fab_size_medium"
-        app:fabCustomSize="@dimen/fab_size_medium"
-        android:contentDescription="@string/description_save"
         android:layout_gravity="bottom|right"
         android:layout_margin="@dimen/fab_margin"
+        android:contentDescription="@string/description_save"
         android:src="@drawable/ic_baseline_save_alt_24"
+        app:fabCustomSize="@dimen/fab_size_medium"
         app:tint="@color/fab_icon_tint"
-        tools:ignore="RtlHardcoded" />
+        tools:ignore="RtlHardcoded,ImageContrastCheck" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

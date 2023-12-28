@@ -41,6 +41,7 @@ public class InputPerson extends Fragment {
     private InputPersonBinding mBinding;
 
     private PersonModel mPerson;
+
     private boolean mPersonSet = false;
 
     public InputPerson(){
@@ -193,7 +194,7 @@ public class InputPerson extends Fragment {
         mViewModel.savePerson(person).observe(getViewLifecycleOwner(),this::onPersonSaveComplete);
     }
 
-    @SuppressWarnings("UnusedAssignment")
+    @SuppressWarnings({"UnusedAssignment", "PointlessBooleanExpression"})
     private boolean validate() {
         CharSequence firstName = mBinding.firstName.getEditableText().toString().trim();
         CharSequence txtDue = mBinding.due.getEditableText().toString().trim();
@@ -203,29 +204,29 @@ public class InputPerson extends Fragment {
         mBinding.containerDue.setError(null);
         mBinding.containerDue.setError(null);
 
-        boolean valid;
+        boolean valid = true;
         if (TextUtils.isEmpty(firstName)) {
             mBinding.containerFirstName.setError(getText(R.string.error_empty_input));
-            valid = false;
+            valid &= false;
         }
         if (TextUtils.isEmpty(txtDue)) {
             mBinding.containerDue.setError(getText(R.string.error_empty_input));
-            valid = false;
+            valid &= false;
         }
         else {
             Currency due = TextUtil.tryConvertToCurrencyOrNull(txtDue);
-            valid = due != null;
+            valid &= due != null;
             if (!valid) {
                 mBinding.containerDue.setError(getText(R.string.error_invalid_numeric_value));
             }
         }
         if (TextUtils.isEmpty(txtBorrow)) {
             mBinding.containerBorrow.setError(getText(R.string.error_empty_input));
-            valid = false;
+            valid &= false;
         }
         else {
             Currency borrow = TextUtil.tryConvertToCurrencyOrNull(txtBorrow);
-            valid = null != borrow;
+            valid &= null != borrow;
             if (!valid) {
                 mBinding.containerBorrow.setError(getText(R.string.error_invalid_numeric_value));
             }

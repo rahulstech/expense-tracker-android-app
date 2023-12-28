@@ -20,7 +20,6 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 import dreammaker.android.expensetracker.BuildConfig;
 import dreammaker.android.expensetracker.R;
-import dreammaker.android.expensetracker.adapter.SectionedTransactionHistoryAdapter;
 import dreammaker.android.expensetracker.database.model.AccountModel;
 import dreammaker.android.expensetracker.database.model.TransactionHistoryModel;
 import dreammaker.android.expensetracker.database.type.Currency;
@@ -28,6 +27,7 @@ import dreammaker.android.expensetracker.database.type.TransactionType;
 import dreammaker.android.expensetracker.databinding.FragmentAccountDetailsBinding;
 import dreammaker.android.expensetracker.dialog.DialogUtil;
 import dreammaker.android.expensetracker.drawable.DrawableUtil;
+import dreammaker.android.expensetracker.fragment.parcelable.HistoryFilterData;
 import dreammaker.android.expensetracker.text.SpannableStringUtil;
 import dreammaker.android.expensetracker.text.Spans;
 import dreammaker.android.expensetracker.text.TextUtil;
@@ -50,6 +50,7 @@ public class AccountDetailsFragment extends BaseEntityWithTransactionHistoriesFr
 
     private AccountModel mAccount;
 
+    @SuppressWarnings("FieldCanBeLocal")
     private AppSettings mSettings;
 
     public AccountDetailsFragment() {super();}
@@ -90,6 +91,7 @@ public class AccountDetailsFragment extends BaseEntityWithTransactionHistoriesFr
         mBinding.addMoneyTransfer.setOnClickListener(v->onClickMoneyTransfer());
         mBinding.addExpense.setOnClickListener(v->onClickAddExpense());
         mBinding.addIncome.setOnClickListener(v->onClickAddIncome());
+        mBinding.filter.setOnClickListener(v->onClickFilter());
     }
 
     @Override
@@ -217,6 +219,16 @@ public class AccountDetailsFragment extends BaseEntityWithTransactionHistoriesFr
                 Log.e(TAG,"fail to remove account with id="+getExtraAccountId(),result.getError());
             }
         }
+    }
+
+    private void onClickFilter() {
+        HistoryFilterData initial = getHistoryFilterData();
+        Bundle args = new Bundle();
+        args.putBoolean(FilterHistoryFragment.KEY_CAN_CHOOSE_ACCOUNTS,false);
+        if (null != initial) {
+            args.putParcelable(Constants.EXTRA_INITIALS,initial);
+        }
+        navController.navigate(R.id.action_account_details_to_filter_history,args);
     }
 
     private void onClickMoneyTransfer() {

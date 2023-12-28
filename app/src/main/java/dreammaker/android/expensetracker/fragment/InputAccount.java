@@ -69,7 +69,7 @@ public class InputAccount extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mBinding = InputAccountBinding.inflate(inflater,container,false);
         if (isEditOperation()) {
-            mViewModel.getAccountById(getAccountId()).observe(this,this::onAccountFetched);
+            mViewModel.getAccountById(getAccountId()).observe(getViewLifecycleOwner(),this::onAccountFetched);
         }
         mViewModel.setCallbackIfTaskExists(AccountViewModel.SAVE_ACCOUNT,getViewLifecycleOwner(),this::onAccountSaveComplete);
         if (requireActivity() instanceof ActivityModelProvider) {
@@ -156,27 +156,26 @@ public class InputAccount extends Fragment {
         mViewModel.saveAccount(account).observe(getViewLifecycleOwner(),this::onAccountSaveComplete);
     }
 
-    @SuppressWarnings("UnusedAssignment")
+    @SuppressWarnings({"UnusedAssignment", "PointlessBooleanExpression"})
     private boolean validate() {
         CharSequence name = mBinding.name.getEditableText().toString().trim();
         CharSequence txtBalance = mBinding.balance.getText();
-
         mBinding.containerName.setError(null);
         mBinding.containerBalance.setError(null);
 
         // validate inputs
-        boolean valid;
+        boolean valid = true;
         if (TextUtils.isEmpty(name)) {
             mBinding.containerName.setError(getText(R.string.error_empty_input));
-            valid = false;
+            valid &= false;
         }
         if (TextUtils.isEmpty(txtBalance)) {
             mBinding.containerBalance.setError(getText(R.string.error_empty_input));
-            valid = false;
+            valid &= false;
         }
         else {
             Currency balance = TextUtil.tryConvertToCurrencyOrNull(txtBalance);
-            valid = null != balance;
+            valid &= null != balance;
             if (!valid) {
                 mBinding.containerBalance.setError(getText(R.string.error_invalid_numeric_value));
             }

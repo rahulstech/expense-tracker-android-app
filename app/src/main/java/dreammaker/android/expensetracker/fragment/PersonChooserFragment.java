@@ -2,10 +2,10 @@ package dreammaker.android.expensetracker.fragment;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +16,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
+import dreammaker.android.expensetracker.BuildConfig;
 import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.adapter.PeopleChooserAdapter;
 import dreammaker.android.expensetracker.database.model.PersonModel;
@@ -130,12 +131,16 @@ public class PersonChooserFragment extends BaseChooserWithSearchFragment {
                             keys.add(person.getId());
                         }
                         getChoiceModel().setChecked(keys,true);
+                        mSelectedPeople.addAll(initials);
                     }
                 }
                 else {
                     PersonParcelable initial = getExtraInitial();
-                    Object key = initial.getId();
-                    getChoiceModel().setChecked(key,true);
+                    if (null != initial) {
+                        Object key = initial.getId();
+                        getChoiceModel().setChecked(key, true);
+                        mSelectedPeople.add(initial);
+                    }
                 }
             }
         }
@@ -151,26 +156,19 @@ public class PersonChooserFragment extends BaseChooserWithSearchFragment {
     protected Bundle onPrepareResult() {
         Bundle result = new Bundle();
         final ArrayList<PersonParcelable> selections = mSelectedPeople;
-        String action = getAction();
-        if (Constants.ACTION_PICK_MULTIPLE.equals(action) && !selections.isEmpty()) {
-            result.putParcelableArrayList(KEY_SELECTIONS,selections);
+        final int count = selections.size();
+        final String action = getAction();
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "onPrepareResult: action="+action+" selections-size="+count);
         }
-        else if (Constants.ACTION_PICK.equals(action) && selections.size() == 1){
-            PersonParcelable person = selections.get(0);
-            result.putParcelable(KEY_RESULT,person);
-        }
-        else {
-            result.putParcelable(KEY_RESULT,null);
+        if (count > 0) {
+            if (Constants.ACTION_PICK_MULTIPLE.equals(action)) {
+                result.putParcelableArrayList(Constants.KEY_RESULT, selections);
+            } else if (Constants.ACTION_PICK.equals(action)) {
+                PersonParcelable person = selections.get(count-1); // last added
+                result.putParcelable(Constants.KEY_RESULT, person);
+            }
         }
         return result;
-    }
-
-    private boolean validatePerson() {
-        ChoiceModel mChoiceModel = getChoiceModel();
-        if (!mChoiceModel.hasSelection()) {
-            Toast.makeText(requireContext(), R.string.error_no_person_selected, Toast.LENGTH_SHORT).show();
-            return false;
-        }
-        return true;
     }
 }

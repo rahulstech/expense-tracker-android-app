@@ -293,13 +293,13 @@ public class ChoiceModel implements OnItemClickListener, OnItemLongClickListener
 
     public void setChecked(int position, boolean check) {
         boolean checkable = mCallback.isCheckable(position);
+        if (!checkable) {
+            return;
+        }
         Object key = mCallback.getKey(position);
         Objects.requireNonNull(key,"ChoiceModel key at position "+position+" is null");
         if (DEBUG) {
-            Log.d(TAG,"mode="+mChoiceMode+" position="+position+" checkable="+checkable+" check="+check);
-        }
-        if (!checkable) {
-            return;
+            Log.d(TAG,"mode="+mChoiceMode+" position="+position+" check="+check);
         }
         if (mChoiceMode == CHOICE_MODE_SINGLE) {
             if (check) {

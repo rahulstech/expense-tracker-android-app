@@ -77,4 +77,37 @@
     </style>
 
     <style name="AppTheme.ActionMode.Popup" parent="AppTheme.ActionBar.Popup"/>
+
+    <style name="Widget.AppTheme.CheckableChip" parent="Widget.MaterialComponents.Chip.Choice">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.AppTheme.Chip</item>
+        <item name="chipIconEnabled">true</item>
+        <item name="chipIconVisible">true</item>
+        <item name="checkedIcon">@null</item>
+        <item name="iconStartPadding">4dp</item>
+        <item name="iconEndPadding">4dp</item>
+        <item name="checkedIconEnabled">false</item>
+        <item name="checkedIconVisible">false</item>
+        <item name="closeIcon">@null</item>
+        <item name="closeIconEnabled">false</item>
+        <item name="closeIconVisible">false</item>
+        <item name="rippleColor">@null</item>
+        <item name="chipIconTint">@color/checkable_chip_icon_tint</item>
+        <item name="android:textColor">@color/checkable_chip_icon_tint</item>
+        <item name="chipBackgroundColor">@color/checkable_chip_background_color</item>
+    </style>
+    <style name="Widget.AppTheme.EntryChip" parent="Widget.MaterialComponents.Chip.Entry">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.AppTheme.Chip</item>
+        <item name="chipIconEnabled">true</item>
+        <item name="chipIconVisible">true</item>
+        <item name="chipIcon">@null</item>
+        <item name="chipIconSize">24dp</item>
+        <item name="checkedIconVisible">false</item>
+        <item name="checkedIconEnabled">false</item>
+        <item name="checkedIcon">@null</item>
+        <item name="chipBackgroundColor">@color/light_blue_A200</item>
+        <item name="closeIconVisible">true</item>
+        <item name="closeIconEnabled">true</item>
+        <item name="closeIconTint">@android:color/white</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
 </resources>

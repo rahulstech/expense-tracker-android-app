@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/ic_baseline_transfer_24"
+        android:height="28dp"
+        android:width="28dp"
+        android:start="1dp"
+        android:end="1dp"/>
+    <item>
+        <layer-list>
+            <item android:drawable="@drawable/ic_baseline_currency_rupee_24"
+                android:height="10dp"
+                android:width="10dp"
+                android:top="14dp" />
+            <item android:drawable="@drawable/ic_baseline_remove_24"
+                android:height="8dp"
+                android:width="8dp"
+                android:top="16dp"
+                android:start="6dp">
+            </item>
+        </layer-list>
+    </item>
+    <item>
+        <layer-list>
+            <item android:drawable="@drawable/ic_baseline_currency_rupee_24"
+                android:height="10dp"
+                android:width="10dp"
+                android:top="10dp"
+                android:start="20dp"/>
+            <item android:drawable="@drawable/ic_baseline_remove_24"
+                android:height="8dp"
+                android:width="8dp"
+                android:top="12dp"
+                android:start="25dp">
+            </item>
+        </layer-list>
+    </item>
+
+
+</layer-list>

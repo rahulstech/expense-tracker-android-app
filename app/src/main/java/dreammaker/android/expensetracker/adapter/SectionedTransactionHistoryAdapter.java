@@ -4,9 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
-import android.os.Parcel;
-import android.os.Parcelable;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -14,17 +11,14 @@ import android.widget.TextView;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.collection.ArraySet;
 import androidx.collection.SparseArrayCompat;
-import androidx.core.os.ParcelCompat;
 import androidx.recyclerview.widget.RecyclerView;
-import dreammaker.android.expensetracker.BuildConfig;
 import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.database.model.PersonModel;
 import dreammaker.android.expensetracker.database.model.TransactionHistoryModel;
@@ -32,8 +26,7 @@ import dreammaker.android.expensetracker.database.type.TransactionType;
 import dreammaker.android.expensetracker.databinding.LayoutTransactionHistoryItemBinding;
 import dreammaker.android.expensetracker.drawable.CheckableDrawableWrapper;
 import dreammaker.android.expensetracker.drawable.DrawableUtil;
-import dreammaker.android.expensetracker.fragment.parcelable.AccountParcelable;
-import dreammaker.android.expensetracker.fragment.parcelable.PersonParcelable;
+import dreammaker.android.expensetracker.fragment.parcelable.HistoryFilterData;
 import dreammaker.android.expensetracker.text.TextUtil;
 
 @SuppressWarnings("unused")
@@ -64,6 +57,8 @@ public class SectionedTransactionHistoryAdapter
 
     private int mHeaderType = HEADER_DATE;
 
+    private HistoryFilterData mQuery;
+
     public SectionedTransactionHistoryAdapter(@NonNull Context context) {
         super(context, CALLBACK);
     }
@@ -74,6 +69,16 @@ public class SectionedTransactionHistoryAdapter
 
     public int getHeaderType() {
         return mHeaderType;
+    }
+
+    public void filter(@Nullable List<TransactionHistoryModel> items, @Nullable HistoryFilterData query) {
+        mQuery = query;
+        super.submitList(items);
+    }
+
+    @Override
+    public void submitList(@Nullable List<TransactionHistoryModel> list) {
+        throw new RuntimeException("use filter(List,HistoryFilterData) instead");
     }
 
     @Override
@@ -88,6 +93,7 @@ public class SectionedTransactionHistoryAdapter
     @Override
     protected AsyncSectionBuilder<HeaderData, TransactionHistoryModel> onCreateSectionBuilder(@Nullable List<TransactionHistoryModel> list) {
         AsyncItemBuilder builder = new AsyncItemBuilder(list,mHeaderType);
+        builder.setQuery(mQuery);
         return builder;
     }
 
@@ -324,21 +330,90 @@ public class SectionedTransactionHistoryAdapter
         }
     }
 
-
     @SuppressLint("StaticFieldLeak")
     private class AsyncItemBuilder extends AsyncSectionBuilder<HeaderData,TransactionHistoryModel> {
 
         private final int mHeaderType;
+
+        private HistoryFilterData mQuery;
 
         public AsyncItemBuilder(@Nullable List<TransactionHistoryModel> items, int headerType) {
             super(items);
             mHeaderType = headerType;
         }
 
+        public void setQuery(HistoryFilterData query) {
+            mQuery = query;
+        }
+
         @NonNull
         @Override
         protected List<TransactionHistoryModel> onBeforeBuildSections(@NonNull List<TransactionHistoryModel> items) {
-            return items;
+            final HistoryFilterData query = mQuery;
+            List<TransactionHistoryModel> histories;
+            if (null == query) {
+                histories = items;
+            }
+            else {
+                histories = filter(items,query);
+            }
+            return histories;
+        }
+
+        private List<TransactionHistoryModel> filter(List<TransactionHistoryModel> histories, HistoryFilterData query) {
+            ArrayList<TransactionHistoryModel> filtered = new ArrayList<>();
+            for (TransactionHistoryModel history : histories) {
+                if (match(history,query)) {
+                    filtered.add(history);
+                }
+            }
+            return filtered;
+        }
+
+        private boolean match(TransactionHistoryModel history, HistoryFilterData query) {
+            final LocalDate rangeStart = query.getRangeStart();
+            final LocalDate rangeEnd = query.getRangeEnd();
+            final EnumSet<TransactionType> types = query.getTypes();
+            final List<Long> accountIds = query.getAccountIds();
+            final List<Long> personIds = query.getPersonIds();
+            final LocalDate date = history.getWhen();
+
+            if (null != rangeStart && date.compareTo(rangeStart) < 0) {
+                return false;
+            }
+            if (null != rangeEnd && date.compareTo(rangeEnd) > 0) {
+                return false;
+            }
+            if (null != types && !types.contains(history.getType())) {
+                return false;
+            }
+            if (null != accountIds) {
+                Long payee = history.getPayeeAccountId();
+                Long payer = history.getPayerAccountId();
+                if (null == payee && null == payer) {
+                    return false;
+                }
+                if (null != payee && !accountIds.contains(payee)) {
+                    return false;
+                }
+                if (null != payer && !accountIds.contains(payer)) {
+                    return false;
+                }
+            }
+            if (null != personIds) {
+                Long payee = history.getPayeePersonId();
+                Long payer = history.getPayerPersonId();
+                if (null == payee && null == payer) {
+                    return false;
+                }
+                if (null != payee && !personIds.contains(payee)) {
+                    return false;
+                }
+                if (null != payer && !personIds.contains(payer)) {
+                    return false;
+                }
+            }
+            return true;
         }
 
         @NonNull

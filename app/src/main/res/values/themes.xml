@@ -5,23 +5,20 @@
     <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorPrimaryDark">@color/colorPrimary</item>
         <item name="colorAccent">@color/colorAccent</item>
 
         <item name="actionModeStyle">@style/AppTheme.ActionMode</item>
         <item name="windowActionModeOverlay">true</item>
         <item name="floatingActionButtonStyle">@style/Widget.AppTheme.FloatingActionButton</item>
+
+        <item name="chipWithImageStyle">@style/Widget.AppTheme.EntryChip</item>
     </style>
 
     <!-- NoActionBar Theme -->
-    <style name="AppTheme.NoActionBar" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
-
-        <item name="actionModeStyle">@style/AppTheme.ActionMode</item>
-        <item name="windowActionModeOverlay">true</item>
-        <item name="android:windowActionModeOverlay">true</item>
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
     </style>
 
     <!-- FullScreen Theme -->
@@ -30,7 +27,17 @@
     </style>
 
     <!-- ActionBar Theme -->
-    <style name="AppTheme.ActionBar" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar"/>
+    <style name="AppTheme.ActionBar" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimary</item>
+        <item name="colorAccent">@color/colorAccent</item>
+
+        <item name="colorSurface">?attr/colorPrimary</item>
+        <item name="android:colorBackground">?attr/colorPrimary</item>
+        <item name="android:windowBackground">?attr/colorPrimary</item>
+        <item name="android:colorForegroundInverse">?attr/colorPrimary</item>
+        <item name="colorOnSurface">?attr/colorOnPrimary</item>
+    </style>
 
     <!-- ActionBar Popup Theme -->
     <style name="AppTheme.ActionBar.Popup" parent="ThemeOverlay.MaterialComponents.Light"/>

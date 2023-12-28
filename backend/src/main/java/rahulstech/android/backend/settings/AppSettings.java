@@ -3,6 +3,7 @@ package rahulstech.android.backend.settings;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import java.time.LocalDate;
 import java.util.Objects;
 
 @SuppressWarnings("unused")
@@ -55,6 +56,48 @@ public class AppSettings {
 
     public int getShowHistoriesOfMonths() {
         return getInt(KEY_HISTORY_MONTH,HISTORY_MONTH_6);
+    }
+
+    /**
+     *
+     * @param start
+     * @return
+     */
+    public LocalDate getShowHistoryDateEnd(LocalDate start) {
+        final int months = getShowHistoriesOfMonths();
+        LocalDate end;
+        if (months == AppSettings.HISTORY_MONTH_3) {
+            end = start.minusMonths(3);
+        }
+        else if (months == AppSettings.HISTORY_MONTH_6) {
+            end = start.minusMonths(6);
+        }
+        else {
+            end = start.minusMonths(12);
+        }
+        return end;
+    }
+
+    /**
+     *
+     * @param start
+     * @return
+     */
+    public LocalDate[] getShowHistoryDateRange(LocalDate start) {
+        final int months = getShowHistoriesOfMonths();
+        LocalDate end;
+        if (months == AppSettings.HISTORY_MONTH_3) {
+            end = start.minusMonths(3);
+        }
+        else if (months == AppSettings.HISTORY_MONTH_6) {
+            end = start.minusMonths(6);
+        }
+        else {
+            end = start.minusMonths(12);
+        }
+        LocalDate endOfMonth = start.withDayOfMonth(start.getMonth().length(start.isLeapYear()));
+        LocalDate startOfMonth = end.withDayOfMonth(1);
+        return new LocalDate[]{startOfMonth,endOfMonth};
     }
 
     public void setShowHistoriesOfMonths(int months) {

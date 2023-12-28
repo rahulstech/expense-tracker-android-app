@@ -15,6 +15,7 @@ import android.widget.Button;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
+import java.util.Objects;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
@@ -24,6 +25,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import dreammaker.android.expensetracker.BuildConfig;
 import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.activity.ActivityModel;
 import dreammaker.android.expensetracker.activity.ActivityModelProvider;
@@ -161,13 +163,14 @@ public class TransactionHistoryInputFragment extends Fragment {
         navController = Navigation.findNavController(view);
         //noinspection ConstantConditions
         navController.getCurrentBackStackEntry().getSavedStateHandle()
-                .<Bundle>getLiveData(BaseChooserWithSearchFragment.KEY_RESULT)
+                .<Bundle>getLiveData(Constants.KEY_RESULT)
                 .observe(getViewLifecycleOwner(),this::onFragmentResult);
         mBinding.date.setOnClickListener(v->onClickDate());
         mBinding.choosePayee.setOnClickListener(v->onClickChoosePayee());
         mBinding.choosePayer.setOnClickListener(v->onClickChoosePayer());
         mBinding.btnSave.setOnClickListener(v-> onClickSave());
         mBinding.containerAmount.setEndIconOnClickListener(v->onToggleCalculator());
+        //mBinding.amount.setOnClickListener(v->mBinding.containerAmount.setError(null));
         LocalDate when = getExtraWhen();
         Currency amount = getExtraAmount();
         String description = getExtraDescription();
@@ -390,8 +393,11 @@ public class TransactionHistoryInputFragment extends Fragment {
     }
 
     private void onFragmentResult(Bundle result) {
-        int code = result.getInt(BaseChooserWithSearchFragment.EXTRA_REQUEST_CODE);
-        Parcelable selection = result.getParcelable(BaseChooserWithSearchFragment.KEY_RESULT);
+        int code = result.getInt(Constants.KEY_REQUEST_CODE);
+        Parcelable selection = result.getParcelable(Constants.KEY_RESULT);
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "onFragmentResult: code="+code+" selection="+selection);
+        }
         if (null == selection) {
             return;
         }
@@ -495,6 +501,26 @@ public class TransactionHistoryInputFragment extends Fragment {
         }
     }
 
+    private Long getSelectedPayeeId() {
+        if (mSelectedPayee instanceof AccountParcelable) {
+            return ((AccountParcelable) mSelectedPayee).getId();
+        }
+        else if (mSelectedPayee instanceof PersonParcelable) {
+            return ((PersonParcelable) mSelectedPayee).getId();
+        }
+        return null;
+    }
+
+    private Long getSelectedPayerId() {
+        if (mSelectedPayer instanceof AccountParcelable) {
+            return ((AccountParcelable) mSelectedPayer).getId();
+        }
+        else if (mSelectedPayer instanceof PersonParcelable) {
+            return ((PersonParcelable) mSelectedPayer).getId();
+        }
+        return null;
+    }
+
     private void setAccount(AccountModel account, Button view) {
         CharSequence name = account.getName();
         Drawable logo = DrawableUtil.getAccountDefaultLogo(account.getName());
@@ -542,17 +568,25 @@ public class TransactionHistoryInputFragment extends Fragment {
         prepareChooser(view,name,photo,clickable);
     }
 
-    private void preparePayeeChooser(@StringRes int name, @DrawableRes int drawable) {
-        prepareChooser(mBinding.choosePayee,getText(name),ResourceUtil.getDrawable(requireContext(),drawable),true);
+    private void preparePayeeChooser(@StringRes int nameRes, @DrawableRes int drawableRes) {
+        prepareChooser(mBinding.choosePayee,nameRes,drawableRes);
     }
 
-    private void preparePayerChooser(@StringRes int name, @DrawableRes int drawable) {
-        prepareChooser(mBinding.choosePayer,getText(name),ResourceUtil.getDrawable(requireContext(),drawable),true);
+    private void preparePayerChooser(@StringRes int nameRes, @DrawableRes int drawableRes) {
+        prepareChooser(mBinding.choosePayer,nameRes,drawableRes);
+    }
+
+    private void prepareChooser(Button view, @StringRes int nameRes, @DrawableRes int drawableRes) {
+        CharSequence name = getText(nameRes);
+        Drawable drawable = ResourceUtil.getDrawable(requireContext(), drawableRes);
+        view.setText(name);
+        ViewUtil.setTextViewLeftDrawable(view,drawable, ResourceUtil.dpToPixed(getResources(),36));
+        view.setClickable(true);
     }
 
     private void prepareChooser(Button view, CharSequence name, Drawable drawable, boolean clickable) {
         view.setText(name);
-        ViewUtil.setTextViewLeftDrawableNoTint(view,drawable, (int) ResourceUtil.dpToPixed(getResources(),36));
+        ViewUtil.setTextViewLeftDrawableNoTint(view,drawable,ResourceUtil.dpToPixed(getResources(),36));
         view.setClickable(clickable);
     }
 
@@ -698,10 +732,10 @@ public class TransactionHistoryInputFragment extends Fragment {
     private void onClickChoosePayee() {
         TransactionType type = getExtraTransactionType();
         Bundle args = new Bundle();
-        args.putInt(BaseChooserWithSearchFragment.EXTRA_REQUEST_CODE,REQUEST_CODE_PAYEE);
+        args.putInt(Constants.KEY_REQUEST_CODE,REQUEST_CODE_PAYEE);
         args.putString(Constants.EXTRA_ACTION,Constants.ACTION_PICK);
         if (null != mSelectedPayee) {
-            args.putParcelable(BaseChooserWithSearchFragment.EXTRA_INITIAL,mSelectedPayee);
+            args.putParcelable(Constants.EXTRA_INITIALS,mSelectedPayee);
         }
         switch (type) {
             case INCOME:
@@ -724,10 +758,10 @@ public class TransactionHistoryInputFragment extends Fragment {
     private void onClickChoosePayer() {
         TransactionType type = getExtraTransactionType();
         Bundle args = new Bundle();
-        args.putInt(BaseChooserWithSearchFragment.EXTRA_REQUEST_CODE,REQUEST_CODE_PAYER);
+        args.putInt(Constants.KEY_REQUEST_CODE,REQUEST_CODE_PAYER);
         args.putString(Constants.EXTRA_ACTION,Constants.ACTION_PICK);
         if (null != mSelectedPayer) {
-            args.putParcelable(BaseChooserWithSearchFragment.EXTRA_INITIAL,mSelectedPayer);
+            args.putParcelable(Constants.EXTRA_INITIALS,mSelectedPayer);
         }
         switch (type) {
             case EXPENSE:
@@ -780,13 +814,13 @@ public class TransactionHistoryInputFragment extends Fragment {
                 history.setPayeeAccountId(((AccountParcelable) mSelectedPayee).getId());
             }
             else if (mSelectedPayee instanceof PersonParcelable) {
-                history.setPayeeAccountId(((PersonParcelable) mSelectedPayee).getId());
+                history.setPayeePersonId(((PersonParcelable) mSelectedPayee).getId());
             }
             if (mSelectedPayer instanceof AccountParcelable) {
-                history.setPayeeAccountId(((AccountParcelable) mSelectedPayer).getId());
+                history.setPayerAccountId(((AccountParcelable) mSelectedPayer).getId());
             }
             else if (mSelectedPayer instanceof PersonParcelable) {
-                history.setPayeeAccountId(((PersonParcelable) mSelectedPayer).getId());
+                history.setPayerPersonId(((PersonParcelable) mSelectedPayer).getId());
             }
         }
         mViewModel.saveTransactionHistory(history).observe(getViewLifecycleOwner(),this::onHistorySaved);
@@ -851,15 +885,23 @@ public class TransactionHistoryInputFragment extends Fragment {
             when = mHistory.getWhen();
             amount = mHistory.getAmount();
             description = mHistory.getDescription();
+            return !when.isEqual(inWhen) || !amount.equals(inAmount)
+                    || !TextUtil.equals(description,inDescription);
         }
         else {
             when = getExtraWhen();
             amount = getExtraAmount();
             description = getExtraDescription();
-            // TODO: check for payee payer changes
+            Long payeeId, payerId;
+            Long inPayeeId, inPayerId;
+            payerId = getExtraPayerId();
+            payeeId = getExtraPayeeId();
+            inPayeeId = getSelectedPayeeId();
+            inPayerId = getSelectedPayerId();
+            return !when.isEqual(inWhen) || !amount.equals(inAmount)
+                    || !TextUtil.equals(description,inDescription)
+                    || !Objects.equals(payeeId,inPayeeId) || !Objects.equals(payerId,inPayerId);
         }
-        return !when.isEqual(inWhen) || !amount.equals(inAmount)
-                || !TextUtil.equals(description,inDescription);
     }
 
     private void exit() {
@@ -935,6 +977,34 @@ public class TransactionHistoryInputFragment extends Fragment {
         return requireArguments().getLong(Constants.EXTRA_PAYEE_PERSON);
     }
 
+    private boolean hasExtraPayeeId() {
+        return hasExtraPayeeAccountId() || hasExtraPayeePersonId();
+    }
+
+    private Long getExtraPayeeId() {
+        if (hasExtraPayeeAccountId()) {
+            return getExtraPayeeAccountId();
+        }
+        else if (hasExtraPayeePersonId()) {
+            return getExtraPayeePersonId();
+        }
+        return null;
+    }
+
+    private boolean hasExtraPayerId() {
+        return hasExtraPayerAccountId() || hasExtraPayerPersonId();
+    }
+
+    private Long getExtraPayerId() {
+        if (hasExtraPayerAccountId()) {
+            return getExtraPayerAccountId();
+        }
+        else if (hasExtraPayerPersonId()) {
+            return getExtraPayerPersonId();
+        }
+        return null;
+    }
+
     private boolean hasExtraAmount() {
         return requireArguments().containsKey(Constants.EXTRA_AMOUNT);
     }
@@ -969,8 +1039,4 @@ public class TransactionHistoryInputFragment extends Fragment {
     private boolean isFirstNameFirst() {
         return AppSettings.FIRST_NAME_FIRST == mSettings.getPreferredPersonNameOrientation();
     }
-
-    //////////////////////////////////////////////////////////////////
-    ///                       Helper Class                         ///
-    /////////////////////////////////////////////////////////////////
 }

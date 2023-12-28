@@ -8,18 +8,20 @@
         android:id="@+id/button_save"
         android:layout_width="@dimen/fab_size_medium"
         android:layout_height="@dimen/fab_size_medium"
-        app:fabCustomSize="@dimen/fab_size_medium"
-        android:layout_margin="16dp"
         android:layout_gravity="bottom|right"
-        android:src="@drawable/ic_baseline_save_alt_24"
-        app:tint="@color/fab_icon_tint"
-        app:layout_behavior="@string/fab_behaviour"
+        android:layout_margin="16dp"
         android:contentDescription="@string/description_save"
-        tools:ignore="RtlHardcoded" />
+        android:src="@drawable/ic_baseline_save_alt_24"
+        app:fabCustomSize="@dimen/fab_size_medium"
+        app:layout_behavior="@string/fab_behaviour"
+        app:tint="@color/fab_icon_tint"
+        tools:ignore="RtlHardcoded,ImageContrastCheck" />
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="81dp"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 
         <LinearLayout
@@ -108,18 +110,20 @@
                     app:endIconDrawable="@drawable/ic_calculator"
                     app:endIconScaleType="center"
                     app:endIconMode="custom"
+                    app:errorIconDrawable="@null"
                     style="@style/Widget.AppTheme.TextInputLayout">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/due"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:contentDescription="@string/description_total_due"
                         android:imeOptions="actionNext"
                         android:inputType="numberDecimal"
                         android:maxLines="1"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
                         android:text="0"
-                        tools:ignore="HardcodedText" />
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                        tools:ignore="HardcodedText,TextContrastCheck,EditableContentDescCheck" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -134,6 +138,7 @@
                     app:endIconDrawable="@drawable/ic_calculator"
                     app:endIconScaleType="center"
                     app:endIconMode="custom"
+                    app:errorIconDrawable="@null"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/container_due"
@@ -143,12 +148,13 @@
                         android:id="@+id/borrow"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:contentDescription="@string/description_total_borrow"
                         android:imeOptions="actionDone"
                         android:inputType="numberDecimal"
                         android:maxLines="1"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
                         android:text="0"
-                        tools:ignore="HardcodedText" />
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                        tools:ignore="HardcodedText,TextContrastCheck,EditableContentDescCheck" />
                 </com.google.android.material.textfield.TextInputLayout>
 
             </LinearLayout>

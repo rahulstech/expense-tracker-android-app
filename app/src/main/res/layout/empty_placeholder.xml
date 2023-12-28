@@ -11,5 +11,5 @@
     android:layout_height="wrap_content"
     android:drawablePadding="16dp"
     app:drawableTint="@color/secondary_text_color"
-    tools:drawableTop="@drawable/ic_baseline_history_72"
+    tools:drawableTopCompat="@drawable/ic_baseline_history_72"
     tools:text="No Item"/>

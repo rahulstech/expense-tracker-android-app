@@ -26,14 +26,13 @@ import dreammaker.android.expensetracker.animation.AnimatorUtil;
 import dreammaker.android.expensetracker.database.model.TransactionHistoryModel;
 import dreammaker.android.expensetracker.database.type.TransactionType;
 import dreammaker.android.expensetracker.databinding.FragmentTransactionHistoryListBinding;
+import dreammaker.android.expensetracker.fragment.parcelable.HistoryFilterData;
 import dreammaker.android.expensetracker.util.Constants;
 
 @SuppressWarnings("unused")
 public class TransactionHistoryListFragment extends BaseEntityWithTransactionHistoriesFragment {
 
     private static final String TAG = TransactionHistoryListFragment.class.getSimpleName();
-
-    private static final String KEY_QUERY = "key_query";
 
     private SectionedTransactionHistoryAdapter mTransactionsAdapter;
 
@@ -42,8 +41,6 @@ public class TransactionHistoryListFragment extends BaseEntityWithTransactionHis
     private FragmentTransactionHistoryListBinding mBinding;
 
     private boolean mRevealMenuOpened = false;
-
-    //private Animator mRevealAnimation;
 
     @SuppressWarnings("FieldCanBeLocal")
     private ActivityModel mActivityModel;
@@ -82,20 +79,6 @@ public class TransactionHistoryListFragment extends BaseEntityWithTransactionHis
     public void onPause() {
         super.onPause();
         hideRevealMenu(null);
-    }
-
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        //outState.putParcelable(KEY_QUERY,mQuery);
-    }
-
-    @Override
-    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-        super.onViewStateRestored(savedInstanceState);
-        if (null != savedInstanceState) {
-            //mQuery = savedInstanceState.getParcelable(KEY_QUERY);
-        }
     }
 
     @Override
@@ -161,8 +144,11 @@ public class TransactionHistoryListFragment extends BaseEntityWithTransactionHis
     }
 
     private void onClickFilterHistory() {
+        HistoryFilterData initial = getHistoryFilterData();
         Bundle args = new Bundle();
-        //args.putParcelable(FilterHistoryBottomSheet.EXTRA_HISTORY_FILTER_DATA,mQuery);
+        if (null != initial) {
+            args.putParcelable(Constants.EXTRA_INITIALS,getHistoryFilterData());
+        }
         navController.navigate(R.id.action_histories_to_filter_history,args);
     }
 

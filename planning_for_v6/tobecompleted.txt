@@ -1,0 +1,14 @@
+> dark theme actionbar - actionbar showing black
+> [done] history input icon tint for choose payee and payer
+> [done] filter rest not implemented
+> [done] filter date range initial date range and selected date range
+> [done] history filter for account and person - extra account and person should not be choose
+> home screen total liability
+> [done] input fields with end icon get hidden while error - like amount input error hide calculator toogle
+> popup calculator keyboard not implemented
+> no animation fragment switch
+> backup restore not implemented
+> sectioned list adapter triggering multiple submitList
+> [done] account and person chooser search edit text hint not showing dark mode
+> [done] filter with person filters entries without the person
+> [done] initial accounts and people selections are not shown

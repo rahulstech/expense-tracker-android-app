@@ -19,6 +19,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 import dreammaker.android.expensetracker.BuildConfig;
 import dreammaker.android.expensetracker.R;
@@ -26,10 +28,12 @@ import dreammaker.android.expensetracker.adapter.SectionedListAdapter;
 import dreammaker.android.expensetracker.adapter.SectionedTransactionHistoryAdapter;
 import dreammaker.android.expensetracker.database.model.TransactionHistoryModel;
 import dreammaker.android.expensetracker.dialog.DialogUtil;
+import dreammaker.android.expensetracker.fragment.parcelable.HistoryFilterData;
 import dreammaker.android.expensetracker.itemdecoration.SimpleEmptyRecyclerViewDecoration;
 import dreammaker.android.expensetracker.listener.ChoiceModel;
 import dreammaker.android.expensetracker.listener.ModalChoiceModeListener;
 import dreammaker.android.expensetracker.listener.OnItemClickListener;
+import dreammaker.android.expensetracker.util.Constants;
 import dreammaker.android.expensetracker.util.ResourceUtil;
 import dreammaker.android.expensetracker.util.ToastUtil;
 import dreammaker.android.expensetracker.viewmodel.DBViewModel;
@@ -62,6 +66,8 @@ public abstract class BaseEntityWithTransactionHistoriesFragment extends Fragmen
 
     private AppSettings mSettings;
 
+    private NavController navController;
+
     protected BaseEntityWithTransactionHistoriesFragment() {super();}
 
     @Override
@@ -73,7 +79,7 @@ public abstract class BaseEntityWithTransactionHistoriesFragment extends Fragmen
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        mSettings = AppSettings.get(context);
+        mSettings = AppSettings.get(requireContext());
         mHistoryVM = new ViewModelProvider(this,(ViewModelProvider.Factory) ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
                 .get(TransactionHistoryViewModel.class);
         mChoiceModelSavedStated = new ViewModelProvider(this).get(ChoiceModel.SavedStateViewModel.class);
@@ -96,6 +102,7 @@ public abstract class BaseEntityWithTransactionHistoriesFragment extends Fragmen
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        navController = Navigation.findNavController(view);
         RecyclerView list = getHistoryList();
         list.addItemDecoration(new SimpleEmptyRecyclerViewDecoration(getText(R.string.label_no_history),
                 ResourceUtil.getDrawable(requireContext(),R.drawable.ic_baseline_history_72)));
@@ -108,6 +115,10 @@ public abstract class BaseEntityWithTransactionHistoriesFragment extends Fragmen
         mAdapter.setChoiceModel(mChoiceModel);
         changeHistoryAdapterHeaderTypeForHistoryGrouping(mSettings.getHistoryGrouping());
         mHistoryVM.setCallbackIfTaskExists(TransactionHistoryViewModel.DELETE_HISTORIES,getViewLifecycleOwner(),this::onHistoriesDeleted);
+        //noinspection ConstantConditions
+        navController.getCurrentBackStackEntry().getSavedStateHandle()
+                .<HistoryFilterData>getLiveData(Constants.KEY_RESULT)
+                .observe(getViewLifecycleOwner(),this::onFragmentResult);
     }
 
     @Override
@@ -191,6 +202,18 @@ public abstract class BaseEntityWithTransactionHistoriesFragment extends Fragmen
         }
     }
 
+    private void onFragmentResult(@Nullable HistoryFilterData result) {
+        submitHistories();
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    protected HistoryFilterData getHistoryFilterData() {
+        if (!navController.getCurrentBackStackEntry().getSavedStateHandle().contains(Constants.KEY_RESULT)){
+            return null;
+        }
+        return navController.getCurrentBackStackEntry().getSavedStateHandle().get(Constants.KEY_RESULT);
+    }
+
     protected void onClickHistory(@NonNull TransactionHistoryModel history) {}
 
     protected void onClickDeleteHistories(){
@@ -224,7 +247,6 @@ public abstract class BaseEntityWithTransactionHistoriesFragment extends Fragmen
         for (Object key : keys) {
             ids[position++] = (long) key;
         }
-        Log.d(TAG,"ids="+ids.length);
         mHistoryVM.removeTransactionHistories(ids).observe(getViewLifecycleOwner(),this::onHistoriesDeleted);
     }
 
@@ -237,19 +259,8 @@ public abstract class BaseEntityWithTransactionHistoriesFragment extends Fragmen
      * index 0 -> date start
      * index 1 -> date end
      */
-    protected LocalDate[] getShowHistoryDateRange(final int months) {
-        LocalDate start = LocalDate.now();
-        LocalDate end;
-        if (months == AppSettings.HISTORY_MONTH_3) {
-            end = start.minusMonths(3);
-        }
-        else if (months == AppSettings.HISTORY_MONTH_6) {
-            end = start.minusMonths(6);
-        }
-        else {
-            end = start.minusMonths(12);
-        }
-        return new LocalDate[]{start,end};
+    protected LocalDate[] getShowHistoryDateRange() {
+        return mSettings.getShowHistoryDateRange(LocalDate.now());
     }
 
     protected final void loadAllHistories() {
@@ -257,7 +268,7 @@ public abstract class BaseEntityWithTransactionHistoriesFragment extends Fragmen
     }
 
     protected final void loadHistories(int entity, long id) {
-        LocalDate[] range = getShowHistoryDateRange(mSettings.getShowHistoriesOfMonths());
+        LocalDate[] range = getShowHistoryDateRange();
         LocalDate start = range[1];
         LocalDate end = range[0];
         LiveData<List<TransactionHistoryModel>> histories;
@@ -270,7 +281,7 @@ public abstract class BaseEntityWithTransactionHistoriesFragment extends Fragmen
         else {
             histories = mHistoryVM.getTransactionsBetweenDates(start,end);
         }
-        histories.observe(getViewLifecycleOwner(),this::onHistoriesFetched);
+        histories.observe(this,this::onHistoriesFetched);
     }
 
     protected void changeHistoryGrouping(int groupBy) {
@@ -283,6 +294,7 @@ public abstract class BaseEntityWithTransactionHistoriesFragment extends Fragmen
     }
 
     protected void changeHistoryAdapterHeaderTypeForHistoryGrouping(int groupBy) {
+        final int oldHeaderType = mAdapter.getHeaderType();
         int headerType;
         if (groupBy == AppSettings.GROUP_MONTHLY) {
             headerType = SectionedTransactionHistoryAdapter.HEADER_MONTH;
@@ -290,11 +302,15 @@ public abstract class BaseEntityWithTransactionHistoriesFragment extends Fragmen
         else {
             headerType = SectionedTransactionHistoryAdapter.HEADER_DATE;
         }
+        if (oldHeaderType == headerType) {
+            return;
+        }
         getHistoryAdapter().setHeaderType(headerType);
         submitHistories();
     }
 
     protected final void submitHistories() {
-        mAdapter.submitList(mHistories);
+        HistoryFilterData query = getHistoryFilterData();
+        mAdapter.filter(mHistories, query);
     }
 }

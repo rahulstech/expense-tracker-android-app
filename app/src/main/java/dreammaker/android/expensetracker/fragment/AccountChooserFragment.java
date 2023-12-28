@@ -104,6 +104,7 @@ public class AccountChooserFragment extends BaseChooserWithSearchFragment {
 
     @Override
     public void onItemChecked(@NonNull RecyclerView recyclerView, @NonNull View view, int position, boolean checked) {
+        super.onItemChecked(recyclerView,view,position,checked);
         if (mAdapter.getItemViewType(position) == AccountsChooserAdapter.SECTION_ITEM_TYPE) {
             AccountModel account = mAdapter.getData(position);
             AccountParcelable parcelable = new AccountParcelable(account);
@@ -121,16 +122,18 @@ public class AccountChooserFragment extends BaseChooserWithSearchFragment {
     protected Bundle onPrepareResult() {
         Bundle result = new Bundle();
         final ArrayList<AccountParcelable> selections = mSelectedAccounts;
-        String action = getAction();
-        if (Constants.ACTION_PICK_MULTIPLE.equals(action) && !selections.isEmpty()) {
-            result.putParcelableArrayList(KEY_RESULT,selections);
+        final int count = selections.size();
+        final String action = getAction();
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "onPrepareResult: action="+action+" selections-size="+count);
         }
-        else if (Constants.ACTION_PICK.equals(action) && selections.size() == 1){
-            AccountParcelable account = selections.get(0);
-            result.putParcelable(KEY_RESULT,account);
-        }
-        else {
-            result.putParcelable(KEY_RESULT,null);
+        if (count > 0) {
+            if (Constants.ACTION_PICK_MULTIPLE.equals(action)) {
+                result.putParcelableArrayList(Constants.KEY_RESULT, selections);
+            } else if (Constants.ACTION_PICK.equals(action)) {
+                AccountParcelable account = selections.get(count-1); // last added
+                result.putParcelable(Constants.KEY_RESULT, account);
+            }
         }
         return result;
     }
@@ -147,18 +150,22 @@ public class AccountChooserFragment extends BaseChooserWithSearchFragment {
             if (!accounts.isEmpty() && hasExtraInitial()) {
                 if (Constants.ACTION_PICK_MULTIPLE.equals(getAction())) {
                     ArrayList<AccountParcelable> initials = getExtraInitial();
-                    if (!initials.isEmpty()) {
+                    if (null != initials && !initials.isEmpty()) {
                         ArrayList<Object> keys = new ArrayList<>();
                         for (AccountParcelable account : initials) {
                             keys.add(account.getId());
                         }
                         getChoiceModel().setChecked(keys,true);
+                        mSelectedAccounts.addAll(initials);
                     }
                 }
                 else {
                     AccountParcelable initial = getExtraInitial();
-                    Object key = initial.getId();
-                    getChoiceModel().setChecked(key,true);
+                    if (null != initial) {
+                        Object key = initial.getId();
+                        getChoiceModel().setChecked(key, true);
+                        mSelectedAccounts.add(initial);
+                    }
                 }
             }
         }
@@ -168,17 +175,5 @@ public class AccountChooserFragment extends BaseChooserWithSearchFragment {
         CharSequence text = getSearchQueryText();
         String query = null == text ? null : text.toString();
         mAdapter.filter(mLoadedAccounts,query);
-    }
-
-    private boolean validateAccount() {
-        ChoiceModel mChoiceModel = getChoiceModel();
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG,"checked-count="+mChoiceModel.getCheckedCount());
-        }
-        if (!mChoiceModel.hasSelection()) {
-            ToastUtil.showErrorShort(requireContext(), R.string.error_no_account_selected);
-            return false;
-        }
-        return true;
     }
 }

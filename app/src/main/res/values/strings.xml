@@ -294,5 +294,20 @@
     <string name="description_button_close">close current screen</string>
     <string name="description_button_pick">pick items</string>
     <string name="error_field_not_set">%1$s not set</string>
+    <string name="label_income">Income</string>
+    <string name="label_expense">Expense</string>
+    <string name="label_due">Due</string>
+    <string name="label_pay_borrow">Payable Paid</string>
+    <string name="label_pay_due">Received Receivable</string>
+    <string name="label_transfer_money">Money Transfer</string>
+    <string name="label_due_transfer">Receivable Transfer</string>
+    <string name="label_borrow_transfer">Payable Transfer</string>
+    <string name="label_borrow">Borrow</string>
+    <string name="label_borrow_to_due_transfer">Payable to Receivable Transfer</string>
+    <string name="description_apply_filter">apply filter</string>
+    <string name="label_reset_filter">Reset</string>
+    <string name="description_total_due">enter total receivable from this person</string>
+    <string name="description_total_borrow">enter total payable to this person</string>
+    <string name="description_total_balance">enter total balance of this account</string>
 
 </resources>

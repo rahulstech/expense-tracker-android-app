@@ -29,6 +29,10 @@ android {
             applicationIdSuffix '.debug'
             versionNameSuffix '-debug'
         }
+        'beta-release' {
+            applicationIdSuffix '.beta'
+            versionNameSuffix '-beta'
+        }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8

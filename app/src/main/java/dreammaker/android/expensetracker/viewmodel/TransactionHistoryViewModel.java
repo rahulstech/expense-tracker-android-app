@@ -40,13 +40,13 @@ public class TransactionHistoryViewModel extends DBViewModel {
           LocalDate end = source.end;
           long id = source.id;
           if (entity == SourceData.ENTITY_ACCOUNT) {
-              return getTransactionHistoryDao().getAllTransactionHistoriesForAccountsBetweenLive(id,start,end);
+              return getTransactionHistoryDao().getAllTransactionHistoriesForAccountsBetweenLive(id,end,start);
           }
           else if (entity == SourceData.ENTITY_PERSON) {
-              return getTransactionHistoryDao().getAllTransactionHistoriesForPeopleBetweenLive(id,start,end);
+              return getTransactionHistoryDao().getAllTransactionHistoriesForPeopleBetweenLive(id,end,start);
           }
           else {
-              return getTransactionHistoryDao().getAllTransactionHistoriesBetweenLive(start,end);
+              return getTransactionHistoryDao().getAllTransactionHistoriesBetweenLive(end,start);
           }
         });
     }

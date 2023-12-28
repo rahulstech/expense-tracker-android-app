@@ -27,6 +27,7 @@ import dreammaker.android.expensetracker.database.type.TransactionType;
 import dreammaker.android.expensetracker.databinding.FragmentPersonDetailsBinding;
 import dreammaker.android.expensetracker.dialog.DialogUtil;
 import dreammaker.android.expensetracker.drawable.DrawableUtil;
+import dreammaker.android.expensetracker.fragment.parcelable.HistoryFilterData;
 import dreammaker.android.expensetracker.text.SpannableStringUtil;
 import dreammaker.android.expensetracker.text.Spans;
 import dreammaker.android.expensetracker.text.TextUtil;
@@ -92,6 +93,7 @@ public class PersonDetailsFragment extends BaseEntityWithTransactionHistoriesFra
         mBinding.addPayBorrow.setOnClickListener(v->onClickAddPayBorrow());
         mBinding.addSendDue.setOnClickListener(v->onClickSendDue());
         mBinding.addSendBorrow.setOnClickListener(v->onClickSendBorrow());
+        mBinding.filter.setOnClickListener(v->onClickFilter());
     }
 
     @Override
@@ -240,6 +242,16 @@ public class PersonDetailsFragment extends BaseEntityWithTransactionHistoriesFra
                 Log.e(TAG,"fail to delete person with id="+getExtraPersonId(),result.getError());
             }
         }
+    }
+
+    private void onClickFilter() {
+        HistoryFilterData initial = getHistoryFilterData();
+        Bundle args = new Bundle();
+        args.putBoolean(FilterHistoryFragment.KEY_CAN_CHOOSE_PEOPLE,false);
+        if (null != initial) {
+            args.putParcelable(Constants.EXTRA_INITIALS,initial);
+        }
+        navController.navigate(R.id.action_person_details_to_filter_history,args);
     }
 
     private void onClickAddDue() {

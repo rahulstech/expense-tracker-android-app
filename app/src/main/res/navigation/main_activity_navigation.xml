@@ -149,7 +149,7 @@
     </fragment>
 
     <fragment android:id="@+id/filter_history"
-        android:name="dreammaker.android.expensetracker.fragment.FilterHistoryBottomSheet"
+        android:name="dreammaker.android.expensetracker.fragment.FilterHistoryFragment"
         android:label="@string/label_filter_transaction_history"
         tools:layout="@layout/fragment_filter_history">
 

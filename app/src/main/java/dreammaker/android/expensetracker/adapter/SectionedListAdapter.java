@@ -30,6 +30,8 @@ public abstract class SectionedListAdapter<H,I,HVH extends RecyclerView.ViewHold
 
     private static final String TAG = SectionedListAdapter.class.getSimpleName();
 
+    private static final boolean DEBUG = BuildConfig.DEBUG;
+
     public static final int SECTION_HEADER_TYPE = 100;
 
     public static final int SECTION_ITEM_TYPE = 200;
