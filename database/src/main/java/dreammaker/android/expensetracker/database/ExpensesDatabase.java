@@ -20,14 +20,17 @@ import dreammaker.android.expensetracker.database.entity.TransactionHistory;
 import dreammaker.android.expensetracker.database.migration.MIGRATION_6_TO_7;
 import dreammaker.android.expensetracker.database.view.AssetLiabilitySummary;
 import dreammaker.android.expensetracker.database.view.AccountsSummaryView;
+import dreammaker.android.expensetracker.database.view.DailyExpenseView;
+import dreammaker.android.expensetracker.database.view.MonthlyExpenseView;
 import dreammaker.android.expensetracker.database.view.PeopleSummaryView;
 
 @Database(
         entities = {Account.class, Person.class, TransactionHistory.class},
-        views = {AccountsSummaryView.class, PeopleSummaryView.class, AssetLiabilitySummary.class},
+        views = {AccountsSummaryView.class, PeopleSummaryView.class, AssetLiabilitySummary.class,
+                DailyExpenseView.class, MonthlyExpenseView.class},
 		version = ExpensesDatabase.DB_VERSION)
 @TypeConverters(value = Converters.class, builtInTypeConverters = @BuiltInTypeConverters(enums = BuiltInTypeConverters.State.ENABLED))
-@SuppressWarnings({"unused","deprecation"})
+@SuppressWarnings({"unused"})
 public abstract class ExpensesDatabase extends RoomDatabase
 {
     private static final String TAG = "ExpensesDatabase";
@@ -65,9 +68,6 @@ public abstract class ExpensesDatabase extends RoomDatabase
         builder.addMigrations(new MIGRATION_6_TO_7());
         return builder.build();
     }
-
-    @Deprecated
-    public ExpensesBackupDao getBackupDao() { return null; }
 
     public abstract AccountDao getAccountDao();
 

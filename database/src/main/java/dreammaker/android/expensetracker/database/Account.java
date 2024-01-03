@@ -12,7 +12,6 @@ import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
-import dreammaker.android.expensetracker.database.type.Currency;
 
 import static dreammaker.android.expensetracker.database.ExpensesContract.AboutAccountColumns.BALANCE;
 import static dreammaker.android.expensetracker.database.ExpensesContract.AccountsColumns.ACCOUNT_NAME;
@@ -21,16 +20,24 @@ import static dreammaker.android.expensetracker.database.ExpensesContract.Tables
 
 @Entity(tableName = ACCOUNTS_TABLE)
 @Deprecated
+@SuppressWarnings({"unused","deprecation"})
 public class Account {
 
+    @ColumnInfo(name = ACCOUNT_NAME, typeAffinity = ColumnInfo.TEXT)
     @NonNull
+    @SerializedName(ACCOUNT_NAME)
     private String accountName;
 
+    @ColumnInfo(name = _ID, typeAffinity = ColumnInfo.INTEGER)
     @PrimaryKey(autoGenerate = true)
+    @SerializedName(_ID)
     private long accountId;
 
+    @ColumnInfo(name = BALANCE, typeAffinity = ColumnInfo.REAL, defaultValue = "0")
     @NonNull
-    private Currency accountBalance;
+    @TypeConverters(Converters.class)
+    @SerializedName(BALANCE)
+    private BigDecimal totalBalance;
 
     @Ignore
     @Deprecated
@@ -38,17 +45,14 @@ public class Account {
         this(accountId,accountName,BigDecimal.valueOf(balance));
     }
 
-    @Deprecated
-    @Ignore
-    public Account(long accountId, String accountName, @NonNull BigDecimal totalBalance) {
+    public Account(long accountId, @NonNull String accountName, @NonNull BigDecimal totalBalance) {
         this.accountId = accountId;
         this.accountName = accountName;
-        this.accountBalance = Currency.valueOf(totalBalance);
+        this.totalBalance = totalBalance;
     }
 
-    public Account() {
-        this.accountBalance = Currency.ZERO;
-    }
+    @Ignore
+    public Account() { this(0,null, BigDecimal.ZERO); }
 
     public long getAccountId() { return accountId; }
 
@@ -58,6 +62,7 @@ public class Account {
     public String getAccountName() { return accountName; }
 
     public void setAccountName(@NonNull String accountName) { this.accountName = accountName; }
+
 
     @Deprecated
     public float getBalance() {
@@ -71,58 +76,46 @@ public class Account {
 
     @NonNull
     public BigDecimal getTotalBalance() {
-        return accountBalance.getValue();
+        return totalBalance;
     }
 
-    @Deprecated
     public void setTotalBalance(BigDecimal totalBalance) {
         Objects.requireNonNull(totalBalance,"totalBalance == null");
-        setAccountBalance(Currency.valueOf(totalBalance));
+        this.totalBalance = totalBalance;
+    }
+
+
+    @Override
+    public boolean equals(@Nullable Object o) {
+        if (o instanceof Account){
+            return this.accountId == ((Account) o).accountId;
+        }
+        return false;
+    }
+
+    public boolean equalContents(@Nullable Account o) {
+        if (null != o) {
+            return o.getAccountId() == this.getAccountId()
+                    && Objects.deepEquals(accountName,o.accountName)
+                    && 0 == totalBalance.compareTo(o.totalBalance);
+        }
+        return false;
     }
 
     @NonNull
-    public Currency getAccountBalance() {
-        return accountBalance;
-    }
-
-    public void setAccountBalance(@NonNull Currency accountBalance) {
-        this.accountBalance = accountBalance;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Account)) return false;
-        Account account = (Account) o;
-        return accountId == account.accountId && accountName.equals(account.accountName) && accountBalance.equals(account.accountBalance);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(accountName, accountId, accountBalance);
-    }
-
-    @Deprecated
-    public boolean equalContents(@Nullable Account o) {
-        return equals(o);
-    }
-
     @Override
     public String toString() {
         return "Account{" +
                 "accountName='" + accountName + '\'' +
                 ", accountId=" + accountId +
-                ", balance=" + accountBalance +
+                ", balance=" + totalBalance.toPlainString() +
                 '}';
     }
 
+    @SuppressWarnings("MethodDoesntCallSuperMethod")
     @NonNull
     @Override
     public Account clone() {
-        Account copy = new Account();
-        copy.setAccountId(accountId);
-        copy.setAccountName(accountName);
-        copy.setAccountBalance(accountBalance);
-        return copy;
+        return new Account(accountId,accountName,totalBalance);
     }
 }

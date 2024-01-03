@@ -29,21 +29,22 @@ import static dreammaker.android.expensetracker.database.ExpensesContract.Transa
 import static dreammaker.android.expensetracker.database.ExpensesContract.TransactionsColumns._ID;
 
 @Entity(tableName = TRANSACTIONS_TABLE,
-foreignKeys = {@ForeignKey(
-        entity = Account.class,
-        parentColumns = {ExpensesContract.AccountsColumns._ID},
-        childColumns = {ACCOUNT_ID},
-        onDelete = ForeignKey.CASCADE
-), @ForeignKey(
-        entity = Person.class,
-        parentColumns = {ExpensesContract.PersonsColumns._ID},
-        childColumns = {PERSON_ID},
-        onDelete = ForeignKey.CASCADE
-)},
-indices = {@Index(name = TRANSACTIONS_ACCOUNT_ID_INDEX, value = {ACCOUNT_ID}),
-        @Index(name = TRANSACTIONS_PERSON_ID_INDEX, value = {PERSON_ID})
-})
+        foreignKeys = {@ForeignKey(
+                entity = Account.class,
+                parentColumns = {ExpensesContract.AccountsColumns._ID},
+                childColumns = {ACCOUNT_ID},
+                onDelete = ForeignKey.CASCADE
+        ), @ForeignKey(
+                entity = Person.class,
+                parentColumns = {ExpensesContract.PersonsColumns._ID},
+                childColumns = {PERSON_ID},
+                onDelete = ForeignKey.CASCADE
+        )},
+        indices = {@Index(name = TRANSACTIONS_ACCOUNT_ID_INDEX, value = {ACCOUNT_ID}),
+                @Index(name = TRANSACTIONS_PERSON_ID_INDEX, value = {PERSON_ID})
+        })
 @Deprecated
+@SuppressWarnings({"unused", "deprecation", "DeprecatedIsStillUsed"})
 public class Transaction implements Cloneable {
 
     @Deprecated
@@ -72,7 +73,6 @@ public class Transaction implements Cloneable {
     @SerializedName(AMOUNT)
     private BigDecimal totalAmount;
 
-    @NonNull
     @TypeConverters(Converters.class)
     @SerializedName(TYPE)
     private int type;
@@ -87,7 +87,7 @@ public class Transaction implements Cloneable {
     private String description;
 
     public Transaction(long transactionId, long accountId, Long personId,
-                       BigDecimal totalAmount, int type, @NonNull Date date,
+                       @NonNull BigDecimal totalAmount, int type, @NonNull Date date,
                        boolean deleted, String description) {
         this.transactionId = transactionId;
         this.accountId = accountId;
@@ -162,7 +162,9 @@ public class Transaction implements Cloneable {
         this.date = date;
     }
 
-    public void setDeleted(boolean deleted) {}
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
 
     public void setDescription(String description) {
         this.description = description;
@@ -190,6 +192,7 @@ public class Transaction implements Cloneable {
         return Objects.hash(transactionId, accountId, personId, deleted, totalAmount, type, date, description);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "Transaction{" +
@@ -204,6 +207,7 @@ public class Transaction implements Cloneable {
                 '}';
     }
 
+    @SuppressWarnings("MethodDoesntCallSuperMethod")
     @NonNull
     @Override
     public Transaction clone() {

@@ -30,39 +30,38 @@ import static dreammaker.android.expensetracker.database.ExpensesContract.Transa
         }
 )
 @Deprecated
+@SuppressWarnings({"unused", "DeprecatedIsStillUsed", "deprecation"})
 public class MoneyTransfer implements Cloneable {
 
     @PrimaryKey(autoGenerate = true)
-    @NonNull
     @ColumnInfo( typeAffinity = ColumnInfo.INTEGER)
     private long id;
+
     @ColumnInfo(typeAffinity = ColumnInfo.TEXT)
     @NonNull
     @TypeConverters(Converters.class)
     private Date when;
+
     @ColumnInfo(name = AMOUNT, typeAffinity = ColumnInfo.REAL, defaultValue = "0")
     @NonNull
     private BigDecimal totalAmount;
+
     @ColumnInfo(typeAffinity = ColumnInfo.INTEGER)
-    @NonNull
     private long payee_account_id;
+
     @ColumnInfo(typeAffinity = ColumnInfo.INTEGER)
-    @NonNull
     private long payer_account_id;
+
     @ColumnInfo(typeAffinity = ColumnInfo.TEXT)
     private String description;
 
     @Ignore
     @Deprecated
     public MoneyTransfer(long _id, @NonNull Date when, float amount, long payee_account_id, long payer_account_id, String description) {
-        this.id = _id;
-        this.when = when;
-        this.payee_account_id = payee_account_id;
-        this.payer_account_id = payer_account_id;
-        this.description = description;
+        this(_id,when,BigDecimal.valueOf(amount),payee_account_id,payer_account_id,description);
     }
 
-    public MoneyTransfer(long _id, @NonNull Date when, BigDecimal totalAmount, long payee_account_id, long payer_account_id, String description) {
+    public MoneyTransfer(long _id, @NonNull Date when, @NonNull BigDecimal totalAmount, long payee_account_id, long payer_account_id, String description) {
         this.id = _id;
         this.when = when;
         this.totalAmount = totalAmount;
@@ -102,11 +101,12 @@ public class MoneyTransfer implements Cloneable {
         setTotalAmount(new BigDecimal(amount).setScale(2, RoundingMode.HALF_DOWN));
     }
 
+    @NonNull
     public BigDecimal getTotalAmount() {
         return totalAmount;
     }
 
-    public void setTotalAmount(BigDecimal totalAmount) {
+    public void setTotalAmount(@NonNull BigDecimal totalAmount) {
         this.totalAmount = totalAmount;
     }
 
@@ -134,6 +134,7 @@ public class MoneyTransfer implements Cloneable {
         this.description = description;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "InputMoneyTransfer{" +
@@ -166,6 +167,7 @@ public class MoneyTransfer implements Cloneable {
         return false;
     }
 
+    @SuppressWarnings("MethodDoesntCallSuperMethod")
     @NonNull
     @Override
     public MoneyTransfer clone() {

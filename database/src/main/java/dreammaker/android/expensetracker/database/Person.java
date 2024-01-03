@@ -22,11 +22,11 @@ import static dreammaker.android.expensetracker.database.ExpensesContract.Tables
 
 @Entity(tableName = PERSONS_TABLE)
 @Deprecated
+@SuppressWarnings({"unused","deprecation"})
 public class Person {
 
     @ColumnInfo(name = _ID, typeAffinity = ColumnInfo.INTEGER)
     @PrimaryKey(autoGenerate = true)
-    @NonNull
     @SerializedName(_ID)
     private long personId;
 
@@ -67,6 +67,7 @@ public class Person {
         return personId;
     }
 
+    @NonNull
     public String getPersonName() {
         return personName;
     }
@@ -113,6 +114,7 @@ public class Person {
         return false;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "Person{" +
@@ -122,6 +124,7 @@ public class Person {
                 '}';
     }
 
+    @SuppressWarnings("MethodDoesntCallSuperMethod")
     @NonNull
     @Override
     public Person clone() {
