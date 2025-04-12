@@ -26,10 +26,9 @@ import dreammaker.android.expensetracker.util.Check;
 import dreammaker.android.expensetracker.util.Helper;
 import dreammaker.android.expensetracker.viewmodel.TransactionsViewModel;
 
-import static dreammaker.android.expensetracker.BuildConfig.DEBUG;
-
 public class Home extends Fragment implements View.OnClickListener {
 
+    private static final boolean DEBUG = true;
     private static final String TAG = "Home";
 
     private TextView totalBalance;

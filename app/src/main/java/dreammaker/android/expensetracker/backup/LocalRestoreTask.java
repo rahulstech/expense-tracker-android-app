@@ -116,7 +116,7 @@ public class LocalRestoreTask implements Runnable {
                    .setContentIntent(PendingIntent.getActivity(service,0,
                            new Intent(service, RestoreActivity.class)
                            .setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY|Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED),
-                           0));
+                           PendingIntent.FLAG_IMMUTABLE));
             showNotification(args,true);
         });
     }
@@ -132,7 +132,7 @@ public class LocalRestoreTask implements Runnable {
                     .setNotificationMessage(service.getString(R.string.notification_end_restore))
                             .setContentIntent(PendingIntent.getActivity(service.getApplicationContext(),0,
                                     new Intent(service.getApplicationContext(), MainActivity.class)
-                                            .setFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED),0));
+                                            .setFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED),PendingIntent.FLAG_IMMUTABLE));
             showNotification(args,false);
             LocalRestoreTask.this.callback.onResult(true);
         });
@@ -159,7 +159,7 @@ public class LocalRestoreTask implements Runnable {
             if (!isRetry) {
                 PendingIntent pi = PendingIntent.getService(service,0,
                         new Intent(service.getApplicationContext(),WorkActionService.class)
-                                .setAction(WorkActionService.ACTION_LOCAL_RESTORE_START).setData(data),0);
+                                .setAction(WorkActionService.ACTION_LOCAL_RESTORE_START).setData(data),PendingIntent.FLAG_IMMUTABLE);
                 args.addAction(nh.createAction(R.string.retry,pi));
             }
             showNotification(args,false);

@@ -26,12 +26,13 @@ import dreammaker.android.expensetracker.util.Date;
 import dreammaker.android.expensetracker.util.Helper;
 import dreammaker.android.expensetracker.util.ResultCallback;
 
-import static dreammaker.android.expensetracker.BuildConfig.DEBUG;
 import static dreammaker.android.expensetracker.util.Helper.ACTION_DELETE;
 import static dreammaker.android.expensetracker.util.Helper.ACTION_EDIT;
 import static dreammaker.android.expensetracker.util.Helper.ACTION_INSERT;
 
 public class TransactionsViewModel extends BaseViewModel {
+
+    private static final boolean DEBUG = true;
 
     private static final String TAG = "TransactionsViewModel";
 

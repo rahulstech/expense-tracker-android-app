@@ -20,7 +20,6 @@ import dreammaker.android.expensetracker.util.Date;
 import dreammaker.android.expensetracker.util.ResultCallback;
 import dreammaker.android.expensetracker.viewmodel.TransactionsViewModel;
 
-import static dreammaker.android.expensetracker.BuildConfig.DEBUG;
 import static dreammaker.android.expensetracker.viewmodel.TransactionsViewModel.FilterTransactionParams.DATE_ALL;
 import static dreammaker.android.expensetracker.viewmodel.TransactionsViewModel.FilterTransactionParams.DATE_CUSTOM_RANGE;
 import static dreammaker.android.expensetracker.viewmodel.TransactionsViewModel.FilterTransactionParams.DATE_LAST_MONTH;
@@ -32,6 +31,8 @@ import static dreammaker.android.expensetracker.viewmodel.TransactionsViewModel.
 import static dreammaker.android.expensetracker.viewmodel.TransactionsViewModel.FilterTransactionParams.DATE_YESTERDAY;
 
 public class FilterTransactionScreenDates extends BaseFragment<FilterTransactionScreenDates.FilterTransactionScreenDatesViewHolder>{
+
+    private static final boolean DEBUG = true;
 
     private static final String TAG = "FTScreenDates";
 
@@ -90,35 +91,22 @@ public class FilterTransactionScreenDates extends BaseFragment<FilterTransaction
             if (DEBUG) Log.d(TAG,"neither specific not date-range radio is selected");
             vh.pickDate.setVisibility(View.GONE);
             vh.pickDateRange.setVisibility(View.GONE);
-            switch (selected) {
-                case R.id.rb_all: {
-                    params.setDateRange(DATE_ALL,null,null);
-                }
-                break;
-                case R.id.rb_today: {
-                    params.setDateRange(DATE_TODAY,new Date(),new Date());
-                }
-                break;
-                case R.id.rb_yesterday: {
-                    params.setDateRange(DATE_YESTERDAY,new Date().yesterday(),new Date().yesterday());
-                }
-                break;
-                case R.id.rb_this_week: {
-                    params.setDateRange(DATE_THIS_WEEK,new Date().firstDateOfThisWeek(),new Date().lastDateOfThisWeek());
-                }
-                break;
-                case R.id.rb_last_week: {
-                    params.setDateRange(DATE_LAST_WEEK,new Date().firstDateOfLastWeek(),new Date().lastDateOfLastWeek());
-                }
-                break;
-                case R.id.rb_this_month: {
-                    params.setDateRange(DATE_THIS_MONTH,new Date().firstDateOfThisMonth(),new Date().lastDateOfThisMonth());
-                }
-                break;
-                case R.id.rb_last_month: {
-                    params.setDateRange(DATE_LAST_MONTH,new Date().firstDateOfLastMonth(),new Date().lastDateOfLastMonth());
-                }
+            if (selected == R.id.rb_all) {
+                params.setDateRange(DATE_ALL, null, null);
+            } else if (selected == R.id.rb_today) {
+                params.setDateRange(DATE_TODAY, new Date(), new Date());
+            } else if (selected == R.id.rb_yesterday) {
+                params.setDateRange(DATE_YESTERDAY, new Date().yesterday(), new Date().yesterday());
+            } else if (selected == R.id.rb_this_week) {
+                params.setDateRange(DATE_THIS_WEEK, new Date().firstDateOfThisWeek(), new Date().lastDateOfThisWeek());
+            } else if (selected == R.id.rb_last_week) {
+                params.setDateRange(DATE_LAST_WEEK, new Date().firstDateOfLastWeek(), new Date().lastDateOfLastWeek());
+            } else if (selected == R.id.rb_this_month) {
+                params.setDateRange(DATE_THIS_MONTH, new Date().firstDateOfThisMonth(), new Date().lastDateOfThisMonth());
+            } else if (selected == R.id.rb_last_month) {
+                params.setDateRange(DATE_LAST_MONTH, new Date().firstDateOfLastMonth(), new Date().lastDateOfLastMonth());
             }
+
         }
         if (DEBUG) {
             Log.d(TAG,"newDateType="+params.getDateType()+" | newMinDate= "+params.getMinDate()+

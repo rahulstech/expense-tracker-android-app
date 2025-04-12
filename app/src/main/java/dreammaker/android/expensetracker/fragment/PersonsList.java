@@ -30,10 +30,10 @@ import dreammaker.android.expensetracker.view.PersonsAdapter;
 import dreammaker.android.expensetracker.viewmodel.PersonsViewModel;
 import dreammaker.android.expensetracker.viewmodel.TransactionsViewModel;
 
-import static dreammaker.android.expensetracker.BuildConfig.DEBUG;
-
 public class PersonsList extends BaseListFragment<BaseListFragment.ListFragmentViewHolder> implements OnItemChildClickListener<PersonsAdapter, PersonsAdapter.PersonViewHolder> {
 
+
+    private static final boolean DEBUG = true;
     private static final String TAG = "PersonsList";
 
     private static final int ID_SAVED_DATE = 957;

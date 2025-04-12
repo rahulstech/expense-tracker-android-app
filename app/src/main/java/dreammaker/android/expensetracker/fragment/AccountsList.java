@@ -29,10 +29,9 @@ import dreammaker.android.expensetracker.view.OnItemChildClickListener;
 import dreammaker.android.expensetracker.viewmodel.AccountsViewModel;
 import dreammaker.android.expensetracker.viewmodel.TransactionsViewModel;
 
-import static dreammaker.android.expensetracker.BuildConfig.DEBUG;
-
 public class AccountsList extends BaseListFragment<BaseListFragment.ListFragmentViewHolder> implements OnItemChildClickListener<AccountsAdapter, AccountsAdapter.AccountViewHolder> {
 
+    private static final boolean DEBUG = true;
     private static final String TAG = "AccountsList";
     private static final int ID_SAVED_DATA = 959;
 

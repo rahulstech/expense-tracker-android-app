@@ -2,15 +2,14 @@ apply plugin: 'com.android.application'
 apply plugin: 'androidx.navigation.safeargs'
 
 android {
-
-    compileSdkVersion 29
-    buildToolsVersion "29.0.2"
+    namespace "dreammaker.android.expensetracker"
+    compileSdk 34
     defaultConfig {
         applicationId "dreammaker.android.expensetracker"
-        minSdkVersion 16
-        targetSdkVersion 29
-        versionCode 5
-        versionName '5.0'
+        minSdk 16
+        targetSdk 34
+        versionCode 6
+        versionName '6.0.0'
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         javaCompileOptions {
             annotationProcessorOptions {

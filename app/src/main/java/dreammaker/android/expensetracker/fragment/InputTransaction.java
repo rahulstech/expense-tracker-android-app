@@ -36,11 +36,11 @@ import dreammaker.android.expensetracker.view.PersonsSpinnerAdapter;
 import dreammaker.android.expensetracker.viewmodel.OperationCallback;
 import dreammaker.android.expensetracker.viewmodel.TransactionsViewModel;
 
-import static dreammaker.android.expensetracker.BuildConfig.DEBUG;
 import static dreammaker.android.expensetracker.database.Transaction.TYPE_CREDIT;
 
 public class InputTransaction extends BaseFragment<InputTransaction.InputTransactionViewHolder> implements View.OnClickListener {
 
+    private static final boolean DEBUG = true;
     private static final String TAG = "InputTransaction";
 
     private static final String DATE_FORMAT = "dd-MMMM-yyyy";

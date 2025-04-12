@@ -98,34 +98,29 @@ public class TransactionsList extends BaseListFragment<BaseListFragment.ListFrag
     @Override
     public void onItemChildClicked(TransactionsAdapter transactionsAdapter, TransactionsAdapter.TransactionsViewHolder vh, View childView) {
         final TransactionDetails transaction = adapter.getItem(vh.getAbsoluteAdapterPosition());
-        switch (childView.getId()){
-            case R.id.options:{
-                PopupMenu menu = new PopupMenu(getContext(), childView);
-                menu.inflate(R.menu.transaction_list_item_options_menu);
-                menu.setOnMenuItemClickListener(item -> {
-                    int itemId = item.getItemId();
-                    switch(itemId){
-                        case R.id.edit:{
-                            onEditTransaction(transaction);
-                            return true;
-                        }
-                        case R.id.delete:{
-                            onDeleteTransaction(transaction);
-                            return true;
-                        }
-                    }
-                    return false;
-                });
-                menu.show();
-            }
-            break;
-            case R.id.from_account:{
-                viewModel.loadTransactionsForAccount(transaction.getAccount());
-            }
-            break;
-            case R.id.to_account:{
-                viewModel.loadTransactionsForPerson(transaction.getPerson());
-            }
+        final int childViewId = childView.getId();
+        if (childViewId == R.id.options) {
+            PopupMenu menu = new PopupMenu(getContext(), childView);
+            menu.inflate(R.menu.transaction_list_item_options_menu);
+            menu.setOnMenuItemClickListener(item -> {
+                int itemId = item.getItemId();
+                if (itemId == R.id.edit) {
+                    onEditTransaction(transaction);
+                    return true;
+                }
+                else if (itemId == R.id.delete) {
+                    onDeleteTransaction(transaction);
+                    return true;
+                }
+                return false;
+            });
+            menu.show();
+        }
+        else if (childViewId == R.id.from_account) {
+            viewModel.loadTransactionsForAccount(transaction.getAccount());
+        }
+        else if (childViewId == R.id.to_account) {
+            viewModel.loadTransactionsForPerson(transaction.getPerson());
         }
     }
 
