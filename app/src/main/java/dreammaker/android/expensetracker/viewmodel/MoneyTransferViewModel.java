@@ -8,13 +8,10 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.paging.PagedList;
+
 import dreammaker.android.expensetracker.database.Account;
-import dreammaker.android.expensetracker.database.BalanceAndDueSummary;
 import dreammaker.android.expensetracker.database.MoneyTransfer;
 import dreammaker.android.expensetracker.database.MoneyTransferDetails;
-import dreammaker.android.expensetracker.database.Transaction;
-import dreammaker.android.expensetracker.database.TransactionDetails;
 import dreammaker.android.expensetracker.util.AppExecutor;
 import dreammaker.android.expensetracker.util.Check;
 import dreammaker.android.expensetracker.util.ResultCallback;

@@ -1,7 +1,6 @@
 package dreammaker.android.expensetracker.fragment;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -19,7 +18,6 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 import dreammaker.android.expensetracker.R;
-import dreammaker.android.expensetracker.activity.MainActivity;
 import dreammaker.android.expensetracker.database.AboutAccount;
 import dreammaker.android.expensetracker.database.Account;
 import dreammaker.android.expensetracker.util.Check;

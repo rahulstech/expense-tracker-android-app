@@ -1,23 +1,28 @@
-apply plugin: 'com.android.application'
-apply plugin: 'androidx.navigation.safeargs'
+plugins {
+    id 'com.android.application'
+    id 'androidx.navigation.safeargs'
+    id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
+}
 
 android {
     namespace "dreammaker.android.expensetracker"
     compileSdk 34
     defaultConfig {
         applicationId "dreammaker.android.expensetracker"
-        minSdk 16
+        minSdk 24
         targetSdk 34
         versionCode 6
         versionName '6.0.0'
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
-            }
-        }
         vectorDrawables {
             useSupportLibrary = true
+        }
+    }
+
+    kapt {
+        arguments {
+            arg("room.schemaLocation", "$projectDir/schemas")
         }
     }
 
@@ -27,30 +32,57 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
+    buildFeatures {
+        viewBinding true
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation 'androidx.core:core-ktx:1.13.0'
+
     implementation 'androidx.appcompat:appcompat:1.3.1'
+
+    // views
+    implementation 'androidx.recyclerview:recyclerview:1.2.1'
+    implementation 'androidx.cardview:cardview:1.0.0'
+    implementation 'com.google.android.material:material:1.5.0-alpha02'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.0'
-    implementation 'androidx.work:work-runtime:2.5.0'
-    implementation 'com.google.code.gson:gson:2.8.5'
+
+    // android preference
     implementation 'androidx.preference:preference:1.1.1'
+
+    // android test library
     testImplementation 'junit:junit:4.13'
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2-alpha05'
-    implementation 'androidx.recyclerview:recyclerview:1.2.1'
-    implementation 'androidx.cardview:cardview:1.0.0'
-    implementation 'com.google.android.material:material:1.5.0-alpha02'
-    implementation 'androidx.room:room-runtime:2.3.0'
-    annotationProcessor 'androidx.room:room-compiler:2.3.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.0'
+
+    // android navigation
     implementation 'androidx.navigation:navigation-fragment:2.3.5'
     implementation 'androidx.navigation:navigation-ui:2.3.5'
+
+    // room database
+    def roomVersion = '2.3.0'
+    implementation "androidx.room:room-runtime:$roomVersion"
+    kapt "androidx.room:room-compiler:$roomVersion"
+    androidTestImplementation "androidx.room:room-testing:$roomVersion"
+
+    // paging
     implementation 'androidx.paging:paging-runtime:3.0.1'
+
+    // work manager
+    implementation 'androidx.work:work-runtime:2.5.0'
+
+    // gson
+    implementation 'com.google.code.gson:gson:2.8.5'
 }

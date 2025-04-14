@@ -173,7 +173,7 @@
     <!-- Fragment Transactions List -->
     <fragment
         android:id="@+id/transactionsList"
-        android:name="dreammaker.android.expensetracker.fragment.TransactionsList"
+        android:name="dreammaker.android.expensetracker.feature.history.HistoryView"
         android:label="@string/label_transactions_list"
         tools:layout="@layout/list_content">
         <action

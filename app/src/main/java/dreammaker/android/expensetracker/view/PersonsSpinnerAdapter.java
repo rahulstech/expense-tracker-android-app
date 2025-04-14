@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.List;
 
 import androidx.annotation.NonNull;
-import dreammaker.android.expensetracker.R;
+
 import dreammaker.android.expensetracker.database.Person;
 import dreammaker.android.expensetracker.util.Check;
 
