@@ -29,7 +29,7 @@ import dreammaker.android.expensetracker.database.Person;
 import dreammaker.android.expensetracker.database.Transaction;
 import dreammaker.android.expensetracker.util.CalculatorKeyboard;
 import dreammaker.android.expensetracker.util.Check;
-import dreammaker.android.expensetracker.util.Date;
+import dreammaker.android.expensetracker.database.Date;
 import dreammaker.android.expensetracker.util.Helper;
 import dreammaker.android.expensetracker.view.AccountsSpinnerAdapter;
 import dreammaker.android.expensetracker.view.PersonsSpinnerAdapter;

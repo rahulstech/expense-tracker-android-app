@@ -23,9 +23,7 @@ import androidx.work.WorkManager;
 import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.activity.BackupRestoreActivity;
 import dreammaker.android.expensetracker.util.AppExecutor;
-import dreammaker.android.expensetracker.util.Date;
 
-import static dreammaker.android.expensetracker.activity.SettingsActivity.getNextAutoDeleteDate;
 import static dreammaker.android.expensetracker.activity.SettingsActivity.setNextAutoDeleteDate;
 import static dreammaker.android.expensetracker.backup.BackupRestoreHelper.BACKUP_NOTIFICATION_ID;
 import static dreammaker.android.expensetracker.backup.BackupRestoreHelper.BACKUP_WORK_TAG;

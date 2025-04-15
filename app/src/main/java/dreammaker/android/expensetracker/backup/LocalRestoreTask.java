@@ -23,7 +23,6 @@ import dreammaker.android.expensetracker.util.AppExecutor;
 import dreammaker.android.expensetracker.util.Check;
 import dreammaker.android.expensetracker.util.ResultCallback;
 
-import static dreammaker.android.expensetracker.backup.BackupRestoreHelper.VERSION_5;
 import static dreammaker.android.expensetracker.backup.BackupRestoreHelper.VERSION_6;
 import static dreammaker.android.expensetracker.backup.BackupRestoreHelper.createNewGSONInstance;
 

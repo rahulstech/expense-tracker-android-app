@@ -24,7 +24,7 @@ import dreammaker.android.expensetracker.database.MoneyTransfer;
 import dreammaker.android.expensetracker.database.Person;
 import dreammaker.android.expensetracker.database.Transaction;
 import dreammaker.android.expensetracker.util.AppExecutor;
-import dreammaker.android.expensetracker.util.Date;
+import dreammaker.android.expensetracker.database.Date;
 
 import static dreammaker.android.expensetracker.backup.BackupRestoreHelper.CURRENT_BACKUP_FILE_SCHEMA_VERSION;
 import static dreammaker.android.expensetracker.backup.BackupRestoreHelper.DIRECTORY_BACKUP;

@@ -2,7 +2,6 @@ package dreammaker.android.expensetracker.fragment;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +20,6 @@ import androidx.navigation.Navigation;
 import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.activity.MainActivity;
 import dreammaker.android.expensetracker.database.BalanceAndDueSummary;
-import dreammaker.android.expensetracker.database.Transaction;
 import dreammaker.android.expensetracker.util.Check;
 import dreammaker.android.expensetracker.util.Helper;
 import dreammaker.android.expensetracker.viewmodel.TransactionsViewModel;
@@ -39,7 +37,6 @@ public class Home extends Fragment implements View.OnClickListener {
     private Button persons;
     private FloatingActionButton addTransaction;
     private Button transactions;
-    private Button moneyTransfer;
 
     private TransactionsViewModel viewModel;
     private NavController navController;
@@ -72,12 +69,10 @@ public class Home extends Fragment implements View.OnClickListener {
         persons = v.findViewById(R.id.persons);
         addTransaction = v.findViewById(R.id.add_transaction);
         transactions = v.findViewById(R.id.transactions);
-        moneyTransfer = v.findViewById(R.id.money_transfer);
         accounts.setOnClickListener(this);
         persons.setOnClickListener(this);
         addTransaction.setOnClickListener(this);
         transactions.setOnClickListener(this);
-        moneyTransfer.setOnClickListener(this);
         Helper.setTitle(getActivity(), R.string.app_name);
         viewModel.getBalanceAndDueSummaryLiveData().observe(getViewLifecycleOwner(), this::onUpdateBalanceAndDueSummary);
     }
@@ -103,9 +98,6 @@ public class Home extends Fragment implements View.OnClickListener {
                 else
                     showQuickMessage(R.string.message_no_account_for_transaction);
             });
-        }
-        else if (v == moneyTransfer) {
-            navController.navigate(R.id.action_home_to_moneyTransferHistory);
         }
     }
 

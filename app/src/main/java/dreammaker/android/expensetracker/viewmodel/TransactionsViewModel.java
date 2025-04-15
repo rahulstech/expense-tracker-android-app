@@ -23,7 +23,7 @@ import dreammaker.android.expensetracker.database.Transaction;
 import dreammaker.android.expensetracker.database.TransactionDetails;
 import dreammaker.android.expensetracker.util.AppExecutor;
 import dreammaker.android.expensetracker.util.Check;
-import dreammaker.android.expensetracker.util.Date;
+import dreammaker.android.expensetracker.database.Date;
 import dreammaker.android.expensetracker.util.Helper;
 import dreammaker.android.expensetracker.util.ResultCallback;
 

@@ -11,6 +11,7 @@
           <set>
             <option value="$USER_HOME$/AndroidStudioProjects/expense-tracker-android-app" />
             <option value="$USER_HOME$/AndroidStudioProjects/expense-tracker-android-app/app" />
+            <option value="$USER_HOME$/AndroidStudioProjects/expense-tracker-android-app/database" />
           </set>
         </option>
         <option name="resolveExternalAnnotations" value="false" />

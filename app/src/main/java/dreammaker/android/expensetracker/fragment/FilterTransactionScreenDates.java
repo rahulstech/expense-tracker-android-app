@@ -16,7 +16,7 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.util.Check;
-import dreammaker.android.expensetracker.util.Date;
+import dreammaker.android.expensetracker.database.Date;
 import dreammaker.android.expensetracker.util.ResultCallback;
 import dreammaker.android.expensetracker.viewmodel.TransactionsViewModel;
 

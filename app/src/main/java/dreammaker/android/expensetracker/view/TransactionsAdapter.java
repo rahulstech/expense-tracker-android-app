@@ -15,10 +15,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.database.TransactionDetails;
 import dreammaker.android.expensetracker.util.Check;
-import dreammaker.android.expensetracker.util.Date;
+import dreammaker.android.expensetracker.database.Date;
 import dreammaker.android.expensetracker.util.Helper;
 
-import static dreammaker.android.expensetracker.database.Transaction.TYPE_CREDIT;
 import static dreammaker.android.expensetracker.database.TransactionDetails.TYPE_DEBIT;
 
 public class TransactionsAdapter extends BaseRecyclerViewPagedListAdapter<TransactionDetails, TransactionsAdapter.TransactionsViewHolder>

@@ -40,15 +40,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/accounts" />
 
-        <Button
-            android:id="@+id/money_transfer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/label_money_transfer"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/transactions" />
-
         <androidx.cardview.widget.CardView
             android:id="@+id/container_total_balance"
             android:layout_width="0dp"
@@ -162,10 +153,12 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/fab_margin"
             android:layout_marginBottom="@dimen/fab_margin"
+            style="@style/Widget.AppTheme.FloatingActionButton"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/money_transfer"
-            app:srcCompat="@drawable/ic_add" />
+            app:layout_constraintTop_toBottomOf="@+id/transactions"
+            app:srcCompat="@drawable/ic_add"
+            tools:ignore="ContentDescription" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

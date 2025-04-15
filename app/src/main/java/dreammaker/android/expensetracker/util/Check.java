@@ -1,5 +1,7 @@
 package dreammaker.android.expensetracker.util;
 
+import dreammaker.android.expensetracker.database.Date;
+
 public class Check {
 
     public static boolean isNonNull(Object o){

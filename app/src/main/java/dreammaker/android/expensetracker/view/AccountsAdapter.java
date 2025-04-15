@@ -9,7 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DiffUtil;
-import androidx.recyclerview.widget.RecyclerView;
+
 import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.database.AboutAccount;
 import dreammaker.android.expensetracker.util.Check;

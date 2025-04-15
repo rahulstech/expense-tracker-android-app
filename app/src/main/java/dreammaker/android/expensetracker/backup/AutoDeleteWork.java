@@ -1,21 +1,14 @@
 package dreammaker.android.expensetracker.backup;
 
-import android.app.Notification;
-import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
-import androidx.work.Worker;
-import androidx.work.WorkerParameters;
 import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.activity.SettingsActivity;
 import dreammaker.android.expensetracker.database.ExpensesDao;
 import dreammaker.android.expensetracker.database.ExpensesDatabase;
 import dreammaker.android.expensetracker.util.AppExecutor;
 import dreammaker.android.expensetracker.util.Check;
-import dreammaker.android.expensetracker.util.Date;
+import dreammaker.android.expensetracker.database.Date;
 import dreammaker.android.expensetracker.util.ResultCallback;
 
 public class AutoDeleteWork implements Runnable {

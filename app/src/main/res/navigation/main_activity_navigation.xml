@@ -28,7 +28,7 @@
             app:popUpTo="@id/home"/>
         <action
             android:id="@+id/action_home_to_transactionsList"
-            app:destination="@+id/transactionsList"
+            app:destination="@id/history_list"
             app:enterAnim="@anim/slide_in_left"
             app:exitAnim="@anim/slide_out_right"
             app:popEnterAnim="@anim/slide_in_right"
@@ -42,21 +42,6 @@
             app:popEnterAnim="@anim/slide_in_right"
             app:popExitAnim="@anim/slide_out_left"
             app:popUpTo="@id/home" />
-        <action
-            android:id="@+id/action_home_to_moneyTransfer"
-            app:destination="@id/moneyTransfer"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right"
-            app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left"
-            app:popUpTo="@id/home" />
-        <action
-            android:id="@+id/action_home_to_moneyTransferHistory"
-            app:destination="@id/moneyTransferHistory"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right"
-            app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left" />
     </fragment>
 
     <!-- Fragment Input Transaction -->
@@ -65,24 +50,6 @@
         android:name="dreammaker.android.expensetracker.fragment.InputTransaction"
         android:label="@string/label_insert_transaction"
         tools:layout="@layout/input_transaction" />
-
-    <!-- Fragment Money Transfer -->
-    <fragment
-        android:id="@+id/moneyTransfer"
-        android:name="dreammaker.android.expensetracker.fragment.InputMoneyTransfer"
-        android:label="@string/label_new_money_transfer" />
-    <fragment
-        android:id="@+id/moneyTransferHistory"
-        android:name="dreammaker.android.expensetracker.fragment.MoneyTransferHistory"
-        android:label="@string/label_money_transfer_history">
-        <action
-            android:id="@+id/action_moneyTransferHistory_to_moneyTransfer"
-            app:destination="@id/moneyTransfer"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right"
-            app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left" />
-    </fragment>
 
     <!-- Fragment Accounts List -->
     <fragment
@@ -109,14 +76,6 @@
         <action
             android:id="@+id/action_accountsList_to_inputTransaction"
             app:destination="@id/inputTransaction"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right"
-            app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left"
-            app:popUpTo="@id/accountsList" />
-        <action
-            android:id="@+id/action_accountsList_to_moneyTransfer"
-            app:destination="@id/moneyTransfer"
             app:enterAnim="@anim/slide_in_left"
             app:exitAnim="@anim/slide_out_right"
             app:popEnterAnim="@anim/slide_in_right"
@@ -173,7 +132,7 @@
     <!-- Fragment Transactions List -->
     <fragment
         android:id="@+id/transactionsList"
-        android:name="dreammaker.android.expensetracker.feature.history.HistoryView"
+        android:name="dreammaker.android.expensetracker.ui.history.HistoryListFragment"
         android:label="@string/label_transactions_list"
         tools:layout="@layout/list_content">
         <action
@@ -201,5 +160,52 @@
         android:label="@string/label_filter_transaction"
         tools:layout="@layout/layout_filter_transaction"/>
 
+
+    <!-- Account -->
+
+    <fragment
+        android:id="@+id/account_chooser_list"
+        android:name="dreammaker.android.expensetracker.ui.account.AccountChooserFragment"
+        android:label="@string/title_account_chooser"
+        tools:layout="@layout/chooser_list_layout">
+
+    </fragment>
+
+    <!-- Person -->
+
+    <fragment
+        android:id="@+id/person_chooser_list"
+        android:name="dreammaker.android.expensetracker.ui.person.PersonChooserFragment"
+        android:label="@string/title_person_chooser"
+        tools:layout="@layout/chooser_list_layout">
+
+    </fragment>
+
+
+    <!-- History -->
+
+    <fragment
+        android:id="@+id/history_input"
+        android:name="dreammaker.android.expensetracker.ui.history.HistoryInputFragment"
+        tools:layout="@layout/history_input_layout">
+
+        <action android:id="@+id/action_history_input_to_account_chooser_list"
+            app:destination="@id/account_chooser_list"/>
+
+        <action android:id="@+id/action_history_input_to_person_chooser_list"
+            app:destination="@id/person_chooser_list"/>
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/history_list"
+        android:name="dreammaker.android.expensetracker.ui.history.HistoryListFragment"
+        android:label="@string/title_history_list"
+        tools:layout="@layout/list_content">
+
+        <action android:id="@+id/action_history_list_to_history_input"
+            app:destination="@id/history_input"/>
+
+    </fragment>
 
 </navigation>

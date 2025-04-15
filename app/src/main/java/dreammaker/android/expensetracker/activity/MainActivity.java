@@ -15,15 +15,13 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.backup.BackupRestoreHelper;
 import dreammaker.android.expensetracker.backup.WorkActionService;
-import dreammaker.android.expensetracker.util.CalculatorKeyboard;
 import dreammaker.android.expensetracker.util.Check;
-import dreammaker.android.expensetracker.util.Date;
+import dreammaker.android.expensetracker.database.Date;
 
 public class MainActivity extends BaseActivity {
 

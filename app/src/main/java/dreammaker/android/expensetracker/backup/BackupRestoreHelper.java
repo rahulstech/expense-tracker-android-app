@@ -30,7 +30,7 @@ import dreammaker.android.expensetracker.database.ExpensesBackupDao;
 import dreammaker.android.expensetracker.database.ExpensesDatabase;
 import dreammaker.android.expensetracker.util.AppExecutor;
 import dreammaker.android.expensetracker.util.Check;
-import dreammaker.android.expensetracker.util.Date;
+import dreammaker.android.expensetracker.database.Date;
 import dreammaker.android.expensetracker.util.ResultCallback;
 
 public class BackupRestoreHelper {

@@ -8,7 +8,6 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -32,7 +31,7 @@ import androidx.work.WorkInfo;
 import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.backup.BackupRestoreHelper;
 import dreammaker.android.expensetracker.util.Check;
-import dreammaker.android.expensetracker.util.Date;
+import dreammaker.android.expensetracker.database.Date;
 import dreammaker.android.expensetracker.view.BaseSpinnerAdapter;
 import dreammaker.android.expensetracker.viewmodel.BackupRestoreViewModel;
 

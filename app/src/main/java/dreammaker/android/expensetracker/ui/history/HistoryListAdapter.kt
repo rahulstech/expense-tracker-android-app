@@ -1,0 +1,87 @@
+package dreammaker.android.expensetracker.ui.history
+
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import androidx.annotation.StringRes
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
+import dreammaker.android.expensetracker.R
+import dreammaker.android.expensetracker.database.HistoryModel
+import dreammaker.android.expensetracker.database.HistoryType
+import dreammaker.android.expensetracker.databinding.HistoryListItemBinding
+import dreammaker.android.expensetracker.util.boldText
+
+private val HISTORY_ITEM_DATE_FORMAT = "EEEE, dd-MMMM-yyyy"
+
+class HistoryViewHolder(private val binding: HistoryListItemBinding) : RecyclerView.ViewHolder(binding.root) {
+
+
+    fun bind(history: HistoryModel?) {
+        if (history == null) {
+            binding.amount.text = null
+            binding.date.text = null
+            binding.note.text = null
+            binding.type.text = null
+            binding.source.text = null
+            binding.destination.text = null
+        }
+        else {
+            binding.amount.text = history.amount?.toString()
+            binding.date.text = history.date?.format(HISTORY_ITEM_DATE_FORMAT)
+            binding.note.text = history.note
+            val type = history.type
+            binding.type.text = type?.name
+            when (type) {
+                HistoryType.TRANSFER -> {
+                    val src = history.srcAccount?.name ?: ""
+                    val dest = history.destAccount?.name ?: "";
+
+                    binding.source.text = getString(R.string.history_item_transfer_source, src)
+                    binding.destination.text = getString(R.string.history_item_transfer_destination, boldText(dest))
+                }
+                HistoryType.CREDIT -> {
+                    val src = history.srcPerson?.name ?: ""
+                    val dest = history.destAccount?.name ?: "";
+                    binding.source.text = getString(R.string.history_item_credit_source, boldText(src))
+                    binding.destination.text = getString(R.string.history_item_credit_destination, boldText(dest))
+                }
+                HistoryType.DEBIT -> {
+                    val src = history.srcAccount?.name ?: ""
+                    val dest = history.destPerson?.name ?: "";
+                    binding.source.text = getString(R.string.history_item_debit_source, boldText(src))
+                    binding.destination.text = getString(R.string.history_item_debit_destination, boldText(dest))
+                }
+
+                HistoryType.EXPENSE -> TODO()
+                HistoryType.INCOME -> TODO()
+                null -> TODO()
+            }
+        }
+    }
+
+    private fun getString(@StringRes id: Int, vararg args: Any): String = itemView.context.getString(id, *args)
+}
+
+private val callback = object : DiffUtil.ItemCallback<HistoryModel>() {
+
+    override fun areItemsTheSame(oldItem: HistoryModel, newItem: HistoryModel): Boolean
+    = oldItem.id == newItem.id && oldItem.type == newItem.type
+
+    override fun areContentsTheSame(oldItem: HistoryModel, newItem: HistoryModel): Boolean
+    = oldItem.equals(newItem)
+}
+
+class HistoryListAdapter: ListAdapter<HistoryModel, HistoryViewHolder>(callback) {
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HistoryViewHolder {
+        val inflater = LayoutInflater.from(parent.context)
+        val binding = HistoryListItemBinding.inflate(inflater, parent, false)
+        return HistoryViewHolder(binding)
+    }
+
+    override fun onBindViewHolder(holder: HistoryViewHolder, position: Int) {
+        val history = getItem(position)
+        holder.bind(history)
+    }
+}
