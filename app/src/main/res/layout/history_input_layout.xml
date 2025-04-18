@@ -60,11 +60,12 @@
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                 tools:text="Account" />
 
-            <FrameLayout
+            <com.google.android.material.chip.ChipGroup
                 android:id="@+id/selected_source_container"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="1"/>
+                android:layout_weight="1"
+                android:animateLayoutChanges="true"/>
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/input_source"
@@ -97,11 +98,12 @@
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                 tools:text="Person" />
 
-            <FrameLayout
+            <com.google.android.material.chip.ChipGroup
                 android:id="@+id/selected_destination_container"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="1"/>
+                android:layout_weight="1"
+                android:animateLayoutChanges="true"/>
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/input_destination"

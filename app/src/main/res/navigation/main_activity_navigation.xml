@@ -132,7 +132,7 @@
     <!-- Fragment Transactions List -->
     <fragment
         android:id="@+id/transactionsList"
-        android:name="dreammaker.android.expensetracker.ui.history.HistoryListFragment"
+        android:name="dreammaker.android.expensetracker.ui.history.viewhistory.DailyViewHistoryFragment"
         android:label="@string/label_transactions_list"
         tools:layout="@layout/list_content">
         <action
@@ -185,21 +185,33 @@
     <!-- History -->
 
     <fragment
+        android:id="@+id/pick_history_account"
+        android:name="dreammaker.android.expensetracker.ui.history.historyinput.PickerHistoryAccountFragment"
+        android:label="@string/title_account_chooser"
+        tools:layout="@layout/chooser_list_layout"/>
+
+    <fragment
+        android:id="@+id/pick_history_person"
+        android:name="dreammaker.android.expensetracker.ui.history.historyinput.PickHistoryPersonFragment"
+        android:label="@string/title_person_chooser"
+        tools:layout="@layout/chooser_list_layout"/>
+
+    <fragment
         android:id="@+id/history_input"
-        android:name="dreammaker.android.expensetracker.ui.history.HistoryInputFragment"
+        android:name="dreammaker.android.expensetracker.ui.history.historyinput.HistoryInputFragment"
         tools:layout="@layout/history_input_layout">
 
         <action android:id="@+id/action_history_input_to_account_chooser_list"
-            app:destination="@id/account_chooser_list"/>
+            app:destination="@id/pick_history_account"/>
 
         <action android:id="@+id/action_history_input_to_person_chooser_list"
-            app:destination="@id/person_chooser_list"/>
+            app:destination="@id/pick_history_person"/>
 
     </fragment>
 
     <fragment
         android:id="@+id/history_list"
-        android:name="dreammaker.android.expensetracker.ui.history.HistoryListFragment"
+        android:name="dreammaker.android.expensetracker.ui.history.viewhistory.DailyViewHistoryFragment"
         android:label="@string/title_history_list"
         tools:layout="@layout/list_content">
 

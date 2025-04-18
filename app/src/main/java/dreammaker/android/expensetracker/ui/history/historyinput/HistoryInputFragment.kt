@@ -1,4 +1,4 @@
-package dreammaker.android.expensetracker.ui.history
+package dreammaker.android.expensetracker.ui.history.historyinput
 
 import android.app.DatePickerDialog
 import android.content.Context
@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import dreammaker.android.expensetracker.R
@@ -15,6 +16,8 @@ import dreammaker.android.expensetracker.database.Date
 import dreammaker.android.expensetracker.database.HistoryType
 import dreammaker.android.expensetracker.databinding.HistoryInputLayoutBinding
 import dreammaker.android.expensetracker.ui.util.ARG_DESTIATION_LABEL
+import dreammaker.android.expensetracker.ui.util.createAccountChip
+import kotlinx.coroutines.launch
 
 class HistoryInputFragment : Fragment() {
 
@@ -36,7 +39,8 @@ class HistoryInputFragment : Fragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        viewModel = ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory(requireActivity().application))[HistoryInputViewModel::class.java]
+        viewModel = ViewModelProvider(requireActivity(),
+            ViewModelProvider.AndroidViewModelFactory(requireActivity().application))[HistoryInputViewModel::class.java]
     }
 
     override fun onCreateView(
@@ -57,6 +61,16 @@ class HistoryInputFragment : Fragment() {
         val type = HistoryType.DEBIT
         prepareSourceInput(type)
         prepareDestinationInput(type)
+
+        lifecycleScope.launch {
+            viewModel.selectedSrcAccount.collect { account ->
+                binding.selectedSourceContainer.removeAllViews()
+                if (null != account) {
+                    val chip = createAccountChip(requireContext(), account)
+                    binding.selectedSourceContainer.addView(chip)
+                }
+            }
+        }
     }
 
     private fun prepareSourceInput(type: HistoryType) {
@@ -74,6 +88,7 @@ class HistoryInputFragment : Fragment() {
             binding.inputSource.setOnClickListener{
                 val args = Bundle().apply {
                     putString(ARG_DESTIATION_LABEL, getString(R.string.title_choose_debit_source_account))
+                    putString(PickerHistoryAccountFragment.ARG_KEY_SELECTED_ACCOUNT, PickerHistoryAccountFragment.SELECTED_SRC_ACCOUNT)
                 }
                 navController.navigate(R.id.action_history_input_to_account_chooser_list, args)
             }
@@ -83,6 +98,7 @@ class HistoryInputFragment : Fragment() {
             binding.inputSource.setOnClickListener{
                 val args = Bundle().apply {
                     putString(ARG_DESTIATION_LABEL, getString(R.string.title_choose_transfer_source_person))
+                    putString(PickerHistoryAccountFragment.ARG_KEY_SELECTED_ACCOUNT, PickerHistoryAccountFragment.SELECTED_SRC_ACCOUNT)
                 }
                 navController.navigate(R.id.action_history_input_to_account_chooser_list, args)
             }
@@ -95,6 +111,7 @@ class HistoryInputFragment : Fragment() {
             binding.inputDestination.setOnClickListener{
                 val args = Bundle().apply {
                     putString(ARG_DESTIATION_LABEL, getString(R.string.title_choose_credit_destination_account))
+                    putString(PickerHistoryAccountFragment.ARG_KEY_SELECTED_ACCOUNT, PickerHistoryAccountFragment.SELECTED_DEST_ACCOUNT)
                 }
                 navController.navigate(R.id.action_history_input_to_account_chooser_list, args)
             }
@@ -113,6 +130,7 @@ class HistoryInputFragment : Fragment() {
             binding.inputDestination.setOnClickListener{
                 val args = Bundle().apply {
                     putString(ARG_DESTIATION_LABEL, getString(R.string.title_choose_transfer_detination_person))
+                    putString(PickerHistoryAccountFragment.ARG_KEY_SELECTED_ACCOUNT, PickerHistoryAccountFragment.SELECTED_DEST_ACCOUNT)
                 }
                 navController.navigate(R.id.action_history_input_to_account_chooser_list, args)
             }

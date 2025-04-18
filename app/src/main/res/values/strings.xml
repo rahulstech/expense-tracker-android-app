@@ -198,5 +198,8 @@
 	<string name="title_choose_credit_destination_account">Credit To</string>
 	<string name="title_choose_debit_destination_person">Debit For</string>
 	<string name="title_choose_transfer_detination_person">Transfer To</string>
+    <string name="menu_view_history_as">View history as</string>
+    <string name="menu_view_history_daily">Daily</string>
+    <string name="menu_view_history_monthly">Monthly</string>
 
 </resources>

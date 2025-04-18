@@ -6,33 +6,34 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.LiveData
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
+import dreammaker.android.expensetracker.database.PersonModel
 import dreammaker.android.expensetracker.databinding.ChooserListLayoutBinding
 import dreammaker.android.expensetracker.ui.util.ARG_DESTIATION_LABEL
+import dreammaker.android.expensetracker.ui.util.SelectionChipMaker
 import dreammaker.android.expensetracker.ui.util.SelectionMode
 import dreammaker.android.expensetracker.ui.util.SelectionStore
 import dreammaker.android.expensetracker.ui.util.createPersonChip
 
-class PersonChooserFragment: Fragment() {
+interface IPersonChooserViewModel {
 
-    private lateinit var binding: ChooserListLayoutBinding
-    private lateinit var viewModel: PersonChooserViewModel
-    private lateinit var navController: NavController
+    var personSelectionStore: SelectionStore<Long>?
+
+    fun getAllPeople(): LiveData<List<PersonModel>>
+}
+
+open class PersonChooserFragment(val selectionMode: SelectionMode): Fragment() {
+
+    protected lateinit var binding: ChooserListLayoutBinding
+    protected lateinit var viewModel: IPersonChooserViewModel
+    protected lateinit var navController: NavController
     private lateinit var selectionStore: SelectionStore<Long>
     private lateinit var adapter: PersonChooserListAdapter
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        viewModel = ViewModelProvider(
-            this,
-            ViewModelProvider.AndroidViewModelFactory(requireActivity().application))[PersonChooserViewModel::class.java]
-        if (arguments?.containsKey(ARG_DESTIATION_LABEL) == true) {
-            requireActivity().title = arguments?.getString(ARG_DESTIATION_LABEL)
-        }
-    }
+    private lateinit var selectionChipMaker: SelectionChipMaker<Long>
+    private val keyToPersonMap = mutableMapOf<Long,PersonModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -46,34 +47,80 @@ class PersonChooserFragment: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         navController = Navigation.findNavController(view)
         adapter = PersonChooserListAdapter()
-        selectionStore = viewModel.selectionStore ?: SelectionStore()
+        binding.optionsList.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+        binding.optionsList.adapter = adapter
+        binding.btnChoose.setOnClickListener{ handlePickPeople() }
+        prepareSelectionStore(adapter)
+        prepareSelectionChipMaker()
+
+        viewModel.getAllPeople().observe(viewLifecycleOwner, this::onPeopleLoaded)
+    }
+
+    private fun prepareSelectionStore(adapter: PersonChooserListAdapter) {
+        selectionStore = viewModel.personSelectionStore ?: SelectionStore(selectionMode)
         selectionStore.selectionProvider = adapter
         selectionStore.itemSelectionListener = this::handlePersonSelection
         adapter.selectionStore = selectionStore
-        binding.optionsList.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
-        binding.optionsList.adapter = adapter
-        viewModel.getAllPeople().observe(viewLifecycleOwner, adapter::submitList)
+        viewModel.personSelectionStore = selectionStore
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        viewModel.selectionStore = selectionStore
-    }
-
-    private fun handlePersonSelection(store: SelectionStore<Long>, key: Long, position: Int, selected: Boolean) {
-        val mode = store.selectionMode
-        if (mode == SelectionMode.SINGLE) {
-            binding.selectionsContainer.removeAllViews()
-            val person = adapter.currentList[position]
+    private fun prepareSelectionChipMaker() {
+        selectionChipMaker = SelectionChipMaker(
+            binding.selectionsContainer
+        , {
+            val person = getPersonForKey(it) ?: return@SelectionChipMaker null
             val chip = createPersonChip(requireContext(), person)
-            chip.tag = key
-            chip.setOnCloseIconClickListener {
-                selectionStore.changeSelection(key,false)
-                binding.selectionsContainer.removeView(it)
+            chip
+        },{ _,key ->
+            selectionStore.changeSelection(key,false)
+        })
+    }
+
+    protected open fun onPeopleLoaded(people: List<PersonModel>?) {
+        keyToPersonMap.clear()
+        people?.forEach{ keyToPersonMap[it.id!!] = it}
+        adapter.submitList(people)
+        if (selectionStore.hasSelection()) {
+            if (selectionMode == SelectionMode.SINGLE) {
+                selectionChipMaker.addChip(selectionStore.selectedKey!!)
             }
-            binding.selectionsContainer.addView(chip)
+            else if (selectionMode == SelectionMode.MULTIPLE) {
+                selectionChipMaker.addChips(selectionStore.selectedKeys!!)
+            }
         }
     }
 
-    private fun handlePickPerson() {}
+    protected open fun handlePickPeople() {}
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        viewModel.personSelectionStore = selectionStore
+    }
+
+    protected open fun handlePersonSelection(store: SelectionStore<Long>, key: Long, position: Int, selected: Boolean) {
+        val mode = store.selectionMode
+        if (mode == SelectionMode.SINGLE) {
+            selectionChipMaker.removeAllChips()
+        }
+        if (selected) {
+            selectionChipMaker.addChip(key)
+        }
+        else {
+            selectionChipMaker.removeChip(key)
+        }
+    }
+
+    protected fun getPersonAtPosition(position: Int): PersonModel = adapter.currentList[position]
+
+    protected fun getPersonForKey(key: Long): PersonModel? = keyToPersonMap[key]
+
+    protected fun getSelectedPerson(): PersonModel? = keyToPersonMap[selectionStore.selectedKey]
+
+    protected fun getSelectedPeople(): List<PersonModel> {
+        val keySet = selectionStore.selectedKeys
+        if (keyToPersonMap.isEmpty() || keySet.isNullOrEmpty()) {
+            return emptyList()
+        }
+        return keySet.map { keyToPersonMap[it]!! }
+    }
 }

@@ -81,9 +81,13 @@ abstract class HistoryDao(private val db: ExpensesDatabase) {
 
     private val expensesDao = db.dao
 
-    @Query("SELECT * FROM `histories` WHERE `date` BETWEEN :start AND :end ORDER BY `date` DESC")
+    @Query("SELECT * FROM `histories` WHERE :start <= `date` AND `date` <= :end ORDER BY `date` DESC")
     @Transaction
     abstract fun getHistoriesBetweenDates(start: Date, end: Date): LiveData<List<HistoryModel>>
+
+    @Query("SELECT * FROM `histories` WHERE `date` = :date")
+    @Transaction
+    abstract fun getHistoriesForDate(date: Date): LiveData<List<HistoryModel>>
 
     fun insertHistory(history: History): Long {
         if (history.type == HistoryType.TRANSFER) {

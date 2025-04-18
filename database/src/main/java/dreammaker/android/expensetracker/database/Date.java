@@ -6,8 +6,14 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Locale;
+
+import kotlin.time.Duration;
+import kotlin.time.DurationKt;
 
 public class Date implements Cloneable {
 
@@ -189,5 +195,17 @@ public class Date implements Cloneable {
         final Calendar copy = (Calendar) this.firstDateOfThisMonth().calendar.clone();
         copy.add(Calendar.MONTH,Math.abs(n));
         return new Date(copy);
+    }
+
+    public Date plusDays(int n) {
+        final Calendar copy = (Calendar) this.calendar.clone();
+        copy.add(Calendar.DAY_OF_YEAR, n);
+        return new Date(copy);
+    }
+
+    public static int durationDays(Date from, Date to) {
+        LocalDate start = LocalDate.of(from.getYear(), from.getMonth()+1, from.getDayOfMonth());
+        LocalDate end = LocalDate.of(to.getYear(), to.getMonth()+1, to.getDayOfMonth());
+        return (int) ChronoUnit.DAYS.between(start, end);
     }
 }

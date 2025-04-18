@@ -37,14 +37,10 @@ class SelectionStore<T>(val selectionMode: SelectionMode = SelectionMode.SINGLE)
         }
     }
 
-    private fun checkHasSelectionKeyProviderOrThrow() {
+    fun updateKeyPosition() {
         if (null == selectionProvider) {
             throw NullPointerException("SelectionKeyProvider not set")
         }
-    }
-
-    fun updateKeyPosition() {
-        checkHasSelectionKeyProviderOrThrow()
         val count = selectionProvider!!.count()
         val keyPositions = HashMap<T, Int>()
         (0..<count).forEach { position ->
@@ -53,13 +49,11 @@ class SelectionStore<T>(val selectionMode: SelectionMode = SelectionMode.SINGLE)
         }
         this.selectedKeys?.clear()
         this.keyPositions = keyPositions
-        Log.d(TAG, "keyPositions=$keyPositions")
     }
 
     fun getPosition(key: T?): Int = keyPositions[key] ?: -1
 
     fun changeSelection(key: T, selected: Boolean): Boolean {
-        Log.i(TAG, "changeSelection: mode=$selectionMode key=$key selected=$selected")
         val selectionMode = this.selectionMode
         if (selectionMode == SelectionMode.SINGLE) {
             val oldKey = selectedKey
@@ -87,22 +81,19 @@ class SelectionStore<T>(val selectionMode: SelectionMode = SelectionMode.SINGLE)
                 selectionProvider?.updateSelectionState(key, false)
             }
         }
+        itemSelectionListener?.invoke(this, key, getPosition(key), selected)
         return true
     }
 
     fun toggleSelection(key: T) {
         val selected = isSelected(key)
-        var changed = false
         if (selectionMode == SelectionMode.SINGLE) {
             if (selectedKey != key) {
-                changed = changeSelection(key, !selected)
+                changeSelection(key, !selected)
             }
         }
         else {
-            changed = changeSelection(key, !selected)
-        }
-        if (changed) {
-            itemSelectionListener?.invoke(this, key, getPosition(key), !selected)
+            changeSelection(key, !selected)
         }
     }
 
