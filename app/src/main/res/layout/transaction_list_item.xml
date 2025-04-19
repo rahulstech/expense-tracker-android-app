@@ -63,7 +63,7 @@
             android:layout_margin="@dimen/padding_vertical_extra_small"
             android:textSize="@dimen/text_size_small"
             android:textStyle="italic"
-            app:drawableStartCompat="@drawable/ic_date_black"
+            app:drawableStartCompat="@drawable/baseline_calendar_month"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/amount"

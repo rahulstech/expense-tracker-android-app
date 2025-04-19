@@ -183,23 +183,37 @@
 	<string name="history_item_debit_destination">For: %s</string>
 	<string name="history_item_credit_source">For: %s</string>
 	<string name="hint_history_note">Note</string>
-	<string name="title_history_list">History</string>
     <string name="label_history_input_destination_credit">Credit To</string>
 	<string name="label_history_input_destination_transfer">In</string>
-	<string name="label_history_input_destination_debit">From</string>
-    <string name="label_history_input_source_credit">From</string>
+	<string name="label_history_input_destination_debit">For</string>
+    <string name="label_history_input_source_credit">Received From</string>
 	<string name="label_history_input_source_debit">Debit To</string>
 	<string name="label_history_input_source_transfer">From</string>
-    <string name="title_person_chooser">Choose Person</string>
+	<string name="label_empty_history_list">No History</string>
+
+    <string name="menu_view_history_as">View history as</string>
+    <string name="menu_view_history_daily">Daily</string>
+    <string name="menu_view_history_monthly">Monthly</string>
+    <string name="menu_add_transfer">Add Transfer</string>
+	<string name="menu_add_debit">Add Debit</string>
+	<string name="menu_add_credit">Add Credit</string>
+
+
+
+	<string name="title_history_list">History</string>
+	<string name="title_person_chooser">Choose Person</string>
 	<string name="title_account_chooser">Choose Account</string>
-    <string name="title_choose_credit_source_person">Received From</string>
+	<string name="title_choose_credit_source_person">Received From</string>
 	<string name="title_choose_debit_source_account">Debit To</string>
 	<string name="title_choose_transfer_source_person">Transfer From</string>
 	<string name="title_choose_credit_destination_account">Credit To</string>
 	<string name="title_choose_debit_destination_person">Debit For</string>
-	<string name="title_choose_transfer_detination_person">Transfer To</string>
-    <string name="menu_view_history_as">View history as</string>
-    <string name="menu_view_history_daily">Daily</string>
-    <string name="menu_view_history_monthly">Monthly</string>
+	<string name="title_choose_transfer_destination_person">Transfer To</string>
+    <string name="title_input_history_create_credit">New Credit</string>
+	<string name="title_input_history_create_debit">New Debit</string>
+	<string name="title_input_history_create_transfer">New Transfer</string>
+	<string name="title_input_history_create_expense">New Expense</string>
+	<string name="title_input_history_create_income">New Income</string>
+	<string name="title_input_history">New History</string>
 
 </resources>

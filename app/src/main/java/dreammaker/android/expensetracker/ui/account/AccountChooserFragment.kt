@@ -1,27 +1,46 @@
 package dreammaker.android.expensetracker.ui.account
 
+import android.app.Application
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.chip.Chip
+import dreammaker.android.expensetracker.database.AccountDao
 import dreammaker.android.expensetracker.database.AccountModel
+import dreammaker.android.expensetracker.database.ExpensesDatabase
 import dreammaker.android.expensetracker.databinding.ChooserListLayoutBinding
 import dreammaker.android.expensetracker.ui.util.SelectionChipMaker
 import dreammaker.android.expensetracker.ui.util.SelectionMode
 import dreammaker.android.expensetracker.ui.util.SelectionStore
 import dreammaker.android.expensetracker.ui.util.createAccountChip
 
-interface IAccountChooserViewModel {
+class AccountChooserViewModel(app: Application): AndroidViewModel(app) {
 
-    var accountSelectionStore: SelectionStore<Long>?
+    private val accountDao: AccountDao
 
-    fun getAllAccounts(): LiveData<List<AccountModel>>
+    init {
+        val db = ExpensesDatabase.getInstance(app)
+        accountDao = db.accountDao
+    }
+
+    var accountSelectionStore: SelectionStore<Long>? = null
+
+    private lateinit var allAccount: LiveData<List<AccountModel>>
+
+    fun getAllAccounts(): LiveData<List<AccountModel>> {
+        if (!::allAccount.isInitialized) {
+            allAccount = accountDao.getAllAccounts()
+        }
+        return allAccount
+    }
 }
 
 open class AccountChooserFragment(protected val selectionMode: SelectionMode) : Fragment() {
@@ -33,11 +52,17 @@ open class AccountChooserFragment(protected val selectionMode: SelectionMode) : 
 
     protected lateinit var binding: ChooserListLayoutBinding
     protected lateinit var navController: NavController
-    protected lateinit var viewModel: IAccountChooserViewModel
+    protected lateinit var viewModel: AccountChooserViewModel
 
     private lateinit var selectionChipMaker: SelectionChipMaker<Long>
 
     private val keyToAccountMap = mutableMapOf<Long,AccountModel>()
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        viewModel = ViewModelProvider(this,
+            ViewModelProvider.AndroidViewModelFactory(requireActivity().application))[AccountChooserViewModel::class.java]
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -62,12 +87,15 @@ open class AccountChooserFragment(protected val selectionMode: SelectionMode) : 
     }
 
     private fun prepareSelectionStore(adapter: AccountChooserListAdapter) {
-        selectionStore = viewModel.accountSelectionStore ?: SelectionStore(selectionMode)
+        selectionStore = viewModel.accountSelectionStore
+            ?: SelectionStore<Long>(selectionMode).apply { setSelectedKeys(getInitialSelections()) }
         selectionStore.selectionProvider = adapter
         selectionStore.itemSelectionListener = this::handleAccountSelection
         viewModel.accountSelectionStore = selectionStore
         adapter.selectionStore = selectionStore
     }
+
+    protected open fun getInitialSelections(): List<Long> = emptyList()
 
     private fun prepareSelectionChipMaker() {
         selectionChipMaker = SelectionChipMaker(
@@ -85,7 +113,6 @@ open class AccountChooserFragment(protected val selectionMode: SelectionMode) : 
         keyToAccountMap.clear()
         accounts?.forEach { keyToAccountMap[it.id!!] = it }
         adapter.submitList(accounts)
-
         if (selectionStore.hasSelection()) {
             if (selectionMode == SelectionMode.SINGLE) {
                 selectionChipMaker.addChip(selectionStore.selectedKey!!)

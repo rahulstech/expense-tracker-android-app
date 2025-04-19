@@ -2,63 +2,61 @@ package dreammaker.android.expensetracker.ui.history.historyinput
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import dreammaker.android.expensetracker.database.AccountDao
+import androidx.lifecycle.MutableLiveData
 import dreammaker.android.expensetracker.database.AccountModel
 import dreammaker.android.expensetracker.database.ExpensesDatabase
 import dreammaker.android.expensetracker.database.History
 import dreammaker.android.expensetracker.database.HistoryDao
-import dreammaker.android.expensetracker.database.PersonDao
 import dreammaker.android.expensetracker.database.PersonModel
-import dreammaker.android.expensetracker.ui.account.IAccountChooserViewModel
-import dreammaker.android.expensetracker.ui.person.IPersonChooserViewModel
-import dreammaker.android.expensetracker.ui.util.SelectionStore
-import kotlinx.coroutines.flow.MutableStateFlow
 
-class HistoryInputViewModel(app: Application) : AndroidViewModel(app), IAccountChooserViewModel, IPersonChooserViewModel {
+class HistoryInputViewModel(app: Application) : AndroidViewModel(app) {
 
-    private val historyDao: HistoryDao
-    private val accountDao: AccountDao
-    private val personDao: PersonDao
+    val historyDao: HistoryDao
 
-    override var accountSelectionStore: SelectionStore<Long>? = null
+    val srcAccount: MutableLiveData<AccountModel?> = MutableLiveData(null)
 
-    override var personSelectionStore: SelectionStore<Long>? = null
+    val destAccount: MutableLiveData<AccountModel?> = MutableLiveData(null)
 
-    private lateinit var allAccount: LiveData<List<AccountModel>>
+    val srcPerson: MutableLiveData<PersonModel?> = MutableLiveData(null)
 
-    private lateinit var allPeople: LiveData<List<PersonModel>>
-
-    val selectedSrcAccount = MutableStateFlow<AccountModel?>(null)
-
-    val selectedDestAccount = MutableStateFlow<AccountModel?>(null)
-
-    val selectedSrcPerson = MutableStateFlow<PersonModel?>(null)
-
-    val selectedDestPerson = MutableStateFlow<PersonModel?>(null)
+    val destPerson: MutableLiveData<PersonModel?> = MutableLiveData(null)
 
     init {
         val db = ExpensesDatabase.getInstance(app)
         historyDao = db.historyDao
-        accountDao = db.accountDao
-        personDao = db.personDao
     }
 
     fun addHistory(history: History) {
         val id = historyDao.insertHistory(history)
     }
 
-    override fun getAllAccounts(): LiveData<List<AccountModel>> {
-        if (!::allAccount.isInitialized) {
-            allAccount = accountDao.getAllAccounts()
+    fun setAccount(key: String, account: AccountModel?) {
+        when(key) {
+            HistoryInputFragment.ARG_SOURCE -> srcAccount.value = account
+            HistoryInputFragment.ARG_DESTINATION -> destAccount.value = account
         }
-        return allAccount
     }
 
-    override fun getAllPeople(): LiveData<List<PersonModel>> {
-        if (!::allPeople.isInitialized) {
-            allPeople = personDao.getAllPeople()
+    fun getAccount(key: String): AccountModel? {
+        return when(key) {
+            HistoryInputFragment.ARG_SOURCE -> srcAccount.value
+            HistoryInputFragment.ARG_DESTINATION -> destAccount.value
+            else -> null
         }
-        return allPeople
+    }
+
+    fun setPerson(key: String, person: PersonModel?) {
+        when(key) {
+            HistoryInputFragment.ARG_SOURCE -> srcPerson.value = person
+            HistoryInputFragment.ARG_DESTINATION -> destPerson.value = person
+        }
+    }
+
+    fun getPerson(key: String): PersonModel? {
+        return when(key) {
+            HistoryInputFragment.ARG_SOURCE -> srcPerson.value
+            HistoryInputFragment.ARG_DESTINATION -> destPerson.value
+            else -> null
+        }
     }
 }

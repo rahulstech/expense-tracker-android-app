@@ -3,10 +3,8 @@ package dreammaker.android.expensetracker.ui.history.historyinput
 import android.content.Context
 import androidx.lifecycle.ViewModelProvider
 import dreammaker.android.expensetracker.database.PersonModel
-import dreammaker.android.expensetracker.ui.history.historyinput.PickerHistoryAccountFragment.Companion.SELECTED_DEST_ACCOUNT
-import dreammaker.android.expensetracker.ui.history.historyinput.PickerHistoryAccountFragment.Companion.SELECTED_SRC_ACCOUNT
 import dreammaker.android.expensetracker.ui.person.PersonChooserFragment
-import dreammaker.android.expensetracker.ui.util.ARG_DESTIATION_LABEL
+import dreammaker.android.expensetracker.ui.util.Constants
 import dreammaker.android.expensetracker.ui.util.SelectionMode
 import dreammaker.android.expensetracker.ui.util.SelectionStore
 import dreammaker.android.expensetracker.ui.util.setActivityTitle
@@ -14,17 +12,25 @@ import dreammaker.android.expensetracker.ui.util.setActivityTitle
 class PickHistoryPersonFragment: PersonChooserFragment(SelectionMode.SINGLE) {
 
     companion object {
-        val ARG_KEY_SELECTED_PERSON = "arg.key_selected_person"
-        val SELECTED_SRC_PERSON = "selectedSrcPerson"
-        val SELECTED_DEST_PERSON = "selectedDestPerson"
+        private val TAG = PickHistoryPersonFragment::class.simpleName
+    }
+
+    private lateinit var historyViewModel: HistoryInputViewModel
+
+    override fun getInitialSelections(): List<Long> {
+        val person = historyViewModel.getPerson(requireArguments().getString(Constants.ARG_RESULT_KEY)!!)
+        person?.let {
+            return@getInitialSelections listOf(person.id!!)
+        }
+        return emptyList()
     }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        viewModel = ViewModelProvider(requireActivity(),
+        historyViewModel = ViewModelProvider(requireParentFragment(),
             ViewModelProvider.AndroidViewModelFactory(requireActivity().application))[HistoryInputViewModel::class.java]
-        if (arguments?.containsKey(ARG_DESTIATION_LABEL) == true) {
-            setActivityTitle(arguments?.getString(ARG_DESTIATION_LABEL) as CharSequence)
+        if (arguments?.containsKey(Constants.ARG_DESTINATION_LABEL) == true) {
+            setActivityTitle(arguments?.getString(Constants.ARG_DESTINATION_LABEL) as CharSequence)
         }
     }
 
@@ -53,15 +59,9 @@ class PickHistoryPersonFragment: PersonChooserFragment(SelectionMode.SINGLE) {
     }
 
     override fun handlePickPeople() {
-        val historyInputVM = viewModel as HistoryInputViewModel
-        val keySelectedPerson = requireArguments().getString(ARG_KEY_SELECTED_PERSON)
         val selectedPerson = getSelectedPerson()
-        if (keySelectedPerson == SELECTED_SRC_PERSON) {
-            historyInputVM.selectedSrcPerson.value = selectedPerson
-        }
-        else if (keySelectedPerson == SELECTED_DEST_PERSON) {
-            historyInputVM.selectedDestPerson.value = selectedPerson
-        }
+        val resultKey = requireArguments().getString(Constants.ARG_RESULT_KEY)!!
+        historyViewModel.setPerson(resultKey, selectedPerson)
         navController.popBackStack()
     }
 }

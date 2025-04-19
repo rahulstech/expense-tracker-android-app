@@ -1,47 +1,31 @@
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_height="match_parent"
-    android:layout_width="match_parent">
+    android:layout_width="match_parent"
+    app:layoutDescription="@xml/history_list_fab_menu_motion_layout_description">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/history_list"
         android:layout_height="match_parent"
         android:layout_width="match_parent"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         tools:listitem="@layout/history_list_item" />
 
-<!--    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton-->
-<!--        android:id="@+id/btnCreateCredit"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_gravity="bottom|end"-->
-<!--        app:icon="@drawable/ic_add"-->
-<!--        app:iconTint="?attr/colorOnSecondary"-->
-<!--        android:text="@string/add_credit"-->
-<!--        android:textColor="?attr/colorOnSecondary"-->
-<!--        android:layout_margin="16dp"-->
-<!--        style="@style/Widget.Material3.ExtendedFloatingActionButton.Secondary"-->
-<!--        app:backgroundTint="?attr/colorSecondary"-->
-<!--        app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"-->
-<!--        tools:ignore="ContentDescription" />-->
+    <TextView
+        android:id="@+id/empty_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:padding="24dp"
+        app:drawableTopCompat="@drawable/ic_history"
+        android:drawablePadding="24dp"
+        android:text="@string/label_empty_history_list"
+        android:textAppearance="@style/TextAppearance.Material3.DisplaySmall"
+        android:textStyle="italic"/>
 
-<!--    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton-->
-<!--        android:id="@+id/btnCreateDebit"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_gravity="bottom|end"-->
-<!--        app:icon="@drawable/ic_add"-->
-<!--        app:iconTint="?attr/colorOnSecondary"-->
-<!--        android:text="@string/add_debit"-->
-<!--        android:textColor="?attr/colorOnSecondary"-->
-<!--        android:layout_marginLeft="16dp"-->
-<!--        android:layout_marginRight="16dp"-->
-<!--        android:layout_marginBottom="84dp"-->
-<!--        app:layout_anchor="@id/btnCreateCredit"-->
-<!--        app:layout_anchorGravity="top|center"-->
-<!--        style="@style/Widget.Material3.ExtendedFloatingActionButton.Secondary"-->
-<!--        app:backgroundTint="?attr/colorSecondary"-->
-<!--        app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"-->
-<!--        tools:ignore="ContentDescription" />-->
-
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</FrameLayout>

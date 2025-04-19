@@ -163,51 +163,16 @@
 
     <!-- Account -->
 
-    <fragment
-        android:id="@+id/account_chooser_list"
-        android:name="dreammaker.android.expensetracker.ui.account.AccountChooserFragment"
-        android:label="@string/title_account_chooser"
-        tools:layout="@layout/chooser_list_layout">
 
-    </fragment>
 
     <!-- Person -->
-
-    <fragment
-        android:id="@+id/person_chooser_list"
-        android:name="dreammaker.android.expensetracker.ui.person.PersonChooserFragment"
-        android:label="@string/title_person_chooser"
-        tools:layout="@layout/chooser_list_layout">
-
-    </fragment>
 
 
     <!-- History -->
 
-    <fragment
-        android:id="@+id/pick_history_account"
-        android:name="dreammaker.android.expensetracker.ui.history.historyinput.PickerHistoryAccountFragment"
-        android:label="@string/title_account_chooser"
-        tools:layout="@layout/chooser_list_layout"/>
-
-    <fragment
-        android:id="@+id/pick_history_person"
-        android:name="dreammaker.android.expensetracker.ui.history.historyinput.PickHistoryPersonFragment"
-        android:label="@string/title_person_chooser"
-        tools:layout="@layout/chooser_list_layout"/>
-
-    <fragment
-        android:id="@+id/history_input"
-        android:name="dreammaker.android.expensetracker.ui.history.historyinput.HistoryInputFragment"
-        tools:layout="@layout/history_input_layout">
-
-        <action android:id="@+id/action_history_input_to_account_chooser_list"
-            app:destination="@id/pick_history_account"/>
-
-        <action android:id="@+id/action_history_input_to_person_chooser_list"
-            app:destination="@id/pick_history_person"/>
-
-    </fragment>
+    <fragment android:id="@+id/history_input"
+        android:name="dreammaker.android.expensetracker.ui.history.historyinput.HistoryInputContainerFragment"
+        tools:layout="@layout/history_input_container"/>
 
     <fragment
         android:id="@+id/history_list"
@@ -216,7 +181,11 @@
         tools:layout="@layout/list_content">
 
         <action android:id="@+id/action_history_list_to_history_input"
-            app:destination="@id/history_input"/>
+            app:destination="@id/history_input"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:popEnterAnim="@anim/slide_in_right"
+            app:popExitAnim="@anim/slide_out_left"/>
 
     </fragment>
 

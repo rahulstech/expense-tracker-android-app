@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/history_input_navigation"
+    app:startDestination="@id/history_input">
+
+    <fragment
+        android:id="@+id/history_input"
+        android:name="dreammaker.android.expensetracker.ui.history.historyinput.HistoryInputFragment"
+        tools:layout="@layout/history_input_layout">
+
+        <action android:id="@+id/action_history_input_to_account_chooser_list"
+            app:destination="@id/pick_history_account"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:popEnterAnim="@anim/slide_in_right"
+            app:popExitAnim="@anim/slide_out_left"/>
+
+        <action android:id="@+id/action_history_input_to_person_chooser_list"
+            app:destination="@id/pick_history_person"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:popEnterAnim="@anim/slide_in_right"
+            app:popExitAnim="@anim/slide_out_left"/>
+
+    </fragment>
+    <fragment
+        android:id="@+id/pick_history_account"
+        android:name="dreammaker.android.expensetracker.ui.history.historyinput.PickHistoryAccountFragment"
+        android:label="@string/title_account_chooser"
+        tools:layout="@layout/chooser_list_layout"/>
+    <fragment
+        android:id="@+id/pick_history_person"
+        android:name="dreammaker.android.expensetracker.ui.history.historyinput.PickHistoryPersonFragment"
+        android:label="@string/title_person_chooser"
+        tools:layout="@layout/chooser_list_layout"/>
+</navigation>

@@ -18,12 +18,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:icon="@drawable/baseline_calendar_month"
-            app:iconTint="?attr/colorOnSurface"
-            style="@style/Widget.Material3.Button.TextButton"
-            app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Small"
-            app:strokeWidth="1dp"
-            app:strokeColor="?attr/colorOutline"
-            android:textColor="?attr/colorOnSurface"
+            style="@style/Widget.AppTheme.Button.DatePicker"
             tools:text="24-May-2024"/>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -57,7 +52,7 @@
                 android:layout_weight="0"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="12dp"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                 tools:text="Account" />
 
             <com.google.android.material.chip.ChipGroup
@@ -65,17 +60,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:animateLayoutChanges="true"/>
+                android:animateLayoutChanges="true" />
 
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/input_source"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="0"
-                app:fabCustomSize="36dp"
-                app:elevation="0dp"
-                app:srcCompat="@drawable/baseline_arrow_right"
-                tools:ignore="ContentDescription" />
+                app:icon="@drawable/baseline_arrow_right"
+                style="@style/Widget.AppTheme.Button.PickerArrow"/>
 
         </LinearLayout>
 
@@ -95,7 +88,7 @@
                 android:layout_weight="0"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="12dp"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                 tools:text="Person" />
 
             <com.google.android.material.chip.ChipGroup
@@ -105,14 +98,13 @@
                 android:layout_weight="1"
                 android:animateLayoutChanges="true"/>
 
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/input_destination"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="0"
-                app:fabCustomSize="36dp"
-                app:elevation="0dp"
-                app:srcCompat="@drawable/baseline_arrow_right"
+                app:icon="@drawable/baseline_arrow_right"
+                style="@style/Widget.AppTheme.Button.PickerArrow"
                 tools:ignore="ContentDescription" />
 
         </LinearLayout>

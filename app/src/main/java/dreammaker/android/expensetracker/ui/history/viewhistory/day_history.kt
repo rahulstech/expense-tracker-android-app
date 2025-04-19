@@ -2,24 +2,35 @@ package dreammaker.android.expensetracker.ui.history.viewhistory
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.database.Date
 import dreammaker.android.expensetracker.database.HistoryModel
 import dreammaker.android.expensetracker.database.HistoryType
-import dreammaker.android.expensetracker.databinding.DailyHistoryListItemBinding
+import dreammaker.android.expensetracker.databinding.DayHistoryListItemBinding
 import dreammaker.android.expensetracker.databinding.HistoryListBinding
+import dreammaker.android.expensetracker.ui.util.BaseSelectableItemListAdapter
+import dreammaker.android.expensetracker.ui.util.ClickableViewHolder
+import dreammaker.android.expensetracker.ui.util.getDate
 import dreammaker.android.expensetracker.util.boldText
 
-class DailyHistoryViewHolder(private val binding: DailyHistoryListItemBinding) : HistoryViewHolder(binding.root) {
+class DayHistoryViewHolder(
+    private val binding: DayHistoryListItemBinding,
+    onClick: (DayHistoryViewHolder, View)->Unit
+) :  ClickableViewHolder<DayHistoryViewHolder>(binding.root, onClick) {
 
-    override fun bind(history: HistoryModel?) {
+    init {
+        attachItemClickListener()
+    }
+
+    fun bind(history: HistoryModel?, selected: Boolean) {
         if (history == null) {
             binding.amount.text = null
             binding.note.text = null
@@ -60,29 +71,45 @@ class DailyHistoryViewHolder(private val binding: DailyHistoryListItemBinding) :
     }
 }
 
-class DailyHistoryListAdapter: HistoryListAdapter<DailyHistoryViewHolder>() {
+private val callback = object: DiffUtil.ItemCallback<HistoryModel>() {
+    override fun areItemsTheSame(oldItem: HistoryModel, newItem: HistoryModel): Boolean =
+        oldItem.id == newItem.id
 
-    override fun onCreateHistoryViewHolder(
-        inflater: LayoutInflater,
-        parent: ViewGroup,
-        viewType: Int
-    ): DailyHistoryViewHolder
-    = DailyHistoryViewHolder(
-        DailyHistoryListItemBinding.inflate(inflater,parent,false)
-    )
+    override fun areContentsTheSame(oldItem: HistoryModel, newItem: HistoryModel): Boolean =
+        oldItem.equals(newItem)
 }
 
-class ViewDayHistoryFragment(val date: Date) : Fragment() {
+class DayHistoryListAdapter: BaseSelectableItemListAdapter<HistoryModel, Long, DayHistoryViewHolder>(callback) {
 
-    private val TAG = ViewDayHistoryFragment::class.simpleName
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DayHistoryViewHolder {
+        val inflater = LayoutInflater.from(parent.context)
+        val binding = DayHistoryListItemBinding.inflate(inflater,parent,false)
+        return DayHistoryViewHolder(binding, this::handleItemClick)
+    }
+    override fun onBindViewHolder(holder: DayHistoryViewHolder, position: Int) {
+        val data = getItem(position)
+        holder.bind(data, isSelected(position))
+    }
+
+    override fun getItemId(position: Int): Long = getItem(position)?.id ?: RecyclerView.NO_ID
+
+    override fun getSelectionKey(position: Int): Long = getItemId(position)
+}
+
+class ViewDayHistoryFragment : Fragment() {
+
+    companion object {
+        private val TAG = ViewDayHistoryFragment::class.simpleName
+        const val ARG_DATE = "arg.date"
+    }
 
     private lateinit var binding: HistoryListBinding
 
     private lateinit var viewModel: ViewHistoryViewModel
 
-    private lateinit var adapter: DailyHistoryListAdapter
+    private lateinit var adapter: DayHistoryListAdapter
 
-//    private lateinit var navController: NavController
+    lateinit var date: Date
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -100,18 +127,27 @@ class ViewDayHistoryFragment(val date: Date) : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-//        navController = Navigation.findNavController(view)
         binding.historyList.layoutManager = LinearLayoutManager(requireContext(),LinearLayoutManager.VERTICAL,false)
-        adapter = DailyHistoryListAdapter()
+        adapter = DayHistoryListAdapter()
         binding.historyList.adapter = adapter
-        viewModel.getDailyHistories(date).observe(viewLifecycleOwner) {
-            Log.i(TAG, "no of histories for date $date ${it?.size ?: 0}")
-            adapter.submitList(it)
-        }
-//        binding.btn.setOnClickListener{ onClickCreateHistory() }
+
+        date = requireArguments().getDate(ARG_DATE)!!
+        viewModel.getDailyHistories(date).observe(viewLifecycleOwner, this::onHistoryLoaded)
     }
 
-    private fun onClickCreateHistory() {
-//        navController.navigate(R.id.action_history_list_to_history_input)
+    private fun onHistoryLoaded(histories: List<HistoryModel>?) {
+        adapter.submitList(histories)
+        toggleEmptyViewAndHistoryListVisibility(histories?.isEmpty() == true)
+    }
+
+    private fun toggleEmptyViewAndHistoryListVisibility(showHistoryList: Boolean) {
+        if (showHistoryList) {
+            binding.historyList.visibility = View.GONE
+            binding.emptyView.visibility = View.VISIBLE
+        }
+        else {
+            binding.emptyView.visibility = View.GONE
+            binding.historyList.visibility = View.VISIBLE
+        }
     }
 }

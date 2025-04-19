@@ -4,27 +4,33 @@ import android.content.Context
 import androidx.lifecycle.ViewModelProvider
 import dreammaker.android.expensetracker.database.AccountModel
 import dreammaker.android.expensetracker.ui.account.AccountChooserFragment
-import dreammaker.android.expensetracker.ui.util.ARG_DESTIATION_LABEL
+import dreammaker.android.expensetracker.ui.util.Constants
 import dreammaker.android.expensetracker.ui.util.SelectionMode
 import dreammaker.android.expensetracker.ui.util.SelectionStore
 import dreammaker.android.expensetracker.ui.util.setActivityTitle
 
-class PickerHistoryAccountFragment: AccountChooserFragment(SelectionMode.SINGLE) {
-
-    private val TAG = PickerHistoryAccountFragment::class.simpleName
+class PickHistoryAccountFragment: AccountChooserFragment(SelectionMode.SINGLE) {
 
     companion object {
-        val ARG_KEY_SELECTED_ACCOUNT = "arg.key_selected_account"
-        val SELECTED_SRC_ACCOUNT = "selectedSrcAccount"
-        val SELECTED_DEST_ACCOUNT = "selectedDestAccount"
+        private val TAG = PickHistoryAccountFragment::class.simpleName
+    }
+
+    private lateinit var historyViewModel: HistoryInputViewModel
+
+    override fun getInitialSelections(): List<Long> {
+        val account = historyViewModel.getAccount(requireArguments().getString(Constants.ARG_RESULT_KEY)!!)
+        account?.let {
+            return@getInitialSelections listOf(account.id!!)
+        }
+        return emptyList()
     }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        viewModel = ViewModelProvider(requireActivity(),
+        historyViewModel = ViewModelProvider(requireParentFragment(),
             ViewModelProvider.AndroidViewModelFactory(requireActivity().application))[HistoryInputViewModel::class.java]
-        if (arguments?.containsKey(ARG_DESTIATION_LABEL) == true) {
-            setActivityTitle(arguments?.getString(ARG_DESTIATION_LABEL) as CharSequence)
+        if (arguments?.containsKey(Constants.ARG_DESTINATION_LABEL) == true) {
+            setActivityTitle(arguments?.getString(Constants.ARG_DESTINATION_LABEL) as CharSequence)
         }
     }
 
@@ -53,15 +59,9 @@ class PickerHistoryAccountFragment: AccountChooserFragment(SelectionMode.SINGLE)
     }
 
     override fun handlePickAccount() {
-        val historyInputVM = viewModel as HistoryInputViewModel
-        val keySelectedAccount = requireArguments().getString(ARG_KEY_SELECTED_ACCOUNT)
-        val selectedAccount = viewModel.accountSelectionStore?.selectedKey?.let { getAccountForKey(it) }
-        if (keySelectedAccount == SELECTED_SRC_ACCOUNT) {
-            historyInputVM.selectedSrcAccount.value = selectedAccount
-        }
-        else if (keySelectedAccount == SELECTED_DEST_ACCOUNT) {
-            historyInputVM.selectedDestAccount.value = selectedAccount
-        }
+        val selectedAccount = getSelectedAccount()
+        val resultKey = requireArguments().getString(Constants.ARG_RESULT_KEY)!!
+        historyViewModel.setAccount(resultKey, selectedAccount)
         navController.popBackStack()
     }
 }

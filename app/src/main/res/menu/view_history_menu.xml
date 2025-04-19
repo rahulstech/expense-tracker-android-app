@@ -18,4 +18,10 @@
             </group>
         </menu>
     </item>
+
+    <item
+        android:id="@+id/add"
+        android:title="@string/menu_add_debit"
+        android:icon="@drawable/ic_add"
+        app:showAsAction="always"/>
 </menu>

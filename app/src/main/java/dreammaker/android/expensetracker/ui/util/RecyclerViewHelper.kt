@@ -1,7 +1,8 @@
 package dreammaker.android.expensetracker.ui.util
 
-import android.util.Log
+import android.content.Context
 import android.view.View
+import androidx.annotation.StringRes
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -109,9 +110,26 @@ class SelectionStore<T>(val selectionMode: SelectionMode = SelectionMode.SINGLE)
             selectedKeys?.isNotEmpty() ?: false
         }
     }
+
+    fun setSelectedKeys(keys: List<T>) {
+        if (selectionMode == SelectionMode.SINGLE) {
+            val key = if (keys.isEmpty()) null else keys[0]
+            selectedKey = key
+        }
+        else if (selectionMode == SelectionMode.MULTIPLE) {
+            selectedKeys = HashSet(keys)
+        }
+    }
 }
 
-open class ClickableViewHolder<VH : ViewHolder>(itemView: View, val onClick: ((VH, View)->Unit)?): ViewHolder(itemView) {
+open class BaseViewHolder(itemView: View): ViewHolder(itemView) {
+
+    val context: Context = itemView.context
+
+    fun getString(@StringRes id: Int, vararg args: Any) = context.getString(id,*args)
+}
+
+open class ClickableViewHolder<VH : ViewHolder>(itemView: View, val onClick: ((VH, View)->Unit)?): BaseViewHolder(itemView) {
 
     @Suppress("UNCHECKED_CAST")
     fun attachItemClickListener() {
