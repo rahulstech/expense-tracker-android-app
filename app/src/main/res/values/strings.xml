@@ -205,15 +205,33 @@
 	<string name="title_account_chooser">Choose Account</string>
 	<string name="title_choose_credit_source_person">Received From</string>
 	<string name="title_choose_debit_source_account">Debit To</string>
-	<string name="title_choose_transfer_source_person">Transfer From</string>
+	<string name="title_choose_transfer_source_account">Transfer From</string>
 	<string name="title_choose_credit_destination_account">Credit To</string>
 	<string name="title_choose_debit_destination_person">Debit For</string>
-	<string name="title_choose_transfer_destination_person">Transfer To</string>
+	<string name="title_choose_transfer_destination_account">Transfer To</string>
     <string name="title_input_history_create_credit">New Credit</string>
 	<string name="title_input_history_create_debit">New Debit</string>
 	<string name="title_input_history_create_transfer">New Transfer</string>
 	<string name="title_input_history_create_expense">New Expense</string>
 	<string name="title_input_history_create_income">New Income</string>
-	<string name="title_input_history">New History</string>
+	<string name="title_input_history_create">New History</string>
+	<string name="label_history_input_source_expense">Pay From</string>
+	<string name="title_choose_expense_source_account">Pay From</string>
+	<string name="label_history_input_destination_income">Receive In</string>
+	<string name="title_choose_income_destination_account">Receive In</string>
+    <string name="label_view">View</string>
+	<string name="label_history_type_credit">Credit</string>
+    <string name="label_history_type_debit">Debit</string>
+	<string name="label_history_type_expense">Expense</string>
+	<string name="label_history_type_transfer">Money Transfer</string>
+	<string name="label_history_type_income">Income</string>
+    <string name="label_history_item_source_credit">Received From</string>
+	<string name="label_history_item_source_transfer">From</string>
+	<string name="label_history_item_source_debit">Debit</string>
+	<string name="label_history_item_source_expense">Expense</string>
+	<string name="label_history_item_destination_credit">For</string>
+	<string name="label_history_item_destination_income">Income</string>
+	<string name="label_history_item_destination_transfer">In</string>
+    <string name="title_delete_history">Delete History</string>
 
 </resources>

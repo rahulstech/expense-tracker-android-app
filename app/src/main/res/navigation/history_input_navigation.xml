@@ -8,6 +8,7 @@
     <fragment
         android:id="@+id/history_input"
         android:name="dreammaker.android.expensetracker.ui.history.historyinput.HistoryInputFragment"
+        android:label="@string/title_input_history_create"
         tools:layout="@layout/history_input_layout">
 
         <action android:id="@+id/action_history_input_to_account_chooser_list"

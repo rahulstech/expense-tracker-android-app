@@ -1,67 +1,143 @@
 package dreammaker.android.expensetracker.ui.history.historyinput
 
+import android.app.Application
 import android.content.Context
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavController
+import androidx.navigation.Navigation
+import androidx.recyclerview.widget.LinearLayoutManager
+import dreammaker.android.expensetracker.database.AccountDao
 import dreammaker.android.expensetracker.database.AccountModel
-import dreammaker.android.expensetracker.ui.account.AccountChooserFragment
+import dreammaker.android.expensetracker.database.ExpensesDatabase
+import dreammaker.android.expensetracker.databinding.PickerListLayoutBinding
 import dreammaker.android.expensetracker.ui.util.Constants
 import dreammaker.android.expensetracker.ui.util.SelectionMode
 import dreammaker.android.expensetracker.ui.util.SelectionStore
 import dreammaker.android.expensetracker.ui.util.setActivityTitle
 
-class PickHistoryAccountFragment: AccountChooserFragment(SelectionMode.SINGLE) {
+class AccountPickerViewModel(app: Application): AndroidViewModel(app) {
 
-    companion object {
-        private val TAG = PickHistoryAccountFragment::class.simpleName
+    private val accountDao: AccountDao
+
+    init {
+        val db = ExpensesDatabase.getInstance(app)
+        accountDao = db.accountDao
     }
 
-    private lateinit var historyViewModel: HistoryInputViewModel
+    var accountSelectionStore: SelectionStore<Long>? = null
 
-    override fun getInitialSelections(): List<Long> {
-        val account = historyViewModel.getAccount(requireArguments().getString(Constants.ARG_RESULT_KEY)!!)
-        account?.let {
-            return@getInitialSelections listOf(account.id!!)
+    private lateinit var allAccount: LiveData<List<AccountModel>>
+
+    fun getAllAccounts(): LiveData<List<AccountModel>> {
+        if (!::allAccount.isInitialized) {
+            allAccount = accountDao.getAllAccounts()
         }
-        return emptyList()
+        return allAccount
     }
+}
+
+open class PickHistoryAccountFragment : Fragment() {
+
+    private val TAG = PickHistoryAccountFragment::class.simpleName
+
+    private lateinit var adapter: AccountPickerListAdapter
+    private lateinit var selectionStore: SelectionStore<Long>
+
+    protected var binding: PickerListLayoutBinding? = null
+    protected lateinit var navController: NavController
+    protected lateinit var viewModel: AccountPickerViewModel
+    private lateinit var historyViewModel: HistoryInputViewModel
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
+        viewModel = ViewModelProvider(this,
+            ViewModelProvider.AndroidViewModelFactory(requireActivity().application))[AccountPickerViewModel::class.java]
         historyViewModel = ViewModelProvider(requireParentFragment(),
             ViewModelProvider.AndroidViewModelFactory(requireActivity().application))[HistoryInputViewModel::class.java]
-        if (arguments?.containsKey(Constants.ARG_DESTINATION_LABEL) == true) {
-            setActivityTitle(arguments?.getString(Constants.ARG_DESTINATION_LABEL) as CharSequence)
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        binding = PickerListLayoutBinding.inflate(inflater, container, false)
+        return binding!!.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        navController = Navigation.findNavController(view)
+        adapter = AccountPickerListAdapter()
+        binding!!.optionsList.adapter = adapter
+        binding!!.optionsList.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+        binding!!.btnChoose.setOnClickListener { handlePickAccount() }
+        prepareSelectionStore(adapter)
+        viewModel.getAllAccounts().observe(viewLifecycleOwner, this::onAccountsLoaded)
+    }
+
+    private fun showPickerButton() {
+        binding?.btnChoose?.visibility = View.VISIBLE
+    }
+
+    private fun hidePickerButton() {
+        binding?.btnChoose?.visibility = View.GONE
+    }
+
+    private fun prepareSelectionStore(adapter: AccountPickerListAdapter) {
+        selectionStore = viewModel.accountSelectionStore
+            ?: SelectionStore<Long>(SelectionMode.SINGLE).apply { setInitialKey(getInitialSelection()) }
+        selectionStore.itemSelectionListener = { _,_,_,_ ->
+            if (selectionStore.hasSelection()) {
+                showPickerButton()
+            }
+            else {
+                hidePickerButton()
+            }
+        }
+        selectionStore.selectionProvider = adapter
+        viewModel.accountSelectionStore = selectionStore
+        adapter.selectionStore = selectionStore
+    }
+
+    protected open fun getInitialSelection(): Long? {
+        val resultKey = requireArguments().getString(Constants.ARG_RESULT_KEY)!!
+        val account = historyViewModel.getSelection(resultKey) as AccountModel?
+        return account?.id
+    }
+
+    protected open fun onAccountsLoaded(accounts: List<AccountModel>?) {
+        adapter.submitList(accounts)
+        if (selectionStore.hasSelection()) {
+            showPickerButton()
         }
     }
 
-    override fun onAccountsLoaded(accounts: List<AccountModel>?) {
-        super.onAccountsLoaded(accounts)
-        togglePickerButtonVisibility()
-    }
-
-    override fun handleAccountSelection(
-        store: SelectionStore<Long>,
-        key: Long,
-        position: Int,
-        selected: Boolean
-    ) {
-        super.handleAccountSelection(store, key, position, selected)
-        togglePickerButtonVisibility()
-    }
-
-    private fun togglePickerButtonVisibility() {
-        if (viewModel.accountSelectionStore?.hasSelection() == true) {
-            binding.btnChoose.show()
-        }
-        else {
-            binding.btnChoose.hide()
-        }
-    }
-
-    override fun handlePickAccount() {
+    private fun handlePickAccount() {
         val selectedAccount = getSelectedAccount()
         val resultKey = requireArguments().getString(Constants.ARG_RESULT_KEY)!!
-        historyViewModel.setAccount(resultKey, selectedAccount)
+        historyViewModel.setSelection(resultKey, selectedAccount)
         navController.popBackStack()
+    }
+
+    private fun getSelectedAccount(): AccountModel? {
+        val key = selectionStore.selectedKey ?: return null
+        return viewModel.getAllAccounts().value?.find { it.id == key }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        arguments?.getString(Constants.ARG_DESTINATION_LABEL)?.let { setActivityTitle(it) }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding = null
     }
 }

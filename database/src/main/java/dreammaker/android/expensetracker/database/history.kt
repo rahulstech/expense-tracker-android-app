@@ -117,5 +117,8 @@ abstract class HistoryDao(private val db: ExpensesDatabase) {
             return expensesDao.insertTransaction(transfer)
         }
     }
+
+    @Query("SELECT * FROM `histories` WHERE `id` = :id AND `type` = :type")
+    abstract fun findHistoryByIdAndType(id: Long, type: HistoryType): LiveData<HistoryModel?>
 }
 

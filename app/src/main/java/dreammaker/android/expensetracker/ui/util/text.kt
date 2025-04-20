@@ -1,4 +1,4 @@
-package dreammaker.android.expensetracker.util
+package dreammaker.android.expensetracker.ui.util
 
 import android.graphics.Typeface
 import android.text.Spannable

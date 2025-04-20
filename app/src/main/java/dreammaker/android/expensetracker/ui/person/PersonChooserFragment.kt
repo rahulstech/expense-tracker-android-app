@@ -81,7 +81,7 @@ open class PersonChooserFragment(val selectionMode: SelectionMode): Fragment() {
 
     private fun prepareSelectionStore(adapter: PersonChooserListAdapter) {
         selectionStore = viewModel.personSelectionStore
-            ?: SelectionStore<Long>(selectionMode).apply { setSelectedKeys(getInitialSelections())}
+            ?: SelectionStore<Long>(selectionMode).apply { setInitialKeys(getInitialSelections())}
         selectionStore.selectionProvider = adapter
         selectionStore.itemSelectionListener = this::handlePersonSelection
         adapter.selectionStore = selectionStore
@@ -117,11 +117,6 @@ open class PersonChooserFragment(val selectionMode: SelectionMode): Fragment() {
     }
 
     protected open fun handlePickPeople() {}
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        viewModel.personSelectionStore = selectionStore
-    }
 
     protected open fun handlePersonSelection(store: SelectionStore<Long>, key: Long, position: Int, selected: Boolean) {
         val mode = store.selectionMode

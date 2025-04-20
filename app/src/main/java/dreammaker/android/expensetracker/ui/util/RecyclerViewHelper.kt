@@ -111,12 +111,14 @@ class SelectionStore<T>(val selectionMode: SelectionMode = SelectionMode.SINGLE)
         }
     }
 
-    fun setSelectedKeys(keys: List<T>) {
+    fun setInitialKey(key: T?) {
         if (selectionMode == SelectionMode.SINGLE) {
-            val key = if (keys.isEmpty()) null else keys[0]
             selectedKey = key
         }
-        else if (selectionMode == SelectionMode.MULTIPLE) {
+    }
+
+    fun setInitialKeys(keys: Collection<T>) {
+        if (selectionMode == SelectionMode.MULTIPLE) {
             selectedKeys = HashSet(keys)
         }
     }

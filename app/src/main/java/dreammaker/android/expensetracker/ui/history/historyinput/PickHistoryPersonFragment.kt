@@ -1,67 +1,140 @@
 package dreammaker.android.expensetracker.ui.history.historyinput
 
+import android.app.Application
 import android.content.Context
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavController
+import androidx.navigation.Navigation
+import androidx.recyclerview.widget.LinearLayoutManager
+import dreammaker.android.expensetracker.database.ExpensesDatabase
+import dreammaker.android.expensetracker.database.PersonDao
 import dreammaker.android.expensetracker.database.PersonModel
-import dreammaker.android.expensetracker.ui.person.PersonChooserFragment
+import dreammaker.android.expensetracker.databinding.PickerListLayoutBinding
 import dreammaker.android.expensetracker.ui.util.Constants
 import dreammaker.android.expensetracker.ui.util.SelectionMode
 import dreammaker.android.expensetracker.ui.util.SelectionStore
 import dreammaker.android.expensetracker.ui.util.setActivityTitle
 
-class PickHistoryPersonFragment: PersonChooserFragment(SelectionMode.SINGLE) {
+class PersonPickerViewModel(app: Application): AndroidViewModel(app) {
 
-    companion object {
-        private val TAG = PickHistoryPersonFragment::class.simpleName
+    private val personDao: PersonDao
+
+    init {
+        val db = ExpensesDatabase.getInstance(app)
+        personDao = db.personDao
     }
 
-    private lateinit var historyViewModel: HistoryInputViewModel
+    var personSelectionStore: SelectionStore<Long>? = null
 
-    override fun getInitialSelections(): List<Long> {
-        val person = historyViewModel.getPerson(requireArguments().getString(Constants.ARG_RESULT_KEY)!!)
-        person?.let {
-            return@getInitialSelections listOf(person.id!!)
+    private lateinit var allPeople: LiveData<List<PersonModel>>
+    fun getAllPeople(): LiveData<List<PersonModel>> {
+        if (!::allPeople.isInitialized) {
+            allPeople = personDao.getAllPeople()
         }
-        return emptyList()
+        return allPeople
     }
+}
+
+open class PickHistoryPersonFragment: Fragment() {
+
+    protected var binding: PickerListLayoutBinding? = null
+    protected lateinit var viewModel: PersonPickerViewModel
+    private lateinit var historyViewModel: HistoryInputViewModel
+    protected lateinit var navController: NavController
+    private lateinit var selectionStore: SelectionStore<Long>
+    private lateinit var adapter: PersonPickerAdapter
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
+        viewModel = ViewModelProvider(this,
+            ViewModelProvider.AndroidViewModelFactory(requireActivity().application))[PersonPickerViewModel::class.java]
         historyViewModel = ViewModelProvider(requireParentFragment(),
             ViewModelProvider.AndroidViewModelFactory(requireActivity().application))[HistoryInputViewModel::class.java]
-        if (arguments?.containsKey(Constants.ARG_DESTINATION_LABEL) == true) {
-            setActivityTitle(arguments?.getString(Constants.ARG_DESTINATION_LABEL) as CharSequence)
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        binding = PickerListLayoutBinding.inflate(inflater,container,false)
+        return binding!!.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        navController = Navigation.findNavController(view)
+        adapter = PersonPickerAdapter()
+        binding!!.optionsList.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+        binding!!.optionsList.adapter = adapter
+        binding!!.btnChoose.setOnClickListener{ handlePickPeople() }
+        prepareSelectionStore(adapter)
+
+        viewModel.getAllPeople().observe(viewLifecycleOwner, this::onPeopleLoaded)
+    }
+
+    private fun prepareSelectionStore(adapter: PersonPickerAdapter) {
+        selectionStore = viewModel.personSelectionStore
+            ?: SelectionStore<Long>(SelectionMode.SINGLE).apply { setInitialKey(getInitialSelection())}
+        selectionStore.selectionProvider = adapter
+        selectionStore.itemSelectionListener = { _,_,_,_ ->
+            if (selectionStore.hasSelection()) {
+                showPickerButton()
+            }
+            else {
+                hidePickerButton()
+            }
+        }
+        adapter.selectionStore = selectionStore
+        viewModel.personSelectionStore = selectionStore
+    }
+
+    private fun showPickerButton() {
+        binding?.btnChoose?.visibility = View.VISIBLE
+    }
+
+    private fun hidePickerButton() {
+        binding?.btnChoose?.visibility = View.GONE
+    }
+
+    protected open fun getInitialSelection(): Long? {
+        val resultKey = requireArguments().getString(Constants.ARG_RESULT_KEY)!!
+        val selection = historyViewModel.getSelection(resultKey) as PersonModel?
+        return selection?.id
+    }
+
+    protected open fun onPeopleLoaded(people: List<PersonModel>?) {
+        adapter.submitList(people)
+        if (selectionStore.hasSelection()) {
+            showPickerButton()
         }
     }
 
-    override fun onPeopleLoaded(people: List<PersonModel>?) {
-        super.onPeopleLoaded(people)
-        togglePickerButtonVisibility()
-    }
-
-    override fun handlePersonSelection(
-        store: SelectionStore<Long>,
-        key: Long,
-        position: Int,
-        selected: Boolean
-    ) {
-        super.handlePersonSelection(store, key, position, selected)
-        togglePickerButtonVisibility()
-    }
-
-    private fun togglePickerButtonVisibility() {
-        if (viewModel.personSelectionStore?.hasSelection() == true) {
-            binding.btnChoose.show()
-        }
-        else {
-            binding.btnChoose.hide()
-        }
-    }
-
-    override fun handlePickPeople() {
+    private fun handlePickPeople() {
         val selectedPerson = getSelectedPerson()
         val resultKey = requireArguments().getString(Constants.ARG_RESULT_KEY)!!
-        historyViewModel.setPerson(resultKey, selectedPerson)
+        historyViewModel.setSelection(resultKey, selectedPerson)
         navController.popBackStack()
+    }
+
+    protected fun getSelectedPerson(): PersonModel? {
+        val key = selectionStore.selectedKey ?: return null
+        return adapter.currentList.find { it.id == key }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        arguments?.getString(Constants.ARG_DESTINATION_LABEL)?.let { setActivityTitle(it) }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding = null
     }
 }

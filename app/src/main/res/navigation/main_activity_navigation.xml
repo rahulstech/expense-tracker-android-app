@@ -187,6 +187,19 @@
             app:popEnterAnim="@anim/slide_in_right"
             app:popExitAnim="@anim/slide_out_left"/>
 
+        <action android:id="@+id/action_history_list_to_history_item"
+            app:destination="@id/history_item"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:popEnterAnim="@anim/slide_in_right"
+            app:popExitAnim="@anim/slide_out_left"/>
+
+    </fragment>
+
+    <fragment android:id="@+id/history_item"
+        android:name="dreammaker.android.expensetracker.ui.history.historyitem.ViewHistoryItemFragment"
+        tools:layout="@layout/history_item_layout">
+
     </fragment>
 
 </navigation>

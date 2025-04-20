@@ -19,12 +19,21 @@
             android:layout_height="wrap_content"
             app:icon="@drawable/baseline_calendar_month"
             style="@style/Widget.AppTheme.Button.DatePicker"
-            tools:text="24-May-2024"/>
+            tools:text="Wednesday, 18 November, 2024"/>
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            style="@style/Widget.AppTheme.AssistChip"
+            tools:backgroundTint="@color/colorCredit"
+            tools:text="Credit"/>
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             android:hint="@string/amount">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -37,12 +46,31 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:hint="@string/hint_history_note"
+            app:endIconMode="clear_text">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/input_note"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxLines="5"
+                android:inputType="textMultiLine"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                tools:text="This is a small description of the history"/>
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="24dp"
             android:background="@drawable/rounded_rectangle_border">
 
             <TextView
@@ -60,7 +88,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:animateLayoutChanges="true" />
+                android:animateLayoutChanges="true"
+                app:selectionRequired="false"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/input_source"
@@ -78,7 +107,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="12dp"
             android:background="@drawable/rounded_rectangle_border">
 
             <TextView
@@ -96,7 +125,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:animateLayoutChanges="true"/>
+                android:animateLayoutChanges="true"
+                app:selectionRequired="false"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/input_destination"
@@ -108,26 +138,6 @@
                 tools:ignore="ContentDescription" />
 
         </LinearLayout>
-
-
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:hint="@string/hint_history_note"
-            app:endIconMode="clear_text">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/input_note"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:maxLines="5"
-                android:inputType="textMultiLine"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                tools:text="This is a small description of the history"/>
-
-        </com.google.android.material.textfield.TextInputLayout>
 
         <Button
             android:id="@+id/btnSave"

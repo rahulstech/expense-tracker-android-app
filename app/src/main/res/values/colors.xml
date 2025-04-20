@@ -10,4 +10,18 @@
     <color name="light_blue_A200">#FF40C4FF</color>
     <color name="light_blue_A400">#FF00B0FF</color>
     <color name="black_overlay">#66000000</color>
+
+<!--    <color name="colorCredit">#5CB338</color>-->
+<!--    <color name="colorDebit">#D91656</color>-->
+<!--    <color name="colorTransfer">#4CC9FE</color>-->
+<!--    <color name="colorExpense">#D91656</color>-->
+<!--    <color name="colorIncome">#5CB338</color>-->
+
+    <color name="colorCredit">#4CAF50</color>
+    <color name="colorDebit">#F44336</color>
+    <color name="colorTransfer">#03A9F4</color>
+    <color name="colorExpense">#E53935</color>
+    <color name="colorIncome">#43A047</color>
+
+
 </resources>

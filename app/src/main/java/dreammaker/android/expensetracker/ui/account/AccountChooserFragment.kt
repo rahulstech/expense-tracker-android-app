@@ -88,7 +88,7 @@ open class AccountChooserFragment(protected val selectionMode: SelectionMode) : 
 
     private fun prepareSelectionStore(adapter: AccountChooserListAdapter) {
         selectionStore = viewModel.accountSelectionStore
-            ?: SelectionStore<Long>(selectionMode).apply { setSelectedKeys(getInitialSelections()) }
+            ?: SelectionStore<Long>(selectionMode).apply { setInitialKeys(getInitialSelections()) }
         selectionStore.selectionProvider = adapter
         selectionStore.itemSelectionListener = this::handleAccountSelection
         viewModel.accountSelectionStore = selectionStore
@@ -124,11 +124,6 @@ open class AccountChooserFragment(protected val selectionMode: SelectionMode) : 
     }
 
     protected open fun handlePickAccount() {}
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        viewModel.accountSelectionStore = selectionStore
-    }
 
     protected open fun handleAccountSelection(store: SelectionStore<Long>, key: Long, position: Int, selected: Boolean) {
         if (selectionMode == SelectionMode.SINGLE) {

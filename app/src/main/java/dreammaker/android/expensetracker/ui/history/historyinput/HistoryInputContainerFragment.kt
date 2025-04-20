@@ -2,6 +2,7 @@ package dreammaker.android.expensetracker.ui.history.historyinput
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
@@ -26,5 +27,10 @@ class HistoryInputContainerFragment : Fragment() {
         val navHostFragment = childFragmentManager.findFragmentById(R.id.container) as NavHostFragment
         val navController = navHostFragment.navController
         navController.setGraph(R.navigation.history_input_navigation, arguments)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
+        return super.onOptionsItemSelected(item)
     }
 }
