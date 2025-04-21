@@ -197,10 +197,16 @@ public class Date implements Cloneable {
         return new Date(copy);
     }
 
-    public Date plusDays(int n) {
-        final Calendar copy = (Calendar) this.calendar.clone();
-        copy.add(Calendar.DAY_OF_YEAR, n);
-        return new Date(copy);
+    public Date plusDays(long n) {
+        LocalDate date = LocalDate.of(getYear(), getMonth()+1, getDayOfMonth());
+        LocalDate newDate = date.plusDays(n);
+        return new Date(newDate.getYear(), newDate.getMonthValue()-1, newDate.getDayOfMonth());
+    }
+
+    public Date plusMonths(long n) {
+        LocalDate date = LocalDate.of(getYear(), getMonth()+1, getDayOfMonth());
+        LocalDate newDate = date.plusMonths(n);
+        return new Date(newDate.getYear(), newDate.getMonthValue()-1, newDate.getDayOfMonth());
     }
 
     public static int durationDays(Date from, Date to) {

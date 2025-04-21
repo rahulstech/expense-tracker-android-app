@@ -1,0 +1,83 @@
+package dreammaker.android.expensetracker.ui.account.inputaccount
+
+import android.app.Application
+import android.util.Log
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.viewModelScope
+import dreammaker.android.expensetracker.database.AccountDao
+import dreammaker.android.expensetracker.database.AccountModel
+import dreammaker.android.expensetracker.database.ExpensesDatabase
+import dreammaker.android.expensetracker.ui.util.OperationResult
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.launch
+
+class AccountInputViewModel(app: Application): AndroidViewModel(app) {
+
+    private val TAG = AccountInputViewModel::class.simpleName
+
+    private val accountDao: AccountDao
+
+    init {
+        val db = ExpensesDatabase.getInstance(app)
+        accountDao = db.accountDao
+    }
+
+    var storedAccount: AccountModel? = null
+
+    private lateinit var account: LiveData<AccountModel?>
+
+    fun findAccountById(id: Long): LiveData<AccountModel?> {
+        if (!::account.isInitialized) {
+            account = accountDao.findAccountById(id)
+        }
+        return account
+    }
+
+    private val _resultFlow: MutableStateFlow<OperationResult<AccountModel>?> = MutableStateFlow(null)
+
+    val resultFlow: Flow<OperationResult<AccountModel>?> = _resultFlow
+
+    fun addAccount(account: AccountModel) {
+        viewModelScope.launch {
+            flow {
+                try {
+                    val id = accountDao.insertAccount(account.toAccount())
+                    val copy = account.copy(id=id)
+                    emit(OperationResult(copy,null))
+                }
+                catch (ex: Throwable) {
+                    emit(OperationResult(null,ex))
+                }
+            }
+                .flowOn(Dispatchers.IO)
+                .collect {
+                    _resultFlow.value = it
+                }
+        }
+    }
+
+    fun setAccount(account: AccountModel) {
+        viewModelScope.launch {
+            flow {
+                try {
+                    val changes = accountDao.updateAccount(account.toAccount())
+                    Log.i(TAG, "setAccount: account=$account changes=$changes")
+                    val copy = account.copy()
+                    emit(OperationResult(copy,null))
+                }
+                catch (ex: Throwable) {
+                    emit(OperationResult(null,ex))
+                }
+            }
+                .flowOn(Dispatchers.IO)
+                .collect {
+                    _resultFlow.value = it
+                }
+        }
+    }
+}

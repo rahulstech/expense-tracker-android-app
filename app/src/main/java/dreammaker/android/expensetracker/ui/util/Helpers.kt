@@ -7,11 +7,25 @@ import dreammaker.android.expensetracker.database.AccountModel
 import dreammaker.android.expensetracker.database.Date
 import dreammaker.android.expensetracker.database.HistoryType
 import dreammaker.android.expensetracker.database.PersonModel
+import java.text.NumberFormat
+import java.util.Currency
+import java.util.Locale
+
+data class OperationResult<out T>(
+    val output: T?,
+    val error: Throwable?
+) {
+    fun isFailure(): Boolean = null != error
+}
 
 object Constants {
     const val ARG_DESTINATION_LABEL = "arg.destination_label"
     const val ARG_INITIAL_SELECTIONS = "arg.initial_selections"
     const val ARG_RESULT_KEY = "arg.tag"
+    const val ARG_ACTION = "arg.action"
+    const val ARG_ID = "arg.id"
+    const val ACTION_CREATE = "action.create"
+    const val ACTION_EDIT = "action.edit"
 }
 
 fun Fragment.setActivityTitle(title: CharSequence) {
@@ -92,4 +106,10 @@ fun Bundle.getIfContains(key: String, defaultValue: Any? = null): Any? {
         return get(key)
     }
     return defaultValue
+}
+
+fun Number.toCurrencyString(textLocale: Locale = Locale.ENGLISH, currencyCode: String = "USD"): String {
+    val format = NumberFormat.getCurrencyInstance(textLocale)
+    format.currency = Currency.getInstance(currencyCode)
+    return format.format(toDouble())
 }

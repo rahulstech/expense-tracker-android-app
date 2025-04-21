@@ -22,27 +22,6 @@ import dreammaker.android.expensetracker.ui.util.SelectionMode
 import dreammaker.android.expensetracker.ui.util.SelectionStore
 import dreammaker.android.expensetracker.ui.util.setActivityTitle
 
-class AccountPickerViewModel(app: Application): AndroidViewModel(app) {
-
-    private val accountDao: AccountDao
-
-    init {
-        val db = ExpensesDatabase.getInstance(app)
-        accountDao = db.accountDao
-    }
-
-    var accountSelectionStore: SelectionStore<Long>? = null
-
-    private lateinit var allAccount: LiveData<List<AccountModel>>
-
-    fun getAllAccounts(): LiveData<List<AccountModel>> {
-        if (!::allAccount.isInitialized) {
-            allAccount = accountDao.getAllAccounts()
-        }
-        return allAccount
-    }
-}
-
 open class PickHistoryAccountFragment : Fragment() {
 
     private val TAG = PickHistoryAccountFragment::class.simpleName

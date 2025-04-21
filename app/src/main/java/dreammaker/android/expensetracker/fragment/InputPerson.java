@@ -179,8 +179,8 @@ public class InputPerson extends BaseFragment<InputPerson.InputPersonViewHolder>
             super(root);
             personNameInput = findViewById(R.id.person_name_input);
             personName = findViewById(R.id.to_account);
-            cancel = findViewById(R.id.cancel);
-            save = findViewById(R.id.btn_restore);
+            cancel = findViewById(R.id.btn_cancel);
+            save = findViewById(R.id.btn_save);
             dueInput = findViewById(R.id.due_input);
             due = findViewById(R.id.due);
             typeDue = findViewById(R.id.type_due);

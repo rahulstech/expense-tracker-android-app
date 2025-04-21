@@ -96,5 +96,4 @@
             motion:layout_constraintEnd_toEndOf="parent"
             motion:layout_constraintBottom_toBottomOf="parent"/>
     </ConstraintSet>
-
 </MotionScene>

@@ -89,7 +89,7 @@
 	<string name="title_auto_delete">Auto Delete</string>
 	<string name="summery_auto_delete">Automatically delete all data which are older than specified amount of time.
 		This will only delete date oriented data like transaction and money transfers.</string>
-	<string name="notification_start_auto_delete">Auto delete old entries in progress...</string>
+	<string name="notification_start_auto_delete">Auto delete old entries in progress…</string>
 	<string name="notification_end_auto_delete">App data deleted successfully</string>
 
 	<string name="title_clear_all">Clear All Data</string>
@@ -176,62 +176,71 @@
 
 
 	<!-- history item -->
-	<string name="history_item_debit_source">Debit to: %s</string>
-	<string name="history_item_credit_destination">Credit to: %s</string>
-	<string name="history_item_transfer_source">From: %s</string>
-	<string name="history_item_transfer_destination">In: %s</string>
-	<string name="history_item_debit_destination">For: %s</string>
-	<string name="history_item_credit_source">For: %s</string>
+	<string name="label_history_list_item_debit_source">Debit to: %s</string>
+	<string name="label_history_list_item_credit_destination">Credit to: %s</string>
+	<string name="label_history_list_item_transfer_source">From: %s</string>
+	<string name="label_history_item_transfer_destination">In: %s</string>
+	<string name="label_history_list_item_debit_destination">For: %s</string>
+	<string name="label_history_list_item_credit_source">Form: %s</string>
 	<string name="hint_history_note">Note</string>
+	<string name="label_history_input_source_credit">Receive From</string>
     <string name="label_history_input_destination_credit">Credit To</string>
-	<string name="label_history_input_destination_transfer">In</string>
-	<string name="label_history_input_destination_debit">For</string>
-    <string name="label_history_input_source_credit">Received From</string>
-	<string name="label_history_input_source_debit">Debit To</string>
 	<string name="label_history_input_source_transfer">From</string>
+	<string name="label_history_input_destination_transfer">In</string>
+	<string name="label_history_input_source_debit">Debit To</string>
+	<string name="label_history_input_destination_debit">Pay For</string>
+	<string name="label_history_input_source_expense">Pay From</string>
+	<string name="label_history_input_destination_income">Receive In</string>
 	<string name="label_empty_history_list">No History</string>
+	<string name="label_view">View</string>
+	<string name="label_history_type_credit">Credit</string>
+	<string name="label_history_type_debit">Debit</string>
+	<string name="label_history_type_expense">Expense</string>
+	<string name="label_history_type_transfer">Money Transfer</string>
+	<string name="label_history_type_income">Income</string>
+	<string name="label_history_item_source_credit">From</string>
+	<string name="label_history_item_destination_credit">In</string>
+	<string name="label_history_item_source_transfer">From</string>
+	<string name="label_history_item_destination_transfer">In</string>
+	<string name="label_history_item_source_debit">From</string>
+	<string name="label_history_item_destination_debit">For</string>
+	<string name="label_history_item_source_expense">From</string>
+	<string name="label_history_item_destination_income">In</string>
 
-    <string name="menu_view_history_as">View history as</string>
-    <string name="menu_view_history_daily">Daily</string>
-    <string name="menu_view_history_monthly">Monthly</string>
-    <string name="menu_add_transfer">Add Transfer</string>
-	<string name="menu_add_debit">Add Debit</string>
-	<string name="menu_add_credit">Add Credit</string>
-
-
+    <string name="menu_title_view_history_as">View history as</string>
+    <string name="menu_title_view_history_daily">Daily</string>
+    <string name="menu_title_view_history_monthly">Monthly</string>
+    <string name="menu_title_add_transfer">Add Transfer</string>
+	<string name="menu_title_add_debit">Add Debit</string>
+	<string name="menu_title_add_credit">Add Credit</string>
+	<string name="menu_title_delete_history">Delete History</string>
 
 	<string name="title_history_list">History</string>
 	<string name="title_person_chooser">Choose Person</string>
 	<string name="title_account_chooser">Choose Account</string>
-	<string name="title_choose_credit_source_person">Received From</string>
+	<string name="title_choose_credit_source">Received From</string>
 	<string name="title_choose_debit_source_account">Debit To</string>
 	<string name="title_choose_transfer_source_account">Transfer From</string>
 	<string name="title_choose_credit_destination_account">Credit To</string>
 	<string name="title_choose_debit_destination_person">Debit For</string>
 	<string name="title_choose_transfer_destination_account">Transfer To</string>
-    <string name="title_input_history_create_credit">New Credit</string>
-	<string name="title_input_history_create_debit">New Debit</string>
-	<string name="title_input_history_create_transfer">New Transfer</string>
-	<string name="title_input_history_create_expense">New Expense</string>
-	<string name="title_input_history_create_income">New Income</string>
-	<string name="title_input_history_create">New History</string>
-	<string name="label_history_input_source_expense">Pay From</string>
+	<string name="title_choose_income_destination">Receive In</string>
 	<string name="title_choose_expense_source_account">Pay From</string>
-	<string name="label_history_input_destination_income">Receive In</string>
-	<string name="title_choose_income_destination_account">Receive In</string>
-    <string name="label_view">View</string>
-	<string name="label_history_type_credit">Credit</string>
-    <string name="label_history_type_debit">Debit</string>
-	<string name="label_history_type_expense">Expense</string>
-	<string name="label_history_type_transfer">Money Transfer</string>
-	<string name="label_history_type_income">Income</string>
-    <string name="label_history_item_source_credit">Received From</string>
-	<string name="label_history_item_source_transfer">From</string>
-	<string name="label_history_item_source_debit">Debit</string>
-	<string name="label_history_item_source_expense">Expense</string>
-	<string name="label_history_item_destination_credit">For</string>
-	<string name="label_history_item_destination_income">Income</string>
-	<string name="label_history_item_destination_transfer">In</string>
-    <string name="title_delete_history">Delete History</string>
+	<string name="title_input_history_create">New History</string>
+    <string name="label_empty_account_list">No Account</string>
+	<string name="title_account_list">Accounts</string>
+	<string name="title_view_account">Account Details</string>
+    <string name="label_view_history">View History</string>
+	<string name="title_edit_account">Edit Account</string>
+	<string name="title_create_account">Create Account</string>
+
+    <string name="error_invalid_balance_input">input is not a valid number</string>
+	<string name="error_empty_account_name_input">name must not empty</string>
+	<string name="message_fail_create_account">account not created</string>
+	<string name="message_fail_edit_account">account not saved</string>
+	<string name="message_success_create_account">account created</string>
+	<string name="message_success_edit_account">account saved</string>
+	<string name="message_account_not_found">account not found</string>
+
 
 </resources>

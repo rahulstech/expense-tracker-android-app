@@ -1,66 +1,45 @@
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:gravity="center"
-	app:cardElevation="@dimen/padding_vertical_extra_small"
-	app:cardCornerRadius="4dp"
-	app:cardUseCompatPadding="true">
-		
-	<androidx.constraintlayout.widget.ConstraintLayout
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:paddingBottom="@dimen/padding_vertical_extra_small">
+	android:paddingLeft="12dp"
+	android:paddingRight="12dp"
+	android:paddingTop="16dp"
+	android:background="?attr/selectableItemBackground">
 
-		<ImageView
-			android:id="@+id/options"
-			android:layout_height="wrap_content"
-			android:layout_width="wrap_content"
-			android:padding="@dimen/margin_horizontal_small"
-			android:background="?android:selectableItemBackground"
-			app:srcCompat="@drawable/ic_vertical_three_dots"
-			app:layout_constraintTop_toTopOf="parent"
-			app:layout_constraintEnd_toEndOf="parent"/>
 		<TextView
-			android:id="@+id/from_account"
+			android:id="@+id/name"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
-			android:paddingLeft="@dimen/padding_horizontal_small"
-			android:paddingTop="@dimen/padding_vertical_extra_small"
-			android:paddingRight="@dimen/padding_horizontal_small"
-			android:textSize="@dimen/text_size_medium"
+			android:singleLine="true"
+			android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
 			android:textStyle="bold"
-			app:layout_constraintEnd_toStartOf="@+id/options"
-			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent"
-			tools:text="A VERY LARGE NAME OF AN ACCOUNT TO CHECK IF IT FITS THE AREA OR NOT CORRECTLY" />
-
-		<TextView
-			android:id="@+id/label_balance"
-			android:layout_height="wrap_content"
-			android:layout_width="wrap_content"
-			android:textSize="@dimen/text_size_small"
-			android:textStyle="italic"
-			android:text="@string/balance"
-			android:layout_margin="@dimen/padding_vertical_extra_small"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@id/from_account"/>
+			app:layout_constraintEnd_toEndOf="parent"
+			tools:text="A VERY LARGE NAME OF AN ACCOUNT TO CHECK IF IT FITS THE AREA OR NOT CORRECTLY" />
 
 		<TextView
 			android:id="@+id/balance"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
-			android:layout_margin="@dimen/padding_vertical_extra_small"
-			android:ellipsize="marquee"
+			android:layout_marginTop="8dp"
 			android:singleLine="true"
-			android:textColor="@color/text_green"
-			android:textSize="@dimen/text_size_small"
-			android:textStyle="bold"
-			app:layout_constraintEnd_toStartOf="@+id/options"
-			app:layout_constraintStart_toEndOf="@id/label_balance"
-			app:layout_constraintTop_toBottomOf="@id/from_account"
+			android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/name"
 			tools:text="200.00" />
-	</androidx.constraintlayout.widget.ConstraintLayout>
-</androidx.cardview.widget.CardView>
+
+	<com.google.android.material.divider.MaterialDivider
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="12dp"
+		app:lastItemDecorated="false"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintTop_toBottomOf="@id/balance" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -47,8 +47,8 @@ public class RestoreActivity extends AppCompatActivity implements View.OnClickLi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_restore);
-        btnRestore = findViewById(R.id.btn_restore);
-        btnCancel = findViewById(R.id.cancel);
+        btnRestore = findViewById(R.id.btn_save);
+        btnCancel = findViewById(R.id.btn_cancel);
         btnRestore.setOnClickListener(this);
         btnCancel.setOnClickListener(this);
     }

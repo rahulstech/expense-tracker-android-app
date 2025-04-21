@@ -161,12 +161,12 @@ public class AccountsList extends BaseListFragment<BaseListFragment.ListFragment
 
     private void onAddAccount(){
         viewModel.setSelectedAccount(null);
-        getNavController().navigate(R.id.action_accountsList_to_inputAccount);
+//        getNavController().navigate(R.id.action_accountsList_to_inputAccount);
     }
 
     private void onEditAccount(Account account){
         viewModel.setSelectedAccount(account);
-        getNavController().navigate(R.id.action_accountsList_to_inputAccount);
+//        getNavController().navigate(R.id.action_accountsList_to_inputAccount);
     }
 
     private void onDeleteAccount(final Account account){
@@ -183,7 +183,7 @@ public class AccountsList extends BaseListFragment<BaseListFragment.ListFragment
 
     private void onViewTransactions(Account account) {
         transactionsViewModel.loadTransactionsForAccount(account);
-        getNavController().navigate(R.id.action_accountsList_to_transactionsList);
+//        getNavController().navigate(R.id.action_accountsList_to_transactionsList);
     }
 
     private static class AccountListSaveData {

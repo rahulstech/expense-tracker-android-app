@@ -24,7 +24,6 @@ import androidx.navigation.Navigation;
 import androidx.viewpager.widget.ViewPager;
 import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.util.Check;
-import dreammaker.android.expensetracker.util.Helper;
 import dreammaker.android.expensetracker.viewmodel.TransactionsViewModel;
 
 public class FilterTransaction2 extends BaseFragment<FilterTransaction2.FilterTransaction2ViewHolder>
@@ -130,7 +129,7 @@ public class FilterTransaction2 extends BaseFragment<FilterTransaction2.FilterTr
             super(root);
             navigationTabs = findViewById(R.id.navigation_tabs);
             screens = findViewById(R.id.screens);
-            cancel = findViewById(R.id.cancel);
+            cancel = findViewById(R.id.btn_cancel);
             reset = findViewById(R.id.reset);
             filter = findViewById(R.id.filter);
             navigationTabs.setupWithViewPager(screens);

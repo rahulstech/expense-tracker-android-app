@@ -20,7 +20,7 @@
 
 
             <Button
-                android:id="@+id/cancel"
+                android:id="@+id/btn_cancel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_vertical_medium"
@@ -39,10 +39,10 @@
                 android:layout_marginTop="@dimen/margin_vertical_medium"
                 android:layout_marginBottom="@dimen/margin_vertical_medium"
                 android:layout_weight="1"
-                android:text="@string/menu_add_credit"
+                android:text="@string/menu_title_add_credit"
                 android:textColor="@android:color/white"
                 app:backgroundTint="@color/text_red"
-                app:layout_constraintStart_toEndOf="@id/cancel"
+                app:layout_constraintStart_toEndOf="@id/btn_cancel"
                 app:layout_constraintEnd_toStartOf="@id/add_debit"
                 app:layout_constraintTop_toBottomOf="@id/description_input" />
 
@@ -53,7 +53,7 @@
                 android:layout_marginTop="@dimen/margin_vertical_medium"
                 android:layout_marginBottom="@dimen/margin_vertical_medium"
                 android:layout_weight="1"
-                android:text="@string/menu_add_debit"
+                android:text="@string/menu_title_add_debit"
                 android:textColor="@android:color/white"
                 app:backgroundTint="@color/text_green"
                 app:layout_constraintEnd_toEndOf="parent"

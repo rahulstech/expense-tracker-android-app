@@ -6,7 +6,7 @@
     android:paddingRight="@dimen/padding_horizontal_small">
 
     <Button
-        android:id="@+id/cancel"
+        android:id="@+id/btn_cancel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/margin_vertical_medium"
@@ -14,10 +14,10 @@
         app:backgroundTint="@android:color/white"
         app:layout_constraintTop_toBottomOf="@id/radio_group"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/btn_restore"/>
+        app:layout_constraintEnd_toStartOf="@id/btn_save"/>
 
     <Button
-        android:id="@+id/btn_restore"
+        android:id="@+id/btn_save"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/margin_vertical_medium"
@@ -26,7 +26,7 @@
         app:backgroundTint="@color/text_green"
         app:layout_constraintTop_toBottomOf="@id/radio_group"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/cancel"/>
+        app:layout_constraintStart_toEndOf="@id/btn_cancel"/>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/person_name_input"

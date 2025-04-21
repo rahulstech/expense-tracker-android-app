@@ -2,18 +2,18 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item app:showAsAction="ifRoom"
-        android:title="@string/menu_view_history_as"
+        android:title="@string/menu_title_view_history_as"
         android:icon="@drawable/baseline_view_list">
         <menu>
             <group
                 android:id="@+id/menu_view_as"
                 android:checkableBehavior="single">
 
-                <item android:title="@string/menu_view_history_daily"
+                <item android:title="@string/menu_title_view_history_daily"
                     android:checked="true"
                     android:checkable="true"/>
 
-                <item android:title="@string/menu_view_history_monthly"
+                <item android:title="@string/menu_title_view_history_monthly"
                     android:checkable="true"/>
             </group>
         </menu>
@@ -21,7 +21,7 @@
 
     <item
         android:id="@+id/add"
-        android:title="@string/menu_add_debit"
+        android:title="@string/menu_title_add_debit"
         android:icon="@drawable/ic_add"
         app:showAsAction="always"/>
 </menu>

@@ -155,7 +155,7 @@ class HistoryInputFragment : Fragment() {
             else {
                 binding.inputSource.setOnClickListener{
                     val args = Bundle().apply {
-                        putString(Constants.ARG_DESTINATION_LABEL, getString(R.string.title_choose_credit_source_person))
+                        putString(Constants.ARG_DESTINATION_LABEL, getString(R.string.title_choose_credit_source))
                         putString(Constants.ARG_RESULT_KEY, ARG_SOURCE)
                     }
                     navController.navigate(R.id.action_history_input_to_person_chooser_list, args)
@@ -270,7 +270,7 @@ class HistoryInputFragment : Fragment() {
             else {
                 binding.inputDestination.setOnClickListener{
                     val args = Bundle().apply {
-                        putString(Constants.ARG_DESTINATION_LABEL, getString(R.string.title_choose_income_destination_account))
+                        putString(Constants.ARG_DESTINATION_LABEL, getString(R.string.title_choose_income_destination))
                         putString(Constants.ARG_RESULT_KEY, ARG_DESTINATION)
                     }
                     navController.navigate(R.id.action_history_input_to_account_chooser_list, args)

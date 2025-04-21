@@ -1,4 +1,4 @@
-package dreammaker.android.expensetracker.ui.history.viewhistory
+package dreammaker.android.expensetracker.ui.history.viewhistories
 
 import android.os.Bundle
 import android.view.LayoutInflater

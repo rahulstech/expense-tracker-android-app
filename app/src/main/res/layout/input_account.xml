@@ -1,72 +1,61 @@
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:paddingLeft="@dimen/padding_horizontal_small"
-    android:paddingRight="@dimen/padding_horizontal_small">
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:orientation="vertical">
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/account_name_input"
+        android:id="@+id/name_input_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/account_name"
         app:errorEnabled="true"
-        app:helperTextEnabled="true"
-        app:hintAnimationEnabled="true"
-        app:hintEnabled="true"
-        android:layout_marginTop="@dimen/margin_vertical_small"
+        app:endIconMode="clear_text"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/to_account"
+            android:id="@+id/name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textCapWords"
-            android:maxLines="1" />
+            android:maxLines="1"
+            tools:text="The Account Name"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/balance_input"
+        android:id="@+id/balance_input_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/margin_vertical_small"
+        android:layout_marginTop="12dp"
         android:hint="@string/balance"
-        app:errorEnabled="true"
-        app:helperTextEnabled="true"
-        app:hintAnimationEnabled="true"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/account_name_input">
+        app:errorEnabled="true">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/balance"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal"
+            android:maxLines="1"
+            tools:text="120.00"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <Button
-        android:id="@+id/cancel"
-        android:layout_width="wrap_content"
+        android:id="@+id/btn_save"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/margin_vertical_medium"
-        android:text="@string/cancel"
-        app:backgroundTint="@android:color/white"
-        app:layout_constraintTop_toBottomOf="@id/balance_input"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/btn_restore"/>
+        android:layout_marginTop="32dp"
+        android:text="@string/save"/>
 
     <Button
-        android:id="@+id/btn_restore"
-        android:layout_width="wrap_content"
+        android:id="@+id/btn_cancel"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/margin_vertical_medium"
-        android:text="@string/save"
-        android:textColor="@android:color/white"
-        app:backgroundTint="@color/text_green"
-        app:layout_constraintTop_toBottomOf="@id/balance_input"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/cancel"/>
+        android:layout_marginTop="8dp"
+        android:text="@string/cancel"
+        android:textColor="@color/stateful_color_on_surface"
+        style="@style/Widget.Material3.Button.TextButton"/>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

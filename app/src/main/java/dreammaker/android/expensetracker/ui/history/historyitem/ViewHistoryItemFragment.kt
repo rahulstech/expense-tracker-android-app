@@ -1,6 +1,5 @@
 package dreammaker.android.expensetracker.ui.history.historyitem
 
-import android.app.Application
 import android.content.Context
 import android.content.res.ColorStateList
 import android.os.Bundle
@@ -13,40 +12,17 @@ import android.view.ViewGroup
 import androidx.annotation.ColorRes
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.database.Date
-import dreammaker.android.expensetracker.database.ExpensesDatabase
-import dreammaker.android.expensetracker.database.HistoryDao
 import dreammaker.android.expensetracker.database.HistoryModel
 import dreammaker.android.expensetracker.database.HistoryType
 import dreammaker.android.expensetracker.databinding.HistoryItemLayoutBinding
+import dreammaker.android.expensetracker.ui.util.Constants
 import dreammaker.android.expensetracker.ui.util.getHistoryType
 import java.util.Locale
-
-
-class ViewHistoryItemViewModel(app: Application): AndroidViewModel(app) {
-
-    private val historyDao: HistoryDao
-
-    init {
-        val db = ExpensesDatabase.getInstance(app)
-        historyDao = db.historyDao
-    }
-
-    private lateinit var historyLiveData: LiveData<HistoryModel?>
-
-    fun findHistory(id: Long, type: HistoryType): LiveData<HistoryModel?> {
-        if (!::historyLiveData.isInitialized) {
-            historyLiveData = historyDao.findHistoryByIdAndType(id, type)
-        }
-        return historyLiveData
-    }
-}
 
 class ViewHistoryItemFragment: Fragment() {
 
@@ -58,7 +34,7 @@ class ViewHistoryItemFragment: Fragment() {
     }
 
     private var binding: HistoryItemLayoutBinding? = null
-    private var navController: NavController? = null
+    private lateinit var navController: NavController
     private lateinit var viewModel: ViewHistoryItemViewModel
     private var loadedHistory: HistoryModel? = null
 
@@ -99,7 +75,7 @@ class ViewHistoryItemFragment: Fragment() {
     private fun onHistoryLoaded(history: HistoryModel?) {
         if (null == history){
             loadedHistory = null
-            navController?.popBackStack()
+            navController.popBackStack()
              return
         }
         binding?.let {
@@ -180,7 +156,12 @@ class ViewHistoryItemFragment: Fragment() {
     }
 
     private fun onClickViewSource(history: HistoryModel) {
-
+        val type = history.type!!
+        if (type == HistoryType.TRANSFER || type == HistoryType.DEBIT || type == HistoryType.EXPENSE) {
+            navController.navigate(R.id.action_history_item_to_view_account, Bundle().apply {
+                putLong(Constants.ARG_ID, history.srcAccountId!!)
+            })
+        }
     }
 
     private fun prepareDestination(history: HistoryModel, binding: HistoryItemLayoutBinding) {
@@ -191,7 +172,7 @@ class ViewHistoryItemFragment: Fragment() {
                 binding.destination.text = history.destAccount?.name
             }
             HistoryType.DEBIT -> {
-                binding.destinationLabel.text = getString(R.string.label_history_item_source_debit)
+                binding.destinationLabel.text = getString(R.string.label_history_item_destination_debit)
                 binding.destination.text = history.destPerson?.name
             }
             HistoryType.INCOME -> {
@@ -213,7 +194,12 @@ class ViewHistoryItemFragment: Fragment() {
     }
 
     private fun onClickViewDestination(history: HistoryModel) {
-
+        val type = history.type!!
+        if (type == HistoryType.TRANSFER || type == HistoryType.CREDIT || type == HistoryType.INCOME) {
+            navController.navigate(R.id.action_history_item_to_view_account, Bundle().apply {
+                putLong(Constants.ARG_ID, history.destAccountId!!)
+            })
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

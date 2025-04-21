@@ -1,4 +1,4 @@
-package dreammaker.android.expensetracker.ui.history.viewhistory
+package dreammaker.android.expensetracker.ui.history.viewhistories
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
@@ -7,6 +7,7 @@ import dreammaker.android.expensetracker.database.Date
 import dreammaker.android.expensetracker.database.ExpensesDatabase
 import dreammaker.android.expensetracker.database.HistoryDao
 import dreammaker.android.expensetracker.database.HistoryModel
+import dreammaker.android.expensetracker.util.MonthYear
 
 class ViewHistoryViewModel(app: Application): AndroidViewModel(app) {
 
@@ -19,10 +20,10 @@ class ViewHistoryViewModel(app: Application): AndroidViewModel(app) {
 
     private lateinit var monthlyHistories: LiveData<List<HistoryModel>>
 
-    fun getMonthlyHistories(month: Int, year: Int): LiveData<List<HistoryModel>> {
+    fun getMonthlyHistories(monthYear: MonthYear): LiveData<List<HistoryModel>> {
         if (!::monthlyHistories.isInitialized) {
-            val start = Date(year, month, 1)
-            val end = start.lastDateOfThisMonth()
+            val start = monthYear.toFirstDate()
+            val end = monthYear.toLastDate()
             monthlyHistories = historiesDao.getHistoriesBetweenDates(start,end)
         }
         return monthlyHistories

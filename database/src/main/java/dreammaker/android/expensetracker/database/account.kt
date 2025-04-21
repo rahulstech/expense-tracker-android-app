@@ -3,10 +3,13 @@ package dreammaker.android.expensetracker.database
 import androidx.lifecycle.LiveData
 import androidx.room.ColumnInfo
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Entity
 import androidx.room.Ignore
+import androidx.room.Insert
 import androidx.room.PrimaryKey
 import androidx.room.Query
+import androidx.room.Update
 import com.google.gson.annotations.SerializedName
 import java.util.Objects
 
@@ -59,11 +62,31 @@ data class AccountModel(
     override fun toString(): String {
         return "AccountModel{id=$id,name='$name',balance=$balance}"
     }
+
+    fun toAccount(): Account {
+        return Account(
+            id ?: 0,
+            name!!,
+            balance!!
+        )
+    }
 }
 
 @Dao
 interface AccountDao {
 
+    @Insert
+    fun insertAccount(account: Account): Long
+
+    @Update
+    fun updateAccount(account: Account): Int
+
     @Query("SELECT `_id`, `account_name`, `balance` FROM `accounts`")
     fun getAllAccounts(): LiveData<List<AccountModel>>
+
+    @Query("SELECT * FROM `accounts` WHERE `_id` = :id")
+    fun findAccountById(id: Long): LiveData<AccountModel?>
+
+    @Delete
+    fun deleteAccount(account: Account): Int
 }

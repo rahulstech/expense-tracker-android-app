@@ -275,7 +275,7 @@ public class InputTransaction extends BaseFragment<InputTransaction.InputTransac
             account = findViewById(R.id.account);
             person = findViewById(R.id.person);
             description = findViewById(R.id.description);
-            cancel = findViewById(R.id.cancel);
+            cancel = findViewById(R.id.btn_cancel);
             addCredit = findViewById(R.id.add_credit);
             addDebit = findViewById(R.id.add_debit);
         }

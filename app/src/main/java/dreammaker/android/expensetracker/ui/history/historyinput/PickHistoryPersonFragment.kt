@@ -1,46 +1,21 @@
 package dreammaker.android.expensetracker.ui.history.historyinput
 
-import android.app.Application
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
-import dreammaker.android.expensetracker.database.ExpensesDatabase
-import dreammaker.android.expensetracker.database.PersonDao
 import dreammaker.android.expensetracker.database.PersonModel
 import dreammaker.android.expensetracker.databinding.PickerListLayoutBinding
 import dreammaker.android.expensetracker.ui.util.Constants
 import dreammaker.android.expensetracker.ui.util.SelectionMode
 import dreammaker.android.expensetracker.ui.util.SelectionStore
 import dreammaker.android.expensetracker.ui.util.setActivityTitle
-
-class PersonPickerViewModel(app: Application): AndroidViewModel(app) {
-
-    private val personDao: PersonDao
-
-    init {
-        val db = ExpensesDatabase.getInstance(app)
-        personDao = db.personDao
-    }
-
-    var personSelectionStore: SelectionStore<Long>? = null
-
-    private lateinit var allPeople: LiveData<List<PersonModel>>
-    fun getAllPeople(): LiveData<List<PersonModel>> {
-        if (!::allPeople.isInitialized) {
-            allPeople = personDao.getAllPeople()
-        }
-        return allPeople
-    }
-}
 
 open class PickHistoryPersonFragment: Fragment() {
 
