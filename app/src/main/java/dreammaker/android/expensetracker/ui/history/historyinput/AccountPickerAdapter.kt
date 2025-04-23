@@ -10,10 +10,12 @@ import dreammaker.android.expensetracker.databinding.AccountChooserListItemBindi
 import dreammaker.android.expensetracker.ui.util.BaseSelectableItemListAdapter
 import dreammaker.android.expensetracker.ui.util.ClickableViewHolder
 import dreammaker.android.expensetracker.ui.util.SelectionStore
-import java.util.Locale
+import dreammaker.android.expensetracker.ui.util.toCurrencyString
 
-class AccountPickerViewHolder(private val binding: AccountChooserListItemBinding,
-                              onClick: (AccountPickerViewHolder, View)->Unit)
+class AccountPickerViewHolder(
+    private val binding: AccountChooserListItemBinding,
+    onClick: (AccountPickerViewHolder, View)->Unit
+)
     : ClickableViewHolder<AccountPickerViewHolder>(binding.root, onClick) {
 
     init {
@@ -29,7 +31,8 @@ class AccountPickerViewHolder(private val binding: AccountChooserListItemBinding
         else {
             binding.checkbox.isChecked = isSelected
             binding.accountName.text = data.name
-            binding.accountBalance.text = String.format(Locale.ENGLISH, "%.2f", data.balance)
+            binding.accountBalance.text = data.balance!!.toCurrencyString()
+            binding.root.isSelected = isSelected
         }
     }
 }

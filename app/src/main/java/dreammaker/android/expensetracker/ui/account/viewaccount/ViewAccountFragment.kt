@@ -69,7 +69,7 @@ class ViewAccountFragment: Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (arguments?.containsKey(Constants.ARG_ID) != true) {
-            throw IllegalArgumentException("'${Constants.ARG_ID}' argument not found")
+            throw IllegalStateException("'${Constants.ARG_ID}' argument not found")
         }
     }
 

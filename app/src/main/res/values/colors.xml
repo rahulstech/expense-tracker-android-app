@@ -1,8 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#C2185B</color>
-    <color name="colorPrimaryDark">#880E4F</color>
-    <color name="colorAccent">#26A69A</color>
+
+    <color name="colorWhite">#FFFFFF</color>
+    <color name="colorBlack">#000000</color>
+
+    <color name="colorPrimary">#1B79CC</color>
+    <color name="colorOnPrimary">@color/colorWhite</color>
+    <color name="colorPrimaryDark">#1666ab</color>
+    <color name="colorOnPrimaryDark">@color/colorWhite</color>
+    <color name="colorSecondary">#CAC31D</color>
+    <color name="colorOnSecondary">@color/colorBlack</color>
+    <color name="colorAccent">@color/colorSecondary</color>
+
     <color name="text_green">#00be00</color>
     <color name="text_red">#be0000</color>
     <color name="light_blue_600">#FF039BE5</color>
@@ -11,17 +20,15 @@
     <color name="light_blue_A400">#FF00B0FF</color>
     <color name="black_overlay">#66000000</color>
 
-<!--    <color name="colorCredit">#5CB338</color>-->
-<!--    <color name="colorDebit">#D91656</color>-->
-<!--    <color name="colorTransfer">#4CC9FE</color>-->
-<!--    <color name="colorExpense">#D91656</color>-->
-<!--    <color name="colorIncome">#5CB338</color>-->
-
-    <color name="colorCredit">#4CAF50</color>
-    <color name="colorDebit">#F44336</color>
-    <color name="colorTransfer">#03A9F4</color>
-    <color name="colorExpense">#E53935</color>
-    <color name="colorIncome">#43A047</color>
-
+    <color name="colorCredit">#4B7831</color>
+    <color name="colorOnCredit">@color/colorWhite</color>
+    <color name="colorDebit">#CC2929</color>
+    <color name="colorOnDebit">@color/colorWhite</color>
+    <color name="colorTransfer">#7842c6</color>
+    <color name="colorOnTransfer">@color/colorWhite</color>
+    <color name="colorExpense">#CC2929</color>
+    <color name="colorOnExpense">@color/colorWhite</color>
+    <color name="colorIncome">#4B7831</color>
+    <color name="colorOnIncome">@color/colorWhite</color>
 
 </resources>

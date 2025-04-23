@@ -11,37 +11,26 @@
         android:label="@string/app_name"
         tools:layout="@layout/home">
         <action
-            android:id="@+id/action_home_to_accountsList"
+            android:id="@+id/action_home_to_accounts_list"
             app:destination="@id/account_list"
             app:enterAnim="@anim/slide_in_left"
             app:exitAnim="@anim/slide_out_right"
             app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left"
-            app:popUpTo="@+id/home"/>
+            app:popExitAnim="@anim/slide_out_left"/>
         <action
-            android:id="@+id/action_home_to_personsList"
-            app:destination="@+id/personsList"
+            android:id="@+id/action_home_to_persons_list"
+            app:destination="@+id/persons_list"
             app:enterAnim="@anim/slide_in_left"
             app:exitAnim="@anim/slide_out_right"
             app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left"
-            app:popUpTo="@id/home"/>
+            app:popExitAnim="@anim/slide_out_left"/>
         <action
-            android:id="@+id/action_home_to_transactionsList"
+            android:id="@+id/action_home_to_history_list"
             app:destination="@id/history_list"
             app:enterAnim="@anim/slide_in_left"
             app:exitAnim="@anim/slide_out_right"
             app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left"
-            app:popUpTo="@id/home"/>
-        <action
-            android:id="@+id/action_home_to_inputTransaction"
-            app:destination="@id/inputTransaction"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right"
-            app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left"
-            app:popUpTo="@id/home" />
+            app:popExitAnim="@anim/slide_out_left"/>
     </fragment>
 
     <!-- Fragment Input Transaction -->
@@ -50,45 +39,6 @@
         android:name="dreammaker.android.expensetracker.fragment.InputTransaction"
         android:label="@string/label_insert_transaction"
         tools:layout="@layout/input_transaction" />
-
-    <!-- Fragment People List -->
-    <fragment
-        android:id="@+id/personsList"
-        android:name="dreammaker.android.expensetracker.fragment.PersonsList"
-        android:label="@string/label_persons_list"
-        tools:layout="@layout/list_content">
-        <action
-            android:id="@+id/action_personsList_to_inputPerson"
-            app:destination="@id/inputPerson"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right"
-            app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left"
-            app:popUpTo="@id/personsList" />
-        <action
-            android:id="@+id/action_personsList_to_transactionsList"
-            app:destination="@id/transactionsList"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right"
-            app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left"
-            app:popUpTo="@id/personsList" />
-        <action
-            android:id="@+id/action_personsList_to_inputTransaction"
-            app:destination="@id/inputTransaction"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right"
-            app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left"
-            app:popUpTo="@id/personsList" />
-    </fragment>
-
-    <!-- Fragment Input Person -->
-    <fragment
-        android:id="@+id/inputPerson"
-        android:name="dreammaker.android.expensetracker.fragment.InputPerson"
-        android:label="@string/label_insert_person"
-        tools:layout="@layout/input_person"/>
 
     <!-- Fragment Transactions List -->
     <fragment
@@ -115,8 +65,7 @@
     </fragment>
 
     <!-- Fragment Filter Transactions -->
-    <fragment
-        android:id="@+id/filterTransaction"
+    <fragment android:id="@+id/filterTransaction"
         android:name="dreammaker.android.expensetracker.fragment.FilterTransaction2"
         android:label="@string/label_filter_transaction"
         tools:layout="@layout/layout_filter_transaction"/>
@@ -126,22 +75,19 @@
     <fragment android:id="@+id/account_list"
         android:name="dreammaker.android.expensetracker.ui.account.accountlist.AccountsListFragment"
         android:label="@string/title_account_list"
-        tools:layout="@layout/account_list">
-
+        tools:layout="@layout/accounts_list">
         <action android:id="@+id/action_account_list_to_view_account"
             app:destination="@id/view_account"
             app:enterAnim="@anim/slide_in_left"
             app:exitAnim="@anim/slide_out_right"
             app:popEnterAnim="@anim/slide_in_right"
             app:popExitAnim="@anim/slide_out_left"/>
-
         <action android:id="@+id/action_account_list_to_create_account"
             app:destination="@id/account_input"
             app:enterAnim="@anim/slide_in_left"
             app:exitAnim="@anim/slide_out_right"
             app:popEnterAnim="@anim/slide_in_right"
             app:popExitAnim="@anim/slide_out_left"/>
-
     </fragment>
 
     <fragment android:id="@+id/view_account"
@@ -169,50 +115,94 @@
         android:name="dreammaker.android.expensetracker.ui.account.inputaccount.AccountInputFragment"
         tools:layout="@layout/input_account"/>
 
-
     <!-- Person -->
+    <fragment android:id="@+id/persons_list"
+        android:name="dreammaker.android.expensetracker.ui.person.personlist.PeopleListFragment"
+        android:label="@string/title_people_list"
+        tools:layout="@layout/list_content">
+        <action
+            android:id="@+id/action_persons_list_to_create_person"
+            app:destination="@id/person_input"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:popEnterAnim="@anim/slide_in_right"
+            app:popExitAnim="@anim/slide_out_left" />
+        <action android:id="@+id/action_persons_list_to_view_person"
+            app:destination="@id/view_person"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:popEnterAnim="@anim/slide_in_right"
+            app:popExitAnim="@anim/slide_out_left"/>
+    </fragment>
 
+    <fragment android:id="@+id/view_person"
+        android:name="dreammaker.android.expensetracker.ui.person.viewperson.ViewPersonFragment"
+        android:label="@string/title_view_person">
+        <action
+            android:id="@+id/action_personsList_to_history_list"
+            app:destination="@id/history_list"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:popEnterAnim="@anim/slide_in_right"
+            app:popExitAnim="@anim/slide_out_left" />
+        <action
+            android:id="@+id/action_personsList_to_create_history"
+            app:destination="@id/history_input"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:popEnterAnim="@anim/slide_in_right"
+            app:popExitAnim="@anim/slide_out_left"/>
+        <action
+            android:id="@+id/action_personsList_to_edit_person"
+            app:destination="@id/person_input"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:popEnterAnim="@anim/slide_in_right"
+            app:popExitAnim="@anim/slide_out_left" />
+    </fragment>
+
+    <fragment android:id="@+id/person_input"
+        android:name="dreammaker.android.expensetracker.ui.person.inputperson.PersonInputFragment"
+        tools:layout="@layout/input_person"/>
 
     <!-- History -->
-
     <fragment android:id="@+id/history_input"
         android:name="dreammaker.android.expensetracker.ui.history.historyinput.HistoryInputContainerFragment"
         tools:layout="@layout/history_input_container"/>
 
-    <fragment
-        android:id="@+id/history_list"
+    <fragment android:id="@+id/history_list"
         android:name="dreammaker.android.expensetracker.ui.history.viewhistories.daily.DailyViewHistoryFragment"
         android:label="@string/title_history_list"
         tools:layout="@layout/list_content">
-
         <action android:id="@+id/action_history_list_to_history_input"
             app:destination="@id/history_input"
             app:enterAnim="@anim/slide_in_left"
             app:exitAnim="@anim/slide_out_right"
             app:popEnterAnim="@anim/slide_in_right"
             app:popExitAnim="@anim/slide_out_left"/>
-
         <action android:id="@+id/action_history_list_to_history_item"
             app:destination="@id/history_item"
             app:enterAnim="@anim/slide_in_left"
             app:exitAnim="@anim/slide_out_right"
             app:popEnterAnim="@anim/slide_in_right"
             app:popExitAnim="@anim/slide_out_left"/>
-
     </fragment>
 
     <fragment android:id="@+id/history_item"
         android:name="dreammaker.android.expensetracker.ui.history.historyitem.ViewHistoryItemFragment"
         tools:layout="@layout/history_item_layout">
-
         <action android:id="@+id/action_history_item_to_view_account"
             app:destination="@id/view_account"
             app:enterAnim="@anim/slide_in_left"
             app:exitAnim="@anim/slide_out_right"
             app:popEnterAnim="@anim/slide_in_right"
             app:popExitAnim="@anim/slide_out_left"/>
-
-
+        <action android:id="@+id/action_history_item_to_edit_history"
+            app:destination="@id/history_input"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:popEnterAnim="@anim/slide_in_right"
+            app:popExitAnim="@anim/slide_out_left" />
     </fragment>
 
 </navigation>

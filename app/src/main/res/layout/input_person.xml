@@ -1,105 +1,63 @@
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingLeft="@dimen/padding_horizontal_small"
-    android:paddingRight="@dimen/padding_horizontal_small">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:gravity="top|center_vertical"
+    android:padding="16dp">
 
-    <Button
-        android:id="@+id/btn_cancel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/margin_vertical_medium"
-        android:text="@string/cancel"
-        app:backgroundTint="@android:color/white"
-        app:layout_constraintTop_toBottomOf="@id/radio_group"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/btn_save"/>
 
-    <Button
-        android:id="@+id/btn_save"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/margin_vertical_medium"
-        android:text="@string/save"
-        android:textColor="@android:color/white"
-        app:backgroundTint="@color/text_green"
-        app:layout_constraintTop_toBottomOf="@id/radio_group"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/btn_cancel"/>
+
+
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/person_name_input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/padding_horizontal_small"
         android:hint="@string/person_name"
-        app:errorEnabled="true"
-        app:helperTextEnabled="true"
-        app:hintAnimationEnabled="true"
-        app:hintEnabled="true"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:errorEnabled="true">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/to_account"
+            android:id="@+id/name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textCapWords"
-            android:maxLines="1" />
+            android:inputType="textPersonName"
+            android:singleLine="true"
+            tools:text="John Doe"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/due_input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/margin_vertical_small"
+        android:layout_marginTop="12dp"
         android:hint="@string/due_payment"
-        app:errorEnabled="true"
-        app:helperTextEnabled="true"
-        app:hintAnimationEnabled="true"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/person_name_input">
+        app:errorEnabled="true">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/due"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal"
+            android:singleLine="true"
+            tools:text="120.50"/>
     </com.google.android.material.textfield.TextInputLayout>
 
-    <RadioGroup
-        android:id="@+id/radio_group"
+    <Button
+        android:id="@+id/btn_save"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/due_input"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintStart_toEndOf="parent"
-        android:orientation="horizontal"
-        android:gravity="center">
+        android:layout_marginTop="32dp"
+        android:text="@string/save"/>
 
-        <com.google.android.material.radiobutton.MaterialRadioButton
-            android:id="@+id/type_due"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:checked="true"
-            android:text="@string/due_payment"
-            android:textColor="@color/text_red"
-            android:textSize="18sp"
-            app:buttonTint="@color/text_red"/>
+    <Button
+        android:id="@+id/btn_cancel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="@string/cancel"
+        style="@style/Widget.Material3.Button.TextButton"
+        android:textColor="@color/stateful_color_on_surface"/>
 
-        <com.google.android.material.radiobutton.MaterialRadioButton
-            android:id="@+id/type_advanced"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/advanced_payment"
-            android:textColor="@color/text_green"
-            android:textSize="18sp"
-            app:buttonTint="@color/text_green" />
-
-    </RadioGroup>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

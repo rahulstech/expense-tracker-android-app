@@ -2,6 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <item android:id="@+id/edit"
+        android:title="@string/menu_title_edit_history"
+        android:icon="@drawable/baseline_edit"
+        app:showAsAction="ifRoom"/>
+
     <item android:id="@+id/delete"
         android:title="@string/menu_title_delete_history"
         app:showAsAction="never"/>

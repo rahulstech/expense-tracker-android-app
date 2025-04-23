@@ -31,9 +31,11 @@
             tools:text="Credit"/>
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/amount_input_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            app:errorEnabled="true"
             android:hint="@string/amount">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -66,6 +68,7 @@
 
 
         <LinearLayout
+            android:id="@+id/source_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -98,11 +101,24 @@
                 android:layout_weight="0"
                 app:icon="@drawable/baseline_arrow_right"
                 style="@style/Widget.AppTheme.Button.PickerArrow"/>
-
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/error_source"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/error_no_selection"
+            android:visibility="invisible"
+            android:layout_marginTop="6dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
+            android:textColor="?attr/colorError"
+            tools:visibility="visible" />
 
 
         <LinearLayout
+            android:id="@+id/destination_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -136,8 +152,20 @@
                 app:icon="@drawable/baseline_arrow_right"
                 style="@style/Widget.AppTheme.Button.PickerArrow"
                 tools:ignore="ContentDescription" />
-
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/error_destination"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/error_no_selection"
+            android:visibility="invisible"
+            android:layout_marginTop="6dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
+            android:textColor="?attr/colorError"
+            tools:visibility="visible" />
 
         <Button
             android:id="@+id/btnSave"
@@ -148,6 +176,7 @@
             android:text="@string/save"/>
 
         <Button
+            android:id="@+id/btnCancel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"

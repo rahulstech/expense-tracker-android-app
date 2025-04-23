@@ -9,6 +9,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.annotation.ColorRes
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
@@ -20,8 +21,10 @@ import dreammaker.android.expensetracker.database.Date
 import dreammaker.android.expensetracker.database.HistoryModel
 import dreammaker.android.expensetracker.database.HistoryType
 import dreammaker.android.expensetracker.databinding.HistoryItemLayoutBinding
+import dreammaker.android.expensetracker.ui.history.historyinput.HistoryInputFragment
 import dreammaker.android.expensetracker.ui.util.Constants
 import dreammaker.android.expensetracker.ui.util.getHistoryType
+import dreammaker.android.expensetracker.ui.util.putHistoryType
 import java.util.Locale
 
 class ViewHistoryItemFragment: Fragment() {
@@ -36,7 +39,6 @@ class ViewHistoryItemFragment: Fragment() {
     private var binding: HistoryItemLayoutBinding? = null
     private lateinit var navController: NavController
     private lateinit var viewModel: ViewHistoryItemViewModel
-    private var loadedHistory: HistoryModel? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -69,23 +71,22 @@ class ViewHistoryItemFragment: Fragment() {
         val id = requireArguments().getLong(ARG_HISTORY_ID)
         val type = requireArguments().getHistoryType(ARG_HISTORY_TYPE)!!
         viewModel.findHistory(id,type).observe(viewLifecycleOwner, this::onHistoryLoaded)
-
     }
 
     private fun onHistoryLoaded(history: HistoryModel?) {
         if (null == history){
-            loadedHistory = null
+            Toast.makeText(requireContext(), R.string.message_history_not_found, Toast.LENGTH_LONG).show()
             navController.popBackStack()
              return
         }
         binding?.let {
-            loadedHistory = history
             prepareDate(history.date!!,binding!!)
             prepareType(history.type!!, binding!!)
             prepareAmount(history.amount!!, binding!!)
             prepareNote(history.note, binding!!)
             prepareSource(history, binding!!)
             prepareDestination(history, binding!!)
+            requireActivity().invalidateOptionsMenu()
         }
     }
 
@@ -123,7 +124,7 @@ class ViewHistoryItemFragment: Fragment() {
     }
 
     private fun prepareNote(note: String?, binding: HistoryItemLayoutBinding) {
-        binding.note.setText(note)
+        binding.note.text = note
     }
 
     private fun prepareSource(history: HistoryModel, binding: HistoryItemLayoutBinding) {
@@ -204,18 +205,37 @@ class ViewHistoryItemFragment: Fragment() {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.history_item_menu, menu)
+        viewModel.getStoredHistory()?.let {
+            inflater.inflate(R.menu.history_item_menu, menu)
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val itemId = item.itemId
-        if (itemId == R.id.delete) {
-            loadedHistory?.let { onClickDeleteHistory(loadedHistory!!) }
+        return when (itemId) {
+            R.id.edit -> {
+                onClickEditHistory(viewModel.getStoredHistory()!!)
+                true
+            }
+            R.id.delete -> {
+                onClickDeleteHistory(viewModel.getStoredHistory()!!)
+                true
+            }
+            else ->  return super.onOptionsItemSelected(item)
         }
-        return super.onOptionsItemSelected(item)
     }
 
-    private fun onClickDeleteHistory(history: HistoryModel) {}
+    private fun onClickEditHistory(history: HistoryModel) {
+        navController.navigate(R.id.action_history_item_to_edit_history, Bundle().apply {
+            putString(Constants.ARG_ACTION, Constants.ACTION_EDIT)
+            putLong(Constants.ARG_ID, history.id!!)
+            putHistoryType(HistoryInputFragment.ARG_HISTORY_TYPE, history.type!!)
+        })
+    }
+
+    private fun onClickDeleteHistory(history: HistoryModel) {
+        viewModel.removeHistory(history)
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()

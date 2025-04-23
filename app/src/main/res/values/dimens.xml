@@ -9,5 +9,6 @@
     <dimen name="margin_horizontal_small">6dp</dimen>
     <dimen name="padding_horizontal_small">8dp</dimen>
     <dimen name="padding_vertical_extra_small">4dp</dimen>
-    <item name="alpha_disabled" type="dimen" format="float">0.38</item>
+    <item name="alpha_disabled_text" type="dimen" format="float">0.38</item>
+    <item name="alpha_disabled_background" type="dimen" format="float">0.38</item>
 </resources>

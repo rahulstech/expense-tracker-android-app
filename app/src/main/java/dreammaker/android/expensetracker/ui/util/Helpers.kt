@@ -108,7 +108,7 @@ fun Bundle.getIfContains(key: String, defaultValue: Any? = null): Any? {
     return defaultValue
 }
 
-fun Number.toCurrencyString(textLocale: Locale = Locale.ENGLISH, currencyCode: String = "USD"): String {
+fun Number.toCurrencyString(currencyCode: String = "USD", textLocale: Locale = Locale.ENGLISH, ): String {
     val format = NumberFormat.getCurrencyInstance(textLocale)
     format.currency = Currency.getInstance(currencyCode)
     return format.format(toDouble())

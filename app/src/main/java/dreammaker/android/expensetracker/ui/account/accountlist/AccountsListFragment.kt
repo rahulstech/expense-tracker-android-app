@@ -12,17 +12,18 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.database.Account
 import dreammaker.android.expensetracker.database.AccountModel
-import dreammaker.android.expensetracker.databinding.AccountListBinding
+import dreammaker.android.expensetracker.databinding.AccountsListBinding
 import dreammaker.android.expensetracker.ui.util.Constants
+import dreammaker.android.expensetracker.ui.util.visibilityGone
+import dreammaker.android.expensetracker.ui.util.visible
 
 
 class AccountsListFragment : Fragment() {
 
-    private var _binding: AccountListBinding? = null
+    private var _binding: AccountsListBinding? = null
     private val binding get() = _binding!!
 
     private lateinit var adapter: AccountsAdapter
@@ -41,14 +42,14 @@ class AccountsListFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = AccountListBinding.inflate(inflater, container, false)
+        _binding = AccountsListBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         navController = Navigation.findNavController(view)
         adapter = AccountsAdapter()
-        adapter.itemClickListener = this::handleAccountClick
+        adapter.itemClickListener = { _,_,position -> handleAccountClick(adapter.currentList[position]) }
         binding.list.layoutManager = LinearLayoutManager(requireContext(),LinearLayoutManager.VERTICAL,false)
         binding.list.adapter = adapter
         binding.add.setOnClickListener {
@@ -61,22 +62,17 @@ class AccountsListFragment : Fragment() {
 
     private fun onAccountsLoaded(accounts: List<AccountModel>) {
         adapter.submitList(accounts)
-        toggleEmptyView()
-    }
-
-    private fun toggleEmptyView() {
         if (adapter.currentList.isEmpty()) {
-            binding.list.visibility = View.GONE
-            binding.emptyView.visibility = View.VISIBLE
+            binding.list.visibilityGone()
+            binding.emptyView.visible()
         }
         else {
-            binding.emptyView.visibility = View.GONE
-            binding.list.visibility = View.VISIBLE
+            binding.emptyView.visibilityGone()
+            binding.list.visible()
         }
     }
 
-    private fun handleAccountClick(adapter: RecyclerView.Adapter<*>, view: View, position: Int) {
-        val account = this.adapter.currentList[position]!!
+    private fun handleAccountClick(account: AccountModel) {
         val args = Bundle().apply {
             putLong(Constants.ARG_ID, account.id!!)
         }

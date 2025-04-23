@@ -1,21 +1,16 @@
 package dreammaker.android.expensetracker.ui.history.historyinput
 
-import android.app.Application
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
-import dreammaker.android.expensetracker.database.AccountDao
 import dreammaker.android.expensetracker.database.AccountModel
-import dreammaker.android.expensetracker.database.ExpensesDatabase
 import dreammaker.android.expensetracker.databinding.PickerListLayoutBinding
 import dreammaker.android.expensetracker.ui.util.Constants
 import dreammaker.android.expensetracker.ui.util.SelectionMode
@@ -26,10 +21,11 @@ open class PickHistoryAccountFragment : Fragment() {
 
     private val TAG = PickHistoryAccountFragment::class.simpleName
 
+    private var _binding: PickerListLayoutBinding? = null
+    private val binding get() = _binding!!
+
     private lateinit var adapter: AccountPickerListAdapter
     private lateinit var selectionStore: SelectionStore<Long>
-
-    protected var binding: PickerListLayoutBinding? = null
     protected lateinit var navController: NavController
     protected lateinit var viewModel: AccountPickerViewModel
     private lateinit var historyViewModel: HistoryInputViewModel
@@ -47,26 +43,26 @@ open class PickHistoryAccountFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = PickerListLayoutBinding.inflate(inflater, container, false)
-        return binding!!.root
+        _binding = PickerListLayoutBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         navController = Navigation.findNavController(view)
         adapter = AccountPickerListAdapter()
-        binding!!.optionsList.adapter = adapter
-        binding!!.optionsList.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
-        binding!!.btnChoose.setOnClickListener { handlePickAccount() }
+        binding.optionsList.adapter = adapter
+        binding.optionsList.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+        binding.btnChoose.setOnClickListener { handlePickAccount() }
         prepareSelectionStore(adapter)
         viewModel.getAllAccounts().observe(viewLifecycleOwner, this::onAccountsLoaded)
     }
 
     private fun showPickerButton() {
-        binding?.btnChoose?.visibility = View.VISIBLE
+        binding.btnChoose.visibility = View.VISIBLE
     }
 
     private fun hidePickerButton() {
-        binding?.btnChoose?.visibility = View.GONE
+        binding.btnChoose.visibility = View.GONE
     }
 
     private fun prepareSelectionStore(adapter: AccountPickerListAdapter) {
@@ -117,6 +113,6 @@ open class PickHistoryAccountFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        binding = null
+        _binding = null
     }
 }

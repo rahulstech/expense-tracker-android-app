@@ -14,6 +14,7 @@ import dreammaker.android.expensetracker.database.HistoryType
 import dreammaker.android.expensetracker.databinding.DayHistoryListItemBinding
 import dreammaker.android.expensetracker.ui.util.BaseSelectableItemListAdapter
 import dreammaker.android.expensetracker.ui.util.ClickableViewHolder
+import dreammaker.android.expensetracker.ui.util.toCurrencyString
 
 class DayHistoryViewHolder(
     private val binding: DayHistoryListItemBinding,
@@ -34,7 +35,7 @@ class DayHistoryViewHolder(
             ViewCompat.setBackgroundTintList(binding.type, null)
         }
         else {
-            binding.amount.text = history.amount?.toString()
+            binding.amount.text = history.amount?.toCurrencyString()
             binding.note.text = history.note
             val type = history.type
             when (type) {
@@ -53,6 +54,14 @@ class DayHistoryViewHolder(
                     setSourceText(R.string.label_history_list_item_debit_source, history.srcAccount?.name)
                     setDestinationText(R.string.label_history_list_item_debit_destination, history.destPerson?.name)
                 }
+                HistoryType.EXPENSE -> {
+                    setType(R.string.label_history_type_expense, R.color.colorExpense)
+                    setSourceText(R.string.label_history_list_item_expense_source, history.srcAccount?.name)
+                }
+                HistoryType.INCOME -> {
+                    setType(R.string.label_history_type_income, R.color.colorIncome)
+                    setDestinationText(R.string.label_history_list_item_income_destination, history.destAccount?.name)
+                }
                 else -> {}
             }
         }
@@ -68,7 +77,8 @@ class DayHistoryViewHolder(
 
     private fun setType(@StringRes text: Int, @ColorRes backgroundTint: Int) {
         binding.type.text = getString(text)
-        ViewCompat.setBackgroundTintList(binding.type, itemView.context.resources.getColorStateList(backgroundTint, null))
+        binding.type.setTextColor(context.resources.getColorStateList(R.color.colorWhite, null))
+        ViewCompat.setBackgroundTintList(binding.type, context.resources.getColorStateList(backgroundTint, null))
     }
 }
 

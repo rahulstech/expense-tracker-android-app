@@ -3,10 +3,13 @@ package dreammaker.android.expensetracker.database
 import androidx.lifecycle.LiveData
 import androidx.room.ColumnInfo
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Entity
 import androidx.room.Ignore
+import androidx.room.Insert
 import androidx.room.PrimaryKey
 import androidx.room.Query
+import androidx.room.Update
 import com.google.gson.annotations.SerializedName
 import java.util.Objects
 
@@ -63,11 +66,30 @@ data class PersonModel(
     @ColumnInfo(name = "person_name")
     val name: String?,
     val due: Float?
-)
+) {
+
+    override fun toString(): String {
+        return "PersonModel(id=$id,name='$name',due=$due)"
+    }
+
+    fun toPerson(): Person = Person(id ?: 0, name!!, due ?: 0f)
+}
 
 @Dao
 interface PersonDao {
 
-    @Query("SELECT `_id`, `person_name`, `due` FROM `persons`")
+    @Insert
+    fun insertPerson(person: Person): Long
+
+    @Update
+    fun updatePerson(person: Person)
+
+    @Query("SELECT `_id`, `person_name`, `due` FROM `persons` WHERE `_id` = :id")
+    fun findPersonById(id: Long): LiveData<PersonModel?>
+
+    @Query("SELECT `_id`, `person_name`, `due` FROM `persons` ORDER BY `due` ASC")
     fun getAllPeople(): LiveData<List<PersonModel>>
+
+    @Delete
+    fun deletePerson(person: Person)
 }

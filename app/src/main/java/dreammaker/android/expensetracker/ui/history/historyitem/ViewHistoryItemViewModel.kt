@@ -3,10 +3,16 @@ package dreammaker.android.expensetracker.ui.history.historyitem
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.viewModelScope
 import dreammaker.android.expensetracker.database.ExpensesDatabase
 import dreammaker.android.expensetracker.database.HistoryDao
 import dreammaker.android.expensetracker.database.HistoryModel
 import dreammaker.android.expensetracker.database.HistoryType
+import dreammaker.android.expensetracker.ui.util.OperationResult
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.launch
 
 class ViewHistoryItemViewModel(app: Application): AndroidViewModel(app) {
 
@@ -19,10 +25,33 @@ class ViewHistoryItemViewModel(app: Application): AndroidViewModel(app) {
 
     private lateinit var historyLiveData: LiveData<HistoryModel?>
 
+    fun getStoredHistory(): HistoryModel? {
+        if (!::historyLiveData.isInitialized) {
+            return null
+        }
+        return historyLiveData.value
+    }
+
     fun findHistory(id: Long, type: HistoryType): LiveData<HistoryModel?> {
         if (!::historyLiveData.isInitialized) {
             historyLiveData = historyDao.findHistoryByIdAndType(id, type)
         }
         return historyLiveData
+    }
+
+    fun removeHistory(history: HistoryModel) {
+        viewModelScope.launch {
+            flow {
+                try {
+                    val copy = history.copy()
+                    historyDao.deleteHistory(history.toHistory())
+                    emit(OperationResult(copy, null))
+                }
+                catch (ex: Throwable) {
+                    emit(OperationResult(null,ex))
+                }
+            }
+                .flowOn(Dispatchers.IO)
+        }
     }
 }

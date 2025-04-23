@@ -3,8 +3,10 @@
     <style name="AppTheme" parent="Theme.Material3.DayNight">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorOnPrimary">@color/colorOnPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorSecondary">@color/colorAccent</item>
+        <item name="colorOnSecondary">@color/colorOnSecondary</item>
     </style>
 
     <!-- NoActionBar Theme -->
@@ -33,12 +35,23 @@
         <item name="tint">?attr/colorOnSecondary</item>
     </style>
 
-    <style name="Widget.AppTheme.FilterChip" parent="Widget.Material3.Chip.Filter">
+    <style name="Widget.AppTheme.ExtendedFloatingActionButton">
+        <item name="android:paddingTop">0dp</item>
+        <item name="android:paddingBottom">0dp</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.Material3.Corner.ExtraLarge</item>
+        <item name="backgroundTint">?attr/colorSecondary</item>
+        <item name="iconTint">@color/stateful_color_on_secondary</item>
+        <item name="android:textColor">@color/stateful_color_on_secondary</item>
+        <item name="android:textAppearance">@style/TextAppearance.Material3.LabelMedium</item>
+    </style>
+
+    <style name="Widget.AppTheme.InputChip" parent="Widget.Material3.Chip.Input">
+        <item name="android:checkable">false</item>
         <item name="shapeAppearance">@style/ShapeAppearance.Material3.Corner.Large</item>
         <item name="chipStrokeWidth">0dp</item>
-        <item name="chipBackgroundColor">?attr/colorSecondary</item>
-        <item name="android:textColor">?attr/colorOnSecondary</item>
-        <item name="closeIconTint">?attr/colorOnSecondary</item>
+        <item name="chipBackgroundColor">@color/stateful_color_secondary</item>
+        <item name="android:textColor">@color/stateful_color_on_secondary</item>
+        <item name="closeIconTint">@color/stateful_color_on_secondary</item>
         <item name="android:singleLine">true</item>
         <item name="singleLine">true</item>
     </style>

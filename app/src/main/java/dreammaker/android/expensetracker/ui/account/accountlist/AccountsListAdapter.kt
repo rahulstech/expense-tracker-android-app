@@ -9,7 +9,7 @@ import dreammaker.android.expensetracker.database.AccountModel
 import dreammaker.android.expensetracker.databinding.AccountListItemBinding
 import dreammaker.android.expensetracker.ui.util.BaseSelectableItemListAdapter
 import dreammaker.android.expensetracker.ui.util.ClickableViewHolder
-import java.util.Locale
+import dreammaker.android.expensetracker.ui.util.toCurrencyString
 
 class AccountViewModel(
     val binding: AccountListItemBinding,
@@ -27,7 +27,7 @@ class AccountViewModel(
         }
         else {
             binding.name.text = data.name
-            binding.balance.text = String.format(Locale.ENGLISH, "%.02f",data.balance)
+            binding.balance.text = data.balance?.toCurrencyString()
         }
     }
 }
@@ -37,7 +37,7 @@ private val callback = object: DiffUtil.ItemCallback<AccountModel>() {
         oldItem.id == newItem.id
 
     override fun areContentsTheSame(oldItem: AccountModel, newItem: AccountModel): Boolean =
-        oldItem.equals(newItem)
+        oldItem == newItem
 }
 
 class AccountsAdapter :

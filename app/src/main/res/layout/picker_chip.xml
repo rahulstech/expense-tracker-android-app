@@ -3,5 +3,5 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    style="@style/Widget.AppTheme.FilterChip"
+    style="@style/Widget.AppTheme.InputChip"
     tools:text="This is chip text"/>

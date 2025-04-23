@@ -5,10 +5,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
+import androidx.navigation.ui.NavigationUI
 import androidx.recyclerview.widget.LinearLayoutManager
 import dreammaker.android.expensetracker.database.PersonModel
 import dreammaker.android.expensetracker.databinding.PickerListLayoutBinding
@@ -19,7 +21,9 @@ import dreammaker.android.expensetracker.ui.util.setActivityTitle
 
 open class PickHistoryPersonFragment: Fragment() {
 
-    protected var binding: PickerListLayoutBinding? = null
+    private var _binding: PickerListLayoutBinding? = null
+    private val binding get() = _binding!!
+
     protected lateinit var viewModel: PersonPickerViewModel
     private lateinit var historyViewModel: HistoryInputViewModel
     protected lateinit var navController: NavController
@@ -39,16 +43,18 @@ open class PickHistoryPersonFragment: Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = PickerListLayoutBinding.inflate(inflater,container,false)
-        return binding!!.root
+        _binding = PickerListLayoutBinding.inflate(inflater,container,false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         navController = Navigation.findNavController(view)
+        NavigationUI.setupActionBarWithNavController(requireActivity() as AppCompatActivity, navController)
+
         adapter = PersonPickerAdapter()
-        binding!!.optionsList.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
-        binding!!.optionsList.adapter = adapter
-        binding!!.btnChoose.setOnClickListener{ handlePickPeople() }
+        binding.optionsList.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+        binding.optionsList.adapter = adapter
+        binding.btnChoose.setOnClickListener{ handlePickPeople() }
         prepareSelectionStore(adapter)
 
         viewModel.getAllPeople().observe(viewLifecycleOwner, this::onPeopleLoaded)
@@ -71,11 +77,11 @@ open class PickHistoryPersonFragment: Fragment() {
     }
 
     private fun showPickerButton() {
-        binding?.btnChoose?.visibility = View.VISIBLE
+        binding.btnChoose.visibility = View.VISIBLE
     }
 
     private fun hidePickerButton() {
-        binding?.btnChoose?.visibility = View.GONE
+        binding.btnChoose.visibility = View.GONE
     }
 
     protected open fun getInitialSelection(): Long? {
@@ -110,6 +116,6 @@ open class PickHistoryPersonFragment: Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        binding = null
+        _binding = null
     }
 }

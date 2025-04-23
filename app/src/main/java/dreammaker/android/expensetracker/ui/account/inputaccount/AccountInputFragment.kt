@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
@@ -17,6 +18,7 @@ import dreammaker.android.expensetracker.databinding.InputAccountBinding
 import dreammaker.android.expensetracker.ui.util.Constants
 import dreammaker.android.expensetracker.ui.util.OperationResult
 import dreammaker.android.expensetracker.ui.util.setActivityTitle
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
 class AccountInputFragment : Fragment() {
@@ -27,6 +29,7 @@ class AccountInputFragment : Fragment() {
 
     private lateinit var viewModel: AccountInputViewModel
     private lateinit var navController: NavController
+    private val observer = Observer<AccountModel?> { onAccountLoaded(it) }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -57,12 +60,15 @@ class AccountInputFragment : Fragment() {
         binding.btnSave.setOnClickListener{ onClickSave() }
         binding.btnCancel.setOnClickListener { navController.popBackStack() }
         lifecycleScope.launch {
-            viewModel.resultFlow.collect{ onSave(it) }
+            viewModel.resultFlow.filterNotNull().collect{
+                onSave(it)
+                viewModel.emptyResult()
+            }
         }
         if (isActionEdit()) {
-            if (viewModel.storedAccount == null) {
+            if (viewModel.getStoredAccount() == null) {
                 val id = requireArguments().getLong(Constants.ARG_ID)
-                viewModel.findAccountById(id).observe(viewLifecycleOwner, this::onAccountLoaded)
+                viewModel.findAccountById(id).observe(viewLifecycleOwner, observer)
             }
         }
     }
@@ -73,35 +79,47 @@ class AccountInputFragment : Fragment() {
             navController.popBackStack()
         }
         else {
-            viewModel.storedAccount = account
             binding.name.setText(account.name)
             binding.balance.setText(account.balance!!.toString())
+            viewModel.accountLiveData.removeObserver(observer)
         }
     }
 
     private fun onClickSave() {
-        val name = binding.name.text?.toString()
-        val balance = binding.balance.text?.toString()?.toFloatOrNull()
-
-        var hasError = false
-        if (name.isNullOrBlank()) {
-            binding.nameInputLayout.error = getString(R.string.error_empty_account_name_input)
-            hasError = true
-        }
-        if (null == balance){
-            binding.balanceInputLayout.error = getString(R.string.error_invalid_balance_input)
-            hasError = true
-        }
-
-        if (!hasError) {
+       val account = getInputAccount()
+        if (!validateInput(account)) {
             if (isActionEdit()) {
-                val account = viewModel.storedAccount!!.copy(name = name, balance = balance)
                 viewModel.setAccount(account)
             }
             else {
-                val account = AccountModel(null,name,balance)
                 viewModel.addAccount(account)
             }
+        }
+    }
+
+    private fun validateInput(account: AccountModel): Boolean {
+        var hasError = false
+        binding.nameInputLayout.error = null
+        binding.balanceInputLayout.error = null
+        if (account.name.isNullOrBlank()) {
+            binding.nameInputLayout.error = getString(R.string.error_empty_account_name_input)
+            hasError = true
+        }
+        if (null == account.balance){
+            binding.balanceInputLayout.error = getString(R.string.error_invalid_balance_input)
+            hasError = true
+        }
+        return hasError
+    }
+
+    private fun getInputAccount(): AccountModel {
+        val balance = binding.balance.text.toString().toFloatOrNull()
+        val name = binding.name.text.toString()
+        return if (isActionEdit()) {
+            viewModel.getStoredAccount()!!.copy(name=name, balance=balance)
+        }
+        else {
+            AccountModel(null,name, balance)
         }
     }
 

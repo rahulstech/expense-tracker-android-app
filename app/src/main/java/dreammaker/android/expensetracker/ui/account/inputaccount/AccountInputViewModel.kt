@@ -27,20 +27,28 @@ class AccountInputViewModel(app: Application): AndroidViewModel(app) {
         accountDao = db.accountDao
     }
 
-    var storedAccount: AccountModel? = null
+    lateinit var accountLiveData: LiveData<AccountModel?>
 
-    private lateinit var account: LiveData<AccountModel?>
+    fun getStoredAccount(): AccountModel? {
+        if (!::accountLiveData.isInitialized) {
+            return null
+        }
+        return accountLiveData.value
+    }
 
     fun findAccountById(id: Long): LiveData<AccountModel?> {
-        if (!::account.isInitialized) {
-            account = accountDao.findAccountById(id)
+        if (!::accountLiveData.isInitialized) {
+            accountLiveData = accountDao.findAccountById(id)
         }
-        return account
+        return accountLiveData
     }
 
     private val _resultFlow: MutableStateFlow<OperationResult<AccountModel>?> = MutableStateFlow(null)
-
     val resultFlow: Flow<OperationResult<AccountModel>?> = _resultFlow
+
+    fun emptyResult() {
+        viewModelScope.launch { _resultFlow.emit(null) }
+    }
 
     fun addAccount(account: AccountModel) {
         viewModelScope.launch {

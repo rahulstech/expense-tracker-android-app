@@ -11,7 +11,7 @@
 	<string name="label_accounts">Accounts</string>
     <string name="label_insert_account">Create Account</string>
     <string name="label_update_account">Edit Account</string>
-    <string name="label_persons_list">People</string>
+    <string name="title_people_list">People</string>
     <string name="label_insert_person">Add Person</string>
     <string name="label_update_person">Edit Person</string>
     <string name="label_transactions_list">Transactions</string>
@@ -213,7 +213,7 @@
     <string name="menu_title_add_transfer">Add Transfer</string>
 	<string name="menu_title_add_debit">Add Debit</string>
 	<string name="menu_title_add_credit">Add Credit</string>
-	<string name="menu_title_delete_history">Delete History</string>
+	<string name="menu_title_delete_history">Delete</string>
 
 	<string name="title_history_list">History</string>
 	<string name="title_person_chooser">Choose Person</string>
@@ -234,13 +234,36 @@
 	<string name="title_edit_account">Edit Account</string>
 	<string name="title_create_account">Create Account</string>
 
-    <string name="error_invalid_balance_input">input is not a valid number</string>
+    <string name="error_invalid_balance_input">balance valid number</string>
 	<string name="error_empty_account_name_input">name must not empty</string>
 	<string name="message_fail_create_account">account not created</string>
 	<string name="message_fail_edit_account">account not saved</string>
 	<string name="message_success_create_account">account created</string>
 	<string name="message_success_edit_account">account saved</string>
 	<string name="message_account_not_found">account not found</string>
+    <string name="message_history_not_found">history not found</string>
+    <string name="title_input_history_edit">Edit History</string>
+    <string name="error_invalid_history_amount_input">invalid number</string>
+	<string name="error_no_selection">nothing selected</string>
+    <string name="message_success_edit_history">history saved</string>
+	<string name="message_success_create_history">history created</string>
+	<string name="message_fail_create_history">history not created</string>
+	<string name="message_fail_edit_history">history not saved</string>
+    <string name="label_history_list_item_expense_source">From %1$s</string>
+	<string name="label_history_list_item_income_destination">In %1$s</string>
+	<string name="menu_title_edit_history">Edit</string>
+    <string name="title_create_person">Create Person</string>
+	<string name="title_edit_person">Edit Person</string>
+    <string name="message_success_edit_person">person saved</string>
+	<string name="message_success_create_person">person added</string>
+	<string name="message_fail_create_person">person not added</string>
+	<string name="message_fail_edit_person">person not saved</string>
+	<string name="error_invalid_due_input">due is not a valid number</string>
+	<string name="message_person_not_found">person not found</string>
+	<string name="title_view_person">Person Details</string>
+	<string name="label_empty_person_list">No Person</string>
+	<string name="label_add_person">Add Person</string>
+	<string name="label_add_account">Add Account</string>
 
 
 </resources>

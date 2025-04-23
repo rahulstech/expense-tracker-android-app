@@ -35,7 +35,6 @@ public class Home extends Fragment implements View.OnClickListener {
     private TextView countPeople;
     private Button accounts;
     private Button persons;
-    private FloatingActionButton addTransaction;
     private Button transactions;
 
     private TransactionsViewModel viewModel;
@@ -67,11 +66,9 @@ public class Home extends Fragment implements View.OnClickListener {
         countPeople = v.findViewById(R.id.count_people);
         accounts = v.findViewById(R.id.accounts);
         persons = v.findViewById(R.id.persons);
-        addTransaction = v.findViewById(R.id.add_transaction);
         transactions = v.findViewById(R.id.transactions);
         accounts.setOnClickListener(this);
         persons.setOnClickListener(this);
-        addTransaction.setOnClickListener(this);
         transactions.setOnClickListener(this);
         Helper.setTitle(getActivity(), R.string.app_name);
         viewModel.getBalanceAndDueSummaryLiveData().observe(getViewLifecycleOwner(), this::onUpdateBalanceAndDueSummary);
@@ -80,24 +77,14 @@ public class Home extends Fragment implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         if(v == accounts){
-            navController.navigate(R.id.action_home_to_accountsList);
+            navController.navigate(R.id.action_home_to_accounts_list);
         }
         else if(v == persons){
-            navController.navigate(R.id.action_home_to_personsList);
+            navController.navigate(R.id.action_home_to_persons_list);
         }
         else if(v == transactions){
             viewModel.loadAllTransactions();
-            navController.navigate(R.id.action_home_to_transactionsList);
-        }
-        else if (v == addTransaction){
-            viewModel.hasAnyAccount(r -> {
-                if (r) {
-                    viewModel.setWorkingTransaction(null);
-                    navController.navigate(R.id.action_home_to_inputTransaction);
-                }
-                else
-                    showQuickMessage(R.string.message_no_account_for_transaction);
-            });
+            navController.navigate(R.id.action_home_to_history_list);
         }
     }
 

@@ -8,7 +8,14 @@
         android:id="@android:id/list"
         android:layout_height="match_parent"
         android:layout_width="match_parent"
-        android:visibility="gone"/>
+		android:layout_marginBottom="84dp"
+        android:visibility="gone"
+		app:layout_anchor="@id/add"
+		app:layout_anchorGravity="top"
+		tools:listitem="@layout/account_list_item"
+		tools:itemCount="20"
+		tools:visibility="visible"/>
+
 	<TextView
 		android:id="@+id/empty_view"
 		android:layout_width="wrap_content"
@@ -20,14 +27,15 @@
 		android:textAppearance="@style/TextAppearance.Material3.DisplaySmall"
 		android:textStyle="italic"/>
 
-	<com.google.android.material.floatingactionbutton.FloatingActionButton
+	<com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 		android:id="@+id/add"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_gravity="bottom|end"
+		android:layout_gravity="bottom|center_horizontal"
 		android:layout_margin="16dp"
-		app:srcCompat="@drawable/ic_add"
-		style="@style/Widget.AppTheme.FloatingActionButton"
+		app:icon="@drawable/ic_add"
+		android:text="@string/label_add_account"
+		style="@style/Widget.AppTheme.ExtendedFloatingActionButton"
         tools:ignore="ContentDescription" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

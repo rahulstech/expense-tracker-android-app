@@ -15,6 +15,7 @@ import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.database.HistoryType
 import dreammaker.android.expensetracker.databinding.ViewHistoryBinding
 import dreammaker.android.expensetracker.ui.history.historyinput.HistoryInputFragment
+import dreammaker.android.expensetracker.ui.util.Constants
 import dreammaker.android.expensetracker.ui.util.putHistoryType
 
 abstract class ViewHistoryPageAdapter<T>(fragmentManager: FragmentManager, lifecycle: Lifecycle)
@@ -117,7 +118,7 @@ abstract class BaseViewHistoryFragment<T>: Fragment() {
 
     private fun handleCreateHistory(type: HistoryType) {
         val args = Bundle().apply {
-            putString(HistoryInputFragment.ARG_ACTION, HistoryInputFragment.ACTION_CREATE_HISTORY)
+            putString(Constants.ARG_ACTION, Constants.ACTION_CREATE)
             putHistoryType(HistoryInputFragment.ARG_HISTORY_TYPE, type)
         }
         onPutCreateHistoryArgument(type, args)

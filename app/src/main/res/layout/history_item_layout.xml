@@ -18,8 +18,10 @@
                 android:id="@+id/date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                style="@style/Widget.AppTheme.Button.DatePicker"
                 app:icon="@drawable/baseline_calendar_month"
+                style="@style/Widget.AppTheme.Button.DatePicker"
+                android:clickable="false"
+                android:focusable="false"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -41,7 +43,7 @@
                 tools:backgroundTint="@color/colorCredit"
                 tools:text="Credit"/>
 
-            <com.google.android.material.textview.MaterialTextView
+            <TextView
                 android:id="@+id/amount"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -52,19 +54,16 @@
                 android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
                 android:textStyle="bold"
                 android:gravity="center"
-                tools:text="125.36"/>
+                tools:text="$125.36"/>
 
-            <com.google.android.material.textfield.TextInputEditText
+            <TextView
                 android:id="@+id/note"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:layout_constraintTop_toBottomOf="@id/amount"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                style="@style/Widget.Material3.TextInputEditText.OutlinedBox"
-                android:paddingTop="0dp"
-                android:paddingBottom="0dp"
                 android:textStyle="italic"
                 android:gravity="center"
                 android:layout_marginTop="12dp"
@@ -155,20 +154,8 @@
                 android:textColor="@color/stateful_color_on_surface"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Medium"/>
 
-
-
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.core.widget.NestedScrollView>
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/save"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:layout_gravity="bottom|end"
-        app:srcCompat="@drawable/baseline_check"
-        style="@style/Widget.AppTheme.FloatingActionButton"
-        tools:ignore="ContentDescription" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
