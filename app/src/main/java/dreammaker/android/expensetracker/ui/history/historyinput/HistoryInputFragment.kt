@@ -8,9 +8,12 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.Toast
 import androidx.core.view.children
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -20,20 +23,18 @@ import com.google.android.material.chip.Chip
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.database.AccountModel
 import dreammaker.android.expensetracker.database.Date
+import dreammaker.android.expensetracker.database.GroupModel
 import dreammaker.android.expensetracker.database.HistoryModel
 import dreammaker.android.expensetracker.database.HistoryType
-import dreammaker.android.expensetracker.database.PersonModel
 import dreammaker.android.expensetracker.databinding.HistoryInputLayoutBinding
+import dreammaker.android.expensetracker.ui.util.AccountModelParcel
 import dreammaker.android.expensetracker.ui.util.Constants
 import dreammaker.android.expensetracker.ui.util.OperationResult
 import dreammaker.android.expensetracker.ui.util.createAccountChip
-import dreammaker.android.expensetracker.ui.util.createPersonChip
 import dreammaker.android.expensetracker.ui.util.disable
 import dreammaker.android.expensetracker.ui.util.enable
-import dreammaker.android.expensetracker.ui.util.getAccountModel
 import dreammaker.android.expensetracker.ui.util.getDate
 import dreammaker.android.expensetracker.ui.util.getHistoryType
-import dreammaker.android.expensetracker.ui.util.getPersonModel
 import dreammaker.android.expensetracker.ui.util.setActivityTitle
 import dreammaker.android.expensetracker.ui.util.visibilityGone
 import dreammaker.android.expensetracker.ui.util.visible
@@ -45,19 +46,17 @@ class HistoryInputFragment : Fragment() {
     companion object {
         private val TAG = HistoryInputFragment::class.simpleName
         private const val HISTORY_INPUT_DATE_FORMAT = "EEEE, dd MMMM, yyyy"
+        private const val KEY_SELECTED_GROUP = "key_selected_group"
         const val ARG_HISTORY_TYPE = "arg.history_type"
         const val ARG_HISTORY_DATE = "arg.history_date"
         const val ARG_SOURCE = "arg.source"
         const val ARG_DESTINATION = "arg.destination"
-        const val ARG_SOURCE_ACCOUNT = "arg.source.account"
-        const val ARG_DESTINATION_ACCOUNT = "arg.destination.account"
-        const val ARG_SOURCE_PERSON = "arg.source.person"
-        const val ARG_DESTINATION_PERSON = "arg.destination.person"
+        const val ARG_GROUP = "arg.group"
     }
 
     private var _binding: HistoryInputLayoutBinding? = null
     private val binding get() = _binding!!
-
+    private lateinit var groupPickerAdapter: GroupPickerAdapter
     private lateinit var viewModel: HistoryInputViewModel
     private lateinit var navController: NavController
     private lateinit var selectedDate: Date
@@ -80,7 +79,7 @@ class HistoryInputFragment : Fragment() {
         if (action == Constants.ACTION_EDIT && !requireArguments().containsKey(Constants.ARG_ID)) {
             throw IllegalStateException("when ${Constants.ARG_ACTION}='${Constants.ACTION_EDIT}' then '${Constants.ARG_ID}' is required")
         }
-        else if (!requireArguments().containsKey(ARG_HISTORY_TYPE)) {
+        if (!requireArguments().containsKey(ARG_HISTORY_TYPE)) {
             throw IllegalStateException("when ${Constants.ARG_ACTION}='${Constants.ACTION_EDIT}' then $ARG_HISTORY_TYPE is required")
         }
     }
@@ -102,20 +101,16 @@ class HistoryInputFragment : Fragment() {
         navController = Navigation.findNavController(view)
 
         selectedType = requireArguments().getHistoryType(ARG_HISTORY_TYPE)!!
-        prepareDateInput(binding)
-        prepareType(selectedType, binding)
-        prepareSourceInput(selectedType, binding)
-        prepareDestinationInput(selectedType, binding)
+        prepareDateInput()
+        prepareType(selectedType)
+        prepareSourceInput(selectedType)
+        prepareDestinationInput(selectedType)
+        prepareGroupInput(selectedType)
         binding.btnSave.setOnClickListener { onClickSave() }
         binding.btnCancel.setOnClickListener { onClickCancel() }
-        viewModel.getSelectionLiveData(ARG_SOURCE).observe(viewLifecycleOwner, this::onSourceSelected)
-        viewModel.getSelectionLiveData(ARG_DESTINATION).observe(viewLifecycleOwner, this::onDestinationSelected)
-        if (isActionEdit()) {
-            if (viewModel.getStoredHistory() == null) {
-                val id = requireArguments().getLong(Constants.ARG_ID)
-                viewModel.findHistory(id, selectedType).observe(viewLifecycleOwner, observer)
-            }
-        }
+
+        getSelectedAccountLiveData(ARG_SOURCE)?.observe(viewLifecycleOwner) { showSourceAccount(it?.toAccountModel()) }
+        getSelectedAccountLiveData(ARG_DESTINATION)?.observe(viewLifecycleOwner){ showDestinationAccount(it?.toAccountModel())}
         lifecycleScope.launch {
             viewModel.resultState
                 .filterNotNull()
@@ -124,6 +119,24 @@ class HistoryInputFragment : Fragment() {
                     viewModel.emptyResult()
                 }
         }
+    }
+
+    private fun getSelectedAccountLiveData(key: String): LiveData<AccountModelParcel?>?
+    = navController.currentBackStackEntry?.savedStateHandle?.getLiveData(key, null)
+
+    private fun getSelectedAccount(key: String): AccountModel?
+    = navController.currentBackStackEntry?.savedStateHandle?.getLiveData<AccountModelParcel?>(key, null)?.value?.toAccountModel()
+
+    private fun removeSelectedAccount(key: String) {
+        navController.currentBackStackEntry?.savedStateHandle?.set(key,null)
+    }
+
+    private fun getSelectedGroup(): GroupModel? {
+        val group = binding.groupInput.selectedItem as GroupModel
+        if (group == NoGroup) {
+            return null
+        }
+        return group
     }
 
     private fun onHistoryLoaded(history: HistoryModel?) {
@@ -136,29 +149,29 @@ class HistoryInputFragment : Fragment() {
             binding.inputAmount.setText(history.amount!!.toString())
             binding.inputNote.setText(history.note)
             setSelectedDate(history.date!!)
-            val type = history.type!!
-            val src: Any? = when {
-                type.needsSourceAccount() -> history.srcAccount
-                type.needsSourcePerson() -> history.srcPerson
-                else -> null
-            }
-            val dest: Any? = when {
-                type.needsDestinationAccount() -> history.destAccount
-                type.needsDestinationPerson() -> history.destPerson
-                else -> null
-            }
-            onSourceSelected(src)
-            onDestinationSelected(dest)
+            showSourceAccount(history.srcAccount)
+            showDestinationAccount(history.destAccount)
             binding.inputDate.disable()
             binding.inputSource.disable()
             binding.selectedSourceContainer.children.firstOrNull()?.disable()
             binding.inputDestination.disable()
             binding.selectedDestinationContainer.children.firstOrNull()?.disable()
+
+            val type = history.type!!
+            if (type.needsSourceAccount()) {
+                binding.sourceLayout.visible()
+            }
+            if (type.needsDestinationAccount()) {
+                binding.destinationLayout.visible()
+            }
+
+            // TODO: select the group
+
             viewModel.history.removeObserver(observer)
         }
     }
 
-    private fun prepareType(type: HistoryType, binding: HistoryInputLayoutBinding) {
+    private fun prepareType(type: HistoryType) {
         var text: String? = null
         var backgroundColor: ColorStateList? = null
         val resources = requireContext().resources
@@ -171,14 +184,6 @@ class HistoryInputFragment : Fragment() {
                 text = getString(R.string.label_history_type_debit)
                 backgroundColor = ColorStateList.valueOf(resources.getColor(R.color.colorDebit, null))
             }
-            HistoryType.EXPENSE -> {
-                text = getString(R.string.label_history_type_expense)
-                backgroundColor = ColorStateList.valueOf(resources.getColor(R.color.colorExpense, null))
-            }
-            HistoryType.INCOME -> {
-                text = getString(R.string.label_history_type_income)
-                backgroundColor = ColorStateList.valueOf(resources.getColor(R.color.colorIncome, null))
-            }
             HistoryType.TRANSFER -> {
                 text = getString(R.string.label_history_type_transfer)
                 backgroundColor = ColorStateList.valueOf(resources.getColor(R.color.colorTransfer, null))
@@ -188,7 +193,7 @@ class HistoryInputFragment : Fragment() {
         binding.type.chipBackgroundColor = backgroundColor
     }
 
-    private fun prepareDateInput(binding: HistoryInputLayoutBinding) {
+    private fun prepareDateInput() {
         if (requireArguments().containsKey(ARG_HISTORY_DATE)) {
             val date = requireArguments().getDate(ARG_HISTORY_DATE)!!
             setSelectedDate(date)
@@ -201,142 +206,68 @@ class HistoryInputFragment : Fragment() {
         }
     }
 
-    private fun prepareSourceInput(type: HistoryType, binding: HistoryInputLayoutBinding) {
-        var source: Any? = null
-        if (type == HistoryType.CREDIT) {
-            binding.labelInputSource.setText(R.string.label_history_input_source_credit)
-            if (requireArguments().containsKey(ARG_SOURCE_PERSON)) {
-                source = requireArguments().getPersonModel(ARG_SOURCE_PERSON)
-            }
-            else {
-                binding.inputSource.setOnClickListener{
-                    val args = Bundle().apply {
-                        putString(Constants.ARG_DESTINATION_LABEL, getString(R.string.title_choose_credit_source))
-                        putString(Constants.ARG_RESULT_KEY, ARG_SOURCE)
-                    }
-                    navController.navigate(R.id.action_history_input_to_person_chooser_list, args)
-                }
+    private fun prepareSourceInput(type: HistoryType) {
+        if (arguments?.containsKey(ARG_SOURCE) == true) {
+            val source = requireArguments().getParcelable<AccountModelParcel?>(ARG_SOURCE)?.toAccountModel()
+            source?.let {
+                showSourceAccount(source, true)
+                binding.inputSource.disable()
+                binding.sourceLayout.visible()
             }
         }
-        else if (type == HistoryType.DEBIT) {
-            binding.labelInputSource.setText(R.string.label_history_input_source_debit)
-            if (requireArguments().containsKey(ARG_SOURCE_ACCOUNT)) {
-                source = requireArguments().getAccountModel(ARG_SOURCE_ACCOUNT)
-            }
-            else {
-                binding.inputSource.setOnClickListener{
-                    val args = Bundle().apply {
-                        putString(Constants.ARG_DESTINATION_LABEL, getString(R.string.title_choose_debit_source_account))
-                        putString(Constants.ARG_RESULT_KEY, ARG_SOURCE)
-                    }
-                    navController.navigate(R.id.action_history_input_to_account_chooser_list, args)
+        else if (type.needsSourceAccount()) {
+            binding.inputSource.setOnClickListener{
+                val args = Bundle().apply {
+                    putString(Constants.ARG_DESTINATION_LABEL, getString(R.string.title_choose_source_account))
+                    putString(Constants.ARG_RESULT_KEY, ARG_SOURCE)
+                    getSelectedAccount(ARG_SOURCE)?.let { putLong(Constants.ARG_INITIAL_SELECTION, it.id!!) }
                 }
+                navController.navigate(R.id.action_history_input_to_account_chooser_list, args)
             }
-        }
-        else if (type == HistoryType.TRANSFER) {
-            binding.labelInputSource.setText(R.string.label_history_input_source_transfer)
-            if (requireArguments().containsKey(ARG_SOURCE_PERSON)) {
-                source = requireArguments().getPersonModel(ARG_SOURCE_PERSON)
-            }
-            else {
-                binding.inputSource.setOnClickListener{
-                    val args = Bundle().apply {
-                        putString(Constants.ARG_DESTINATION_LABEL, getString(R.string.title_choose_transfer_source_account))
-                        putString(Constants.ARG_RESULT_KEY, ARG_SOURCE)
-                    }
-                    navController.navigate(R.id.action_history_input_to_account_chooser_list, args)
-                }
-            }
-
-        }
-        else if (type == HistoryType.EXPENSE) {
-            binding.labelInputSource.setText(R.string.label_history_input_source_expense)
-            if (requireArguments().containsKey(ARG_SOURCE_PERSON)) {
-                source = requireArguments().getPersonModel(ARG_SOURCE_PERSON)
-            }
-            else {
-                binding.inputSource.setOnClickListener{
-                    val args = Bundle().apply {
-                        putString(Constants.ARG_DESTINATION_LABEL, getString(R.string.title_choose_expense_source_account))
-                        putString(Constants.ARG_RESULT_KEY, ARG_SOURCE)
-                    }
-                    navController.navigate(R.id.action_history_input_to_account_chooser_list, args)
-                }
-            }
-        }
-        source?.let {
-            viewModel.setSelection(ARG_SOURCE, source)
-            binding.inputSource.isEnabled = false
-            binding.selectedSourceContainer.isEnabled = false
+            binding.sourceLayout.visible()
         }
     }
 
-    private fun prepareDestinationInput(type: HistoryType, binding: HistoryInputLayoutBinding) {
-        var destination: Any?  = null
-        if (type == HistoryType.CREDIT) {
-            binding.labelInputDestination.setText(R.string.label_history_input_destination_credit)
-            if (requireArguments().containsKey(ARG_DESTINATION_ACCOUNT)) {
-                destination = requireArguments().getAccountModel(ARG_DESTINATION_ACCOUNT)
-            }
-            else {
-                binding.inputDestination.setOnClickListener{
-                    val args = Bundle().apply {
-                        putString(Constants.ARG_DESTINATION_LABEL, getString(R.string.title_choose_credit_destination_account))
-                        putString(Constants.ARG_RESULT_KEY, ARG_DESTINATION)
-                    }
-                    navController.navigate(R.id.action_history_input_to_account_chooser_list, args)
-                }
+    private fun prepareDestinationInput(type: HistoryType) {
+        if (arguments?.containsKey(ARG_DESTINATION) == true) {
+            val destination = requireArguments().getParcelable<AccountModelParcel?>(ARG_DESTINATION)?.toAccountModel()
+            destination?.let {
+                showDestinationAccount(destination, true)
+                binding.inputDestination.disable()
+                binding.destinationLayout.visible()
             }
         }
-        else if (type == HistoryType.DEBIT) {
-            binding.labelInputDestination.setText(R.string.label_history_input_destination_debit)
-            if (requireArguments().containsKey(ARG_DESTINATION_PERSON)) {
-                destination = requireArguments().getPersonModel(ARG_DESTINATION_PERSON)
+        else if (type.needsDestinationAccount()) {
+            binding.inputDestination.setOnClickListener{
+                val args = Bundle().apply {
+                    putString(Constants.ARG_DESTINATION_LABEL, getString(R.string.title_choose_destination_account))
+                    putString(Constants.ARG_RESULT_KEY, ARG_DESTINATION)
+                    getSelectedAccount(ARG_DESTINATION)?.let { putLong(Constants.ARG_INITIAL_SELECTION, it.id!!) }
+                }
+                navController.navigate(R.id.action_history_input_to_account_chooser_list, args)
             }
-            else {
-                binding.inputDestination.setOnClickListener{
-                    val args = Bundle().apply {
-                        putString(Constants.ARG_DESTINATION_LABEL, getString(R.string.title_choose_debit_destination_person))
-                        putString(Constants.ARG_RESULT_KEY, ARG_DESTINATION)
-                    }
-                    navController.navigate(R.id.action_history_input_to_person_chooser_list, args)
+            binding.destinationLayout.visible()
+        }
+    }
+
+    private fun prepareGroupInput(type: HistoryType) {
+        groupPickerAdapter = GroupPickerAdapter(requireContext())
+        binding.groupInput.adapter = groupPickerAdapter
+        if (type != HistoryType.TRANSFER) {
+            viewModel.getAllGroups().observe(viewLifecycleOwner) { groups ->
+                groupPickerAdapter.submitList(groups)
+                // TODO: restore selection position and handle argument group id
+            }
+            binding.groupInput.onItemSelectedListener = object : OnItemSelectedListener  {
+                override fun onItemSelected(p0: AdapterView<*>?, p1: View?, position: Int, p3: Long) {
+                    navController.currentBackStackEntry?.savedStateHandle?.set(KEY_SELECTED_GROUP,position)
+                }
+
+                override fun onNothingSelected(p0: AdapterView<*>?) {
+                    navController.currentBackStackEntry?.savedStateHandle?.set(KEY_SELECTED_GROUP,null)
                 }
             }
-        }
-        else if (type == HistoryType.TRANSFER) {
-            binding.labelInputDestination.setText(R.string.label_history_input_destination_transfer)
-            if (requireArguments().containsKey(ARG_DESTINATION_ACCOUNT)) {
-                destination = requireArguments().getAccountModel(ARG_DESTINATION_ACCOUNT)
-            }
-            else {
-                binding.inputDestination.setOnClickListener{
-                    val args = Bundle().apply {
-                        putString(Constants.ARG_DESTINATION_LABEL, getString(R.string.title_choose_transfer_destination_account))
-                        putString(Constants.ARG_RESULT_KEY, ARG_DESTINATION)
-                    }
-                    navController.navigate(R.id.action_history_input_to_account_chooser_list, args)
-                }
-            }
-        }
-        else if (type == HistoryType.INCOME) {
-            binding.labelInputDestination.setText(R.string.label_history_input_destination_income)
-            if (requireArguments().containsKey(ARG_DESTINATION_ACCOUNT)) {
-                destination = requireArguments().getAccountModel(ARG_DESTINATION_ACCOUNT)
-            }
-            else {
-                binding.inputDestination.setOnClickListener{
-                    val args = Bundle().apply {
-                        putString(Constants.ARG_DESTINATION_LABEL, getString(R.string.title_choose_income_destination))
-                        putString(Constants.ARG_RESULT_KEY, ARG_DESTINATION)
-                    }
-                    navController.navigate(R.id.action_history_input_to_account_chooser_list, args)
-                }
-            }
-        }
-        destination?.let {
-            viewModel.setSelection(ARG_DESTINATION, destination)
-            binding.selectedDestinationContainer.isEnabled = false
-            binding.inputDestination.isEnabled = false
+            binding.groupLayout.visible()
         }
     }
 
@@ -362,11 +293,11 @@ class HistoryInputFragment : Fragment() {
             hasError = true
             binding.amountInputLayout.error = getString(R.string.error_invalid_history_amount_input)
         }
-        if ((type.needsSourceAccount() && null == history.srcAccountId) && (type.needsSourcePerson() && null == history.srcPersonId)) {
+        if ((type.needsSourceAccount() && null == history.srcAccountId)) {
             hasError = true
             binding.errorSource.visible()
         }
-        if ((type.needsDestinationAccount() && null == history.destAccountId) && (type.needsDestinationPerson() && null == history.destPerson)) {
+        if ((type.needsDestinationAccount() && null == history.destAccountId)) {
             hasError = true
             binding.errorDestination.visible()
         }
@@ -378,29 +309,20 @@ class HistoryInputFragment : Fragment() {
         val date = selectedDate
         val amount = binding.inputAmount.text.toString().toFloatOrNull()
         val note = binding.inputNote.text.toString()
+        val groupId: Long? = getSelectedGroup()?.id
         return if (isActionEdit()) {
             viewModel.getStoredHistory()!!.copy(
-                type=type, date=date, amount=amount, note=note
+                type=type, date=date, amount=amount, note=note, groupId=groupId
             )
         }
         else {
-            val src = getSelectedSource()
-            val dest = getSelectedDestination()
-            val srcAccountId: Long? = if (src is AccountModel) src.id else null
-            val destAccountId: Long? = if (dest is AccountModel) dest.id else null
-            val srcPersonId: Long? = if (src is PersonModel) src.id else null
-            val destPersonId: Long? = if (dest is PersonModel) dest.id else null
+            val srcAccountId: Long? = getSelectedAccount(ARG_SOURCE)?.id
+            val destAccountId: Long? = getSelectedAccount(ARG_DESTINATION)?.id
             HistoryModel(
-                null,type,
-                srcAccountId,destAccountId,srcPersonId,destPersonId,null,null,null,null,
-                amount,date,note
+                null,type, srcAccountId,destAccountId,groupId,null,null,null, amount,date,note
             )
         }
     }
-
-    private fun getSelectedSource(): Any? = viewModel.getSelection(ARG_SOURCE)
-
-    private fun getSelectedDestination(): Any? = viewModel.getSelection(ARG_DESTINATION)
 
     private fun onSave(result: OperationResult<HistoryModel>?) {
         result?.let {
@@ -442,49 +364,27 @@ class HistoryInputFragment : Fragment() {
         binding.inputDate.text = date.format(HISTORY_INPUT_DATE_FORMAT)
     }
 
-    private fun onSourceSelected(value: Any?) {
-        if (value is AccountModel) {
-            showSourceAccount(value, binding)
-        }
-        else if (value is PersonModel) {
-            showSourcePerson(value, binding)
-        }
+    private fun showSourceAccount(account: AccountModel?, disabled: Boolean = false) {
+        createChip(binding.selectedSourceContainer, account, { removeSelectedAccount(ARG_SOURCE) }, disabled)
     }
 
-    private fun onDestinationSelected(value: Any?) {
-        if (value is AccountModel) {
-            showDestinationAccount(value,binding)
-        }
-        else if (value is PersonModel) {
-            showDestinationPerson(value,binding)
-        }
+    private fun showDestinationAccount(account: AccountModel?, disabled: Boolean = false) {
+        createChip(binding.selectedDestinationContainer, account, { removeSelectedAccount(ARG_DESTINATION) }, disabled)
     }
 
-    private fun showSourceAccount(account: AccountModel, binding: HistoryInputLayoutBinding) {
-        createChip(binding.selectedSourceContainer, account, { createAccountChip(requireContext(),it) }, ARG_SOURCE)
-    }
-
-    private fun showDestinationAccount(account: AccountModel, binding: HistoryInputLayoutBinding) {
-        createChip(binding.selectedDestinationContainer, account, { createAccountChip(requireContext(),it) }, ARG_DESTINATION)
-    }
-
-    private fun showSourcePerson(person: PersonModel, binding: HistoryInputLayoutBinding) {
-        createChip(binding.selectedSourceContainer,person, { createPersonChip(requireContext(), it) }, ARG_SOURCE)
-    }
-
-    private fun showDestinationPerson(person: PersonModel, binding: HistoryInputLayoutBinding) {
-        createChip(binding.selectedDestinationContainer, person,
-            { createPersonChip(requireContext(), it) }, ARG_DESTINATION)
-    }
-
-    private fun <T> createChip(container: ViewGroup, data: T, factory: (T)->Chip, removeSelectionForKey: String) {
+    private fun createChip(container: ViewGroup, data: AccountModel?, onRemove: ()->Unit, disabled: Boolean): Chip? {
         container.removeAllViews()
-        val chip = factory(data)
-        chip.setOnClickListener {
-            container.removeView(chip)
-            viewModel.setSelection(removeSelectionForKey, null)
+        data?.let {
+            val chip = createAccountChip(requireContext(),data)
+            chip.setOnClickListener {
+                container.removeView(chip)
+                onRemove()
+            }
+            chip.isEnabled = !disabled
+            container.addView(chip)
+            return@createChip chip
         }
-        container.addView(chip)
+        return null
     }
 
     override fun onResume() {

@@ -25,7 +25,7 @@
             android:id="@+id/type"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="16dp"
             style="@style/Widget.AppTheme.AssistChip"
             tools:backgroundTint="@color/colorCredit"
             tools:text="Credit"/>
@@ -74,17 +74,18 @@
             android:orientation="horizontal"
             android:gravity="center"
             android:layout_marginTop="24dp"
-            android:background="@drawable/rounded_rectangle_border">
+            android:background="@drawable/rounded_rectangle_border"
+            android:visibility="gone"
+            tools:visibility="visible">
 
             <TextView
-                android:id="@+id/label_input_source"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="0"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="12dp"
-                android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-                tools:text="Account" />
+                android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                android:text="@string/label_history_input_source_account"/>
 
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/selected_source_container"
@@ -108,14 +109,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/error_no_selection"
-            android:visibility="invisible"
             android:layout_marginTop="6dp"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
             android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
             android:textColor="?attr/colorError"
-            tools:visibility="visible" />
-
+            android:visibility="gone"
+            tools:visibility="visible"/>
 
         <LinearLayout
             android:id="@+id/destination_layout"
@@ -124,17 +124,18 @@
             android:orientation="horizontal"
             android:gravity="center"
             android:layout_marginTop="12dp"
-            android:background="@drawable/rounded_rectangle_border">
+            android:background="@drawable/rounded_rectangle_border"
+            android:visibility="gone"
+            tools:visibility="visible">
 
             <TextView
-                android:id="@+id/label_input_destination"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="0"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="12dp"
-                android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-                tools:text="Person" />
+                android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                android:text="@string/label_history_input_destination_account" />
 
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/selected_destination_container"
@@ -159,13 +160,41 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/error_no_selection"
-            android:visibility="invisible"
             android:layout_marginTop="6dp"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
             android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
             android:textColor="?attr/colorError"
+            android:visibility="gone"
             tools:visibility="visible" />
+
+        <LinearLayout
+            android:id="@+id/group_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/rounded_rectangle_border"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="12dp"
+                android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                android:text="@string/label_history_input_group"/>
+
+            <Spinner
+                android:id="@+id/group_input"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_weight="1"/>
+
+        </LinearLayout>
 
         <Button
             android:id="@+id/btnSave"
@@ -184,8 +213,6 @@
             android:textColor="?attr/colorOnSurface"
             style="@style/Widget.Material3.Button.TextButton"
             android:textAllCaps="false"/>
-
-
 
     </LinearLayout>
 

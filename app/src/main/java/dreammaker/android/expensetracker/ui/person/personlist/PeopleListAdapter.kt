@@ -27,6 +27,7 @@ class PeopleListViewHolder(
         else {
             binding.name.text = person.name
             binding.due.text = person.due!!.toCurrencyString()
+            binding.root.isSelected = selected
         }
     }
 }

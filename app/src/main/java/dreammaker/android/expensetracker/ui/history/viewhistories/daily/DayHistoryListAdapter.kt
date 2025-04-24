@@ -46,21 +46,13 @@ class DayHistoryViewHolder(
                 }
                 HistoryType.CREDIT -> {
                     setType(R.string.label_history_type_credit, R.color.colorCredit)
-                    setSourceText(R.string.label_history_list_item_credit_source, history.srcPerson?.name)
+                    setSourceText(R.string.label_history_list_item_credit_source, history.group?.name)
                     setDestinationText(R.string.label_history_list_item_credit_destination, history.destAccount?.name)
                 }
                 HistoryType.DEBIT -> {
                     setType(R.string.label_history_type_debit, R.color.colorDebit)
                     setSourceText(R.string.label_history_list_item_debit_source, history.srcAccount?.name)
-                    setDestinationText(R.string.label_history_list_item_debit_destination, history.destPerson?.name)
-                }
-                HistoryType.EXPENSE -> {
-                    setType(R.string.label_history_type_expense, R.color.colorExpense)
-                    setSourceText(R.string.label_history_list_item_expense_source, history.srcAccount?.name)
-                }
-                HistoryType.INCOME -> {
-                    setType(R.string.label_history_type_income, R.color.colorIncome)
-                    setDestinationText(R.string.label_history_list_item_income_destination, history.destAccount?.name)
+                    setDestinationText(R.string.label_history_list_item_debit_destination, history.group?.name)
                 }
                 else -> {}
             }

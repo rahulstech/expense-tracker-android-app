@@ -1,12 +1,13 @@
 package dreammaker.android.expensetracker.ui.util
 
 import android.os.Bundle
+import android.os.Parcel
+import android.os.Parcelable
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import dreammaker.android.expensetracker.database.AccountModel
 import dreammaker.android.expensetracker.database.Date
 import dreammaker.android.expensetracker.database.HistoryType
-import dreammaker.android.expensetracker.database.PersonModel
 import java.text.NumberFormat
 import java.util.Currency
 import java.util.Locale
@@ -20,7 +21,7 @@ data class OperationResult<out T>(
 
 object Constants {
     const val ARG_DESTINATION_LABEL = "arg.destination_label"
-    const val ARG_INITIAL_SELECTIONS = "arg.initial_selections"
+    const val ARG_INITIAL_SELECTION = "arg.initial_selection"
     const val ARG_RESULT_KEY = "arg.tag"
     const val ARG_ACTION = "arg.action"
     const val ARG_ID = "arg.id"
@@ -61,46 +62,6 @@ fun Bundle.getHistoryType(key: String, defaultType: HistoryType? = null): Histor
     return if (null == name) defaultType else HistoryType.valueOf(name)
 }
 
-fun Bundle.putAccountModel(key: String, value: AccountModel?) {
-    if (null == value) {
-        return
-    }
-    putBoolean(key,true)
-    value.id?.let { putLong("$key::__id", it) }
-    value.name?.let { putString("$key::__name", it) }
-    value.balance?.let { putFloat("$key::__balance",it) }
-}
-
-fun Bundle.getAccountModel(key: String, defaultValue: AccountModel? = null): AccountModel? {
-    if (getBoolean(key, false)) {
-        val id = getIfContains("$key::__id") as Long?
-        val name = getIfContains("$key::__name") as String?
-        val balance = getIfContains("$key::__balance") as Float?
-        return AccountModel(id, name, balance)
-    }
-    return defaultValue
-}
-
-fun Bundle.putPersonModel(key: String, value: PersonModel?) {
-    if (null == value) {
-        return
-    }
-    putBoolean(key,true)
-    value.id?.let { putLong("$key::__id", it) }
-    value.name?.let { putString("$key::__name", it) }
-    value.due?.let { putFloat("$key::__due",it) }
-}
-
-fun Bundle.getPersonModel(key: String, defaultValue: PersonModel? = null): PersonModel? {
-    if (getBoolean(key, false)) {
-        val id = getIfContains("$key::__id") as Long?
-        val name = getIfContains("$key::__name") as String?
-        val due = getIfContains("$key::__due") as Float?
-        return PersonModel(id, name, due)
-    }
-    return defaultValue
-}
-
 fun Bundle.getIfContains(key: String, defaultValue: Any? = null): Any? {
     if (containsKey(key)) {
         return get(key)
@@ -112,4 +73,37 @@ fun Number.toCurrencyString(currencyCode: String = "USD", textLocale: Locale = L
     val format = NumberFormat.getCurrencyInstance(textLocale)
     format.currency = Currency.getInstance(currencyCode)
     return format.format(toDouble())
+}
+
+class AccountModelParcel(val id: Long, val name: String, val balance: Float): Parcelable {
+
+    constructor(account: AccountModel): this(
+        account.id ?: 0,account.name ?: "",account.balance ?: 0f
+    )
+
+    private constructor(parcel: Parcel): this(
+        parcel.readLong(),
+        parcel.readString()!!,
+        parcel.readFloat()
+    )
+
+    fun toAccountModel(): AccountModel = AccountModel(id, name, balance)
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeLong(id)
+        parcel.writeString(name)
+        parcel.writeFloat(balance)
+    }
+
+    override fun describeContents(): Int = 0
+
+    companion object CREATOR : Parcelable.Creator<AccountModelParcel> {
+        override fun createFromParcel(parcel: Parcel): AccountModelParcel {
+            return AccountModelParcel(parcel)
+        }
+
+        override fun newArray(size: Int): Array<AccountModelParcel?> {
+            return arrayOfNulls(size)
+        }
+    }
 }

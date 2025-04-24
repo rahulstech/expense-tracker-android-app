@@ -264,6 +264,14 @@
 	<string name="label_empty_person_list">No Person</string>
 	<string name="label_add_person">Add Person</string>
 	<string name="label_add_account">Add Account</string>
+    <string name="label_add_history">Add History</string>
+    <string name="label_create_credit">Add Credit</string>
+	<string name="label_create_debit">Add Debit</string>
+    <string name="label_history_input_group">Group</string>
+    <string name="label_history_input_source_account">From</string>
+	<string name="label_history_input_destination_account">In</string>
+    <string name="title_choose_source_account">Pay From</string>
+	<string name="title_choose_destination_account">Receive In</string>
 
 
 </resources>

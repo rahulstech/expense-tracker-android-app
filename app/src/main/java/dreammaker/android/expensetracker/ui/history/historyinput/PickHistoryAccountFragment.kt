@@ -12,6 +12,7 @@ import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import dreammaker.android.expensetracker.database.AccountModel
 import dreammaker.android.expensetracker.databinding.PickerListLayoutBinding
+import dreammaker.android.expensetracker.ui.util.AccountModelParcel
 import dreammaker.android.expensetracker.ui.util.Constants
 import dreammaker.android.expensetracker.ui.util.SelectionMode
 import dreammaker.android.expensetracker.ui.util.SelectionStore
@@ -28,14 +29,11 @@ open class PickHistoryAccountFragment : Fragment() {
     private lateinit var selectionStore: SelectionStore<Long>
     protected lateinit var navController: NavController
     protected lateinit var viewModel: AccountPickerViewModel
-    private lateinit var historyViewModel: HistoryInputViewModel
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         viewModel = ViewModelProvider(this,
             ViewModelProvider.AndroidViewModelFactory(requireActivity().application))[AccountPickerViewModel::class.java]
-        historyViewModel = ViewModelProvider(requireParentFragment(),
-            ViewModelProvider.AndroidViewModelFactory(requireActivity().application))[HistoryInputViewModel::class.java]
     }
 
     override fun onCreateView(
@@ -82,9 +80,8 @@ open class PickHistoryAccountFragment : Fragment() {
     }
 
     protected open fun getInitialSelection(): Long? {
-        val resultKey = requireArguments().getString(Constants.ARG_RESULT_KEY)!!
-        val account = historyViewModel.getSelection(resultKey) as AccountModel?
-        return account?.id
+        val accountId = arguments?.getLong(Constants.ARG_INITIAL_SELECTION)
+        return accountId
     }
 
     protected open fun onAccountsLoaded(accounts: List<AccountModel>?) {
@@ -97,7 +94,8 @@ open class PickHistoryAccountFragment : Fragment() {
     private fun handlePickAccount() {
         val selectedAccount = getSelectedAccount()
         val resultKey = requireArguments().getString(Constants.ARG_RESULT_KEY)!!
-        historyViewModel.setSelection(resultKey, selectedAccount)
+        val resultValue = if (null == selectedAccount) null else AccountModelParcel(selectedAccount)
+        navController.previousBackStackEntry?.savedStateHandle?.set(resultKey,resultValue)
         navController.popBackStack()
     }
 

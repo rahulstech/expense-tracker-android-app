@@ -102,12 +102,6 @@ class ViewHistoryItemFragment: Fragment() {
             HistoryType.DEBIT -> {
                 setTypeTextAndBackgroundColor(binding, R.string.label_history_type_debit,R.color.colorDebit)
             }
-            HistoryType.EXPENSE -> {
-                setTypeTextAndBackgroundColor(binding, R.string.label_history_type_expense,R.color.colorExpense)
-            }
-            HistoryType.INCOME -> {
-                setTypeTextAndBackgroundColor(binding, R.string.label_history_type_income,R.color.colorIncome)
-            }
             HistoryType.TRANSFER -> {
                 setTypeTextAndBackgroundColor(binding, R.string.label_history_type_transfer,R.color.colorTransfer)
             }
@@ -132,14 +126,10 @@ class ViewHistoryItemFragment: Fragment() {
         when(type) {
             HistoryType.CREDIT -> {
                 binding.sourceLabel.text = getString(R.string.label_history_item_source_credit)
-                binding.source.text = history.srcPerson?.name
+                binding.source.text = history.group?.name
             }
             HistoryType.DEBIT -> {
                 binding.sourceLabel.text = getString(R.string.label_history_item_source_debit)
-                binding.source.text = history.srcAccount?.name
-            }
-            HistoryType.EXPENSE -> {
-                binding.sourceLabel.text = getString(R.string.label_history_item_source_expense)
                 binding.source.text = history.srcAccount?.name
             }
             HistoryType.TRANSFER -> {
@@ -158,7 +148,7 @@ class ViewHistoryItemFragment: Fragment() {
 
     private fun onClickViewSource(history: HistoryModel) {
         val type = history.type!!
-        if (type == HistoryType.TRANSFER || type == HistoryType.DEBIT || type == HistoryType.EXPENSE) {
+        if (type == HistoryType.TRANSFER || type == HistoryType.DEBIT) {
             navController.navigate(R.id.action_history_item_to_view_account, Bundle().apply {
                 putLong(Constants.ARG_ID, history.srcAccountId!!)
             })
@@ -174,11 +164,7 @@ class ViewHistoryItemFragment: Fragment() {
             }
             HistoryType.DEBIT -> {
                 binding.destinationLabel.text = getString(R.string.label_history_item_destination_debit)
-                binding.destination.text = history.destPerson?.name
-            }
-            HistoryType.INCOME -> {
-                binding.destinationLabel.text = getString(R.string.label_history_item_destination_income)
-                binding.destination.text = history.destAccount?.name
+                binding.destination.text = history.group?.name
             }
             HistoryType.TRANSFER -> {
                 binding.destinationLabel.text = getString(R.string.label_history_item_destination_transfer)
@@ -196,7 +182,7 @@ class ViewHistoryItemFragment: Fragment() {
 
     private fun onClickViewDestination(history: HistoryModel) {
         val type = history.type!!
-        if (type == HistoryType.TRANSFER || type == HistoryType.CREDIT || type == HistoryType.INCOME) {
+        if (type == HistoryType.TRANSFER || type == HistoryType.CREDIT) {
             navController.navigate(R.id.action_history_item_to_view_account, Bundle().apply {
                 putLong(Constants.ARG_ID, history.destAccountId!!)
             })

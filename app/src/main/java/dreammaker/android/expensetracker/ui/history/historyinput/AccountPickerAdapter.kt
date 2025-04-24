@@ -46,7 +46,9 @@ private val callback = object: DiffUtil.ItemCallback<AccountModel>() {
 
 }
 
-open class AccountPickerListAdapter: BaseSelectableItemListAdapter<AccountModel, Long, AccountPickerViewHolder>(callback) {
+open class AccountPickerListAdapter: BaseSelectableItemListAdapter<AccountModel, Long, AccountPickerViewHolder>(
+    callback
+) {
 
     private val TAG = AccountPickerListAdapter::class.simpleName
 

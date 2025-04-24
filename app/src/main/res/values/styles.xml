@@ -79,12 +79,19 @@
     </style>
 
     <style name="Widget.AppTheme.Button.PickerArrow" parent="Widget.Material3.Button.IconButton.Filled.Tonal">
-        <item name="android:minWidth">36dp</item>
-        <item name="android:minHeight">36dp</item>
+        <item name="android:minWidth">24dp</item>
+        <item name="android:minHeight">24dp</item>
         <item name="android:layout_margin">6dp</item>
-        <item name="iconSize">24dp</item>
+        <item name="iconSize">16dp</item>
         <item name="iconGravity">textStart</item>
     </style>
 
+    <style name="Widget.AppTheme.Button.Secondary" parent="Widget.Material3.Button">
+        <item name="iconSize">24dp</item>
+        <item name="iconGravity">textStart</item>
+        <item name="iconTint">?attr/colorOnSecondary</item>
+        <item name="android:textColor">?attr/colorOnSecondary</item>
+        <item name="backgroundTint">?attr/colorSecondary</item>
+    </style>
 
 </resources>

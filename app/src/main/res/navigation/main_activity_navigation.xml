@@ -166,9 +166,6 @@
         tools:layout="@layout/input_person"/>
 
     <!-- History -->
-    <fragment android:id="@+id/history_input"
-        android:name="dreammaker.android.expensetracker.ui.history.historyinput.HistoryInputContainerFragment"
-        tools:layout="@layout/history_input_container"/>
 
     <fragment android:id="@+id/history_list"
         android:name="dreammaker.android.expensetracker.ui.history.viewhistories.daily.DailyViewHistoryFragment"
@@ -204,5 +201,26 @@
             app:popEnterAnim="@anim/slide_in_right"
             app:popExitAnim="@anim/slide_out_left" />
     </fragment>
+
+
+    <fragment
+        android:id="@+id/history_input"
+        android:name="dreammaker.android.expensetracker.ui.history.historyinput.HistoryInputFragment"
+        android:label="@string/title_input_history_create"
+        tools:layout="@layout/history_input_layout">
+
+        <action android:id="@+id/action_history_input_to_account_chooser_list"
+            app:destination="@id/pick_history_account"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:popEnterAnim="@anim/slide_in_right"
+            app:popExitAnim="@anim/slide_out_left"/>
+
+    </fragment>
+    <fragment
+        android:id="@+id/pick_history_account"
+        android:name="dreammaker.android.expensetracker.ui.history.historyinput.PickHistoryAccountFragment"
+        android:label="@string/title_account_chooser"
+        tools:layout="@layout/chooser_list_layout"/>
 
 </navigation>
