@@ -124,6 +124,11 @@
 	<string name="account_save_successful">account saved</string>
     <string name="account_save_unsuccessful">account not saved</string>
 	<string name="error_empty_person_name">no person name provided</string>
+
+
+
+	<string name="error_empty_group_name">group must have a name</string>
+
 	<string name="person_save_successful">person saved</string>
     <string name="person_save_unsuccessful">person not saved</string>
 	<string name="error_invalid_amount">invalid amount</string>
@@ -254,6 +259,10 @@
 	<string name="menu_title_edit_history">Edit</string>
     <string name="title_create_person">Create Person</string>
 	<string name="title_edit_person">Edit Person</string>
+
+	<string name="title_create_group">Create Group</string>
+	<string name="title_edit_group">Edit Group</string>
+
     <string name="message_success_edit_person">person saved</string>
 	<string name="message_success_create_person">person added</string>
 	<string name="message_fail_create_person">person not added</string>
@@ -272,6 +281,24 @@
 	<string name="label_history_input_destination_account">In</string>
     <string name="title_choose_source_account">Pay From</string>
 	<string name="title_choose_destination_account">Receive In</string>
+    <string name="label_add_group">Create Group</string>
+	<string name="label_empty_group_list">No Group</string>
+	<string name="title_groups_list">Groups</string>
+	<string name="hint_group_name">Group Name</string>
+	<string name="hint_group_balance">Balance</string>
+	<string name="message_group_not_found">group not found</string>
+	<string name="error_invalid_group_balance_input">balance must be a number</string>
+	<string name="message_success_create_group">group created</string>
+	<string name="message_success_edit_group">group saved</string>
+	<string name="message_fail_edit_group">group not saved</string>
+	<string name="message_fail_create_group">group not created</string>
+	<string name="label_add_credit">Credit</string>
+	<string name="label_add_debit">Debit</string>
+	<string name="label_add_transfer">Transfer</string>
+    <string name="label_yes">Yes</string>
+	<string name="label_no">No</string>
+    <string name="title_view_group">Group Details</string>
+    <string name="label_send_money">Send Money</string>
 
 
 </resources>

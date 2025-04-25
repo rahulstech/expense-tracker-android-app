@@ -7,6 +7,9 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.TextView
 import dreammaker.android.expensetracker.database.GroupModel
+import dreammaker.android.expensetracker.databinding.PickerChipBinding
+import dreammaker.android.expensetracker.ui.util.invisible
+import dreammaker.android.expensetracker.ui.util.visible
 
 val NoGroup: GroupModel = GroupModel(-1,"", null)
 
@@ -19,7 +22,7 @@ class GroupPickerViewHolder(itemView: View) {
     }
 }
 
-class GroupPickerAdapter(context: Context): BaseAdapter() {
+class GroupPickerAdapter(val context: Context): BaseAdapter(){
 
     private val inflater = LayoutInflater.from(context)
 
@@ -38,6 +41,28 @@ class GroupPickerAdapter(context: Context): BaseAdapter() {
     override fun getItemId(position: Int): Long = groups[position].id!!
 
     override fun getView(position: Int, view: View?, parent: ViewGroup?): View {
+        val group = getItem(position)
+        val itemView: View
+        if (null == view) {
+            val chip = PickerChipBinding.inflate(inflater, parent, false).root
+            chip.text = group.name
+            chip.isCheckable = false
+            chip.isClickable = false
+            itemView = chip
+        }
+        else {
+            itemView = view
+        }
+        if (group == NoGroup) {
+            itemView.invisible()
+        }
+        else {
+            itemView.visible()
+        }
+        return itemView
+    }
+
+    override fun getDropDownView(position: Int, view: View?, parent: ViewGroup?): View {
         val group = getItem(position)
         val itemView: View
         val holder: GroupPickerViewHolder

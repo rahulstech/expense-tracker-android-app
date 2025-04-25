@@ -1,4 +1,4 @@
-package dreammaker.android.expensetracker.ui.person.personlist
+package dreammaker.android.expensetracker.ui.group.groupslist
 
 import android.content.Context
 import android.os.Bundle
@@ -8,35 +8,33 @@ import android.view.MenuInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import dreammaker.android.expensetracker.R
-import dreammaker.android.expensetracker.database.PersonModel
-import dreammaker.android.expensetracker.databinding.PeopleListBinding
+import dreammaker.android.expensetracker.database.GroupModel
+import dreammaker.android.expensetracker.databinding.GroupsListBinding
+import dreammaker.android.expensetracker.ui.person.personlist.GroupListViewModel
 import dreammaker.android.expensetracker.ui.util.Constants
 import dreammaker.android.expensetracker.ui.util.visibilityGone
 import dreammaker.android.expensetracker.ui.util.visible
 
-class PeopleListFragment : Fragment() {
+class GroupListFragment : Fragment() {
 
-    private val TAG = PeopleListFragment::class.simpleName
+    private val TAG = GroupListFragment::class.simpleName
 
-    private var _binding: PeopleListBinding? = null
+    private var _binding:GroupsListBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var viewModel: PeopleListViewModel
-    private lateinit var adapter: PeopleListAdapter
+    private lateinit var viewModel: GroupListViewModel
+    private lateinit var adapter: GroupsListAdapter
     private lateinit var navController: NavController
-
-    private val observer = Observer<List<PersonModel>> { onPeopleLoaded(it) }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         viewModel = ViewModelProvider(this,
-            ViewModelProvider.AndroidViewModelFactory(requireActivity().application))[PeopleListViewModel::class.java]
+            ViewModelProvider.AndroidViewModelFactory(requireActivity().application))[GroupListViewModel::class.java]
         setHasOptionsMenu(true)
     }
 
@@ -45,27 +43,27 @@ class PeopleListFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = PeopleListBinding.inflate(inflater,container,false)
+        _binding = GroupsListBinding.inflate(inflater,container,false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         navController = Navigation.findNavController(view)
         binding.list.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
-        adapter = PeopleListAdapter()
-        adapter.itemClickListener = { _,_,position -> handleClickPerson(adapter.currentList[position]) }
+        adapter = GroupsListAdapter()
+        adapter.itemClickListener = { _,_,position -> handleClickGroup(adapter.currentList[position]) }
         binding.list.adapter = adapter
         binding.add.setOnClickListener {
-            navController.navigate(R.id.action_persons_list_to_create_person, Bundle().apply {
+            navController.navigate(R.id.action_groups_list_to_create_group, Bundle().apply {
                 putString(Constants.ARG_ACTION, Constants.ACTION_CREATE)
             })
         }
-        viewModel.getAllPeople().observe(viewLifecycleOwner, observer)
+        viewModel.getAllGroups().observe(viewLifecycleOwner, this::onGroupsLoaded)
     }
 
-    private fun onPeopleLoaded(people: List<PersonModel>) {
-        adapter.submitList(people)
-        if (people.isEmpty()) {
+    private fun onGroupsLoaded(groups: List<GroupModel>) {
+        adapter.submitList(groups)
+        if (groups.isEmpty()) {
             binding.list.visibilityGone()
             binding.emptyView.visible()
         }
@@ -75,9 +73,9 @@ class PeopleListFragment : Fragment() {
         }
     }
 
-    private fun handleClickPerson(person: PersonModel) {
-        navController.navigate(R.id.action_persons_list_to_view_person, Bundle().apply {
-            putLong(Constants.ARG_ID,person.id!!)
+    private fun handleClickGroup(group: GroupModel) {
+        navController.navigate(R.id.action_groups_list_to_view_group, Bundle().apply {
+            putLong(Constants.ARG_ID,group.id!!)
         })
     }
 
@@ -88,7 +86,6 @@ class PeopleListFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        viewModel.getAllPeople().removeObserver(observer)
         _binding = null
     }
 }

@@ -7,36 +7,32 @@
     android:gravity="top|center_vertical"
     android:padding="16dp">
 
-
-
-
-
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/person_name_input"
+        android:id="@+id/name_input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/person_name"
+        android:hint="@string/hint_group_name"
         app:errorEnabled="true">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textPersonName"
+            android:inputType="textCapWords"
             android:singleLine="true"
             tools:text="John Doe"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/due_input"
+        android:id="@+id/balance_input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
-        android:hint="@string/due_payment"
+        android:hint="@string/hint_group_balance"
         app:errorEnabled="true">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/due"
+            android:id="@+id/balance"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="numberDecimal"

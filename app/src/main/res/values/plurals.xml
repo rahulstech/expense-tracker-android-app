@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <plurals name="warning_delete_accounts">
-        <item quantity="one">account %1$s will be </item>
+        <item quantity="one">%1$s will be deleted permanently. Do you want to proceed?</item>
         <item quantity="other">You are going to DELETE some accounts PERMANENTLY. Are you sure?</item>
     </plurals>
     <plurals name="warning_delete_persons">
@@ -17,5 +17,8 @@
             Once deleted the balance of the related accounts will also be rollbacked. Are you sure?</item>
         <item quantity="many">You are going to DELETE some money transfer histories PERMANENTLY.
             Once deleted the balance of the related accounts will also be rollbacked. Are you sure?</item>
+    </plurals>
+    <plurals name="warning_delete_group">
+        <item quantity="one">%1$s will be deleted permanently. Do you want to proceed?</item>
     </plurals>
 </resources>

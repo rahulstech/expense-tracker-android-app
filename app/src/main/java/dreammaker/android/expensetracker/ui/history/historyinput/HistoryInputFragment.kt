@@ -35,7 +35,7 @@ import dreammaker.android.expensetracker.ui.util.disable
 import dreammaker.android.expensetracker.ui.util.enable
 import dreammaker.android.expensetracker.ui.util.getDate
 import dreammaker.android.expensetracker.ui.util.getHistoryType
-import dreammaker.android.expensetracker.ui.util.setActivityTitle
+import dreammaker.android.expensetracker.ui.util.hasArgument
 import dreammaker.android.expensetracker.ui.util.visibilityGone
 import dreammaker.android.expensetracker.ui.util.visible
 import kotlinx.coroutines.flow.filterNotNull
@@ -164,8 +164,7 @@ class HistoryInputFragment : Fragment() {
             if (type.needsDestinationAccount()) {
                 binding.destinationLayout.visible()
             }
-
-            // TODO: select the group
+            history.groupId?.let { setSelectedGroup(it) }
 
             viewModel.history.removeObserver(observer)
         }
@@ -253,10 +252,15 @@ class HistoryInputFragment : Fragment() {
     private fun prepareGroupInput(type: HistoryType) {
         groupPickerAdapter = GroupPickerAdapter(requireContext())
         binding.groupInput.adapter = groupPickerAdapter
+
         if (type != HistoryType.TRANSFER) {
             viewModel.getAllGroups().observe(viewLifecycleOwner) { groups ->
                 groupPickerAdapter.submitList(groups)
-                // TODO: restore selection position and handle argument group id
+                // TODO: restore selection position
+                if (hasArgument(ARG_GROUP)) {
+                    val groupId = requireArguments().getLong(ARG_GROUP)
+                    setSelectedGroup(groupId)
+                }
             }
             binding.groupInput.onItemSelectedListener = object : OnItemSelectedListener  {
                 override fun onItemSelected(p0: AdapterView<*>?, p1: View?, position: Int, p3: Long) {
@@ -271,8 +275,18 @@ class HistoryInputFragment : Fragment() {
         }
     }
 
+    private fun setSelectedGroup(groupId: Long) {
+        val selectedPosition = groupPickerAdapter.groups.indexOfFirst { it.id == groupId }
+        Log.d(TAG, "setSelectedGroup: groupId=$groupId selectedPosition=$selectedPosition groups-adapter-size=${groupPickerAdapter.groups.size}")
+        if (selectedPosition >= 0) {
+            binding.groupInput.setSelection(selectedPosition)
+            binding.groupInput.disable()
+        }
+    }
+
     private fun onClickSave() {
         val history = getInputHistory()
+        Log.d(TAG, "onClickSave: input-history=$history")
         if (!validateInput(history)) {
             if (isActionEdit()) {
                 viewModel.setHistory(history)
@@ -385,14 +399,6 @@ class HistoryInputFragment : Fragment() {
             return@createChip chip
         }
         return null
-    }
-
-    override fun onResume() {
-        super.onResume()
-        setActivityTitle(getString(
-            if (isActionEdit()) R.string.title_input_history_edit
-            else R.string.title_input_history_create)
-        )
     }
 
     override fun onDestroyView() {

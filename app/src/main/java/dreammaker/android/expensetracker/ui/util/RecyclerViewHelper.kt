@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
+import java.lang.ref.WeakReference
 
 interface SelectionKeyProvider<T> {
 
@@ -18,7 +19,7 @@ interface SelectionKeyProvider<T> {
 }
 
 enum class SelectionMode {
-    SINGLE, MULTIPLE,
+    SINGLE, MULTIPLE
 }
 
 class SelectionStore<T>(val selectionMode: SelectionMode = SelectionMode.SINGLE) {
@@ -30,7 +31,10 @@ class SelectionStore<T>(val selectionMode: SelectionMode = SelectionMode.SINGLE)
     var selectedKeys: HashSet<T>? = null
     private var keyPositions = HashMap<T, Int>()
 
-    var itemSelectionListener: ((SelectionStore<T>, T, Int, Boolean)->Unit)? = null
+    private var itemSelectionListenerRef = WeakReference<((SelectionStore<T>, T, Int, Boolean)->Unit)?>(null)
+    var itemSelectionListener: ((SelectionStore<T>, T, Int, Boolean)->Unit)?
+        get() = itemSelectionListenerRef.get()
+        set(value) { itemSelectionListenerRef = WeakReference(value) }
 
     init {
         if (selectionMode == SelectionMode.MULTIPLE) {
@@ -131,11 +135,23 @@ open class BaseViewHolder(itemView: View): ViewHolder(itemView) {
     fun getString(@StringRes id: Int, vararg args: Any) = context.getString(id,*args)
 }
 
-open class ClickableViewHolder<VH : ViewHolder>(itemView: View, val onClick: ((VH, View)->Unit)?): BaseViewHolder(itemView) {
+open class ClickableViewHolder<VH : ViewHolder>(itemView: View): BaseViewHolder(itemView) {
+
+    private var clickListener: ((VH,View)->Unit)? = null
+
+    private var longClickListener: ((VH,View)->Boolean)? = null
+
+    fun setItemClickListener(listener: ((VH,View)->Unit)?) {
+        clickListener = listener
+    }
+
+    fun setLongClickListener(listener: ((VH, View) -> Boolean)?) {
+        longClickListener = listener
+    }
 
     @Suppress("UNCHECKED_CAST")
     fun attachItemClickListener() {
-        itemView.setOnClickListener{ onClick?.invoke(this as VH, it)}
+        itemView.setOnClickListener{ clickListener?.invoke(this as VH, it)}
     }
 
     fun detachItemClickListener() {
@@ -144,9 +160,13 @@ open class ClickableViewHolder<VH : ViewHolder>(itemView: View, val onClick: ((V
 }
 
 interface IClickableItemAdapter<T, VH : ClickableViewHolder<VH>> {
-    var itemClickListener: ((RecyclerView.Adapter<VH>, View, Int) -> Unit)?
+    var itemClickListener: ((RecyclerView.Adapter<VH>, View, Int)->Unit)?
+
+    var itemLongClickListener: ((RecyclerView.Adapter<VH>,View,Int)->Boolean)?
 
     fun handleItemClick(holder: VH, view: View)
+
+    fun handleItemLongClick(holder: VH, view: View): Boolean
 }
 
 interface ISelectableItemAdapter<KeyType> : SelectionKeyProvider<KeyType> {
@@ -180,9 +200,16 @@ abstract class BaseClickableItemListAdapter<T, VH : ClickableViewHolder<VH>>(cal
 
     override var itemClickListener: ((RecyclerView.Adapter<VH>, View, Int)->Unit)? = null
 
+    override var itemLongClickListener: ((RecyclerView.Adapter<VH>, View, Int) -> Boolean)? = null
+
     override fun handleItemClick(holder: VH, view: View) {
         val position = holder.bindingAdapterPosition
         itemClickListener?.invoke(this, view, position)
+    }
+
+    override fun handleItemLongClick(holder: VH, view: View): Boolean {
+        val position = holder.bindingAdapterPosition
+        return itemLongClickListener?.invoke(this, view, position) ?: false
     }
 }
 

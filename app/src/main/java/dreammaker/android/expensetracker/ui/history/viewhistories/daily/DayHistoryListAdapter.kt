@@ -19,9 +19,10 @@ import dreammaker.android.expensetracker.ui.util.toCurrencyString
 class DayHistoryViewHolder(
     private val binding: DayHistoryListItemBinding,
     onClick: (DayHistoryViewHolder, View)->Unit
-) :  ClickableViewHolder<DayHistoryViewHolder>(binding.root, onClick) {
+) :  ClickableViewHolder<DayHistoryViewHolder>(binding.root) {
 
     init {
+        setItemClickListener(onClick)
         attachItemClickListener()
     }
 

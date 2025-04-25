@@ -14,9 +14,10 @@ import dreammaker.android.expensetracker.ui.util.toCurrencyString
 class AccountViewModel(
     val binding: AccountListItemBinding,
     onClick: (AccountViewModel,View)->Unit
-): ClickableViewHolder<AccountViewModel>(binding.root,onClick) {
+): ClickableViewHolder<AccountViewModel>(binding.root) {
 
     init {
+        setItemClickListener(onClick)
         attachItemClickListener()
     }
 

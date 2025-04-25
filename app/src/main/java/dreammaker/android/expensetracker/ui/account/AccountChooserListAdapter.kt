@@ -12,11 +12,13 @@ import dreammaker.android.expensetracker.ui.util.ClickableViewHolder
 import dreammaker.android.expensetracker.ui.util.SelectionStore
 import java.util.Locale
 
-class AccountChooserViewHolder(private val binding: AccountChooserListItemBinding,
-                               onClick: (AccountChooserViewHolder, View)->Unit)
-    : ClickableViewHolder<AccountChooserViewHolder>(binding.root, onClick) {
+class AccountChooserViewHolder(
+    private val binding: AccountChooserListItemBinding,
+    onClick: (AccountChooserViewHolder, View)->Unit
+) : ClickableViewHolder<AccountChooserViewHolder>(binding.root) {
 
     init {
+        setItemClickListener(onClick)
         attachItemClickListener()
     }
 

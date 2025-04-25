@@ -23,10 +23,10 @@ object Constants {
     const val ARG_DESTINATION_LABEL = "arg.destination_label"
     const val ARG_INITIAL_SELECTION = "arg.initial_selection"
     const val ARG_RESULT_KEY = "arg.tag"
-    const val ARG_ACTION = "arg.action"
-    const val ARG_ID = "arg.id"
-    const val ACTION_CREATE = "action.create"
-    const val ACTION_EDIT = "action.edit"
+    const val ARG_ACTION = "arg_action"
+    const val ARG_ID = "arg_id"
+    const val ACTION_CREATE = "action_create"
+    const val ACTION_EDIT = "action_edit"
 }
 
 fun Fragment.setActivityTitle(title: CharSequence) {
@@ -43,6 +43,9 @@ fun Fragment.setActivityTitle(title: CharSequence) {
         activity.title = title
     }
 }
+
+
+fun Fragment.hasArgument(key: String): Boolean = arguments?.containsKey(key) ?: false
 
 fun Bundle.putDate(key: String, date: Date?) {
     putString(key, date?.toString())

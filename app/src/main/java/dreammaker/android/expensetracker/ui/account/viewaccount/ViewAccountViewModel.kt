@@ -28,6 +28,14 @@ class ViewAccountViewModel(app: Application): AndroidViewModel(app) {
     }
 
     private lateinit var account: LiveData<AccountModel?>
+
+    fun getStoredAccount(): AccountModel? {
+        if (!::account.isInitialized) {
+            return null
+        }
+        return account.value
+    }
+
     fun findAccountById(id: Long): LiveData<AccountModel?> {
         if (!::account.isInitialized) {
             account = accountDao.findAccountById(id)
@@ -37,6 +45,10 @@ class ViewAccountViewModel(app: Application): AndroidViewModel(app) {
 
     private val _resultFlow: MutableStateFlow<OperationResult<AccountModel>?> = MutableStateFlow(null)
     val resultFlow: Flow<OperationResult<AccountModel>?> = _resultFlow
+
+    fun emptyResult() {
+        viewModelScope.launch { _resultFlow.emit(null) }
+    }
 
     fun removeAccount(account: AccountModel) {
         viewModelScope.launch {
