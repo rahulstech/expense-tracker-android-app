@@ -81,7 +81,7 @@ class GroupListFragment : Fragment() {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.person_list_menu, menu)
+//        inflater.inflate(R.menu.person_list_menu, menu)
     }
 
     override fun onDestroyView() {

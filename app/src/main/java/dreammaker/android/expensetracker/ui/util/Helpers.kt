@@ -20,6 +20,8 @@ object Constants {
     const val ARG_RESULT_KEY = "arg.tag"
     const val ARG_ACTION = "arg_action"
     const val ARG_ID = "arg_id"
+    const val ARG_ACCOUNT = "arg_account"
+    const val ARG_GROUP = "arg_group"
     const val ACTION_CREATE = "action_create"
     const val ACTION_EDIT = "action_edit"
 }

@@ -86,7 +86,7 @@ class AccountsListFragment : Fragment() {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.account_list_menu, menu)
+//        inflater.inflate(R.menu.account_list_menu, menu)
 //        onPrepareSearchMenu(
 //            menu.findItem(R.id.search_account),
 //            R.string.search_account,

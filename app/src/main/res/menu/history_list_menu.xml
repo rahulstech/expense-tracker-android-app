@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/menu_view_as"
+        app:showAsAction="ifRoom"
+        android:title="@string/menu_title_view_history_as"
+        android:icon="@drawable/baseline_view_list">
+        <menu>
+            <group android:checkableBehavior="single">
+
+                <item android:id="@+id/menu_view_as_daily"
+                    android:title="@string/menu_title_view_history_daily"
+                    android:checkable="true"/>
+
+                <item android:id="@+id/menu_view_as_monthly"
+                    android:title="@string/menu_title_view_history_monthly"
+                    android:checkable="true"/>
+            </group>
+        </menu>
+    </item>
+</menu>

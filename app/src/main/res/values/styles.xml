@@ -61,16 +61,28 @@
 
     <style name="Widget.AppTheme.AssistChip" parent="Widget.Material3.Chip.Assist">
         <item name="shapeAppearance">@style/ShapeAppearance.Material3.Corner.Large</item>
-        <item name="chipStrokeWidth">0dp</item>
         <item name="chipStrokeColor">@android:color/transparent</item>
         <item name="android:textColor">@android:color/white</item>
         <item name="closeIconTint">@android:color/white</item>
         <item name="android:singleLine">true</item>
-        <item name="singleLine">true</item>
         <item name="android:checkable">false</item>
         <item name="android:clickable">false</item>
         <item name="android:focusable">true</item>
         <item name="android:textAppearance">@style/TextAppearance.Material3.BodySmall</item>
+    </style>
+
+    <style name="Widget.AppTheme.FilterChip" parent="Widget.Material3.Chip.Filter">
+        <item name="shapeAppearance">@style/ShapeAppearance.Material3.Corner.Large</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:checkable">true</item>
+        <item name="android:textAppearance">@style/TextAppearance.Material3.BodySmall</item>
+        <item name="chipStartPadding">8dp</item>
+        <item name="chipEndPadding">8dp</item>
+        <item name="chipIconEnabled">true</item>
+        <item name="chipIconVisible">true</item>
+        <item name="checkedIconEnabled">false</item>
+        <item name="checkedIconVisible">false</item>
+        <item name="iconSize">18dp</item>
     </style>
 
     <style name="Widget.AppTheme.Button.DatePicker" parent="Widget.Material3.Button.OutlinedButton">

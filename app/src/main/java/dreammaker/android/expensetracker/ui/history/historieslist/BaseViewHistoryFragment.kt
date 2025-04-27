@@ -68,9 +68,10 @@ abstract class BaseViewHistoryFragment<T>: Fragment() {
     private var _binding: ViewHistoryBinding? = null
     private val binding get() = _binding!!
     private lateinit var navController: NavController
-    private lateinit var adapter: ViewHistoryPageAdapter<T>
+    private var _adapter: ViewHistoryPageAdapter<T>? = null
+    protected val adapter get() = _adapter!!
 
-    abstract fun getPageAdapter(): ViewHistoryPageAdapter<T>
+    protected abstract fun onCreatePageAdapter(): ViewHistoryPageAdapter<T>
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -83,6 +84,8 @@ abstract class BaseViewHistoryFragment<T>: Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        binding.historyViewPager.adapter = null
+        _adapter = null
         _binding = null
     }
 
@@ -95,8 +98,8 @@ abstract class BaseViewHistoryFragment<T>: Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        navController = Navigation.findNavController(view)
-        adapter = getPageAdapter()
+        navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_container)
+        _adapter = onCreatePageAdapter()
         binding.historyViewPager.adapter = adapter
         val currentItem = getSavedCurrentPosition() ?: adapter.getPresentPosition()
         binding.historyViewPager.currentItem = currentItem
@@ -110,7 +113,7 @@ abstract class BaseViewHistoryFragment<T>: Fragment() {
         })
         binding.btnGotoPresent.text = getGotoPresentButtonText()
         binding.btnGotoPresent.setOnClickListener { setCurrentData(adapter.getPresentData()) }
-        binding.btnDataPicker.setOnClickListener{ onClickDataPicker(getCurrentData()) }
+        binding.btnDataPicker.setOnClickListener{ onClickDataPicker(getCurrentData()!!) }
         binding.addHistory.setOnClickListener {
             val target = binding.buttonsLayout
             if (target.isVisible()) {
@@ -122,12 +125,12 @@ abstract class BaseViewHistoryFragment<T>: Fragment() {
         }
         binding.btnAddCredit.setOnClickListener { handleCreateHistory(HistoryType.CREDIT) }
         binding.btnAddDebit.setOnClickListener {  handleCreateHistory(HistoryType.DEBIT) }
-        binding.btnAddTransfer.setOnClickListener { handleCreateHistory(HistoryType.TRANSFER) }
+//        binding.btnAddTransfer.setOnClickListener { handleCreateHistory(HistoryType.TRANSFER) }
     }
 
     abstract fun getGotoPresentButtonText(): CharSequence
 
-    protected abstract fun onClickDataPicker(currentData: T?)
+    protected abstract fun onClickDataPicker(currentData: T)
 
     private fun handleCreateHistory(type: HistoryType) {
         val args = Bundle().apply {
@@ -146,10 +149,8 @@ abstract class BaseViewHistoryFragment<T>: Fragment() {
 
     fun setCurrentData(data: T?) {
         data?.let {
-            adapter.let {
-                val position = adapter.getPositionForData(data)
-                binding.historyViewPager.currentItem = position
-            }
+            val position = adapter.getPositionForData(data)
+            binding.historyViewPager.currentItem = position
         }
     }
 

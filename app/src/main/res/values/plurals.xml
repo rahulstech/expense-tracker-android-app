@@ -4,20 +4,20 @@
         <item quantity="one">%1$s will be deleted permanently. Do you want to proceed?</item>
         <item quantity="other">You are going to DELETE some accounts PERMANENTLY. Are you sure?</item>
     </plurals>
-    <plurals name="warning_delete_persons">
-        <item quantity="one">This person and its all transactions will be DELETED PERMANENTLY. Are you sure?</item>
-        <item quantity="many">You are going to DELETE some persons PERMANENTLY. Are you sure?</item>
-    </plurals>
-    <plurals name="warning_delete_transactions">
-        <item quantity="one">This transaction will be DELETED PERMANENTLY. Are you sure?</item>
-        <item quantity="many">You are going to DELETE some transactions PERMANENTLY. Are you sure?</item>
-    </plurals>
-    <plurals name="warning_delete_money_transfer_history">
-        <item quantity="one">This money transfer history will be DELETED PERMANENTLY.
-            Once deleted the balance of the related accounts will also be rollbacked. Are you sure?</item>
-        <item quantity="many">You are going to DELETE some money transfer histories PERMANENTLY.
-            Once deleted the balance of the related accounts will also be rollbacked. Are you sure?</item>
-    </plurals>
+<!--    <plurals name="warning_delete_persons">-->
+<!--        <item quantity="one">This person and its all transactions will be DELETED PERMANENTLY. Are you sure?</item>-->
+<!--        <item quantity="many">You are going to DELETE some persons PERMANENTLY. Are you sure?</item>-->
+<!--    </plurals>-->
+<!--    <plurals name="warning_delete_transactions">-->
+<!--        <item quantity="one">This transaction will be DELETED PERMANENTLY. Are you sure?</item>-->
+<!--        <item quantity="many">You are going to DELETE some transactions PERMANENTLY. Are you sure?</item>-->
+<!--    </plurals>-->
+<!--    <plurals name="warning_delete_money_transfer_history">-->
+<!--        <item quantity="one">This money transfer history will be DELETED PERMANENTLY.-->
+<!--            Once deleted the balance of the related accounts will also be rollbacked. Are you sure?</item>-->
+<!--        <item quantity="many">You are going to DELETE some money transfer histories PERMANENTLY.-->
+<!--            Once deleted the balance of the related accounts will also be rollbacked. Are you sure?</item>-->
+<!--    </plurals>-->
     <plurals name="warning_delete_group">
         <item quantity="one">%1$s will be deleted permanently. Do you want to proceed?</item>
     </plurals>

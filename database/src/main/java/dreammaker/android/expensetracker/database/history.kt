@@ -113,6 +113,14 @@ abstract class HistoryDao(db: ExpensesDatabase) {
     @Transaction
     abstract fun getHistoriesBetweenDates(start: Date, end: Date): LiveData<List<HistoryModel>>
 
+    @Query("SELECT * FROM `histories` WHERE :start <= `date` AND `date` <= :end AND ( `srcAccountId` = :accountId or `destAccountId` = :accountId) ORDER BY `date` DESC")
+    @Transaction
+    abstract fun getHistoriesBetweenDatesOnlyForAccount(start: Date, end: Date, accountId: Long): LiveData<List<HistoryModel>>
+
+    @Query("SELECT * FROM `histories` WHERE :start <= `date` AND `date` <= :end AND `groupId` = :groupId ORDER BY `date` DESC")
+    @Transaction
+    abstract fun getHistoriesBetweenDatesOnlyForGroup(start: Date, end: Date, groupId: Long): LiveData<List<HistoryModel>>
+
     @Query("SELECT * FROM `histories` WHERE `date` = :date")
     @Transaction
     abstract fun getHistoriesForDate(date: Date): LiveData<List<HistoryModel>>

@@ -10,6 +10,7 @@
         android:id="@+id/destination"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         android:ellipsize="end"
         android:singleLine="true"
         android:layout_marginTop="6dp"
@@ -19,6 +20,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/source"
+        tools:visibility="visible"
         tools:text="THIS IS VERY LONG PERSON NAME THAT MAY NOT FIT THE GIVE AREA" />
 
     <TextView
@@ -32,7 +34,7 @@
         android:textStyle="bold"
         app:layout_constraintTop_toBottomOf="@id/type"
         app:layout_constraintEnd_toEndOf="parent"
-        tools:text="200" />
+        tools:text="$200.00" />
 
     <TextView
         android:id="@+id/type"
@@ -57,6 +59,7 @@
         android:id="@+id/source"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         android:ellipsize="end"
         android:singleLine="true"
         android:layout_marginStart="12dp"
@@ -66,6 +69,7 @@
         app:layout_constraintTop_toBottomOf="@id/amount"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        tools:visibility="visible"
         tools:text="TOO MUCH LONG NAME OF AN ACCOUNT" />
 
     <TextView
@@ -88,6 +92,7 @@
         android:id="@+id/group"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         android:ellipsize="end"
         android:singleLine="true"
         android:background="@drawable/history_list_item_history_group_background"
@@ -104,6 +109,7 @@
         app:layout_constraintEnd_toStartOf="@id/type"
         app:layout_constraintHorizontal_bias="0"
         app:layout_constrainedWidth="true"
+        tools:visibility="visible"
         tools:text="Thailand Trip" />
 
     <com.google.android.material.divider.MaterialDivider

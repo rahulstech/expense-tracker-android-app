@@ -19,7 +19,6 @@ import dreammaker.android.expensetracker.ui.util.getColorOnBackground
 import dreammaker.android.expensetracker.ui.util.getLabel
 import dreammaker.android.expensetracker.ui.util.invisible
 import dreammaker.android.expensetracker.ui.util.toCurrencyString
-import dreammaker.android.expensetracker.ui.util.visibilityGone
 import dreammaker.android.expensetracker.ui.util.visible
 
 class DayHistoryViewHolder(
@@ -43,7 +42,7 @@ class DayHistoryViewHolder(
         }
         else {
             binding.amount.text = history.amount?.toCurrencyString()
-            binding.note.text = history.note
+            binding.note.text = history.note ?: history.type!!.getLabel(context)
             setGroup(history.group)
             val type = history.type!!
             setType(type)
@@ -59,33 +58,27 @@ class DayHistoryViewHolder(
                     setSource(R.string.label_history_list_item_debit_source, history.srcAccount?.name)
                 }
             }
+            binding.root.isSelected = selected
         }
     }
 
     private fun setSource(@StringRes resId: Int, text: CharSequence?) {
-        if (text.isNullOrBlank()) {
-            binding.source.visibilityGone()
-        }
-        else {
+        if (!text.isNullOrBlank()) {
             binding.source.text = getString(resId, text)
+            binding.source.visible()
         }
     }
 
     private fun setDestination(@StringRes resId: Int, text: CharSequence?) {
-        if (text.isNullOrBlank()) {
-            binding.destination.visibilityGone()
-        }
-        else {
+        if (!text.isNullOrBlank()) {
             binding.destination.text = getString(resId, text)
+            binding.destination.visible()
         }
     }
 
     private fun setType(type: HistoryType?) {
         val view = binding.type
-        if (null == type) {
-            view.invisible()
-        }
-        else {
+        type?.let {
             view.text = type.getLabel(context)
             ViewCompat.setBackgroundTintList(view, type.getBackgroundColor(context))
             view.setTextColor(type.getColorOnBackground(context))

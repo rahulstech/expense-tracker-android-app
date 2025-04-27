@@ -1,6 +1,5 @@
 package dreammaker.android.expensetracker.ui.group.viewgroup
 
-import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -10,8 +9,10 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
@@ -22,6 +23,7 @@ import dreammaker.android.expensetracker.database.HistoryType
 import dreammaker.android.expensetracker.databinding.ViewGroupLayoutBinding
 import dreammaker.android.expensetracker.ui.history.historyinput.HistoryInputFragment
 import dreammaker.android.expensetracker.ui.util.Constants
+import dreammaker.android.expensetracker.ui.util.GroupModelParcel
 import dreammaker.android.expensetracker.ui.util.OperationResult
 import dreammaker.android.expensetracker.ui.util.isVisible
 import dreammaker.android.expensetracker.ui.util.putHistoryType
@@ -31,22 +33,17 @@ import dreammaker.android.expensetracker.ui.util.visible
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
-class ViewGroupFragment: Fragment() {
+class ViewGroupFragment: Fragment(), MenuProvider {
 
     private val TAG = ViewGroupFragment::class.simpleName
 
     private var _binding: ViewGroupLayoutBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var viewModel: ViewGroupViewModel
+    private val viewModel: ViewGroupViewModel by viewModels()
     private lateinit var navController: NavController
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        viewModel = ViewModelProvider(this,
-            ViewModelProvider.AndroidViewModelFactory(requireActivity().application))[ViewGroupViewModel::class.java]
-        setHasOptionsMenu(true)
-    }
+    private fun getArgGroupId(): Long = requireArguments().getLong(Constants.ARG_ID)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -57,10 +54,16 @@ class ViewGroupFragment: Fragment() {
         return binding.root
     }
 
-    private fun getArgGroupId(): Long = requireArguments().getLong(Constants.ARG_ID)
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         navController = Navigation.findNavController(view)
+        binding.btnViewHistory.setOnClickListener {
+            val group = viewModel.getStoredGroup()
+            group?.let {
+                navController.navigate(R.id.action_view_group_to_history_list, Bundle().apply {
+                    putParcelable(Constants.ARG_GROUP, GroupModelParcel(group))
+                })
+            }
+        }
         binding.addHistory.setOnClickListener {
             val target = binding.buttonsLayout
             if (target.isVisible()) {
@@ -71,18 +74,24 @@ class ViewGroupFragment: Fragment() {
             }
         }
         binding.btnAddDebit.setOnClickListener {
-            navController.navigate(R.id.action_view_group_to_add_history,Bundle().apply {
-                putString(Constants.ARG_ACTION,Constants.ACTION_CREATE)
-                putLong(HistoryInputFragment.ARG_GROUP, getArgGroupId())
-                putHistoryType(HistoryInputFragment.ARG_HISTORY_TYPE, HistoryType.DEBIT)
-            })
+            val group = viewModel.getStoredGroup()
+            group?.let {
+                navController.navigate(R.id.action_view_group_to_add_history,Bundle().apply {
+                    putString(Constants.ARG_ACTION,Constants.ACTION_CREATE)
+                    putParcelable(Constants.ARG_GROUP, GroupModelParcel(group))
+                    putHistoryType(HistoryInputFragment.ARG_HISTORY_TYPE, HistoryType.DEBIT)
+                })
+            }
         }
         binding.btnAddCredit.setOnClickListener {
-            navController.navigate(R.id.action_view_group_to_add_history,Bundle().apply {
-                putString(Constants.ARG_ACTION,Constants.ACTION_CREATE)
-                putLong(HistoryInputFragment.ARG_GROUP, getArgGroupId())
-                putHistoryType(HistoryInputFragment.ARG_HISTORY_TYPE, HistoryType.DEBIT)
-            })
+            val group = viewModel.getStoredGroup()
+            group?.let {
+                navController.navigate(R.id.action_view_group_to_add_history,Bundle().apply {
+                    putString(Constants.ARG_ACTION,Constants.ACTION_CREATE)
+                    putParcelable(Constants.ARG_GROUP, GroupModelParcel(group))
+                    putHistoryType(HistoryInputFragment.ARG_HISTORY_TYPE, HistoryType.CREDIT)
+                })
+            }
         }
         viewModel.findGroupById(getArgGroupId()).observe(viewLifecycleOwner, this::onGroupLoaded)
         lifecycleScope.launch {
@@ -91,6 +100,7 @@ class ViewGroupFragment: Fragment() {
                 viewModel.emptyResult()
             }
         }
+        (requireActivity() as MenuHost).addMenuProvider(this, viewLifecycleOwner)
     }
 
     private fun onGroupLoaded(group: GroupModel?) {
@@ -105,15 +115,13 @@ class ViewGroupFragment: Fragment() {
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
+    override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {
         viewModel.getStoredGroup()?.let {
-            inflater.inflate(R.menu.view_person_menu, menu)
+            inflater.inflate(R.menu.view_group_menu, menu)
         }
-
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+    override fun onMenuItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.delete -> {
                 onClickDelete()
@@ -123,7 +131,7 @@ class ViewGroupFragment: Fragment() {
                 onClickEdit()
                 true
             }
-            else -> return super.onOptionsItemSelected(item)
+            else -> false
         }
     }
 

@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.BundleCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
@@ -12,13 +13,17 @@ import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dreammaker.android.expensetracker.R
-import dreammaker.android.expensetracker.database.Date
 import dreammaker.android.expensetracker.database.HistoryModel
 import dreammaker.android.expensetracker.databinding.HistoryListBinding
-import dreammaker.android.expensetracker.ui.history.viewhistory.ViewHistoryItemFragment
 import dreammaker.android.expensetracker.ui.history.historieslist.ViewHistoryViewModel
+import dreammaker.android.expensetracker.ui.history.viewhistory.ViewHistoryItemFragment
+import dreammaker.android.expensetracker.ui.util.AccountModelParcel
+import dreammaker.android.expensetracker.ui.util.Constants
+import dreammaker.android.expensetracker.ui.util.GroupModelParcel
 import dreammaker.android.expensetracker.ui.util.getDate
 import dreammaker.android.expensetracker.ui.util.putHistoryType
+import dreammaker.android.expensetracker.ui.util.visibilityGone
+import dreammaker.android.expensetracker.ui.util.visible
 
 class ViewDayHistoryFragment : Fragment() {
 
@@ -34,8 +39,6 @@ class ViewDayHistoryFragment : Fragment() {
     private lateinit var adapter: DayHistoryListAdapter
 
     private var navController: NavController? = null
-
-    lateinit var date: Date
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -59,32 +62,36 @@ class ViewDayHistoryFragment : Fragment() {
         adapter.itemClickListener = this::handleItemClick
         binding.historyList.adapter = adapter
 
-        date = requireArguments().getDate(ARG_DATE)!!
-        viewModel.getDailyHistories(date).observe(viewLifecycleOwner, this::onHistoryLoaded)
+        val date = requireArguments().getDate(ARG_DATE)!!
+        val account = arguments?.let { BundleCompat.getParcelable(it, Constants.ARG_ACCOUNT, AccountModelParcel::class.java) }
+        val group = arguments?.let { BundleCompat.getParcelable(it, Constants.ARG_GROUP, GroupModelParcel::class.java) }
+        val histories = if (null !=  account) {
+            viewModel.getDailyHistoriesForAccount(date, account.id)
+        } else if (null != group) {
+            viewModel.getDailyHistoriesForGroup(date,group.id)
+        } else {
+            viewModel.getDailyHistories(date)
+        }
+        histories.observe(viewLifecycleOwner, this::onHistoryLoaded)
     }
 
     private fun onHistoryLoaded(histories: List<HistoryModel>?) {
         adapter.submitList(histories)
-        toggleEmptyViewAndHistoryListVisibility(histories?.isEmpty() == true)
-    }
-
-    private fun toggleEmptyViewAndHistoryListVisibility(showHistoryList: Boolean) {
-        if (showHistoryList) {
-            binding.historyList.visibility = View.GONE
-            binding.emptyView.visibility = View.VISIBLE
+        if (histories.isNullOrEmpty()) {
+            binding.historyList.visibilityGone()
+            binding.emptyView.visible()
         }
         else {
-            binding.emptyView.visibility = View.GONE
-            binding.historyList.visibility = View.VISIBLE
+            binding.emptyView.visibilityGone()
+            binding.historyList.visible()
         }
     }
 
     private fun handleItemClick(adapter: RecyclerView.Adapter<*>, view: View, position: Int) {
         val history = this.adapter.currentList[position]
-        var args = Bundle().apply {
+        navController?.navigate(R.id.action_history_list_to_view_history, Bundle().apply {
             putLong(ViewHistoryItemFragment.ARG_HISTORY_ID, history.id!!)
             putHistoryType(ViewHistoryItemFragment.ARG_HISTORY_TYPE, history.type!!)
-        }
-        navController?.navigate(R.id.action_history_list_to_history_item, args)
+        })
     }
 }

@@ -1,6 +1,5 @@
 package dreammaker.android.expensetracker.ui.history.viewhistory
 
-import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -10,8 +9,9 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
@@ -37,7 +37,7 @@ import dreammaker.android.expensetracker.ui.util.visible
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
-class ViewHistoryItemFragment: Fragment() {
+class ViewHistoryItemFragment: Fragment(), MenuProvider {
 
     companion object {
         private val TAG = ViewHistoryItemFragment::class.simpleName
@@ -50,14 +50,7 @@ class ViewHistoryItemFragment: Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var navController: NavController
-    private lateinit var viewModel: ViewHistoryItemViewModel
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        viewModel = ViewModelProvider(this,
-            ViewModelProvider.AndroidViewModelFactory(requireActivity().application))[ViewHistoryItemViewModel::class.java]
-        setHasOptionsMenu(true)
-    }
+    private val viewModel: ViewHistoryItemViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -178,6 +171,11 @@ class ViewHistoryItemFragment: Fragment() {
     private fun prepareGroupAndTags(group: GroupModel?) {
         group?.let {
             val chip = createInputChip(requireContext(), group.name!!, false)
+            chip.setOnClickListener {
+                navController.navigate(R.id.action_view_history_to_view_group, Bundle().apply {
+                    putLong(Constants.ARG_ID, group.id!!)
+                })
+            }
             binding.containerGroupAndTags.addView(chip)
             binding.groupAndTagsGroup.visible()
         }
@@ -192,14 +190,13 @@ class ViewHistoryItemFragment: Fragment() {
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
+    override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {
         viewModel.getStoredHistory()?.let {
-            inflater.inflate(R.menu.history_item_menu, menu)
+            inflater.inflate(R.menu.view_history_menu, menu)
         }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+    override fun onMenuItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.edit -> {
                 onClickEditHistory(viewModel.getStoredHistory())
@@ -209,7 +206,7 @@ class ViewHistoryItemFragment: Fragment() {
                 onClickDeleteHistory(viewModel.getStoredHistory())
                 true
             }
-            else ->  return super.onOptionsItemSelected(item)
+            else ->  false
         }
     }
 

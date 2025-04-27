@@ -15,6 +15,8 @@ class DailyHistoryFragmentAdapter(fragmentManager: FragmentManager, lifecycle: L
         private const val DATE_FORMAT = "EEE, dd-MMM-yyyy"
     }
 
+    private var arguments: Bundle? = null
+
     override fun getItemCount(): Int = Int.MAX_VALUE
 
     override fun getPresentData(): Date = Date()
@@ -27,7 +29,14 @@ class DailyHistoryFragmentAdapter(fragmentManager: FragmentManager, lifecycle: L
 
     override fun onCreateFragment(position: Int, data: Date): Fragment {
         val fragment = ViewDayHistoryFragment()
-        fragment.arguments = Bundle().apply { putDate(ViewDayHistoryFragment.ARG_DATE, data) }
+        fragment.arguments = Bundle().apply {
+            putDate(ViewDayHistoryFragment.ARG_DATE, data)
+            arguments?.let { putAll(it) }
+        }
         return fragment
+    }
+
+    fun putArguments(arguments: Bundle) {
+        this.arguments = arguments
     }
 }

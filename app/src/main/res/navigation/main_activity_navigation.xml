@@ -95,6 +95,13 @@
             app:popEnterAnim="@anim/slide_in_right"
             app:popExitAnim="@anim/slide_out_left"/>
 
+        <action android:id="@+id/action_view_account_to_history_list"
+            app:destination="@id/history_list"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:popEnterAnim="@anim/slide_in_right"
+            app:popExitAnim="@anim/slide_out_left"/>
+
     </fragment>
 
     <fragment android:id="@+id/create_account"
@@ -169,7 +176,7 @@
     <!-- History -->
 
     <fragment android:id="@+id/history_list"
-        android:name="dreammaker.android.expensetracker.ui.history.historieslist.daily.DailyViewHistoryFragment"
+        android:name="dreammaker.android.expensetracker.ui.history.historieslist.HistoryListContainer"
         android:label="@string/title_history_list"
         tools:layout="@layout/list_content">
 
@@ -180,7 +187,7 @@
             app:popEnterAnim="@anim/slide_in_right"
             app:popExitAnim="@anim/slide_out_left"/>
 
-        <action android:id="@+id/action_history_list_to_history_item"
+        <action android:id="@+id/action_history_list_to_view_history"
             app:destination="@id/view_history"
             app:enterAnim="@anim/slide_in_left"
             app:exitAnim="@anim/slide_out_right"

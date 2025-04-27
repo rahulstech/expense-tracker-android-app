@@ -1,6 +1,5 @@
 package dreammaker.android.expensetracker.ui.account.viewaccount
 
-import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -10,8 +9,10 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
@@ -33,7 +34,7 @@ import dreammaker.android.expensetracker.ui.util.visible
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
-class ViewAccountFragment: Fragment() {
+class ViewAccountFragment: Fragment(), MenuProvider {
 
     companion object {
         private val TAG = ViewAccountFragment::class.simpleName
@@ -42,25 +43,17 @@ class ViewAccountFragment: Fragment() {
     private var _binding: ViewAccountLayoutBinding? = null
     private val binding get() = _binding!!
     private lateinit var navController: NavController
-    private lateinit var viewModel: ViewAccountViewModel
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        viewModel = ViewModelProvider(this,
-            ViewModelProvider.AndroidViewModelFactory(requireActivity().application))[ViewAccountViewModel::class.java]
-        setHasOptionsMenu(true)
-    }
+    private val viewModel: ViewAccountViewModel by viewModels()
 
     private fun getArgAccountId(): Long = requireArguments().getLong(Constants.ARG_ID)
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
+    override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {
         viewModel.getStoredAccount()?.let {
             inflater.inflate(R.menu.view_account_menu, menu)
         }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+    override fun onMenuItemSelected(item: MenuItem): Boolean {
         return when(item.itemId) {
             R.id.edit -> {
                 navController.navigate(R.id.action_view_account_to_edit_account, Bundle().apply {
@@ -73,7 +66,7 @@ class ViewAccountFragment: Fragment() {
                 onClickDeleteAccount()
                 true
             }
-            else -> return super.onOptionsItemSelected(item)
+            else -> false
         }
     }
 
@@ -126,6 +119,7 @@ class ViewAccountFragment: Fragment() {
                 viewModel.emptyResult()
             }
         }
+        (requireActivity() as MenuHost).addMenuProvider(this, viewLifecycleOwner)
     }
 
     private fun navigateToCreateHistory(type: HistoryType) {
@@ -133,12 +127,18 @@ class ViewAccountFragment: Fragment() {
             navController.navigate(R.id.action_view_account_to_create_history, Bundle().apply {
                 putString(Constants.ARG_ACTION, Constants.ACTION_CREATE)
                 putHistoryType(HistoryInputFragment.ARG_HISTORY_TYPE, type)
-                putParcelable(HistoryInputFragment.ARG_ACCOUNT, AccountModelParcel(it))
+                putParcelable(Constants.ARG_ACCOUNT, AccountModelParcel(it))
             })
         }
     }
 
     private fun handleClickViewHistory() {
+        val account = viewModel.getStoredAccount()
+        account?.let {
+            navController.navigate(R.id.action_view_account_to_history_list, Bundle().apply {
+                putParcelable(Constants.ARG_ACCOUNT, AccountModelParcel(it))
+            })
+        }
     }
 
     private fun onAccountLoaded(account: AccountModel?) {

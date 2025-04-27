@@ -92,12 +92,11 @@
                 android:id="@+id/label_group_and_tags"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
                 android:text="@string/label_group_and_tags"
                 android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@id/divider3"
-                app:layout_constraintBottom_toBottomOf="@id/divider1"/>
+                app:layout_constraintTop_toTopOf="@id/container_group_and_tags"
+                app:layout_constraintBottom_toBottomOf="@id/container_group_and_tags"/>
 
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/container_group_and_tags"
@@ -107,8 +106,7 @@
                 android:layout_marginStart="16dp"
                 app:layout_constraintStart_toEndOf="@id/label_group_and_tags"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/divider3"
-                app:layout_constraintBottom_toTopOf="@id/divider1"/>
+                app:layout_constraintTop_toTopOf="@id/divider3"/>
 
             <TextView
                 android:id="@+id/destination_label"

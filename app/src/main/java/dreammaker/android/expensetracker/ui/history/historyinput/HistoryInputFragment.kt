@@ -44,8 +44,8 @@ class HistoryInputFragment : Fragment() {
         private const val HISTORY_INPUT_DATE_FORMAT = "EEEE, dd MMMM, yyyy"
         const val ARG_HISTORY_TYPE = "arg.history_type"
         const val ARG_HISTORY_DATE = "arg.history_date"
-        const val ARG_ACCOUNT = "arg_account"
-        const val ARG_GROUP = "arg_group"
+//        const val ARG_ACCOUNT = "arg_account"
+//        const val ARG_GROUP = "arg_group"
         const val ARG_SOURCE = "arg_source"
         const val ARG_DESTINATION = "arg_destination"
     }
@@ -65,10 +65,10 @@ class HistoryInputFragment : Fragment() {
     private fun getArgAction(): String = arguments?.getString(Constants.ARG_ACTION) ?: ""
 
     private fun getArgAccount(): AccountModelParcel?
-            = arguments?.let { BundleCompat.getParcelable(it, ARG_ACCOUNT, AccountModelParcel::class.java) }
+            = arguments?.let { BundleCompat.getParcelable(it, Constants.ARG_ACCOUNT, AccountModelParcel::class.java) }
 
     private fun getArgGroup(): GroupModelParcel?
-            = arguments?.let { BundleCompat.getParcelable(it, ARG_GROUP, GroupModelParcel::class.java) }
+            = arguments?.let { BundleCompat.getParcelable(it, Constants.ARG_GROUP, GroupModelParcel::class.java) }
 
     private fun isActionEdit(): Boolean = getArgAction() == Constants.ACTION_EDIT
 
@@ -88,13 +88,13 @@ class HistoryInputFragment : Fragment() {
     }
 
     private fun getSelectedGroupLiveData(): LiveData<GroupModelParcel?>?
-            = navController.currentBackStackEntry?.savedStateHandle?.getLiveData(ARG_GROUP, null)
+            = navController.currentBackStackEntry?.savedStateHandle?.getLiveData(Constants.ARG_GROUP, null)
 
     private fun getSelectedGroup(): GroupModel?
-            = navController.currentBackStackEntry?.savedStateHandle?.get<GroupModelParcel?>(ARG_GROUP)?.toGroupModel()
+            = navController.currentBackStackEntry?.savedStateHandle?.get<GroupModelParcel?>(Constants.ARG_GROUP)?.toGroupModel()
 
     private fun removeSelectedGroup() {
-        navController.currentBackStackEntry?.savedStateHandle?.set(ARG_GROUP,null)
+        navController.currentBackStackEntry?.savedStateHandle?.set(Constants.ARG_GROUP,null)
     }
 
     /////////////////////////////////////////////////////////////////
@@ -230,10 +230,9 @@ class HistoryInputFragment : Fragment() {
                 showSourceAccount(history.srcAccount,false)
                 binding.inputSource.disable()
             }
-            else if (hasArgument(ARG_ACCOUNT)) {
+            else if (hasArgument(Constants.ARG_ACCOUNT)) {
                 val source = getArgAccount()?.toAccountModel()
                 source?.let {
-                    Log.d(TAG,"prepareSourceInput: source=$source")
                     showSourceAccount(source, false)
                     binding.inputSource.disable()
                 }
@@ -260,10 +259,9 @@ class HistoryInputFragment : Fragment() {
                 showDestinationAccount(history.destAccount, false)
                 binding.inputDestination.disable()
             }
-            else if (hasArgument(ARG_ACCOUNT)) {
+            else if (hasArgument(Constants.ARG_ACCOUNT) && type == HistoryType.CREDIT) {
                 val destination = getArgAccount()?.toAccountModel()
                 destination?.let {
-                    Log.d(TAG,"prepareDestinationInput: destination=$destination")
                     showDestinationAccount(destination, false)
                     binding.inputDestination.disable()
                 }
@@ -289,7 +287,7 @@ class HistoryInputFragment : Fragment() {
                 showGroup(history.group, false)
                 binding.inputGroup.disable()
             }
-            else if (hasArgument(ARG_GROUP)) {
+            else if (hasArgument(Constants.ARG_GROUP)) {
                 val group = getArgGroup()?.toGroupModel()
                 group?.let {
                     showGroup(it, false)
@@ -300,7 +298,7 @@ class HistoryInputFragment : Fragment() {
                 getSelectedGroupLiveData()?.observe(viewLifecycleOwner) { showGroup(it?.toGroupModel())}
                 binding.inputGroup.setOnClickListener {
                     navController.navigate(R.id.action_create_history_to_group_picker, Bundle().apply {
-                        putString(Constants.ARG_RESULT_KEY, ARG_GROUP)
+                        putString(Constants.ARG_RESULT_KEY, Constants.ARG_GROUP)
                         getSelectedGroup()?.let { putLong(Constants.ARG_INITIAL_SELECTION, it.id!!) }
                     })
                 }
@@ -356,11 +354,11 @@ class HistoryInputFragment : Fragment() {
         }
         else {
             var srcAccountId: Long? = getSelectedAccount(ARG_SOURCE)?.id
-            if (null == srcAccountId && type.needsSourceAccount() && hasArgument(ARG_ACCOUNT)) {
+            var destAccountId: Long? = getSelectedAccount(ARG_DESTINATION)?.id
+            if (null == srcAccountId && type.needsSourceAccount() && hasArgument(Constants.ARG_ACCOUNT)) {
                 srcAccountId = getArgAccount()?.id
             }
-            var destAccountId: Long? = getSelectedAccount(ARG_DESTINATION)?.id
-            if (null == destAccountId && type.needsDestinationAccount() && hasArgument(ARG_ACCOUNT)) {
+            if (null == destAccountId && type == HistoryType.CREDIT && hasArgument(Constants.ARG_ACCOUNT)) {
                 destAccountId = getArgAccount()?.id
             }
             HistoryModel(
