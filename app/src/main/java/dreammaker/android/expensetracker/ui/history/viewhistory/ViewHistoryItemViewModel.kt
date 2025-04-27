@@ -1,4 +1,4 @@
-package dreammaker.android.expensetracker.ui.history.historyitem
+package dreammaker.android.expensetracker.ui.history.viewhistory
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
@@ -10,6 +10,8 @@ import dreammaker.android.expensetracker.database.HistoryModel
 import dreammaker.android.expensetracker.database.HistoryType
 import dreammaker.android.expensetracker.ui.util.OperationResult
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
@@ -39,6 +41,13 @@ class ViewHistoryItemViewModel(app: Application): AndroidViewModel(app) {
         return historyLiveData
     }
 
+    private val _resultState = MutableStateFlow<OperationResult<HistoryModel>?>(null)
+    val resultState: Flow<OperationResult<HistoryModel>?> = _resultState
+
+    fun emptyResult() {
+        viewModelScope.launch { _resultState.emit(null) }
+    }
+
     fun removeHistory(history: HistoryModel) {
         viewModelScope.launch {
             flow {
@@ -52,6 +61,7 @@ class ViewHistoryItemViewModel(app: Application): AndroidViewModel(app) {
                 }
             }
                 .flowOn(Dispatchers.IO)
+                .collect{ _resultState.emit(it) }
         }
     }
 }

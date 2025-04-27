@@ -21,6 +21,7 @@ import dreammaker.android.expensetracker.database.AccountModel
 import dreammaker.android.expensetracker.database.HistoryType
 import dreammaker.android.expensetracker.databinding.ViewAccountLayoutBinding
 import dreammaker.android.expensetracker.ui.history.historyinput.HistoryInputFragment
+import dreammaker.android.expensetracker.ui.util.AccountModelParcel
 import dreammaker.android.expensetracker.ui.util.Constants
 import dreammaker.android.expensetracker.ui.util.OperationResult
 import dreammaker.android.expensetracker.ui.util.hasArgument
@@ -114,27 +115,9 @@ class ViewAccountFragment: Fragment() {
                 target.visible()
             }
         }
-        binding.btnAddDebit.setOnClickListener {
-            navController.navigate(R.id.action_view_account_to_create_history, Bundle().apply {
-                putString(Constants.ARG_ACTION, Constants.ACTION_CREATE)
-                putHistoryType(HistoryInputFragment.ARG_HISTORY_TYPE, HistoryType.DEBIT)
-                putLong(HistoryInputFragment.ARG_SOURCE, getArgAccountId())
-            })
-        }
-        binding.btnAddDebit.setOnClickListener {
-            navController.navigate(R.id.action_view_account_to_create_history, Bundle().apply {
-                putString(Constants.ARG_ACTION, Constants.ACTION_CREATE)
-                putHistoryType(HistoryInputFragment.ARG_HISTORY_TYPE, HistoryType.CREDIT)
-                putLong(HistoryInputFragment.ARG_DESTINATION, getArgAccountId())
-            })
-        }
-        binding.btnAddTransfer.setOnClickListener {
-            navController.navigate(R.id.action_view_account_to_create_history, Bundle().apply {
-                putString(Constants.ARG_ACTION, Constants.ACTION_CREATE)
-                putHistoryType(HistoryInputFragment.ARG_HISTORY_TYPE, HistoryType.TRANSFER)
-                putLong(HistoryInputFragment.ARG_SOURCE, getArgAccountId())
-            })
-        }
+        binding.btnAddCredit.setOnClickListener { navigateToCreateHistory(HistoryType.CREDIT) }
+        binding.btnAddDebit.setOnClickListener { navigateToCreateHistory(HistoryType.DEBIT) }
+        binding.btnAddTransfer.setOnClickListener { navigateToCreateHistory(HistoryType.TRANSFER) }
         binding.btnViewHistory.setOnClickListener { handleClickViewHistory() }
         viewModel.findAccountById(getArgAccountId()).observe(viewLifecycleOwner, this::onAccountLoaded)
         lifecycleScope.launch {
@@ -142,6 +125,16 @@ class ViewAccountFragment: Fragment() {
                 onAccountDeleted(it)
                 viewModel.emptyResult()
             }
+        }
+    }
+
+    private fun navigateToCreateHistory(type: HistoryType) {
+        viewModel.getStoredAccount()?.let {
+            navController.navigate(R.id.action_view_account_to_create_history, Bundle().apply {
+                putString(Constants.ARG_ACTION, Constants.ACTION_CREATE)
+                putHistoryType(HistoryInputFragment.ARG_HISTORY_TYPE, type)
+                putParcelable(HistoryInputFragment.ARG_ACCOUNT, AccountModelParcel(it))
+            })
         }
     }
 
@@ -171,11 +164,11 @@ class ViewAccountFragment: Fragment() {
 
     private fun onAccountDeleted(result: OperationResult<AccountModel>?) {
         result?.let {
-            if (!result.isFailure()) {
-                navController.popBackStack()
+            if (result.isFailure()) {
+                Log.e(TAG, "onAccountDeleted: delete failed account=${viewModel.getStoredAccount()}", result.error)
             }
             else {
-                Log.e(TAG, "onAccountDeleted: id=$id", result.error)
+                navController.popBackStack()
             }
         }
     }

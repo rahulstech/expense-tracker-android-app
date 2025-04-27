@@ -1,4 +1,4 @@
-package dreammaker.android.expensetracker.ui.history.viewhistories.daily
+package dreammaker.android.expensetracker.ui.history.historieslist.daily
 
 import android.content.Context
 import android.os.Bundle
@@ -15,8 +15,8 @@ import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.database.Date
 import dreammaker.android.expensetracker.database.HistoryModel
 import dreammaker.android.expensetracker.databinding.HistoryListBinding
-import dreammaker.android.expensetracker.ui.history.historyitem.ViewHistoryItemFragment
-import dreammaker.android.expensetracker.ui.history.viewhistories.ViewHistoryViewModel
+import dreammaker.android.expensetracker.ui.history.viewhistory.ViewHistoryItemFragment
+import dreammaker.android.expensetracker.ui.history.historieslist.ViewHistoryViewModel
 import dreammaker.android.expensetracker.ui.util.getDate
 import dreammaker.android.expensetracker.ui.util.putHistoryType
 

@@ -4,26 +4,18 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.google.android.material.chip.Chip
-import dreammaker.android.expensetracker.database.AccountModel
-import dreammaker.android.expensetracker.database.PersonModel
 import dreammaker.android.expensetracker.databinding.PickerChipBinding
 
-fun createChip(context: Context, name: String, canClose: Boolean = true): Chip {
+fun createInputChip(context: Context, contentText: String, canClose: Boolean = true): Chip {
     val inflater = LayoutInflater.from(context)
     val binding = PickerChipBinding.inflate(inflater)
     return binding.root.apply {
-        text = name
+        text = contentText
         isCloseIconVisible = canClose
         isCheckable = false
         isCheckedIconVisible = false
     }
 }
-
-fun createAccountChip(context: Context, account: AccountModel, canClose: Boolean = true): Chip =
-    createChip(context, account.name ?: "", canClose)
-
-fun createPersonChip(context: Context, person: PersonModel, canClose: Boolean = true): Chip =
-    createChip(context, person.name ?: "", canClose)
 
 class SelectionChipMaker<KeyType: Any>(
     val chipContainer: ViewGroup,

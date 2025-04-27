@@ -36,7 +36,7 @@
     <!-- Fragment Transactions List -->
     <fragment
         android:id="@+id/transactionsList"
-        android:name="dreammaker.android.expensetracker.ui.history.viewhistories.daily.DailyViewHistoryFragment"
+        android:name="dreammaker.android.expensetracker.ui.history.historieslist.daily.DailyViewHistoryFragment"
         android:label="@string/label_transactions_list"
         tools:layout="@layout/list_content">
 
@@ -169,33 +169,45 @@
     <!-- History -->
 
     <fragment android:id="@+id/history_list"
-        android:name="dreammaker.android.expensetracker.ui.history.viewhistories.daily.DailyViewHistoryFragment"
+        android:name="dreammaker.android.expensetracker.ui.history.historieslist.daily.DailyViewHistoryFragment"
         android:label="@string/title_history_list"
         tools:layout="@layout/list_content">
+
         <action android:id="@+id/action_history_list_to_history_input"
             app:destination="@id/create_history"
             app:enterAnim="@anim/slide_in_left"
             app:exitAnim="@anim/slide_out_right"
             app:popEnterAnim="@anim/slide_in_right"
             app:popExitAnim="@anim/slide_out_left"/>
+
         <action android:id="@+id/action_history_list_to_history_item"
-            app:destination="@id/history_item"
+            app:destination="@id/view_history"
             app:enterAnim="@anim/slide_in_left"
             app:exitAnim="@anim/slide_out_right"
             app:popEnterAnim="@anim/slide_in_right"
             app:popExitAnim="@anim/slide_out_left"/>
     </fragment>
 
-    <fragment android:id="@+id/history_item"
-        android:name="dreammaker.android.expensetracker.ui.history.historyitem.ViewHistoryItemFragment"
+    <fragment android:id="@+id/view_history"
+        android:name="dreammaker.android.expensetracker.ui.history.viewhistory.ViewHistoryItemFragment"
+        android:label="@string/title_view_history"
         tools:layout="@layout/history_item_layout">
-        <action android:id="@+id/action_history_item_to_view_account"
+
+        <action android:id="@+id/action_view_history_to_view_account"
             app:destination="@id/view_account"
             app:enterAnim="@anim/slide_in_left"
             app:exitAnim="@anim/slide_out_right"
             app:popEnterAnim="@anim/slide_in_right"
             app:popExitAnim="@anim/slide_out_left"/>
-        <action android:id="@+id/action_history_item_to_edit_history"
+
+        <action android:id="@+id/action_view_history_to_view_group"
+            app:destination="@id/view_group"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:popEnterAnim="@anim/slide_in_right"
+            app:popExitAnim="@anim/slide_out_left"/>
+
+        <action android:id="@+id/action_view_history_to_edit_history"
             app:destination="@id/edit_history"
             app:enterAnim="@anim/slide_in_left"
             app:exitAnim="@anim/slide_out_right"
@@ -209,12 +221,20 @@
         android:label="@string/title_input_history_create"
         tools:layout="@layout/history_input_layout">
 
-        <action android:id="@+id/action_history_input_to_account_chooser_list"
+        <action android:id="@+id/action_create_history_to_account_picker"
             app:destination="@id/pick_history_account"
             app:enterAnim="@anim/slide_in_left"
             app:exitAnim="@anim/slide_out_right"
             app:popEnterAnim="@anim/slide_in_right"
             app:popExitAnim="@anim/slide_out_left"/>
+
+        <action android:id="@+id/action_create_history_to_group_picker"
+            app:destination="@id/pick_history_group"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:popEnterAnim="@anim/slide_in_right"
+            app:popExitAnim="@anim/slide_out_left"/>
+
     </fragment>
 
     <fragment
@@ -227,8 +247,14 @@
 
     <fragment
         android:id="@+id/pick_history_account"
-        android:name="dreammaker.android.expensetracker.ui.history.historyinput.PickHistoryAccountFragment"
+        android:name="dreammaker.android.expensetracker.ui.history.historyinput.picker.account.PickHistoryAccountFragment"
         android:label="@string/title_account_chooser"
+        tools:layout="@layout/chooser_list_layout"/>
+
+    <fragment
+        android:id="@+id/pick_history_group"
+        android:name="dreammaker.android.expensetracker.ui.history.historyinput.picker.group.PickHistoryGroupFragment"
+        android:label="@string/title_history_group_picker"
         tools:layout="@layout/chooser_list_layout"/>
 
 </navigation>

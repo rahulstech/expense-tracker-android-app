@@ -174,7 +174,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="12dp"
             android:background="@drawable/rounded_rectangle_border"
             android:visibility="gone"
             tools:visibility="visible">
@@ -186,14 +186,24 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="12dp"
                 android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                android:text="@string/label_history_input_group"/>
+                android:text="@string/label_history_input_group" />
 
-            <Spinner
-                android:id="@+id/group_input"
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/selected_group_container"
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_weight="1"/>
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:animateLayoutChanges="true"
+                app:selectionRequired="false"/>
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/input_group"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0"
+                app:icon="@drawable/baseline_arrow_right"
+                style="@style/Widget.AppTheme.Button.PickerArrow"
+                tools:ignore="ContentDescription" />
         </LinearLayout>
 
         <Button

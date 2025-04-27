@@ -1,0 +1,122 @@
+package dreammaker.android.expensetracker.ui.util
+
+import android.content.Context
+import android.content.res.ColorStateList
+import android.os.Bundle
+import android.os.Parcel
+import android.os.Parcelable
+import dreammaker.android.expensetracker.R
+import dreammaker.android.expensetracker.database.AccountModel
+import dreammaker.android.expensetracker.database.Date
+import dreammaker.android.expensetracker.database.GroupModel
+import dreammaker.android.expensetracker.database.HistoryType
+
+class AccountModelParcel(val id: Long, val name: String, val balance: Float): Parcelable {
+
+    constructor(account: AccountModel): this(
+        account.id ?: 0,account.name ?: "",account.balance ?: 0f
+    )
+
+    private constructor(parcel: Parcel): this(
+        parcel.readLong(),
+        parcel.readString()!!,
+        parcel.readFloat()
+    )
+
+    fun toAccountModel(): AccountModel = AccountModel(id, name, balance)
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeLong(id)
+        parcel.writeString(name)
+        parcel.writeFloat(balance)
+    }
+
+    override fun describeContents(): Int = 0
+
+    companion object CREATOR : Parcelable.Creator<AccountModelParcel> {
+        override fun createFromParcel(parcel: Parcel): AccountModelParcel {
+            return AccountModelParcel(parcel)
+        }
+
+        override fun newArray(size: Int): Array<AccountModelParcel?> {
+            return arrayOfNulls(size)
+        }
+    }
+}
+
+class GroupModelParcel(val id: Long, val name: String, val balance: Float): Parcelable {
+
+    constructor(group: GroupModel): this(
+        group.id ?: 0,
+        group.name ?: "",
+        group.balance ?: 0f
+    )
+
+    private constructor(parcel: Parcel) : this(
+        parcel.readLong(),
+        parcel.readString()!!,
+        parcel.readFloat()
+    )
+
+    fun toGroupModel(): GroupModel = GroupModel(id, name, balance)
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeLong(id)
+        parcel.writeString(name)
+        parcel.writeFloat(balance)
+    }
+
+    override fun describeContents(): Int = 0
+
+    companion object CREATOR : Parcelable.Creator<GroupModelParcel> {
+        override fun createFromParcel(parcel: Parcel): GroupModelParcel {
+            return GroupModelParcel(parcel)
+        }
+
+        override fun newArray(size: Int): Array<GroupModelParcel?> {
+            return arrayOfNulls(size)
+        }
+    }
+}
+
+fun Bundle.putDate(key: String, date: Date?) {
+    putString(key, date?.toString())
+}
+
+fun Bundle.getDate(key: String, defaultDate: Date? = null): Date? {
+    val dateString = getString(key, null)
+    return if (null == dateString) defaultDate else Date.valueOf(dateString)
+}
+
+fun Bundle.putHistoryType(key: String, type: HistoryType?) {
+    putString(key, type?.name)
+}
+
+fun Bundle.getHistoryType(key: String, defaultType: HistoryType? = null): HistoryType? {
+    val name = getString(key, null)
+    return if (null == name) defaultType else HistoryType.valueOf(name)
+}
+
+fun HistoryType.getLabel(context: Context): CharSequence {
+    return when(this) {
+        HistoryType.CREDIT -> context.getString(R.string.label_history_type_credit)
+        HistoryType.DEBIT -> context.getString(R.string.label_history_type_debit)
+        HistoryType.TRANSFER -> context.getString(R.string.label_history_type_transfer)
+    }
+}
+
+fun HistoryType.getBackgroundColor(context: Context): ColorStateList {
+    return context.resources.getColorStateList(when(this) {
+        HistoryType.CREDIT -> R.color.colorCredit
+        HistoryType.DEBIT -> R.color.colorDebit
+        HistoryType.TRANSFER -> R.color.colorTransfer
+    }, null)
+}
+
+fun HistoryType.getColorOnBackground(context: Context): ColorStateList {
+    return context.resources.getColorStateList(when(this) {
+        HistoryType.CREDIT -> R.color.colorOnCredit
+        HistoryType.DEBIT -> R.color.colorOnDebit
+        HistoryType.TRANSFER -> R.color.colorOnTransfer
+    }, null)
+}

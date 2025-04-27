@@ -7,8 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
@@ -27,9 +26,8 @@ class GroupInputFragment : Fragment() {
     private var _binding: InputGroupBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: GroupInputViewModel by activityViewModels()
+    private val viewModel: GroupInputViewModel by viewModels()
     private lateinit var navController: NavController
-    private val observer = Observer<GroupModel?> { onGroupLoaded(it) }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -49,7 +47,7 @@ class GroupInputFragment : Fragment() {
         if (isActionEdit()) {
             if (null == viewModel.getStoredGroup()) {
                 val id = requireArguments().getLong(Constants.ARG_ID)
-                viewModel.findGroupById(id).observe(viewLifecycleOwner, observer)
+                viewModel.findGroupById(id).observe(viewLifecycleOwner, this::onGroupLoaded)
             }
         }
         lifecycleScope.launch {
@@ -68,7 +66,7 @@ class GroupInputFragment : Fragment() {
         else {
             binding.name.setText(group.name)
             binding.balance.setText(group.balance.toString())
-            viewModel.groupsLiveData.removeObserver(observer)
+            viewModel.groupsLiveData.removeObservers(viewLifecycleOwner)
         }
     }
 

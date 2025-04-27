@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
@@ -27,15 +27,8 @@ class AccountInputFragment : Fragment() {
     private var _binding: InputAccountBinding? = null
     private val binding get() = this._binding!!
 
-    private lateinit var viewModel: AccountInputViewModel
+    private val viewModel: AccountInputViewModel by viewModels()
     private lateinit var navController: NavController
-    private val observer = Observer<AccountModel?> { onAccountLoaded(it) }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        viewModel = ViewModelProvider(this,
-            ViewModelProvider.AndroidViewModelFactory(requireActivity().application))[AccountInputViewModel::class.java]
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,7 +61,7 @@ class AccountInputFragment : Fragment() {
         if (isActionEdit()) {
             if (viewModel.getStoredAccount() == null) {
                 val id = requireArguments().getLong(Constants.ARG_ID)
-                viewModel.findAccountById(id).observe(viewLifecycleOwner, observer)
+                viewModel.findAccountById(id).observe(viewLifecycleOwner, this::onAccountLoaded)
             }
         }
     }
@@ -81,7 +74,7 @@ class AccountInputFragment : Fragment() {
         else {
             binding.name.setText(account.name)
             binding.balance.setText(account.balance!!.toString())
-            viewModel.accountLiveData.removeObserver(observer)
+            viewModel.accountLiveData.removeObservers(viewLifecycleOwner)
         }
     }
 

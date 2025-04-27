@@ -2,6 +2,7 @@ package dreammaker.android.expensetracker.ui.group.viewgroup
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
@@ -86,7 +87,7 @@ class ViewGroupFragment: Fragment() {
         viewModel.findGroupById(getArgGroupId()).observe(viewLifecycleOwner, this::onGroupLoaded)
         lifecycleScope.launch {
             viewModel.resultState.filterNotNull().collect {
-                onDeleted(it)
+                onGroupDeleted(it)
                 viewModel.emptyResult()
             }
         }
@@ -138,10 +139,10 @@ class ViewGroupFragment: Fragment() {
         }
     }
 
-    private fun onDeleted(result: OperationResult<GroupModel>?) {
+    private fun onGroupDeleted(result: OperationResult<GroupModel>?) {
         result?.let {
             if (result.isFailure()) {
-
+                Log.e(TAG,"onGroupDeleted delete filed group=${viewModel.getStoredGroup()}",result.error)
             }
             else {
                 navController.popBackStack()

@@ -21,4 +21,7 @@
     <plurals name="warning_delete_group">
         <item quantity="one">%1$s will be deleted permanently. Do you want to proceed?</item>
     </plurals>
+    <plurals name="warning_delete_history">
+        <item quantity="one">You are about to delete this history permanently. On successful delete the amount is reverted. Do you want to proceed?</item>
+    </plurals>
 </resources>

@@ -1,21 +1,17 @@
 package dreammaker.android.expensetracker.ui.history.historyinput
 
 import android.app.DatePickerDialog
-import android.content.Context
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.Toast
-import androidx.core.view.children
+import androidx.core.os.BundleCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
@@ -29,10 +25,10 @@ import dreammaker.android.expensetracker.database.HistoryType
 import dreammaker.android.expensetracker.databinding.HistoryInputLayoutBinding
 import dreammaker.android.expensetracker.ui.util.AccountModelParcel
 import dreammaker.android.expensetracker.ui.util.Constants
+import dreammaker.android.expensetracker.ui.util.GroupModelParcel
 import dreammaker.android.expensetracker.ui.util.OperationResult
-import dreammaker.android.expensetracker.ui.util.createAccountChip
+import dreammaker.android.expensetracker.ui.util.createInputChip
 import dreammaker.android.expensetracker.ui.util.disable
-import dreammaker.android.expensetracker.ui.util.enable
 import dreammaker.android.expensetracker.ui.util.getDate
 import dreammaker.android.expensetracker.ui.util.getHistoryType
 import dreammaker.android.expensetracker.ui.util.hasArgument
@@ -46,29 +42,64 @@ class HistoryInputFragment : Fragment() {
     companion object {
         private val TAG = HistoryInputFragment::class.simpleName
         private const val HISTORY_INPUT_DATE_FORMAT = "EEEE, dd MMMM, yyyy"
-        private const val KEY_SELECTED_GROUP = "key_selected_group"
         const val ARG_HISTORY_TYPE = "arg.history_type"
         const val ARG_HISTORY_DATE = "arg.history_date"
-        const val ARG_SOURCE = "arg.source"
-        const val ARG_DESTINATION = "arg.destination"
-        const val ARG_GROUP = "arg.group"
+        const val ARG_ACCOUNT = "arg_account"
+        const val ARG_GROUP = "arg_group"
+        const val ARG_SOURCE = "arg_source"
+        const val ARG_DESTINATION = "arg_destination"
     }
 
     private var _binding: HistoryInputLayoutBinding? = null
     private val binding get() = _binding!!
-    private lateinit var groupPickerAdapter: GroupPickerAdapter
-    private lateinit var viewModel: HistoryInputViewModel
+    private val viewModel: HistoryInputViewModel by viewModels()
     private lateinit var navController: NavController
     private lateinit var selectedDate: Date
     private lateinit var selectedType: HistoryType
 
-    private val observer = Observer<HistoryModel?> { onHistoryLoaded(it) }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        viewModel = ViewModelProvider(requireParentFragment(),
-            ViewModelProvider.AndroidViewModelFactory(requireActivity().application))[HistoryInputViewModel::class.java]
+    /////////////////////////////////////////////////////////////////
+    ///                 Fragment Argument                        ///
+    ///////////////////////////////////////////////////////////////
+
+    private fun getArgAction(): String = arguments?.getString(Constants.ARG_ACTION) ?: ""
+
+    private fun getArgAccount(): AccountModelParcel?
+            = arguments?.let { BundleCompat.getParcelable(it, ARG_ACCOUNT, AccountModelParcel::class.java) }
+
+    private fun getArgGroup(): GroupModelParcel?
+            = arguments?.let { BundleCompat.getParcelable(it, ARG_GROUP, GroupModelParcel::class.java) }
+
+    private fun isActionEdit(): Boolean = getArgAction() == Constants.ACTION_EDIT
+
+
+    /////////////////////////////////////////////////////////////////
+    ///                     Selections                           ///
+    ///////////////////////////////////////////////////////////////
+
+    private fun getSelectedAccountLiveData(key: String): LiveData<AccountModelParcel?>?
+            = navController.currentBackStackEntry?.savedStateHandle?.getLiveData(key, null)
+
+    private fun getSelectedAccount(key: String): AccountModel?
+            = navController.currentBackStackEntry?.savedStateHandle?.get<AccountModelParcel?>(key)?.toAccountModel()
+
+    private fun removeSelectedAccount(key: String) {
+        navController.currentBackStackEntry?.savedStateHandle?.set(key,null)
     }
+
+    private fun getSelectedGroupLiveData(): LiveData<GroupModelParcel?>?
+            = navController.currentBackStackEntry?.savedStateHandle?.getLiveData(ARG_GROUP, null)
+
+    private fun getSelectedGroup(): GroupModel?
+            = navController.currentBackStackEntry?.savedStateHandle?.get<GroupModelParcel?>(ARG_GROUP)?.toGroupModel()
+
+    private fun removeSelectedGroup() {
+        navController.currentBackStackEntry?.savedStateHandle?.set(ARG_GROUP,null)
+    }
+
+    /////////////////////////////////////////////////////////////////
+    ///                     Fragment Api                         ///
+    ///////////////////////////////////////////////////////////////
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,17 +107,13 @@ class HistoryInputFragment : Fragment() {
             throw IllegalStateException("'${Constants.ARG_ACTION}' is not found in arguments")
         }
         val action = requireArguments().getString(Constants.ARG_ACTION, Constants.ACTION_CREATE)
-        if (action == Constants.ACTION_EDIT && !requireArguments().containsKey(Constants.ARG_ID)) {
+        if (action == Constants.ACTION_EDIT && !hasArgument(Constants.ARG_ID)) {
             throw IllegalStateException("when ${Constants.ARG_ACTION}='${Constants.ACTION_EDIT}' then '${Constants.ARG_ID}' is required")
         }
-        if (!requireArguments().containsKey(ARG_HISTORY_TYPE)) {
+        if (!hasArgument(ARG_HISTORY_TYPE)) {
             throw IllegalStateException("when ${Constants.ARG_ACTION}='${Constants.ACTION_EDIT}' then $ARG_HISTORY_TYPE is required")
         }
     }
-
-    private fun getArgAction(): String = arguments?.getString(Constants.ARG_ACTION) ?: ""
-
-    private fun isActionEdit(): Boolean = getArgAction() == Constants.ACTION_EDIT
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -99,7 +126,6 @@ class HistoryInputFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         navController = Navigation.findNavController(view)
-
         selectedType = requireArguments().getHistoryType(ARG_HISTORY_TYPE)!!
         prepareDateInput()
         prepareType(selectedType)
@@ -108,9 +134,6 @@ class HistoryInputFragment : Fragment() {
         prepareGroupInput(selectedType)
         binding.btnSave.setOnClickListener { onClickSave() }
         binding.btnCancel.setOnClickListener { onClickCancel() }
-
-        getSelectedAccountLiveData(ARG_SOURCE)?.observe(viewLifecycleOwner) { showSourceAccount(it?.toAccountModel()) }
-        getSelectedAccountLiveData(ARG_DESTINATION)?.observe(viewLifecycleOwner){ showDestinationAccount(it?.toAccountModel())}
         lifecycleScope.launch {
             viewModel.resultState
                 .filterNotNull()
@@ -119,27 +142,18 @@ class HistoryInputFragment : Fragment() {
                     viewModel.emptyResult()
                 }
         }
-    }
-
-    private fun getSelectedAccountLiveData(key: String): LiveData<AccountModelParcel?>?
-    = navController.currentBackStackEntry?.savedStateHandle?.getLiveData(key, null)
-
-    private fun getSelectedAccount(key: String): AccountModel?
-    = navController.currentBackStackEntry?.savedStateHandle?.getLiveData<AccountModelParcel?>(key, null)?.value?.toAccountModel()
-
-    private fun removeSelectedAccount(key: String) {
-        navController.currentBackStackEntry?.savedStateHandle?.set(key,null)
-    }
-
-    private fun getSelectedGroup(): GroupModel? {
-        val group = binding.groupInput.selectedItem as GroupModel
-        if (group == NoGroup) {
-            return null
+        if (isActionEdit()) {
+            val history = viewModel.getStoredHistory()
+            if (history == null) {
+                val id = requireArguments().getLong(Constants.ARG_ID)
+                val type = requireArguments().getHistoryType(ARG_HISTORY_TYPE)!!
+                viewModel.findHistory(id,type).observe(viewLifecycleOwner, this::onHistoryLoaded)
+            }
         }
-        return group
     }
 
     private fun onHistoryLoaded(history: HistoryModel?) {
+        Log.d(TAG, "onHistoryLoaded history=$history")
         if (null == history) {
             Toast.makeText(requireContext(), R.string.message_history_not_found, Toast.LENGTH_LONG).show()
             navController.popBackStack()
@@ -149,24 +163,23 @@ class HistoryInputFragment : Fragment() {
             binding.inputAmount.setText(history.amount!!.toString())
             binding.inputNote.setText(history.note)
             setSelectedDate(history.date!!)
-            showSourceAccount(history.srcAccount)
-            showDestinationAccount(history.destAccount)
             binding.inputDate.disable()
             binding.inputSource.disable()
-            binding.selectedSourceContainer.children.firstOrNull()?.disable()
             binding.inputDestination.disable()
-            binding.selectedDestinationContainer.children.firstOrNull()?.disable()
-
             val type = history.type!!
             if (type.needsSourceAccount()) {
+                showSourceAccount(history.srcAccount,false)
                 binding.sourceLayout.visible()
             }
             if (type.needsDestinationAccount()) {
+                showDestinationAccount(history.destAccount, false)
                 binding.destinationLayout.visible()
             }
-            history.groupId?.let { setSelectedGroup(it) }
-
-            viewModel.history.removeObserver(observer)
+            if (type.needsGroup()) {
+                showGroup(history.group, false)
+                binding.selectedGroupContainer.visible()
+            }
+            viewModel.historyLiveData.removeObservers(viewLifecycleOwner)
         }
     }
 
@@ -193,10 +206,15 @@ class HistoryInputFragment : Fragment() {
     }
 
     private fun prepareDateInput() {
-        if (requireArguments().containsKey(ARG_HISTORY_DATE)) {
+        val history = viewModel.getStoredHistory()
+        if (null != history) {
+            setSelectedDate(history.date!!)
+            binding.inputDate.disable()
+        }
+        else if (hasArgument(ARG_HISTORY_DATE)) {
             val date = requireArguments().getDate(ARG_HISTORY_DATE)!!
             setSelectedDate(date)
-            binding.inputDate.enable()
+            binding.inputDate.disable()
         }
         else {
             val date = Date()
@@ -206,81 +224,88 @@ class HistoryInputFragment : Fragment() {
     }
 
     private fun prepareSourceInput(type: HistoryType) {
-        if (arguments?.containsKey(ARG_SOURCE) == true) {
-            val source = requireArguments().getParcelable<AccountModelParcel?>(ARG_SOURCE)?.toAccountModel()
-            source?.let {
-                showSourceAccount(source, true)
+        if (type.needsSourceAccount()) {
+            val history = viewModel.getStoredHistory()
+            if (null != history) {
+                showSourceAccount(history.srcAccount,false)
                 binding.inputSource.disable()
-                binding.sourceLayout.visible()
             }
-        }
-        else if (type.needsSourceAccount()) {
-            binding.inputSource.setOnClickListener{
-                val args = Bundle().apply {
-                    putString(Constants.ARG_DESTINATION_LABEL, getString(R.string.title_choose_source_account))
-                    putString(Constants.ARG_RESULT_KEY, ARG_SOURCE)
-                    getSelectedAccount(ARG_SOURCE)?.let { putLong(Constants.ARG_INITIAL_SELECTION, it.id!!) }
+            else if (hasArgument(ARG_ACCOUNT)) {
+                val source = getArgAccount()?.toAccountModel()
+                source?.let {
+                    Log.d(TAG,"prepareSourceInput: source=$source")
+                    showSourceAccount(source, false)
+                    binding.inputSource.disable()
                 }
-                navController.navigate(R.id.action_history_input_to_account_chooser_list, args)
+            }
+            else {
+                getSelectedAccountLiveData(ARG_SOURCE)?.observe(viewLifecycleOwner) { showSourceAccount(it?.toAccountModel()) }
+                binding.inputSource.setOnClickListener{
+                    val args = Bundle().apply {
+                        putString(Constants.ARG_DESTINATION_LABEL, getString(R.string.title_choose_source_account))
+                        putString(Constants.ARG_RESULT_KEY, ARG_SOURCE)
+                        getSelectedAccount(ARG_SOURCE)?.let { putLong(Constants.ARG_INITIAL_SELECTION, it.id!!) }
+                    }
+                    navController.navigate(R.id.action_create_history_to_account_picker, args)
+                }
             }
             binding.sourceLayout.visible()
         }
     }
 
     private fun prepareDestinationInput(type: HistoryType) {
-        if (arguments?.containsKey(ARG_DESTINATION) == true) {
-            val destination = requireArguments().getParcelable<AccountModelParcel?>(ARG_DESTINATION)?.toAccountModel()
-            destination?.let {
-                showDestinationAccount(destination, true)
+        if (type.needsDestinationAccount()) {
+            val history = viewModel.getStoredHistory()
+            if (null != history) {
+                showDestinationAccount(history.destAccount, false)
                 binding.inputDestination.disable()
-                binding.destinationLayout.visible()
             }
-        }
-        else if (type.needsDestinationAccount()) {
-            binding.inputDestination.setOnClickListener{
-                val args = Bundle().apply {
-                    putString(Constants.ARG_DESTINATION_LABEL, getString(R.string.title_choose_destination_account))
-                    putString(Constants.ARG_RESULT_KEY, ARG_DESTINATION)
-                    getSelectedAccount(ARG_DESTINATION)?.let { putLong(Constants.ARG_INITIAL_SELECTION, it.id!!) }
+            else if (hasArgument(ARG_ACCOUNT)) {
+                val destination = getArgAccount()?.toAccountModel()
+                destination?.let {
+                    Log.d(TAG,"prepareDestinationInput: destination=$destination")
+                    showDestinationAccount(destination, false)
+                    binding.inputDestination.disable()
                 }
-                navController.navigate(R.id.action_history_input_to_account_chooser_list, args)
+            }
+            else {
+                getSelectedAccountLiveData(ARG_DESTINATION)?.observe(viewLifecycleOwner){ showDestinationAccount(it?.toAccountModel())}
+                binding.inputDestination.setOnClickListener{
+                    navController.navigate(R.id.action_create_history_to_account_picker, Bundle().apply {
+                        putString(Constants.ARG_DESTINATION_LABEL, getString(R.string.title_choose_destination_account))
+                        putString(Constants.ARG_RESULT_KEY, ARG_DESTINATION)
+                        getSelectedAccount(ARG_DESTINATION)?.let { putLong(Constants.ARG_INITIAL_SELECTION, it.id!!) }
+                    })
+                }
             }
             binding.destinationLayout.visible()
         }
     }
 
     private fun prepareGroupInput(type: HistoryType) {
-        groupPickerAdapter = GroupPickerAdapter(requireContext())
-        binding.groupInput.adapter = groupPickerAdapter
-
-        if (type != HistoryType.TRANSFER) {
-            viewModel.getAllGroups().observe(viewLifecycleOwner) { groups ->
-                groupPickerAdapter.submitList(groups)
-                // TODO: restore selection position
-                if (hasArgument(ARG_GROUP)) {
-                    val groupId = requireArguments().getLong(ARG_GROUP)
-                    setSelectedGroup(groupId)
+        if (type.needsGroup()) {
+            val history = viewModel.getStoredHistory()
+            if (null != history) {
+                showGroup(history.group, false)
+                binding.inputGroup.disable()
+            }
+            else if (hasArgument(ARG_GROUP)) {
+                val group = getArgGroup()?.toGroupModel()
+                group?.let {
+                    showGroup(it, false)
+                    binding.inputGroup.disable()
                 }
             }
-            binding.groupInput.onItemSelectedListener = object : OnItemSelectedListener  {
-                override fun onItemSelected(p0: AdapterView<*>?, p1: View?, position: Int, p3: Long) {
-                    navController.currentBackStackEntry?.savedStateHandle?.set(KEY_SELECTED_GROUP,position)
-                }
-
-                override fun onNothingSelected(p0: AdapterView<*>?) {
-                    navController.currentBackStackEntry?.savedStateHandle?.set(KEY_SELECTED_GROUP,null)
+            else {
+                getSelectedGroupLiveData()?.observe(viewLifecycleOwner) { showGroup(it?.toGroupModel())}
+                binding.inputGroup.setOnClickListener {
+                    navController.navigate(R.id.action_create_history_to_group_picker, Bundle().apply {
+                        putString(Constants.ARG_RESULT_KEY, ARG_GROUP)
+                        getSelectedGroup()?.let { putLong(Constants.ARG_INITIAL_SELECTION, it.id!!) }
+                    })
                 }
             }
             binding.groupLayout.visible()
-        }
-    }
-
-    private fun setSelectedGroup(groupId: Long) {
-        val selectedPosition = groupPickerAdapter.groups.indexOfFirst { it.id == groupId }
-        Log.d(TAG, "setSelectedGroup: groupId=$groupId selectedPosition=$selectedPosition groups-adapter-size=${groupPickerAdapter.groups.size}")
-        if (selectedPosition >= 0) {
-            binding.groupInput.setSelection(selectedPosition)
-            binding.groupInput.disable()
         }
     }
 
@@ -323,15 +348,21 @@ class HistoryInputFragment : Fragment() {
         val date = selectedDate
         val amount = binding.inputAmount.text.toString().toFloatOrNull()
         val note = binding.inputNote.text.toString()
-        val groupId: Long? = getSelectedGroup()?.id
+        val groupId: Long? = getSelectedGroup()?.id ?: getArgGroup()?.id
         return if (isActionEdit()) {
             viewModel.getStoredHistory()!!.copy(
                 type=type, date=date, amount=amount, note=note, groupId=groupId
             )
         }
         else {
-            val srcAccountId: Long? = getSelectedAccount(ARG_SOURCE)?.id
-            val destAccountId: Long? = getSelectedAccount(ARG_DESTINATION)?.id
+            var srcAccountId: Long? = getSelectedAccount(ARG_SOURCE)?.id
+            if (null == srcAccountId && type.needsSourceAccount() && hasArgument(ARG_ACCOUNT)) {
+                srcAccountId = getArgAccount()?.id
+            }
+            var destAccountId: Long? = getSelectedAccount(ARG_DESTINATION)?.id
+            if (null == destAccountId && type.needsDestinationAccount() && hasArgument(ARG_ACCOUNT)) {
+                destAccountId = getArgAccount()?.id
+            }
             HistoryModel(
                 null,type, srcAccountId,destAccountId,groupId,null,null,null, amount,date,note
             )
@@ -352,7 +383,7 @@ class HistoryInputFragment : Fragment() {
             else {
                 if (isActionEdit()) {
                     Toast.makeText(requireContext(), R.string.message_success_edit_history, Toast.LENGTH_LONG).show()
-                    popBackStack()
+                    navController.popBackStack()
                 }
                 else {
                     Toast.makeText(requireContext(), R.string.message_success_create_history, Toast.LENGTH_LONG).show()
@@ -362,7 +393,7 @@ class HistoryInputFragment : Fragment() {
     }
 
     private fun onClickCancel() {
-        popBackStack()
+        navController.popBackStack()
     }
 
     private fun onClickInputDate(date: Date) {
@@ -378,23 +409,31 @@ class HistoryInputFragment : Fragment() {
         binding.inputDate.text = date.format(HISTORY_INPUT_DATE_FORMAT)
     }
 
-    private fun showSourceAccount(account: AccountModel?, disabled: Boolean = false) {
-        createChip(binding.selectedSourceContainer, account, { removeSelectedAccount(ARG_SOURCE) }, disabled)
+    private fun showSourceAccount(account: AccountModel?, enabled: Boolean = true) {
+        createChip(binding.selectedSourceContainer, account,
+            { createInputChip(requireContext(), it.name!!, true) }, { removeSelectedAccount(ARG_SOURCE) }, enabled)
     }
 
-    private fun showDestinationAccount(account: AccountModel?, disabled: Boolean = false) {
-        createChip(binding.selectedDestinationContainer, account, { removeSelectedAccount(ARG_DESTINATION) }, disabled)
+    private fun showDestinationAccount(account: AccountModel?, enabled: Boolean = true) {
+        createChip(binding.selectedDestinationContainer, account,
+            { createInputChip(requireContext(), it.name!!, true) }, { removeSelectedAccount(ARG_DESTINATION) }, enabled)
     }
 
-    private fun createChip(container: ViewGroup, data: AccountModel?, onRemove: ()->Unit, disabled: Boolean): Chip? {
+    private fun showGroup(group: GroupModel?, enabled: Boolean = true) {
+        createChip(binding.selectedGroupContainer, group,
+            { createInputChip(requireContext(), it.name!!, true) }, { removeSelectedGroup() }, enabled)
+    }
+
+    private fun <T> createChip(container: ViewGroup, data: T?, chipFactory: (T)->Chip, onRemove: ()->Unit, enabled: Boolean): Chip? {
+        Log.d(TAG, "createChip data=$data enabled=$enabled")
         container.removeAllViews()
         data?.let {
-            val chip = createAccountChip(requireContext(),data)
+            val chip = chipFactory.invoke(it)
             chip.setOnClickListener {
                 container.removeView(chip)
                 onRemove()
             }
-            chip.isEnabled = !disabled
+            chip.isEnabled = enabled
             container.addView(chip)
             return@createChip chip
         }
@@ -404,10 +443,5 @@ class HistoryInputFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    private fun popBackStack() {
-        val parentNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_container)
-        parentNavController.popBackStack()
     }
 }

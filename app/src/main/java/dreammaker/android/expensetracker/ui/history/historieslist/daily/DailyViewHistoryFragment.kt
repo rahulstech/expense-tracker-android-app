@@ -1,4 +1,4 @@
-package dreammaker.android.expensetracker.ui.history.viewhistories.daily
+package dreammaker.android.expensetracker.ui.history.historieslist.daily
 
 import android.app.DatePickerDialog
 import android.os.Bundle
@@ -6,8 +6,8 @@ import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.database.Date
 import dreammaker.android.expensetracker.database.HistoryType
 import dreammaker.android.expensetracker.ui.history.historyinput.HistoryInputFragment
-import dreammaker.android.expensetracker.ui.history.viewhistories.BaseViewHistoryFragment
-import dreammaker.android.expensetracker.ui.history.viewhistories.ViewHistoryPageAdapter
+import dreammaker.android.expensetracker.ui.history.historieslist.BaseViewHistoryFragment
+import dreammaker.android.expensetracker.ui.history.historieslist.ViewHistoryPageAdapter
 import dreammaker.android.expensetracker.ui.util.putDate
 
 class DailyViewHistoryFragment: BaseViewHistoryFragment<Date>() {

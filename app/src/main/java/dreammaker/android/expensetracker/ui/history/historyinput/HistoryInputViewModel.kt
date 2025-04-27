@@ -5,8 +5,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
 import dreammaker.android.expensetracker.database.ExpensesDatabase
-import dreammaker.android.expensetracker.database.GroupDao
-import dreammaker.android.expensetracker.database.GroupModel
 import dreammaker.android.expensetracker.database.HistoryDao
 import dreammaker.android.expensetracker.database.HistoryModel
 import dreammaker.android.expensetracker.database.HistoryType
@@ -21,38 +19,29 @@ import kotlinx.coroutines.launch
 
 class HistoryInputViewModel(app: Application) : AndroidViewModel(app) {
 
+    private val TAG = HistoryInputViewModel::class.simpleName
+
     private val historyDao: HistoryDao
-    private val groupDao: GroupDao
 
     init {
         val db = ExpensesDatabase.getInstance(app)
         historyDao = db.historyDao
-        groupDao = db.groupDao
     }
 
-    lateinit var history: LiveData<HistoryModel?>
+    lateinit var historyLiveData: LiveData<HistoryModel?>
 
     fun findHistory(id: Long, type: HistoryType): LiveData<HistoryModel?> {
-        if (!::history.isInitialized) {
-            history = historyDao.findHistoryByIdAndType(id,type)
+        if (!::historyLiveData.isInitialized) {
+            historyLiveData = historyDao.findHistoryByIdAndType(id,type)
         }
-        return history
-    }
-
-    private lateinit var groups: LiveData<List<GroupModel>>
-
-    fun getAllGroups(): LiveData<List<GroupModel>> {
-        if (!::groups.isInitialized) {
-            groups = groupDao.getAllGroups()
-        }
-        return groups
+        return historyLiveData
     }
 
     fun getStoredHistory(): HistoryModel? {
-        if (!::history.isInitialized) {
+        if (!::historyLiveData.isInitialized) {
             return null
         }
-        return history.value
+        return historyLiveData.value
     }
 
     private val _resultState: MutableSharedFlow<OperationResult<HistoryModel>?> = MutableStateFlow(null)

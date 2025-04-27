@@ -1,4 +1,4 @@
-package dreammaker.android.expensetracker.ui.history.viewhistories
+package dreammaker.android.expensetracker.ui.history.historieslist
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -16,7 +16,10 @@ import dreammaker.android.expensetracker.database.HistoryType
 import dreammaker.android.expensetracker.databinding.ViewHistoryBinding
 import dreammaker.android.expensetracker.ui.history.historyinput.HistoryInputFragment
 import dreammaker.android.expensetracker.ui.util.Constants
+import dreammaker.android.expensetracker.ui.util.isVisible
 import dreammaker.android.expensetracker.ui.util.putHistoryType
+import dreammaker.android.expensetracker.ui.util.visibilityGone
+import dreammaker.android.expensetracker.ui.util.visible
 
 abstract class ViewHistoryPageAdapter<T>(fragmentManager: FragmentManager, lifecycle: Lifecycle)
     : FragmentStateAdapter(fragmentManager, lifecycle) {
@@ -56,15 +59,16 @@ abstract class ViewHistoryPageAdapter<T>(fragmentManager: FragmentManager, lifec
 }
 
 abstract class BaseViewHistoryFragment<T>: Fragment() {
+    private val TAG = BaseViewHistoryFragment::class.simpleName
 
     companion object {
-        private val TAG = BaseViewHistoryFragment::class.simpleName
         private const val KEY_CURRENT_PAGE_POSITION = "key.current_page_position"
     }
 
-    private var binding: ViewHistoryBinding? = null
+    private var _binding: ViewHistoryBinding? = null
+    private val binding get() = _binding!!
     private lateinit var navController: NavController
-    private var adapter: ViewHistoryPageAdapter<T>? = null
+    private lateinit var adapter: ViewHistoryPageAdapter<T>
 
     abstract fun getPageAdapter(): ViewHistoryPageAdapter<T>
 
@@ -73,13 +77,13 @@ abstract class BaseViewHistoryFragment<T>: Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = ViewHistoryBinding.inflate(inflater, container, false)
-        return binding!!.root
+        _binding = ViewHistoryBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        binding = null
+        _binding = null
     }
 
     private fun getSavedCurrentPosition(): Int? {
@@ -93,23 +97,32 @@ abstract class BaseViewHistoryFragment<T>: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         navController = Navigation.findNavController(view)
         adapter = getPageAdapter()
-        binding!!.historyViewPager.adapter = adapter
-        val currentItem = getSavedCurrentPosition() ?: adapter!!.getPresentPosition()
-        binding!!.historyViewPager.currentItem = currentItem
+        binding.historyViewPager.adapter = adapter
+        val currentItem = getSavedCurrentPosition() ?: adapter.getPresentPosition()
+        binding.historyViewPager.currentItem = currentItem
         changePageLabel(getCurrentData())
-        binding!!.historyViewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+        binding.historyViewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
-                val data = adapter?.getData(position)
+                val data = adapter.getData(position)
                 changePageLabel(data)
                 saveCurrentPosition(position)
             }
         })
-        binding!!.btnGotoPresent.text = getGotoPresentButtonText()
-        binding!!.btnGotoPresent.setOnClickListener { setCurrentData(adapter?.getPresentData()) }
-        binding!!.btnDataPicker.setOnClickListener{ onClickDataPicker(getCurrentData()) }
-        binding!!.btnCreateCredit.setOnClickListener { handleCreateHistory(HistoryType.CREDIT) }
-        binding!!.btnCreateDebit.setOnClickListener {  handleCreateHistory(HistoryType.DEBIT) }
-        binding!!.btnCreateTransfer.setOnClickListener { handleCreateHistory(HistoryType.TRANSFER) }
+        binding.btnGotoPresent.text = getGotoPresentButtonText()
+        binding.btnGotoPresent.setOnClickListener { setCurrentData(adapter.getPresentData()) }
+        binding.btnDataPicker.setOnClickListener{ onClickDataPicker(getCurrentData()) }
+        binding.addHistory.setOnClickListener {
+            val target = binding.buttonsLayout
+            if (target.isVisible()) {
+                target.visibilityGone()
+            }
+            else {
+                target.visible()
+            }
+        }
+        binding.btnAddCredit.setOnClickListener { handleCreateHistory(HistoryType.CREDIT) }
+        binding.btnAddDebit.setOnClickListener {  handleCreateHistory(HistoryType.DEBIT) }
+        binding.btnAddTransfer.setOnClickListener { handleCreateHistory(HistoryType.TRANSFER) }
     }
 
     abstract fun getGotoPresentButtonText(): CharSequence
@@ -128,17 +141,17 @@ abstract class BaseViewHistoryFragment<T>: Fragment() {
     protected open fun onPutCreateHistoryArgument(type: HistoryType, argument: Bundle) {}
 
     protected open fun changePageLabel(data: T?) {
-        binding?.btnDataPicker?.text = if (null == data) null else adapter?.getDataLabel(data)
+        binding.btnDataPicker.text = if (null == data) null else adapter.getDataLabel(data)
     }
 
     fun setCurrentData(data: T?) {
         data?.let {
-            adapter?.let {
-                val position = adapter!!.getPositionForData(data)
-                binding?.historyViewPager?.currentItem = position
+            adapter.let {
+                val position = adapter.getPositionForData(data)
+                binding.historyViewPager.currentItem = position
             }
         }
     }
 
-    fun getCurrentData(): T? = if(binding == null) null else adapter?.getData(binding!!.historyViewPager.currentItem)
+    fun getCurrentData(): T? = adapter.getData(binding.historyViewPager.currentItem)
 }

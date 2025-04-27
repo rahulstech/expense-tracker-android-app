@@ -23,6 +23,8 @@ enum class HistoryType {
     fun needsSourceAccount() = this in TYPES_NEEDS_SOURCE_ACCOUNT
 
     fun needsDestinationAccount() = this in TYPES_REQUIRES_DESTINATION_ACCOUNT
+
+    fun needsGroup() = this == CREDIT || this == DEBIT
 }
 
 @DatabaseView(viewName = "histories",

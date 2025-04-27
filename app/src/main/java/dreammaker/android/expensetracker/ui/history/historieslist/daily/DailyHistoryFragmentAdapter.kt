@@ -1,11 +1,11 @@
-package dreammaker.android.expensetracker.ui.history.viewhistories.daily
+package dreammaker.android.expensetracker.ui.history.historieslist.daily
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import dreammaker.android.expensetracker.database.Date
-import dreammaker.android.expensetracker.ui.history.viewhistories.ViewHistoryPageAdapter
+import dreammaker.android.expensetracker.ui.history.historieslist.ViewHistoryPageAdapter
 import dreammaker.android.expensetracker.ui.util.putDate
 
 class DailyHistoryFragmentAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle): ViewHistoryPageAdapter<Date>(fragmentManager,lifecycle) {

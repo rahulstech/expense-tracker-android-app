@@ -3,7 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?attr/selectableItemBackground">
+    android:background="?attr/selectableItemBackground"
+    android:paddingTop="12dp">
 
     <TextView
         android:id="@+id/destination"
@@ -25,9 +26,9 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:singleLine="true"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="12dp"
         android:layout_marginEnd="12dp"
-        android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
         android:textStyle="bold"
         app:layout_constraintTop_toBottomOf="@id/type"
         app:layout_constraintEnd_toEndOf="parent"
@@ -39,20 +40,18 @@
         android:layout_height="wrap_content"
         android:singleLine="true"
         android:background="@drawable/history_list_item_history_type_background"
-        android:layout_margin="8dp"
+        android:layout_marginEnd="12dp"
         android:paddingStart="8dp"
         android:paddingEnd="8dp"
         android:paddingTop="4dp"
         android:paddingBottom="4dp"
         android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-        android:textSize="8sp"
         android:textStyle="normal"
-        android:textColor="@android:color/white"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         tools:backgroundTint="@color/colorCredit"
-        tools:text="Credit"
-        tools:ignore="SmallSp" />
+        tools:textColor="@color/colorOnCredit"
+        tools:text="Credit" />
 
     <TextView
         android:id="@+id/source"
@@ -77,13 +76,35 @@
         android:singleLine="true"
         android:layout_marginStart="12dp"
         android:layout_marginEnd="12dp"
-        android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/amount"
         app:layout_constraintBottom_toBottomOf="@id/amount"
         app:layout_constraintEnd_toStartOf="@id/amount"
         tools:text="THE DESCRIPTION ABOUT THE TRANSACTION WILL BE HERE" />
+
+    <TextView
+        android:id="@+id/group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:background="@drawable/history_list_item_history_group_background"
+        android:layout_marginStart="12dp"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
+        android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
+        android:textStyle="normal"
+        android:textColor="?attr/colorOnSecondary"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/type"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constrainedWidth="true"
+        tools:text="Thailand Trip" />
 
     <com.google.android.material.divider.MaterialDivider
         android:layout_width="match_parent"

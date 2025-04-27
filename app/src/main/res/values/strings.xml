@@ -181,12 +181,10 @@
 
 
 	<!-- history item -->
-	<string name="label_history_list_item_debit_source">Debit to: %s</string>
-	<string name="label_history_list_item_credit_destination">Credit to: %s</string>
+	<string name="label_history_list_item_debit_source">From: %s</string>
+	<string name="label_history_list_item_credit_destination">In: %s</string>
 	<string name="label_history_list_item_transfer_source">From: %s</string>
 	<string name="label_history_item_transfer_destination">In: %s</string>
-	<string name="label_history_list_item_debit_destination">For: %s</string>
-	<string name="label_history_list_item_credit_source">Form: %s</string>
 	<string name="hint_history_note">Note</string>
 	<string name="label_history_input_source_credit">Receive From</string>
     <string name="label_history_input_destination_credit">Credit To</string>
@@ -200,9 +198,7 @@
 	<string name="label_view">View</string>
 	<string name="label_history_type_credit">Credit</string>
 	<string name="label_history_type_debit">Debit</string>
-	<string name="label_history_type_expense">Expense</string>
 	<string name="label_history_type_transfer">Money Transfer</string>
-	<string name="label_history_type_income">Income</string>
 	<string name="label_history_item_source_credit">From</string>
 	<string name="label_history_item_destination_credit">In</string>
 	<string name="label_history_item_source_transfer">From</string>
@@ -298,7 +294,10 @@
     <string name="label_yes">Yes</string>
 	<string name="label_no">No</string>
     <string name="title_view_group">Group Details</string>
-    <string name="label_send_money">Send Money</string>
+    <string name="label_send_money">Send</string>
+    <string name="title_history_group_picker">Select Group</string>
+	<string name="title_view_history">History Details</string>
+	<string name="label_group_and_tags">Group</string>
 
 
 </resources>

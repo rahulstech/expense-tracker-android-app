@@ -1,4 +1,4 @@
-package dreammaker.android.expensetracker.ui.history.viewhistories
+package dreammaker.android.expensetracker.ui.history.historieslist
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
