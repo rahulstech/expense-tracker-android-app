@@ -1,4 +1,4 @@
-package dreammaker.android.expensetracker.ui.history.historieslist.daily
+package dreammaker.android.expensetracker.ui.history.historieslist.monthly
 
 import android.os.Bundle
 import android.os.Parcelable
@@ -19,23 +19,24 @@ import dreammaker.android.expensetracker.ui.history.historieslist.ViewHistoryVie
 import dreammaker.android.expensetracker.ui.history.viewhistory.ViewHistoryItemFragment
 import dreammaker.android.expensetracker.ui.util.AccountModelParcel
 import dreammaker.android.expensetracker.ui.util.GroupModelParcel
-import dreammaker.android.expensetracker.ui.util.getDate
+import dreammaker.android.expensetracker.ui.util.getMonthYear
 import dreammaker.android.expensetracker.ui.util.putHistoryType
 import dreammaker.android.expensetracker.ui.util.visibilityGone
 import dreammaker.android.expensetracker.ui.util.visible
 
-class ViewDayHistoryFragment : Fragment() {
+class ViewMonthHistoryFragment : Fragment() {
 
     companion object {
-        private val TAG = ViewDayHistoryFragment::class.simpleName
-        const val ARG_DATE = "arg.date"
+        private val TAG = ViewMonthHistoryFragment::class.simpleName
+        const val ARG_MONTH_YEAR = "arg.month_year"
     }
 
-    private var _binding: HistoryListBinding? = null
-    private val binding get() = _binding!!
+    private lateinit var binding: HistoryListBinding
 
     private val viewModel: ViewHistoryViewModel by viewModels()
-    private lateinit var adapter: DayHistoryListAdapter
+
+    private lateinit var adapter: MonthHistoryListAdapter
+
     private lateinit var navController: NavController
 
     override fun onCreateView(
@@ -43,24 +44,27 @@ class ViewDayHistoryFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = HistoryListBinding.inflate(inflater, container, false)
+        binding = HistoryListBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         navController = findNavController()
         binding.historyList.apply {
-            layoutManager = LinearLayoutManager(requireContext(),LinearLayoutManager.VERTICAL,false)
-            adapter = DayHistoryListAdapter().also { this@ViewDayHistoryFragment.adapter = it }
+            layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL,false)
+            adapter = MonthHistoryListAdapter().also {
+                this@ViewMonthHistoryFragment.adapter = it
+            }
         }
         adapter.itemClickListener = this::handleItemClick
-        val date = requireArguments().getDate(ARG_DATE)!!
+
+        val monthYear = requireArguments().getMonthYear(ARG_MONTH_YEAR)!!
         val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
-        val entity = savedStateHandle?.get<Parcelable>(HistoryListContainer.ARG_SHOW_HISTORY_FOR)
+        val entity = savedStateHandle?.get<Parcelable?>(HistoryListContainer.ARG_SHOW_HISTORY_FOR)
         val histories = when(entity) {
-            is AccountModelParcel -> viewModel.getDailyHistoriesForAccount(date, entity.id)
-            is GroupModelParcel -> viewModel.getDailyHistoriesForGroup(date, entity.id)
-            else -> viewModel.getDailyHistories(date)
+            is AccountModelParcel -> viewModel.getMonthlyHistoriesForAccount(monthYear, entity.id)
+            is GroupModelParcel -> viewModel.getMonthlyHistoriesForGroup(monthYear,entity.id)
+            else -> viewModel.getMonthlyHistories(monthYear)
         }
         histories.observe(viewLifecycleOwner, this::onHistoryLoaded)
     }

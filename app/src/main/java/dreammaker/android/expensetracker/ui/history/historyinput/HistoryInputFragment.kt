@@ -44,8 +44,6 @@ class HistoryInputFragment : Fragment() {
         private const val HISTORY_INPUT_DATE_FORMAT = "EEEE, dd MMMM, yyyy"
         const val ARG_HISTORY_TYPE = "arg.history_type"
         const val ARG_HISTORY_DATE = "arg.history_date"
-//        const val ARG_ACCOUNT = "arg_account"
-//        const val ARG_GROUP = "arg_group"
         const val ARG_SOURCE = "arg_source"
         const val ARG_DESTINATION = "arg_destination"
     }
@@ -168,11 +166,11 @@ class HistoryInputFragment : Fragment() {
             binding.inputDestination.disable()
             val type = history.type!!
             if (type.needsSourceAccount()) {
-                showSourceAccount(history.srcAccount,false)
+                showSourceAccount(history.primaryAccount,false)
                 binding.sourceLayout.visible()
             }
             if (type.needsDestinationAccount()) {
-                showDestinationAccount(history.destAccount, false)
+                showDestinationAccount(history.secondaryAccount, false)
                 binding.destinationLayout.visible()
             }
             if (type.needsGroup()) {
@@ -227,7 +225,7 @@ class HistoryInputFragment : Fragment() {
         if (type.needsSourceAccount()) {
             val history = viewModel.getStoredHistory()
             if (null != history) {
-                showSourceAccount(history.srcAccount,false)
+                showSourceAccount(history.primaryAccount,false)
                 binding.inputSource.disable()
             }
             else if (hasArgument(Constants.ARG_ACCOUNT)) {
@@ -256,16 +254,16 @@ class HistoryInputFragment : Fragment() {
         if (type.needsDestinationAccount()) {
             val history = viewModel.getStoredHistory()
             if (null != history) {
-                showDestinationAccount(history.destAccount, false)
+                showDestinationAccount(history.secondaryAccount, false)
                 binding.inputDestination.disable()
             }
-            else if (hasArgument(Constants.ARG_ACCOUNT) && type == HistoryType.CREDIT) {
-                val destination = getArgAccount()?.toAccountModel()
-                destination?.let {
-                    showDestinationAccount(destination, false)
-                    binding.inputDestination.disable()
-                }
-            }
+//            else if (hasArgument(Constants.ARG_ACCOUNT) && type == HistoryType.CREDIT) {
+//                val destination = getArgAccount()?.toAccountModel()
+//                destination?.let {
+//                    showDestinationAccount(destination, false)
+//                    binding.inputDestination.disable()
+//                }
+//            }
             else {
                 getSelectedAccountLiveData(ARG_DESTINATION)?.observe(viewLifecycleOwner){ showDestinationAccount(it?.toAccountModel())}
                 binding.inputDestination.setOnClickListener{
@@ -330,11 +328,11 @@ class HistoryInputFragment : Fragment() {
             hasError = true
             binding.amountInputLayout.error = getString(R.string.error_invalid_history_amount_input)
         }
-        if ((type.needsSourceAccount() && null == history.srcAccountId)) {
+        if ((type.needsSourceAccount() && null == history.primaryAccountId)) {
             hasError = true
             binding.errorSource.visible()
         }
-        if ((type.needsDestinationAccount() && null == history.destAccountId)) {
+        if ((type.needsDestinationAccount() && null == history.secondaryAccountId)) {
             hasError = true
             binding.errorDestination.visible()
         }

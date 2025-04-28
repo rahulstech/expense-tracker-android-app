@@ -180,7 +180,7 @@
         android:label="@string/title_history_list"
         tools:layout="@layout/list_content">
 
-        <action android:id="@+id/action_history_list_to_history_input"
+        <action android:id="@+id/action_history_list_to_create_history"
             app:destination="@id/create_history"
             app:enterAnim="@anim/slide_in_left"
             app:exitAnim="@anim/slide_out_right"

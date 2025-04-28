@@ -16,7 +16,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/btn_goto_present"
         app:layout_constraintHorizontal_chainStyle="packed"
-        tools:text="March 2025"/>
+        tools:text="Mar 2025"/>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_goto_present"
@@ -54,7 +54,7 @@
             app:chipBackgroundColor="@color/background_color_credit"
             android:text="@string/label_history_type_credit"
             android:textColor="@color/on_background_color_credit"
-            tools:checked="true"/>
+            android:checked="true"/>
 
         <com.google.android.material.chip.Chip
             android:id="@+id/filter_debit"
@@ -66,7 +66,7 @@
             app:chipBackgroundColor="@color/background_color_debit"
             android:text="@string/label_history_type_debit"
             android:textColor="@color/on_background_color_credit"
-            tools:checked="true"/>
+            android:checked="true"/>
 
         <com.google.android.material.chip.Chip
             android:id="@+id/filter_transfer"
@@ -78,7 +78,7 @@
             app:chipBackgroundColor="@color/background_color_transfer"
             android:text="@string/label_history_type_transfer"
             android:textColor="@color/on_background_color_transfer"
-            tools:checked="true"/>
+            android:checked="true"/>
 
     </com.google.android.material.chip.ChipGroup>
 

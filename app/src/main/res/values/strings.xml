@@ -283,5 +283,18 @@
 	<string name="message_group_not_found">group not found</string>
 	<string name="label_history_list_view_daily">Daily</string>
 	<string name="label_history_list_view_monthly">Monthly</string>
+    <string name="label_this_month">This Month</string>
+    <string name="label_january">January</string>
+	<string name="label_february">February</string>
+	<string name="label_march">March</string>
+	<string name="label_april">April</string>
+	<string name="label_may">May</string>
+	<string name="label_june">June</string>
+	<string name="label_july">July</string>
+	<string name="label_august">August</string>
+	<string name="label_september">September</string>
+	<string name="label_october">October</string>
+	<string name="label_november">November</string>
+	<string name="label_december">December</string>
 
 </resources>

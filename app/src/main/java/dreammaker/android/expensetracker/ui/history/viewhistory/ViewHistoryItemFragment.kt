@@ -9,6 +9,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -82,6 +83,7 @@ class ViewHistoryItemFragment: Fragment(), MenuProvider {
                 viewModel.emptyResult()
             }
         }
+        (requireActivity() as MenuHost).addMenuProvider(this,viewLifecycleOwner)
     }
 
     private fun onHistoryLoaded(history: HistoryModel?) {
@@ -125,12 +127,12 @@ class ViewHistoryItemFragment: Fragment(), MenuProvider {
         when(history.type) {
             HistoryType.DEBIT -> {
                 binding.sourceLabel.text = getString(R.string.label_history_item_source_debit)
-                binding.source.text = history.srcAccount?.name
+                binding.source.text = history.primaryAccount?.name
                 binding.sourceGroup.visible()
             }
             HistoryType.TRANSFER -> {
                 binding.sourceLabel.text = getString(R.string.label_history_item_source_transfer)
-                binding.source.text = history.srcAccount?.name
+                binding.source.text = history.primaryAccount?.name
                 binding.sourceGroup.visible()
             }
             else -> {
@@ -144,7 +146,7 @@ class ViewHistoryItemFragment: Fragment(), MenuProvider {
         val type = history.type!!
         if (type != HistoryType.CREDIT) {
             navController.navigate(R.id.action_view_history_to_view_account, Bundle().apply {
-                putLong(Constants.ARG_ID, history.srcAccountId!!)
+                putLong(Constants.ARG_ID, history.primaryAccountId!!)
             })
         }
     }
@@ -153,12 +155,12 @@ class ViewHistoryItemFragment: Fragment(), MenuProvider {
         when(history.type) {
             HistoryType.CREDIT -> {
                 binding.destinationLabel.text = getString(R.string.label_history_item_destination_credit)
-                binding.destination.text = history.destAccount?.name
+                binding.destination.text = history.primaryAccount?.name
                 binding.destinationGroup.visible()
             }
             HistoryType.TRANSFER -> {
                 binding.destinationLabel.text = getString(R.string.label_history_item_destination_transfer)
-                binding.destination.text = history.destAccount?.name
+                binding.destination.text = history.secondaryAccount?.name
                 binding.destinationGroup.visible()
             }
             else -> {
@@ -185,7 +187,7 @@ class ViewHistoryItemFragment: Fragment(), MenuProvider {
         val type = history.type!!
         if (type != HistoryType.DEBIT) {
             navController.navigate(R.id.action_view_history_to_view_account, Bundle().apply {
-                putLong(Constants.ARG_ID, history.destAccountId!!)
+                putLong(Constants.ARG_ID, history.primaryAccountId!!)
             })
         }
     }

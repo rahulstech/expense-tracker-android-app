@@ -1,4 +1,4 @@
-package dreammaker.android.expensetracker.ui.history.historieslist.daily
+package dreammaker.android.expensetracker.ui.history.historieslist.monthly
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -17,9 +17,7 @@ private val callback = object: DiffUtil.ItemCallback<HistoryModel>() {
         oldItem == newItem
 }
 
-class DayHistoryListAdapter: BaseSelectableItemListAdapter<HistoryModel, Long, HistoryViewHolder>(
-    callback
-) {
+class MonthHistoryListAdapter: BaseSelectableItemListAdapter<HistoryModel, Long, HistoryViewHolder>(callback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HistoryViewHolder {
         val inflater = LayoutInflater.from(parent.context)

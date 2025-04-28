@@ -42,9 +42,15 @@ class HistoriesLiveDataFactory private constructor(val start: Date, val end: Dat
             return dao.getHistoriesBetweenDates(start,end)
         }
     }
+
+    override fun toString(): String {
+        return "HistoriesLiveDataFactory{start=$start, end=$end, accountId=$accountId, groupId=$groupId}"
+    }
 }
 
 class ViewHistoryViewModel(app: Application): AndroidViewModel(app) {
+
+    private val TAG = ViewHistoryViewModel::class.simpleName
 
     private val historiesDao: HistoryDao
 
@@ -55,31 +61,28 @@ class ViewHistoryViewModel(app: Application): AndroidViewModel(app) {
 
     private lateinit var historiesLiveData: LiveData<List<HistoryModel>>
 
-    fun getMonthlyHistories(monthYear: MonthYear): LiveData<List<HistoryModel>> {
+    private fun getOrCreateHistoriesLiveData(factory: HistoriesLiveDataFactory): LiveData<List<HistoryModel>> {
         if (!::historiesLiveData.isInitialized) {
-            historiesLiveData = HistoriesLiveDataFactory.forMonthYear(monthYear).createLiveData(historiesDao)
+            historiesLiveData = factory.createLiveData(historiesDao)
         }
         return historiesLiveData
     }
 
-    fun getDailyHistories(date: Date): LiveData<List<HistoryModel>> {
-        if (!::historiesLiveData.isInitialized) {
-            historiesLiveData = HistoriesLiveDataFactory.forDate(date).createLiveData(historiesDao)
-        }
-        return historiesLiveData
-    }
+    fun getMonthlyHistories(monthYear: MonthYear): LiveData<List<HistoryModel>>
+    = getOrCreateHistoriesLiveData(HistoriesLiveDataFactory.forMonthYear(monthYear))
 
-    fun getDailyHistoriesForAccount(date: Date, accountId: Long): LiveData<List<HistoryModel>> {
-        if (!::historiesLiveData.isInitialized) {
-            historiesLiveData = HistoriesLiveDataFactory.forDate(date).ofAccount(accountId).createLiveData(historiesDao)
-        }
-        return historiesLiveData
-    }
+    fun getMonthlyHistoriesForAccount(monthYear: MonthYear, accountId: Long): LiveData<List<HistoryModel>>
+    = getOrCreateHistoriesLiveData(HistoriesLiveDataFactory.forMonthYear(monthYear).ofAccount(accountId))
 
-    fun getDailyHistoriesForGroup(date: Date, groupId: Long): LiveData<List<HistoryModel>> {
-        if (!::historiesLiveData.isInitialized) {
-            historiesLiveData = HistoriesLiveDataFactory.forDate(date).ofGroup(groupId).createLiveData(historiesDao)
-        }
-        return historiesLiveData
-    }
+    fun getMonthlyHistoriesForGroup(monthYear: MonthYear, groupId: Long): LiveData<List<HistoryModel>>
+    = getOrCreateHistoriesLiveData(HistoriesLiveDataFactory.forMonthYear(monthYear).ofGroup(groupId))
+
+    fun getDailyHistories(date: Date): LiveData<List<HistoryModel>>
+    = getOrCreateHistoriesLiveData(HistoriesLiveDataFactory.forDate(date))
+
+    fun getDailyHistoriesForAccount(date: Date, accountId: Long): LiveData<List<HistoryModel>>
+    = getOrCreateHistoriesLiveData(HistoriesLiveDataFactory.forDate(date).ofAccount(accountId))
+
+    fun getDailyHistoriesForGroup(date: Date, groupId: Long): LiveData<List<HistoryModel>>
+    = getOrCreateHistoriesLiveData(HistoriesLiveDataFactory.forDate(date).ofGroup(groupId))
 }

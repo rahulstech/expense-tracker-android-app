@@ -10,19 +10,15 @@ import androidx.room.Transaction
 import androidx.room.TypeConverters
 import java.util.Objects
 
-private val TYPES_NEEDS_SOURCE_ACCOUNT = sequenceOf(HistoryType.DEBIT,HistoryType.TRANSFER)
-
-private val TYPES_REQUIRES_DESTINATION_ACCOUNT = sequenceOf(HistoryType.CREDIT,HistoryType.TRANSFER)
-
 enum class HistoryType {
     CREDIT,
     DEBIT,
     TRANSFER,
     ;
 
-    fun needsSourceAccount() = this in TYPES_NEEDS_SOURCE_ACCOUNT
+    fun needsSourceAccount() = true
 
-    fun needsDestinationAccount() = this in TYPES_REQUIRES_DESTINATION_ACCOUNT
+    fun needsDestinationAccount() = this == TRANSFER
 
     fun needsGroup() = this == CREDIT || this == DEBIT
 }
@@ -31,31 +27,31 @@ enum class HistoryType {
     value = " SELECT `_id` AS `id`," +
             " CASE WHEN `type` = 0 THEN 'DEBIT'" +
             " ELSE 'CREDIT' END AS `type`," +
-            " CASE `type` WHEN 0 THEN `account_id` ELSE NULL END AS `srcAccountId`," +
-            " CASE `type` WHEN 1 THEN `account_id` ELSE NULL END AS `destAccountId`," +
+            " `account_id` AS `primaryAccountId`," +
+            " NULL AS `secondaryAccountId`," +
             " `person_id` AS `groupId`,"+
             " `amount`, `date`, `description` AS `note`" +
             " FROM `transactions` WHERE `deleted` = 0" +
             " UNION " +
             " SELECT `id`, 'TRANSFER' AS `type`," +
-            " `payer_account_id` AS `srcAccountId`, `payee_account_id` As `destAccountId`," +
+            " `payer_account_id` AS `primaryAccountId`, `payee_account_id` As `secondaryAccountId`," +
             " NULL AS `groupId`, `amount`, `when` AS `date`, `description` AS `note` " +
             " FROM `money_transfers`")
 
 data class History(
     val id: Long,
     val type: HistoryType,
-    val srcAccountId: Long?,
-    val destAccountId: Long?,
+    val primaryAccountId: Long?,
+    val secondaryAccountId: Long?,
     val groupId: Long?,
     val amount: Float,
     val date: Date,
     val note: String?,
 ) {
     fun toTransaction(): dreammaker.android.expensetracker.database.Transaction {
-        val accountId = if (type.needsSourceAccount()) srcAccountId!! else destAccountId!!
+        val accountId = primaryAccountId!!
         val personId = groupId
-        val type = if (type == HistoryType.DEBIT) dreammaker.android.expensetracker.database.Transaction.TYPE_CREDIT else dreammaker.android.expensetracker.database.Transaction.TYPE_DEBIT
+        val type = if (type == HistoryType.DEBIT) 0 else 1
         return Transaction(
             id, accountId, personId, amount, type, date, false, note
         )
@@ -63,20 +59,20 @@ data class History(
 
     fun toMoneyTransfer(): MoneyTransfer
     = MoneyTransfer(
-        id, date, amount, destAccountId!!, srcAccountId!!, note
+        id, date, amount, secondaryAccountId!!, primaryAccountId!!, note
     )
 }
 
 data class HistoryModel(
     val id: Long?,
     val type: HistoryType?,
-    val srcAccountId: Long?,
-    val destAccountId: Long?,
+    val primaryAccountId: Long?,
+    val secondaryAccountId: Long?,
     val groupId: Long?,
-    @Relation(entity = Account::class, parentColumn = "srcAccountId", entityColumn = "_id", projection = ["_id","account_name"])
-    val srcAccount: AccountModel?,
-    @Relation(entity = Account::class, parentColumn = "destAccountId", entityColumn = "_id", projection = ["_id","account_name"])
-    val destAccount: AccountModel?,
+    @Relation(entity = Account::class, parentColumn = "primaryAccountId", entityColumn = "_id", projection = ["_id","account_name"])
+    val primaryAccount: AccountModel?,
+    @Relation(entity = Account::class, parentColumn = "secondaryAccountId", entityColumn = "_id", projection = ["_id","account_name"])
+    val secondaryAccount: AccountModel?,
     @Relation(entity = Person::class, parentColumn = "groupId", entityColumn = "_id", projection = ["_id","person_name"])
     val group: GroupModel?,
     val amount: Float?,
@@ -85,18 +81,18 @@ data class HistoryModel(
 ) {
     override fun equals(other: Any?): Boolean {
         if (other is HistoryModel) {
-            return other.id == id && other.type == type && other.srcAccount == srcAccount && other.destAccount == destAccount
+            return other.id == id && other.type == type && other.primaryAccountId == primaryAccountId && other.secondaryAccountId == secondaryAccountId
             && other.group == group && other.amount == amount && other.date == date && other.note == note
         }
         return false
     }
 
     override fun hashCode(): Int =
-        Objects.hash(id,type,srcAccount,destAccount,groupId,amount,date,note)
+        Objects.hash(id,type,primaryAccountId,secondaryAccountId,groupId,amount,date,note)
 
     fun toHistory(): History {
         return History(
-            id ?: 0, type!!, srcAccountId, destAccountId, groupId,amount!!,date!!,note
+            id ?: 0, type!!, primaryAccountId, secondaryAccountId, groupId,amount!!,date!!,note
         )
     }
 }
@@ -113,7 +109,7 @@ abstract class HistoryDao(db: ExpensesDatabase) {
     @Transaction
     abstract fun getHistoriesBetweenDates(start: Date, end: Date): LiveData<List<HistoryModel>>
 
-    @Query("SELECT * FROM `histories` WHERE :start <= `date` AND `date` <= :end AND ( `srcAccountId` = :accountId or `destAccountId` = :accountId) ORDER BY `date` DESC")
+    @Query("SELECT * FROM `histories` WHERE :start <= `date` AND `date` <= :end AND ( `primaryAccountId` = :accountId or `secondaryAccountId` = :accountId) ORDER BY `date` DESC")
     @Transaction
     abstract fun getHistoriesBetweenDatesOnlyForAccount(start: Date, end: Date, accountId: Long): LiveData<List<HistoryModel>>
 

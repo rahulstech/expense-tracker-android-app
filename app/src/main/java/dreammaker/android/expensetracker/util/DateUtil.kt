@@ -6,10 +6,21 @@ class MonthYear(val month: Int, val year: Int) {
 
     companion object {
 
+        private const val DEFAULT_PATTERN = "yyyy-MM"
+
         fun now(): MonthYear = fromDate(Date())
 
         fun fromDate(date: Date): MonthYear {
             return MonthYear(date.month, date.year)
+        }
+
+        fun durationMonths(from: MonthYear, to: MonthYear): Int {
+            return Date.durationMonths(from.toFirstDate(),to.toFirstDate())
+        }
+
+        fun valueOf(data: String, pattern: String = DEFAULT_PATTERN): MonthYear {
+            val date = Date.valueOf(data,pattern)
+            return date.getMonthYear()
         }
     }
 
@@ -17,9 +28,22 @@ class MonthYear(val month: Int, val year: Int) {
 
     fun toLastDate(): Date = toFirstDate().lastDateOfThisMonth()
 
-    fun plusMonths(months: Long): MonthYear {
+    fun plusMonths(months: Int): MonthYear {
         val date = toFirstDate()
         return date.plusMonths(months).getMonthYear()
+    }
+
+    fun plusYears(years: Int): MonthYear {
+        val date = toFirstDate()
+        return date.plusYears(year).getMonthYear()
+    }
+
+    fun format(pattern: String): String {
+        return toFirstDate().format(pattern)
+    }
+
+    override fun toString(): String {
+        return format(DEFAULT_PATTERN)
     }
 }
 

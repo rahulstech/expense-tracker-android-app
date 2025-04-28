@@ -1,7 +1,6 @@
 package dreammaker.android.expensetracker.ui.history.historieslist
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
@@ -9,6 +8,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import androidx.core.os.BundleCompat
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
@@ -19,6 +19,10 @@ import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.settings.SettingsProvider
 import dreammaker.android.expensetracker.settings.ViewHistory
 import dreammaker.android.expensetracker.ui.history.historieslist.daily.DailyViewHistoryFragment
+import dreammaker.android.expensetracker.ui.history.historieslist.monthly.MonthlyViewHistoryFragment
+import dreammaker.android.expensetracker.ui.util.AccountModelParcel
+import dreammaker.android.expensetracker.ui.util.Constants
+import dreammaker.android.expensetracker.ui.util.GroupModelParcel
 
 class HistoryListContainer: Fragment(), MenuProvider {
 
@@ -27,6 +31,8 @@ class HistoryListContainer: Fragment(), MenuProvider {
         private const val TAG_DAILY_HISTORY = "daily_history"
         private const val TAG_MONTHLY_HISTORY = "monthly_history"
         private const val CONTAINER_ID = 1
+
+        const val ARG_SHOW_HISTORY_FOR = "arg_show_history_for"
     }
 
     private var _container: FragmentContainerView? = null
@@ -51,18 +57,13 @@ class HistoryListContainer: Fragment(), MenuProvider {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         navController = Navigation.findNavController(view)
 
-        val fragmentManager = childFragmentManager
-        val transaction = childFragmentManager.beginTransaction()
-        var fragment = fragmentManager.findFragmentByTag(TAG_DAILY_HISTORY)
-        if (null == fragment) {
-            fragment = DailyViewHistoryFragment()
-            transaction.add(CONTAINER_ID, fragment, TAG_DAILY_HISTORY)
-        }
-        else {
-            transaction.show(fragment)
-        }
-        transaction.commit()
+        val account = arguments?.let { BundleCompat.getParcelable(it, Constants.ARG_ACCOUNT, AccountModelParcel::class.java) }
+        val group = arguments?.let { BundleCompat.getParcelable(it,Constants.ARG_GROUP, GroupModelParcel::class.java) }
+        navController.currentBackStackEntry?.savedStateHandle?.set(Constants.ARG_ACCOUNT, account)
+        navController.currentBackStackEntry?.savedStateHandle?.set(Constants.ARG_GROUP, group)
 
+        val viewAs = settings.getViewHistory()
+        changeFragment(viewAs)
         (requireActivity() as MenuHost).addMenuProvider(this, viewLifecycleOwner)
     }
 
@@ -95,8 +96,35 @@ class HistoryListContainer: Fragment(), MenuProvider {
     }
 
     private fun changeViewHistory(viewAs: ViewHistory) {
-        Log.i(TAG,"changeViewHistory viewAs=$viewAs")
         settings.setViewHistory(viewAs)
         requireActivity().invalidateOptionsMenu()
+        changeFragment(viewAs)
+    }
+
+    private fun changeFragment(viewAs: ViewHistory) {
+        val tag = when(viewAs) {
+            ViewHistory.MONTHLY -> TAG_MONTHLY_HISTORY
+            ViewHistory.DAILY -> TAG_DAILY_HISTORY
+        }
+        val fragmentManager = childFragmentManager
+        val transaction = childFragmentManager.beginTransaction()
+        fragmentManager.fragments.forEach { transaction.hide(it) }
+        var fragment = fragmentManager.findFragmentByTag(tag)
+        if (null == fragment) {
+            fragment = createFragment(tag)
+            transaction.add(CONTAINER_ID, fragment, tag)
+        }
+        else {
+            transaction.show(fragment)
+        }
+        transaction.commit()
+    }
+
+    private fun createFragment(tag: String): Fragment {
+        return when(tag) {
+            TAG_MONTHLY_HISTORY -> MonthlyViewHistoryFragment()
+            TAG_DAILY_HISTORY -> DailyViewHistoryFragment()
+            else -> throw IllegalArgumentException("unknown tag '$tag'")
+        }
     }
 }

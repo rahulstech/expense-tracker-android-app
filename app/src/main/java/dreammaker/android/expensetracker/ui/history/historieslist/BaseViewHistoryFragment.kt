@@ -1,6 +1,7 @@
 package dreammaker.android.expensetracker.ui.history.historieslist
 
 import android.os.Bundle
+import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,7 +16,9 @@ import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.database.HistoryType
 import dreammaker.android.expensetracker.databinding.ViewHistoryBinding
 import dreammaker.android.expensetracker.ui.history.historyinput.HistoryInputFragment
+import dreammaker.android.expensetracker.ui.util.AccountModelParcel
 import dreammaker.android.expensetracker.ui.util.Constants
+import dreammaker.android.expensetracker.ui.util.GroupModelParcel
 import dreammaker.android.expensetracker.ui.util.isVisible
 import dreammaker.android.expensetracker.ui.util.putHistoryType
 import dreammaker.android.expensetracker.ui.util.visibilityGone
@@ -26,13 +29,15 @@ abstract class ViewHistoryPageAdapter<T>(fragmentManager: FragmentManager, lifec
 
     private val TAG = ViewHistoryPageAdapter::class.simpleName
 
+    private var arguments: Bundle? = null
+
     final override fun createFragment(position: Int): Fragment {
         val date = getData(position)
-        val fragment = onCreateFragment(position, date)
+        val fragment = onCreateFragment(position, date, arguments)
         return fragment
     }
 
-    abstract fun onCreateFragment(position: Int, data: T): Fragment
+    abstract fun onCreateFragment(position: Int, data: T, arguments: Bundle?): Fragment
 
     fun getData(position: Int): T {
         val delta = position - getPresentPosition()
@@ -55,15 +60,20 @@ abstract class ViewHistoryPageAdapter<T>(fragmentManager: FragmentManager, lifec
 
     abstract fun getPresentData(): T
 
-    open fun getPresentPosition(): Int = itemCount/2+1
+    open fun getPresentPosition(): Int = itemCount-1
+
+    open fun getMaxData(): T = getData(itemCount-1)
+
+    open fun getMinData(): T = getData(0)
+
+    fun putArguments(arguments: Bundle) {
+        this.arguments = arguments
+    }
 }
 
 abstract class BaseViewHistoryFragment<T>: Fragment() {
     private val TAG = BaseViewHistoryFragment::class.simpleName
-
-    companion object {
-        private const val KEY_CURRENT_PAGE_POSITION = "key.current_page_position"
-    }
+    private val KEY_CURRENT_PAGE_POSITION = "${javaClass.name}:key.current_page_position"
 
     private var _binding: ViewHistoryBinding? = null
     private val binding get() = _binding!!
@@ -101,9 +111,6 @@ abstract class BaseViewHistoryFragment<T>: Fragment() {
         navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_container)
         _adapter = onCreatePageAdapter()
         binding.historyViewPager.adapter = adapter
-        val currentItem = getSavedCurrentPosition() ?: adapter.getPresentPosition()
-        binding.historyViewPager.currentItem = currentItem
-        changePageLabel(getCurrentData())
         binding.historyViewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 val data = adapter.getData(position)
@@ -128,17 +135,29 @@ abstract class BaseViewHistoryFragment<T>: Fragment() {
 //        binding.btnAddTransfer.setOnClickListener { handleCreateHistory(HistoryType.TRANSFER) }
     }
 
+    override fun onResume() {
+        super.onResume()
+        val currentItem = getSavedCurrentPosition() ?: adapter.getPresentPosition()
+        binding.historyViewPager.currentItem = currentItem
+        changePageLabel(getCurrentData())
+    }
+
     abstract fun getGotoPresentButtonText(): CharSequence
 
     protected abstract fun onClickDataPicker(currentData: T)
 
     private fun handleCreateHistory(type: HistoryType) {
+        val entity = navController.currentBackStackEntry?.savedStateHandle?.get<Parcelable>(HistoryListContainer.ARG_SHOW_HISTORY_FOR)
         val args = Bundle().apply {
             putString(Constants.ARG_ACTION, Constants.ACTION_CREATE)
             putHistoryType(HistoryInputFragment.ARG_HISTORY_TYPE, type)
+            when (entity) {
+                is AccountModelParcel -> putParcelable(Constants.ARG_ACCOUNT, entity)
+                is GroupModelParcel -> putParcelable(Constants.ARG_GROUP, entity)
+            }
         }
         onPutCreateHistoryArgument(type, args)
-        navController.navigate(R.id.action_history_list_to_history_input,args)
+        navController.navigate(R.id.action_history_list_to_create_history,args)
     }
 
     protected open fun onPutCreateHistoryArgument(type: HistoryType, argument: Bundle) {}

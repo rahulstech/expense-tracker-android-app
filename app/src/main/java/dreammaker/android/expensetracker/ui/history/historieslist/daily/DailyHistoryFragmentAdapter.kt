@@ -8,35 +8,29 @@ import dreammaker.android.expensetracker.database.Date
 import dreammaker.android.expensetracker.ui.history.historieslist.ViewHistoryPageAdapter
 import dreammaker.android.expensetracker.ui.util.putDate
 
-class DailyHistoryFragmentAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle): ViewHistoryPageAdapter<Date>(fragmentManager,lifecycle) {
+class DailyHistoryFragmentAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle)
+    : ViewHistoryPageAdapter<Date>(fragmentManager,lifecycle) {
 
     companion object {
         private val TAG = DailyHistoryFragmentAdapter::class.simpleName
         private const val DATE_FORMAT = "EEE, dd-MMM-yyyy"
     }
 
-    private var arguments: Bundle? = null
-
-    override fun getItemCount(): Int = Int.MAX_VALUE
+    override fun getItemCount(): Int = 10000
 
     override fun getPresentData(): Date = Date()
 
-    override fun plusDelta(data: Date, delta: Int): Date = data.plusDays(delta.toLong())
+    override fun plusDelta(data: Date, delta: Int): Date = data.plusDays(delta)
 
     override fun calculateDifference(from: Date, to: Date): Int = Date.durationDays(from, to)
 
     override fun getDataLabel(data: Date): CharSequence = data.format(DATE_FORMAT)
 
-    override fun onCreateFragment(position: Int, data: Date): Fragment {
+    override fun onCreateFragment(position: Int, data: Date, arguments: Bundle?): Fragment {
         val fragment = ViewDayHistoryFragment()
         fragment.arguments = Bundle().apply {
             putDate(ViewDayHistoryFragment.ARG_DATE, data)
-            arguments?.let { putAll(it) }
         }
         return fragment
-    }
-
-    fun putArguments(arguments: Bundle) {
-        this.arguments = arguments
     }
 }

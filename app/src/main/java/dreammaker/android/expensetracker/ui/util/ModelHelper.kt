@@ -10,6 +10,7 @@ import dreammaker.android.expensetracker.database.AccountModel
 import dreammaker.android.expensetracker.database.Date
 import dreammaker.android.expensetracker.database.GroupModel
 import dreammaker.android.expensetracker.database.HistoryType
+import dreammaker.android.expensetracker.util.MonthYear
 
 class AccountModelParcel(val id: Long, val name: String, val balance: Float): Parcelable {
 
@@ -86,6 +87,15 @@ fun Bundle.putDate(key: String, date: Date?) {
 fun Bundle.getDate(key: String, defaultDate: Date? = null): Date? {
     val dateString = getString(key, null)
     return if (null == dateString) defaultDate else Date.valueOf(dateString)
+}
+
+fun Bundle.putMonthYear(key: String, date: MonthYear?) {
+    putString(key, date?.toString())
+}
+
+fun Bundle.getMonthYear(key: String, defaultDate: MonthYear? = null): MonthYear? {
+    val value = getString(key, null)
+    return if (null == value) defaultDate else MonthYear.valueOf(value)
 }
 
 fun Bundle.putHistoryType(key: String, type: HistoryType?) {

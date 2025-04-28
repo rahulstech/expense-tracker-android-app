@@ -73,6 +73,10 @@ public class Date implements Cloneable {
         return calendar.get(Calendar.DAY_OF_MONTH);
     }
 
+    public long getTimeInMillis() {
+        return calendar.getTimeInMillis();
+    }
+
     @NonNull
     @Override
     public String toString() {
@@ -197,15 +201,21 @@ public class Date implements Cloneable {
         return new Date(copy);
     }
 
-    public Date plusDays(long n) {
+    public Date plusDays(int n) {
         LocalDate date = LocalDate.of(getYear(), getMonth()+1, getDayOfMonth());
         LocalDate newDate = date.plusDays(n);
         return new Date(newDate.getYear(), newDate.getMonthValue()-1, newDate.getDayOfMonth());
     }
 
-    public Date plusMonths(long n) {
+    public Date plusMonths(int n) {
         LocalDate date = LocalDate.of(getYear(), getMonth()+1, getDayOfMonth());
         LocalDate newDate = date.plusMonths(n);
+        return new Date(newDate.getYear(), newDate.getMonthValue()-1, newDate.getDayOfMonth());
+    }
+
+    public Date plusYears(int n) {
+        LocalDate date = LocalDate.of(getYear(), getMonth()+1, getDayOfMonth());
+        LocalDate newDate = date.plusYears(n);
         return new Date(newDate.getYear(), newDate.getMonthValue()-1, newDate.getDayOfMonth());
     }
 
@@ -213,5 +223,11 @@ public class Date implements Cloneable {
         LocalDate start = LocalDate.of(from.getYear(), from.getMonth()+1, from.getDayOfMonth());
         LocalDate end = LocalDate.of(to.getYear(), to.getMonth()+1, to.getDayOfMonth());
         return (int) ChronoUnit.DAYS.between(start, end);
+    }
+
+    public static int durationMonths(Date from, Date to) {
+        LocalDate start = LocalDate.of(from.getYear(), from.getMonth()+1, from.getDayOfMonth());
+        LocalDate end = LocalDate.of(to.getYear(), to.getMonth()+1, to.getDayOfMonth());
+        return (int) ChronoUnit.MONTHS.between(start, end);
     }
 }
