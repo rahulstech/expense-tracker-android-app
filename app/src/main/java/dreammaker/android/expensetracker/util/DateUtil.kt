@@ -35,7 +35,7 @@ class MonthYear(val month: Int, val year: Int) {
 
     fun plusYears(years: Int): MonthYear {
         val date = toFirstDate()
-        return date.plusYears(year).getMonthYear()
+        return date.plusYears(years).getMonthYear()
     }
 
     fun format(pattern: String): String {

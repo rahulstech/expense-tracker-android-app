@@ -2,13 +2,12 @@ package dreammaker.android.expensetracker.ui.history.historieslist.monthly
 
 import android.content.Context
 import android.content.DialogInterface
-import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.AdapterView
-import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AlertDialog
+import androidx.core.view.children
 import androidx.core.view.get
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.databinding.MonthYearPickerLayoutBinding
@@ -17,144 +16,157 @@ import java.util.Locale
 import kotlin.math.max
 import kotlin.math.min
 
-class YearAdapter(context: Context, val yearStart: Int, val yearEnd: Int): ArrayAdapter<String>(context, android.R.layout.simple_spinner_dropdown_item) {
+class YearAdapter(context: Context) : ArrayAdapter<String>(context, R.layout.month_picker_year_view) {
+
+    private var yearStart = 2000
+    private var yearEnd = 2000
+
+    init {
+        setDropDownViewResource(android.R.layout.simple_list_item_1)
+    }
+
+    fun updateYearRange(minYear: Int, maxYear: Int) {
+        yearStart = minYear
+        yearEnd = maxYear
+        notifyDataSetChanged()
+    }
 
     override fun getCount(): Int = yearEnd - yearStart + 1
 
-    override fun getItem(position: Int): String = String.format(Locale.ENGLISH, "%4d", getYear(position))
+    override fun getItem(position: Int): String =
+        String.format(Locale.ENGLISH, "%4d", getYear(position))
 
-    fun getAdjustedYearPosition(year: Int): Int {
-        val diff = year-yearStart
-        return min(max(diff, count-1), 0)
-    }
+    fun getYear(position: Int): Int = yearStart + position
 
-    fun getYear(position: Int): Int = yearStart+position
-
-    override fun getItemId(position: Int): Long = (yearStart+position).toLong()
+    override fun getItemId(position: Int): Long = getYear(position).toLong()
 }
 
-typealias MonthChangeListener = (picker: MonthPickerDialog, month: Int, year: Int)->Unit
+typealias MonthChangeListener = (MonthPickerDialog, Int, Int)->Unit
 
-class MonthPickerDialog(context: Context): AlertDialog(context), DialogInterface.OnClickListener {
+class MonthPickerDialog(context: Context) : AlertDialog(context), DialogInterface.OnClickListener {
 
-    private val binding: MonthYearPickerLayoutBinding
+    private val chipIdToMonth = mapOf(
+        R.id.month_january to 0,
+        R.id.month_february to 1,
+        R.id.month_march to 2,
+        R.id.month_april to 3,
+        R.id.month_may to 4,
+        R.id.month_june to 5,
+        R.id.month_july to 6,
+        R.id.month_august to 7,
+        R.id.month_september to 8,
+        R.id.month_october to 9,
+        R.id.month_november to 10,
+        R.id.month_december to 11,
+    )
 
-    private var adapter: YearAdapter
+    private val binding = MonthYearPickerLayoutBinding.inflate(LayoutInflater.from(context))
+    private val adapter = YearAdapter(context)
 
     private var monthYear = MonthYear.now()
 
-    var minMonthYear = MonthYear.now().plusYears(-10)
-        set(monthYear) {
-            if(!isShowing) {
-                field = monthYear
-            }
-        }
+    var minMonthYear: MonthYear = MonthYear.now().plusYears(-10)
+        set(value) { if (!isShowing) field = value }
 
-    var maxMonthYear = MonthYear.now().plusYears(10)
-        set(monthYear) {
-            if (!isShowing) {
-                field = monthYear
-            }
-        }
+    var maxMonthYear: MonthYear = MonthYear.now().plusYears(10)
+        set(value) { if (!isShowing) field = value }
 
     var monthChangeListener: MonthChangeListener? = null
 
     init {
-        val themeContext = getContext()
-        val inflater = LayoutInflater.from(themeContext)
-        binding = MonthYearPickerLayoutBinding.inflate(inflater)
         setView(binding.root)
+        setupYearPicker()
+        setupMonthLayout()
+        setupButtons()
+    }
 
-        adapter = YearAdapter(themeContext, minMonthYear.year, maxMonthYear.year)
+    private fun setupYearPicker() {
         binding.inputYear.adapter = adapter
-
-        updateMonthYear(monthYear)
-        binding.inputYear.onItemSelectedListener = object : OnItemSelectedListener {
-            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, position: Int, p3: Long) {
+        binding.inputYear.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 handleYearChange(adapter.getYear(position))
             }
-            override fun onNothingSelected(p0: AdapterView<*>?) {}
-        }
-        binding.monthsLayout.setOnCheckedStateChangeListener { _,_ -> handleMonthChange(binding.monthsLayout.checkedChipId) }
-        binding.btnYearDecrease.setOnClickListener { handleYearDecrease() }
-        binding.btnYearIncrease.setOnClickListener { handleYearIncrease() }
 
-        setButton(BUTTON_POSITIVE, themeContext.getString(android.R.string.ok), this)
-        setButton(BUTTON_NEGATIVE, themeContext.getString(android.R.string.cancel), this)
+            override fun onNothingSelected(parent: AdapterView<*>) { /* no-op */}
+        }
+    }
+
+    private fun setupMonthLayout() {
+        binding.monthsLayout.setOnCheckedStateChangeListener { _, _ ->
+            handleMonthChange(binding.monthsLayout.checkedChipId)
+        }
+    }
+
+    private fun setupButtons() {
+        binding.btnYearDecrease.setOnClickListener { changeYear(-1) }
+        binding.btnYearIncrease.setOnClickListener { changeYear(1) }
+
+        setButton(BUTTON_POSITIVE, context.getString(android.R.string.ok), this)
+        setButton(BUTTON_NEGATIVE, context.getString(android.R.string.cancel), this)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        adapter.updateYearRange(minMonthYear.year, maxMonthYear.year)
+        updateMonthYear(monthYear)
     }
 
     private fun handleYearChange(year: Int) {
         val old = monthYear
-        monthYear = MonthYear(old.month,year)
+        monthYear = MonthYear(monthYear.month, year)
+        binding.btnYearDecrease.visibility = if (year > minMonthYear.year) View.VISIBLE else View.GONE
+        binding.btnYearIncrease.visibility = if (year < maxMonthYear.year) View.VISIBLE else View.GONE
+        binding.monthsLayout.apply {
+            children.forEachIndexed { index, child ->
+                child.isEnabled = when (year) {
+                    minMonthYear.year -> index >= minMonthYear.month
+                    maxMonthYear.year -> index <= maxMonthYear.month
+                    else -> true
+                }
+            }
+
+            val selectedMonthChip = this[old.month]
+            if (!selectedMonthChip.isEnabled) {
+                when (year) {
+                    minMonthYear.year -> check(this[minMonthYear.month].id)
+                    maxMonthYear.year -> check(this[maxMonthYear.month].id)
+                }
+            }
+        }
     }
 
-    private fun handleYearIncrease() {
-        val currentSelection = binding.inputYear.selectedItemPosition
-        val newSelection = min(adapter.count-1, currentSelection+1)
-        binding.inputYear.setSelection(newSelection)
-    }
-
-    private fun handleYearDecrease() {
-        val currentSelection = binding.inputYear.selectedItemPosition
-        val newSelection = max(0, currentSelection-1)
+    private fun changeYear(delta: Int) {
+        val newSelection = (binding.inputYear.selectedItemPosition + delta)
+            .coerceIn(0, adapter.count - 1)
         binding.inputYear.setSelection(newSelection)
     }
 
     private fun handleMonthChange(checkedId: Int) {
-        val old = monthYear
-        val month = when(checkedId) {
-            R.id.month_january -> 0
-            R.id.month_february -> 1
-            R.id.month_march -> 2
-            R.id.month_april -> 3
-            R.id.month_may -> 4
-            R.id.month_june -> 5
-            R.id.month_july -> 6
-            R.id.month_august -> 7
-            R.id.month_september -> 8
-            R.id.month_october -> 9
-            R.id.month_november -> 10
-            R.id.month_december -> 11
-            else -> throw IllegalArgumentException()
-        }
-        monthYear = MonthYear(month, old.year)
+        val month = chipIdToMonth[checkedId]
+            ?: throw IllegalArgumentException("Unknown month chip id: $checkedId") // this exception must never be thrown
+        monthYear = MonthYear(month, monthYear.year)
     }
 
     override fun onClick(dialog: DialogInterface?, which: Int) {
-        when(which) {
-            BUTTON_POSITIVE -> {
-                monthChangeListener?.let { listener ->
-                    binding.root.clearFocus()
-                    listener.invoke(this,monthYear.month,monthYear.year)
-                }
-            }
-            BUTTON_NEGATIVE -> {
-                cancel()
-            }
+        when (which) {
+            BUTTON_POSITIVE -> monthChangeListener?.invoke(this, monthYear.month, monthYear.year)
+            BUTTON_NEGATIVE -> cancel()
         }
     }
 
-    /**
-     * month is 0 (zero) based; i.e. 0 = January 11 = December
-     */
     fun updateMonthYear(month: Int, year: Int) {
-        val yearPosition = adapter.getAdjustedYearPosition(year)
-        binding.inputYear.setSelection(yearPosition)
-        val monthChip = binding.monthsLayout.get(month)
-        binding.monthsLayout.check(monthChip.id)
+        val delta = year-minMonthYear.year
+        changeYear(delta)
+        val chipIndex = when(year) {
+            minMonthYear.year -> max(month,minMonthYear.month)
+            maxMonthYear.year -> min(month, maxMonthYear.month)
+            else -> month
+        }
+        val chip = binding.monthsLayout[chipIndex]
+        binding.monthsLayout.check(chip.id)
     }
 
     fun updateMonthYear(monthYear: MonthYear) {
         updateMonthYear(monthYear.month, monthYear.year)
     }
-
-    override fun onSaveInstanceState(): Bundle {
-        return super.onSaveInstanceState()
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-    }
-
-
 }

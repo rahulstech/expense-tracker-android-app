@@ -215,7 +215,7 @@ public class Date implements Cloneable {
 
     public Date plusYears(int n) {
         LocalDate date = LocalDate.of(getYear(), getMonth()+1, getDayOfMonth());
-        LocalDate newDate = date.plusYears(n);
+        LocalDate newDate = date.plusYears(n).minusMonths(1);
         return new Date(newDate.getYear(), newDate.getMonthValue()-1, newDate.getDayOfMonth());
     }
 

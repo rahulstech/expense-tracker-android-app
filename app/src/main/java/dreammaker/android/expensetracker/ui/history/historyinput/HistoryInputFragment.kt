@@ -257,13 +257,6 @@ class HistoryInputFragment : Fragment() {
                 showDestinationAccount(history.secondaryAccount, false)
                 binding.inputDestination.disable()
             }
-//            else if (hasArgument(Constants.ARG_ACCOUNT) && type == HistoryType.CREDIT) {
-//                val destination = getArgAccount()?.toAccountModel()
-//                destination?.let {
-//                    showDestinationAccount(destination, false)
-//                    binding.inputDestination.disable()
-//                }
-//            }
             else {
                 getSelectedAccountLiveData(ARG_DESTINATION)?.observe(viewLifecycleOwner){ showDestinationAccount(it?.toAccountModel())}
                 binding.inputDestination.setOnClickListener{

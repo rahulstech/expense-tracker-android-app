@@ -1,6 +1,7 @@
 package dreammaker.android.expensetracker.ui.history.historieslist.monthly
 
 import android.os.Bundle
+import android.util.Log
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.database.HistoryType
 import dreammaker.android.expensetracker.ui.history.historieslist.BaseViewHistoryFragment
@@ -19,6 +20,7 @@ class MonthlyViewHistoryFragment: BaseViewHistoryFragment<MonthYear>() {
     override fun getGotoPresentButtonText(): CharSequence = getString(R.string.label_this_month)
 
     override fun onClickDataPicker(currentData: MonthYear) {
+        Log.d(TAG, "onClickDataPicker minMonthYear=${adapter.getMinData()} maxMonthYear=${adapter.getMaxData()}")
         val monthPicker = MonthPickerDialog(requireContext()).apply {
             minMonthYear = adapter.getMinData()
             maxMonthYear = adapter.getMaxData()
