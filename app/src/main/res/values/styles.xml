@@ -85,6 +85,15 @@
         <item name="iconSize">18dp</item>
     </style>
 
+    <style name="Widget.AppTheme.MonthChip" parent="Widget.Material3.Chip.Filter">
+        <item name="android:checkable">true</item>
+        <item name="checkedIconEnabled">false</item>
+        <item name="checkedIconVisible">false</item>
+        <item name="chipBackgroundColor">@color/background_color_month</item>
+        <item name="android:textAppearance">@style/TextAppearance.Material3.LabelMedium</item>
+        <item name="android:textColor">@color/on_background_color_month</item>
+    </style>
+
     <style name="Widget.AppTheme.Button.DatePicker" parent="Widget.Material3.Button.OutlinedButton">
         <item name="android:textColor">@color/stateful_color_on_surface</item>
         <item name="android:textAppearance">@style/TextAppearance.Material3.BodyLarge</item>

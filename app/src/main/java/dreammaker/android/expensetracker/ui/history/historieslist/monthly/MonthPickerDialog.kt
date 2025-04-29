@@ -108,7 +108,7 @@ class MonthPickerDialog(context: Context) : AlertDialog(context), DialogInterfac
     override fun onStart() {
         super.onStart()
         adapter.updateYearRange(minMonthYear.year, maxMonthYear.year)
-        updateMonthYear(monthYear)
+        showMonthPickerView(monthYear)
     }
 
     private fun handleYearChange(year: Int) {
@@ -154,7 +154,9 @@ class MonthPickerDialog(context: Context) : AlertDialog(context), DialogInterfac
         }
     }
 
-    fun updateMonthYear(month: Int, year: Int) {
+    private fun showMonthPickerView(monthYear: MonthYear) {
+        val year = monthYear.year
+        val month = monthYear.month
         val delta = year-minMonthYear.year
         changeYear(delta)
         val chipIndex = when(year) {
@@ -165,8 +167,17 @@ class MonthPickerDialog(context: Context) : AlertDialog(context), DialogInterfac
         val chip = binding.monthsLayout[chipIndex]
         binding.monthsLayout.check(chip.id)
     }
+    /**
+     * month is 0 (zero) bases 0 = January 11 = December
+     */
+    fun updateMonthYear(month: Int, year: Int) {
+        updateMonthYear(MonthYear(month,year))
+    }
 
     fun updateMonthYear(monthYear: MonthYear) {
-        updateMonthYear(monthYear.month, monthYear.year)
+        this.monthYear = monthYear
+        if (isShowing) {
+            showMonthPickerView(monthYear)
+        }
     }
 }
