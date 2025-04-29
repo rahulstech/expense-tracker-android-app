@@ -1,10 +1,5 @@
 package dreammaker.android.expensetracker.database
 
-import android.app.Application
-import androidx.room.Room
-import androidx.room.RoomDatabase
-import androidx.sqlite.db.SupportSQLiteDatabase
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import junit.framework.TestCase.assertEquals
 import org.junit.After
@@ -20,16 +15,7 @@ class HistoryDaoTest {
 
     @Before
     fun setUp() {
-        val context = ApplicationProvider.getApplicationContext<Application>()
-        db = Room.inMemoryDatabaseBuilder(context, ExpensesDatabase::class.java)
-            .allowMainThreadQueries()
-            .addCallback(object : RoomDatabase.Callback() {
-                override fun onOpen(db: SupportSQLiteDatabase) {
-                    val wrapper = SQLiteStatementExecutorWrapperBuilder().buildFromSupportSQLiteDatabase(db)
-                    FAKE_DATA_7.addFakeData(wrapper)
-                }
-            })
-            .build()
+        db = createInMemoryDB(ExpensesDatabase::class.java,FakeDataCallback(FAKE_DATA_7))
         dao = db.historyDao
     }
 
@@ -41,24 +27,61 @@ class HistoryDaoTest {
     @Test
     fun testGetHistoriesBetweenDates() {
         val expected = listOf(
-            HistoryModel(1, HistoryType.DEBIT, 1, null, null,1,
+            HistoryModel(4, HistoryType.CREDIT, 1, null,2,
                 AccountModel(1, "Account 1",null),null,
-                null, PersonModel(1,"Person 1",null),
+                GroupModel(2,"Person 2",null),
+                120.00f, Date.valueOf("2025-01-20"), "transaction 4"),
+
+            HistoryModel(1, HistoryType.DEBIT, 1, null,1,
+                AccountModel(1, "Account 1",null),null,
+                GroupModel(1,"Person 1",null),
                 50.00f, Date.valueOf("2025-02-16"), "transaction 1"),
 
-            HistoryModel(1, HistoryType.CREDIT,null,2,1,null,
-                null, AccountModel(2, "Account 2",null),
-                PersonModel(1,"Person 1",null), null,
+            HistoryModel(1, HistoryType.CREDIT,2,null,1,
+                AccountModel(2, "Account 2",null), null,
+                GroupModel(1,"Person 1",null),
                 100.00f, Date.valueOf("2025-02-26"), "transaction 2"),
 
-            HistoryModel(1, HistoryType.TRANSFER,1,2,null,null,
+            HistoryModel(1, HistoryType.TRANSFER,1,2,null,
                 AccountModel(2, "Account 2",null), AccountModel(1, "Account 1",null),
-                null,null, 50.00f, Date.valueOf("2025-03-06"), "transfer 1"),
+                null, 50.00f, Date.valueOf("2025-03-06"), "transfer 1"),
         )
 
         val results = dao.getHistoriesBetweenDates(Date(2025,0,1), Date(2025,2,31))
         runOnLiveDataResultReceived(results) {
             assertEquals(expected, it)
+        }
+    }
+
+    @Test
+    fun test_getLatestUsedThreeAccounts() {
+        val liveData = dao.getLatestUsedThreeAccounts()
+        runOnLiveDataResultReceived(liveData) { accounts ->
+            val expected = setOf(
+                AccountModel(1,"Account 1", 150f),
+                AccountModel(2, "Account 2", 2000f)
+            )
+
+            val actual = HashSet(accounts)
+
+            assertEquals("size mismatch", 3, accounts.size)
+            assertEquals("content mismatch", expected,actual)
+        }
+    }
+
+    @Test
+    fun test_getLatestUsedThreeGroups() {
+        val liveData = dao.getLatestUsedThreeGroups()
+        runOnLiveDataResultReceived(liveData) { groups ->
+            val expected = setOf(
+                GroupModel(1,"Person 1", 100f),
+                GroupModel(2, "Person 2", -120f)
+            )
+
+            val actual = HashSet(groups)
+
+            assertEquals("size mismatch", 3, groups.size)
+            assertEquals("content mismatch", expected,actual)
         }
     }
 }

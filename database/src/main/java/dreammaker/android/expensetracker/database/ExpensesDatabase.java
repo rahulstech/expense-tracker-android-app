@@ -48,9 +48,5 @@ public abstract class ExpensesDatabase extends RoomDatabase
 
     public abstract AccountDao getAccountDao();
 
-    @Deprecated
-    public abstract PersonDao getPersonDao();
-
     public abstract GroupDao getGroupDao();
-
 }

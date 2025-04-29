@@ -170,10 +170,6 @@ public abstract class ExpensesDao {
         return id;
     }
 
-    @androidx.room.Transaction
-    @Query("SELECT * FROM `money_transfers`;")
-    public abstract LiveData<List<MoneyTransferDetails>> getMoneyTransferHistory();
-
     public int updateMoneyTransfer(MoneyTransfer newMT) {
         MoneyTransfer oldMT = getMoneyTransferById(newMT.getId());
         int changes = update_money_transfer_internal(newMT);

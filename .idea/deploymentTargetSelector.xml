@@ -16,7 +16,16 @@
       <SelectionState runConfigName="HistoryDaoTest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="MigrationsTest">
+      <SelectionState runConfigName="test_getLatestUsedThreeAccounts()">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="test_getLatestUsedThreeAccounts() (1)">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="test_getLatestUsedThreeGroups()">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="testGetHistoriesBetweenDates()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
