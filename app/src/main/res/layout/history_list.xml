@@ -1,30 +1,96 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_height="match_parent"
     android:layout_width="match_parent">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/history_list"
-        android:layout_height="match_parent"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:visibility="gone"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        tools:listitem="@layout/history_list_item" />
+        android:layout_height="wrap_content">
 
-    <TextView
-        android:id="@+id/empty_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:padding="24dp"
-        app:drawableTopCompat="@drawable/ic_history"
-        android:drawablePadding="24dp"
-        android:text="@string/label_empty_history_list"
-        android:textAppearance="@style/TextAppearance.Material3.DisplaySmall"
-        android:textStyle="italic"/>
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/filter_types"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constrainedWidth="true"
+            app:selectionRequired="false"
+            app:singleLine="true">
 
-</FrameLayout>
+            <com.google.android.material.chip.Chip
+                android:id="@+id/filter_credit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/Widget.AppTheme.FilterChip"
+                app:chipIcon="@drawable/baseline_south_east_64"
+                app:chipIconTint="@color/on_background_color_credit"
+                app:chipBackgroundColor="@color/background_color_credit"
+                android:text="@string/label_history_type_credit"
+                android:textColor="@color/on_background_color_credit"
+                android:checked="true"/>
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/filter_debit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/Widget.AppTheme.FilterChip"
+                app:chipIcon="@drawable/baseline_north_west_64"
+                app:chipIconTint="@color/on_background_color_debit"
+                app:chipBackgroundColor="@color/background_color_debit"
+                android:text="@string/label_history_type_debit"
+                android:textColor="@color/on_background_color_credit"
+                android:checked="true"/>
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/filter_transfer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/Widget.AppTheme.FilterChip"
+                app:chipIcon="@drawable/baseline_file_upload_64"
+                app:chipIconTint="@color/on_background_color_transfer"
+                app:chipBackgroundColor="@color/background_color_transfer"
+                android:text="@string/label_history_type_transfer"
+                android:textColor="@color/on_background_color_transfer"
+                android:checked="true"/>
+
+        </com.google.android.material.chip.ChipGroup>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/history_list"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_marginTop="12dp"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/filter_types"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:listitem="@layout/history_list_item"
+            />
+
+        <TextView
+            android:id="@+id/empty_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="96dp"
+            android:padding="24dp"
+            app:drawableTopCompat="@drawable/ic_history"
+            android:drawablePadding="24dp"
+            android:text="@string/label_empty_history_list"
+            android:textAppearance="@style/TextAppearance.Material3.DisplaySmall"
+            android:textStyle="italic"
+            app:layout_constraintTop_toBottomOf="@id/filter_types"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>
+

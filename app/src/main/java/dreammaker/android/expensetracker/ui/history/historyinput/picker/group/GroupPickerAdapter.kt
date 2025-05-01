@@ -25,6 +25,7 @@ class GroupPickerViewHolder(
         if (null == data) {
             binding.name.text = null
             binding.balance.text = null
+            binding.root.isSelected = false
         }
         else {
             binding.name.text = data.name

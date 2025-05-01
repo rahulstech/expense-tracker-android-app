@@ -1,151 +1,236 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:layout_width="match_parent">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/margin_vertical_medium">
+        android:layout_height="match_parent">
 
-        <Button
-            android:id="@+id/accounts"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/margin_vertical_medium"
-            android:padding="@dimen/padding_horizontal_small"
-            android:text="@string/label_accounts"
-            app:layout_constraintEnd_toStartOf="@id/persons"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/container_total_due"/>
-
-        <Button
-            android:id="@+id/persons"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/margin_vertical_medium"
-            android:padding="@dimen/padding_horizontal_small"
-            android:text="@string/title_people_list"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/accounts"
-            app:layout_constraintTop_toBottomOf="@id/container_total_due" />
-
-        <Button
-            android:id="@+id/transactions"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/label_transactions_list"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/accounts" />
+            android:padding="@dimen/margin_vertical_medium">
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/container_total_balance"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            app:cardElevation="@dimen/padding_vertical_extra_small"
-            app:cardCornerRadius="4dp"
-            app:cardUseCompatPadding="true"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/container_total_balance"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:orientation="vertical">
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.ExtraSmall"
+                app:cardUseCompatPadding="true"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
 
-                <TextView
-                    android:id="@+id/label_total_balance"
-                    android:layout_width="0dp"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/label_total_balance"
-                    android:textSize="@dimen/text_size_small"
-                    android:padding="@dimen/padding_vertical_extra_small"
-                    android:gravity="end"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/count_accounts"/>
-                <TextView
-                    android:id="@+id/total_balance"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/text_green"
-                    android:textStyle="bold"
-                    android:textSize="@dimen/text_size_large"
-                    tools:text="35369.35"
-                    app:layout_constraintTop_toBottomOf="@id/label_total_balance"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"/>
-                <TextView
-                    android:id="@+id/count_accounts"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:textSize="@dimen/text_size_small"
-                    android:padding="@dimen/padding_vertical_extra_small"
-                    app:layout_constraintStart_toEndOf="@id/label_total_balance"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:text="From 3 accounts"/>
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </androidx.cardview.widget.CardView>
+                    android:gravity="start"
+                    android:orientation="vertical"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp">
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/container_total_due"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            app:cardElevation="@dimen/padding_vertical_extra_small"
-            app:cardCornerRadius="4dp"
-            app:cardUseCompatPadding="true"
-            app:layout_constraintTop_toBottomOf="@id/container_total_balance"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
+                    <TextView
+                        android:id="@+id/label_total_balance"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_total_balance"
+                        android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent" />
+                    <TextView
+                        android:id="@+id/total_balance"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textStyle="bold"
+                        android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+                        app:layout_constraintTop_toBottomOf="@id/label_total_balance"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        tools:text="$35,369.35"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
+            <!-- Section Accounts -->
+
+            <TextView
+                android:id="@+id/label_section_account"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="vertical">
+                android:layout_marginTop="24dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/container_total_balance"
+                app:layout_constraintVertical_chainStyle="spread"
+                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                android:text="@string/label_accounts"/>
 
-                <TextView
-                    android:id="@+id/label_total_due"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:text="@string/label_total_due"
-                    android:textSize="@dimen/text_size_small"
-                    android:gravity="end"
-                    android:padding="@dimen/padding_vertical_extra_small"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/count_people"
-                    app:layout_constraintStart_toStartOf="parent" />
-                <TextView
-                    android:id="@+id/total_due"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/text_red"
-                    android:textSize="@dimen/text_size_large"
-                    android:textStyle="bold"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/label_total_due"
-                    tools:text="300.56" />
-                <TextView
-                    android:id="@+id/count_people"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:textSize="@dimen/text_size_small"
-                    android:padding="@dimen/padding_vertical_extra_small"
-                    tools:text="From 3 people"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/label_total_due"/>
+            <com.google.android.material.divider.MaterialDivider
+                android:id="@+id/divider_account"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="12dp"
+                app:layout_constraintStart_toEndOf="@id/label_section_account"
+                app:layout_constraintTop_toBottomOf="@id/container_total_balance"
+                app:layout_constraintEnd_toStartOf="@id/btn_view_all_accounts"
+                app:layout_constraintBottom_toBottomOf="@id/label_section_account"
+                app:layout_constraintVertical_chainStyle="spread"/>
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </androidx.cardview.widget.CardView>
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</ScrollView>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_view_all_accounts"
+                style="@style/Widget.Material3.Button.ElevatedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:layout_marginTop="24dp"
+                android:text="@string/label_view_all"
+                android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
+                android:textColor="@color/stateful_color_on_surface"
+                app:elevation="0dp"
+                app:layout_constraintBottom_toBottomOf="@id/label_section_account"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/container_total_balance"
+                app:layout_constraintVertical_chainStyle="spread"
+                tools:ignore="TouchTargetSizeCheck" />
+
+            <LinearLayout
+                android:id="@+id/container_latest_used_accounts"
+                android:layout_width="0dp"
+                android:layout_height="100dp"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal"
+                android:gravity="start|center_vertical"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/btn_view_all_accounts">
+
+            </LinearLayout>
+
+            <!-- Section Groups -->
+
+            <TextView
+                android:id="@+id/label_section_group"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/container_latest_used_accounts"
+                app:layout_constraintVertical_chainStyle="spread"
+                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                android:text="@string/label_groups"/>
+
+            <com.google.android.material.divider.MaterialDivider
+                android:id="@+id/divider_group"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="12dp"
+                app:layout_constraintStart_toEndOf="@id/label_section_group"
+                app:layout_constraintTop_toBottomOf="@id/container_latest_used_accounts"
+                app:layout_constraintEnd_toStartOf="@id/btn_view_all_groups"
+                app:layout_constraintBottom_toBottomOf="@id/label_section_group"
+                app:layout_constraintVertical_chainStyle="spread"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_view_all_groups"
+                style="@style/Widget.Material3.Button.ElevatedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:layout_marginTop="24dp"
+                android:text="@string/label_view_all"
+                android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
+                android:textColor="@color/stateful_color_on_surface"
+                app:elevation="0dp"
+                app:layout_constraintBottom_toBottomOf="@id/label_section_group"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/container_latest_used_accounts"
+                app:layout_constraintVertical_chainStyle="spread"
+                tools:ignore="TouchTargetSizeCheck" />
+
+            <LinearLayout
+                android:id="@+id/container_latest_used_groups"
+                android:layout_width="0dp"
+                android:layout_height="100dp"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal"
+                android:gravity="start|center_vertical"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/btn_view_all_groups">
+
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/buttons_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="76dp"
+        app:cardCornerRadius="8dp"
+        app:cardBackgroundColor="?attr/colorPrimaryContainer"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:orientation="horizontal">
+
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_add_credit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="6dp"
+                android:layout_marginRight="6dp"
+                app:backgroundTint="@color/colorCredit"
+                android:textColor="@color/colorOnCredit"
+                android:text="@string/label_add_credit"
+                android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
+                app:icon="@drawable/baseline_south_east_64"
+                app:iconGravity="textTop"
+                app:iconTint="@color/colorOnCredit"
+                app:iconSize="16dp"
+                app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.Small"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_add_debit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="6dp"
+                android:layout_marginRight="6dp"
+                app:backgroundTint="@color/colorDebit"
+                android:textColor="@color/colorOnDebit"
+                android:text="@string/label_add_debit"
+                android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
+                app:icon="@drawable/baseline_north_west_64"
+                app:iconGravity="textTop"
+                app:iconTint="@color/colorOnDebit"
+                app:iconSize="16dp"
+                app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.Small"/>
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/add_history"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:layout_gravity="bottom|center_horizontal"
+        app:icon="@drawable/ic_add"
+        android:text="@string/label_add_history"/>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
 

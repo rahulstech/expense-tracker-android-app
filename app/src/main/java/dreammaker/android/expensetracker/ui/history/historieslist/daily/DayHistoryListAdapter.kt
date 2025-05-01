@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import dreammaker.android.expensetracker.database.HistoryModel
-import dreammaker.android.expensetracker.databinding.DayHistoryListItemBinding
+import dreammaker.android.expensetracker.databinding.HistoryListItemBinding
 import dreammaker.android.expensetracker.ui.history.historieslist.HistoryViewHolder
 import dreammaker.android.expensetracker.ui.util.BaseSelectableItemListAdapter
 
@@ -23,7 +23,7 @@ class DayHistoryListAdapter: BaseSelectableItemListAdapter<HistoryModel, Long, H
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HistoryViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        val binding = DayHistoryListItemBinding.inflate(inflater,parent,false)
+        val binding = HistoryListItemBinding.inflate(inflater,parent,false)
         return HistoryViewHolder(binding, this::handleItemClick)
     }
     override fun onBindViewHolder(holder: HistoryViewHolder, position: Int) {

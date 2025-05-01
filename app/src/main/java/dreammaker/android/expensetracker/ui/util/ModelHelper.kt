@@ -5,6 +5,7 @@ import android.content.res.ColorStateList
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
+import androidx.core.content.res.ResourcesCompat
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.database.AccountModel
 import dreammaker.android.expensetracker.database.Date
@@ -116,17 +117,33 @@ fun HistoryType.getLabel(context: Context): CharSequence {
 }
 
 fun HistoryType.getBackgroundColor(context: Context): ColorStateList {
-    return context.resources.getColorStateList(when(this) {
+    val resId = when(this) {
         HistoryType.CREDIT -> R.color.colorCredit
         HistoryType.DEBIT -> R.color.colorDebit
         HistoryType.TRANSFER -> R.color.colorTransfer
-    }, null)
+    }
+    return ResourcesCompat.getColorStateList(context.resources, resId, context.theme)!!
 }
 
 fun HistoryType.getColorOnBackground(context: Context): ColorStateList {
-    return context.resources.getColorStateList(when(this) {
+    val resId = when(this) {
         HistoryType.CREDIT -> R.color.colorOnCredit
         HistoryType.DEBIT -> R.color.colorOnDebit
         HistoryType.TRANSFER -> R.color.colorOnTransfer
-    }, null)
+    }
+    return ResourcesCompat.getColorStateList(context.resources, resId, context.theme)!!
 }
+
+fun AccountModel.getColorCodedBalance(context: Context, format: (Float)->String): CharSequence {
+
+   return balance?.let {
+       val text = format(it)
+       when {
+           it < 0 -> ""
+           it > 0 -> ""
+           else -> text
+       }
+   } ?: ""
+}
+
+fun GroupModel.getColorCodedBalance(context: Context) {}

@@ -120,7 +120,7 @@ abstract class BaseViewHistoryFragment<T>: Fragment() {
         })
         binding.btnGotoPresent.text = getGotoPresentButtonText()
         binding.btnGotoPresent.setOnClickListener { setCurrentData(adapter.getPresentData()) }
-        binding.btnDataPicker.setOnClickListener{ onClickDataPicker(getCurrentData()!!) }
+        binding.btnPicker.setOnClickListener{ onClickDataPicker(getCurrentData()!!) }
         binding.addHistory.setOnClickListener {
             val target = binding.buttonsLayout
             if (target.isVisible()) {
@@ -163,7 +163,7 @@ abstract class BaseViewHistoryFragment<T>: Fragment() {
     protected open fun onPutCreateHistoryArgument(type: HistoryType, argument: Bundle) {}
 
     protected open fun changePageLabel(data: T?) {
-        binding.btnDataPicker.text = if (null == data) null else adapter.getDataLabel(data)
+        binding.btnPicker.text = if (null == data) null else adapter.getDataLabel(data)
     }
 
     fun setCurrentData(data: T?) {

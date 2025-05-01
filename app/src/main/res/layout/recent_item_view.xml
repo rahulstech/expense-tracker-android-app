@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.button.MaterialButton xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="100dp"
+    android:layout_height="wrap_content"
+    android:singleLine="true"
+    style="@style/Widget.Material3.Button.TextButton"
+    app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.Medium"
+    android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+    android:textColor="@color/stateful_color_on_surface"
+    app:iconGravity="textTop"
+    app:iconSize="36dp"
+    app:iconPadding="12dp"
+    app:iconTint="@color/stateful_color_on_surface"
+    tools:icon="@drawable/ic_account_black"
+    tools:text="John Doe Barbara"/>

@@ -11,7 +11,7 @@ import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import dreammaker.android.expensetracker.database.AccountModel
-import dreammaker.android.expensetracker.databinding.PickerListLayoutBinding
+import dreammaker.android.expensetracker.databinding.SingleAccountPickerListWithSearchLayoutBinding
 import dreammaker.android.expensetracker.ui.util.AccountModelParcel
 import dreammaker.android.expensetracker.ui.util.Constants
 import dreammaker.android.expensetracker.ui.util.SelectionMode
@@ -22,7 +22,7 @@ open class PickHistoryAccountFragment : Fragment() {
 
     private val TAG = PickHistoryAccountFragment::class.simpleName
 
-    private var _binding: PickerListLayoutBinding? = null
+    private var _binding: SingleAccountPickerListWithSearchLayoutBinding? = null
     private val binding get() = _binding!!
 
     private lateinit var adapter: AccountPickerListAdapter
@@ -41,7 +41,7 @@ open class PickHistoryAccountFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = PickerListLayoutBinding.inflate(inflater, container, false)
+        _binding = SingleAccountPickerListWithSearchLayoutBinding.inflate(inflater, container, false)
         return binding.root
     }
 

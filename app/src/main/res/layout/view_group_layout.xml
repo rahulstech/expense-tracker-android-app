@@ -133,7 +133,6 @@
         android:layout_margin="12dp"
         android:layout_gravity="bottom|center_horizontal"
         app:icon="@drawable/ic_add"
-        android:text="@string/label_add_history"
-        style="@style/Widget.AppTheme.Button.Secondary"/>
+        android:text="@string/label_add_history"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

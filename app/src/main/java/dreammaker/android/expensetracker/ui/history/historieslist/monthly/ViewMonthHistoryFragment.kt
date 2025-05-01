@@ -7,22 +7,28 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.database.HistoryModel
+import dreammaker.android.expensetracker.database.HistoryType
 import dreammaker.android.expensetracker.databinding.HistoryListBinding
+import dreammaker.android.expensetracker.ui.history.historieslist.HistoryFilterData
 import dreammaker.android.expensetracker.ui.history.historieslist.HistoryListContainer
 import dreammaker.android.expensetracker.ui.history.historieslist.ViewHistoryViewModel
+import dreammaker.android.expensetracker.ui.history.historieslist.doFilterHistory
 import dreammaker.android.expensetracker.ui.history.viewhistory.ViewHistoryItemFragment
 import dreammaker.android.expensetracker.ui.util.AccountModelParcel
+import dreammaker.android.expensetracker.ui.util.Filter
 import dreammaker.android.expensetracker.ui.util.GroupModelParcel
 import dreammaker.android.expensetracker.ui.util.getMonthYear
 import dreammaker.android.expensetracker.ui.util.putHistoryType
 import dreammaker.android.expensetracker.ui.util.visibilityGone
 import dreammaker.android.expensetracker.ui.util.visible
+import kotlinx.coroutines.launch
 
 class ViewMonthHistoryFragment : Fragment() {
 
@@ -37,7 +43,9 @@ class ViewMonthHistoryFragment : Fragment() {
 
     private lateinit var adapter: MonthHistoryListAdapter
 
-    private lateinit var navController: NavController
+    private val navController: NavController by lazy { findNavController() }
+
+    private val filter = Filter<HistoryFilterData,List<HistoryModel>>{ query,histories -> doFilterHistory(query,histories) }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -49,7 +57,6 @@ class ViewMonthHistoryFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        navController = findNavController()
         binding.historyList.apply {
             layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL,false)
             adapter = MonthHistoryListAdapter().also {
@@ -57,7 +64,7 @@ class ViewMonthHistoryFragment : Fragment() {
             }
         }
         adapter.itemClickListener = this::handleItemClick
-
+        binding.filterTypes.setOnCheckedStateChangeListener { _,_ -> filter() }
         val monthYear = requireArguments().getMonthYear(ARG_MONTH_YEAR)!!
         val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
         val entity = savedStateHandle?.get<Parcelable?>(HistoryListContainer.ARG_SHOW_HISTORY_FOR)
@@ -66,12 +73,15 @@ class ViewMonthHistoryFragment : Fragment() {
             is GroupModelParcel -> viewModel.getMonthlyHistoriesForGroup(monthYear,entity.id)
             else -> viewModel.getMonthlyHistories(monthYear)
         }
-        histories.observe(viewLifecycleOwner, this::onHistoryLoaded)
+
+        lifecycleScope.launch { filter.start() }
+        filter.resultLiveData.observe(viewLifecycleOwner, this::onHistoryLoaded)
+        histories.observe(viewLifecycleOwner) { filter() }
     }
 
-    private fun onHistoryLoaded(histories: List<HistoryModel>?) {
+    private fun onHistoryLoaded(histories: List<HistoryModel>) {
         adapter.submitList(histories)
-        if (histories.isNullOrEmpty()) {
+        if (histories.isEmpty()) {
             binding.historyList.visibilityGone()
             binding.emptyView.visible()
         }
@@ -87,5 +97,25 @@ class ViewMonthHistoryFragment : Fragment() {
             putLong(ViewHistoryItemFragment.ARG_HISTORY_ID, history.id!!)
             putHistoryType(ViewHistoryItemFragment.ARG_HISTORY_TYPE, history.type!!)
         })
+    }
+
+    private fun filter() {
+        val histories = viewModel.getHistories()
+        val query = HistoryFilterData().apply {
+            setTypes(getCheckedHistoryTypes())
+        }
+        filter.filter(query,histories)
+    }
+
+    private fun getCheckedHistoryTypes(): List<HistoryType> {
+        val checkedIds = binding.filterTypes.checkedChipIds
+        return checkedIds.mapNotNull { id ->
+            when (id) {
+                R.id.filter_credit -> HistoryType.CREDIT
+                R.id.filter_debit -> HistoryType.DEBIT
+                R.id.filter_transfer -> HistoryType.TRANSFER
+                else -> null
+            }
+        }
     }
 }

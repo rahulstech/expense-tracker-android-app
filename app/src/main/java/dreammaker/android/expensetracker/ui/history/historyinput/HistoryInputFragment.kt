@@ -34,7 +34,7 @@ import dreammaker.android.expensetracker.ui.util.getHistoryType
 import dreammaker.android.expensetracker.ui.util.hasArgument
 import dreammaker.android.expensetracker.ui.util.visibilityGone
 import dreammaker.android.expensetracker.ui.util.visible
-import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class HistoryInputFragment : Fragment() {
@@ -133,9 +133,7 @@ class HistoryInputFragment : Fragment() {
         binding.btnSave.setOnClickListener { onClickSave() }
         binding.btnCancel.setOnClickListener { onClickCancel() }
         lifecycleScope.launch {
-            viewModel.resultState
-                .filterNotNull()
-                .collect {
+            viewModel.resultState.collectLatest {
                     onSave(it)
                     viewModel.emptyResult()
                 }

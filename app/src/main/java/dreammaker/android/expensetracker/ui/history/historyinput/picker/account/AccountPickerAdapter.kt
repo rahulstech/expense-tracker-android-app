@@ -24,12 +24,11 @@ class AccountPickerViewHolder(
 
     fun bind(data: AccountModel?, isSelected: Boolean) {
         if (null == data) {
-            binding.checkbox.isChecked = false
             binding.accountName.text = null
             binding.accountBalance.text = null
+            binding.root.isSelected = false
         }
         else {
-            binding.checkbox.isChecked = isSelected
             binding.accountName.text = data.name
             binding.accountBalance.text = data.balance!!.toCurrencyString()
             binding.root.isSelected = isSelected

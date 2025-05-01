@@ -12,7 +12,7 @@ import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import dreammaker.android.expensetracker.database.GroupModel
-import dreammaker.android.expensetracker.databinding.PickerListLayoutBinding
+import dreammaker.android.expensetracker.databinding.SingleGroupPickerListWithSearchLayoutBinding
 import dreammaker.android.expensetracker.ui.util.Constants
 import dreammaker.android.expensetracker.ui.util.GroupModelParcel
 import dreammaker.android.expensetracker.ui.util.SelectionMode
@@ -22,7 +22,7 @@ open class PickHistoryGroupFragment : Fragment() {
 
     private val TAG = PickHistoryGroupFragment::class.simpleName
 
-    private var _binding: PickerListLayoutBinding? = null
+    private var _binding: SingleGroupPickerListWithSearchLayoutBinding? = null
     private val binding get() = _binding!!
 
     private lateinit var adapter: GroupPickerListAdapter
@@ -41,7 +41,7 @@ open class PickHistoryGroupFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = PickerListLayoutBinding.inflate(inflater, container, false)
+        _binding = SingleGroupPickerListWithSearchLayoutBinding.inflate(inflater, container, false)
         return binding.root
     }
 

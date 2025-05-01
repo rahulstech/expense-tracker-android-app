@@ -1,6 +1,7 @@
 package dreammaker.android.expensetracker.ui.history.historieslist
 
 import android.os.Bundle
+import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
@@ -14,15 +15,12 @@ import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainerView
 import androidx.navigation.NavController
-import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.settings.SettingsProvider
 import dreammaker.android.expensetracker.settings.ViewHistory
 import dreammaker.android.expensetracker.ui.history.historieslist.daily.DailyViewHistoryFragment
 import dreammaker.android.expensetracker.ui.history.historieslist.monthly.MonthlyViewHistoryFragment
-import dreammaker.android.expensetracker.ui.util.AccountModelParcel
-import dreammaker.android.expensetracker.ui.util.Constants
-import dreammaker.android.expensetracker.ui.util.GroupModelParcel
 
 class HistoryListContainer: Fragment(), MenuProvider {
 
@@ -38,7 +36,7 @@ class HistoryListContainer: Fragment(), MenuProvider {
     private var _container: FragmentContainerView? = null
     private val container get() = _container!!
 
-    private lateinit var navController: NavController
+    private val navController: NavController by lazy { findNavController() }
     private lateinit var settings: SettingsProvider
 
     override fun onCreateView(
@@ -55,12 +53,9 @@ class HistoryListContainer: Fragment(), MenuProvider {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        navController = Navigation.findNavController(view)
 
-        val account = arguments?.let { BundleCompat.getParcelable(it, Constants.ARG_ACCOUNT, AccountModelParcel::class.java) }
-        val group = arguments?.let { BundleCompat.getParcelable(it,Constants.ARG_GROUP, GroupModelParcel::class.java) }
-        navController.currentBackStackEntry?.savedStateHandle?.set(Constants.ARG_ACCOUNT, account)
-        navController.currentBackStackEntry?.savedStateHandle?.set(Constants.ARG_GROUP, group)
+        val entity =  arguments?.let { BundleCompat.getParcelable(it, ARG_SHOW_HISTORY_FOR, Parcelable::class.java) }
+        navController.currentBackStackEntry?.savedStateHandle?.set(ARG_SHOW_HISTORY_FOR, entity)
 
         val viewAs = settings.getViewHistory()
         changeFragment(viewAs)

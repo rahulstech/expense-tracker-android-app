@@ -22,8 +22,9 @@
 		android:layout_height="wrap_content"
 		android:layout_gravity="center"
 		android:padding="24dp"
-		android:drawablePadding="24dp"
+		android:drawablePadding="16dp"
 		android:text="@string/label_empty_account_list"
+		app:drawableTopCompat="@drawable/ic_account_black"
 		android:textAppearance="@style/TextAppearance.Material3.DisplaySmall"
 		android:textStyle="italic"/>
 
@@ -32,10 +33,9 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="bottom|center_horizontal"
-		android:layout_margin="16dp"
+		android:layout_margin="12dp"
 		app:icon="@drawable/ic_add"
 		android:text="@string/label_add_account"
-		style="@style/Widget.AppTheme.Button.Secondary"
-        tools:ignore="ContentDescription" />
+		tools:ignore="ContentDescription" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

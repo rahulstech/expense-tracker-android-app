@@ -1,6 +1,5 @@
 package dreammaker.android.expensetracker.ui.account.inputaccount
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,17 +7,16 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
-import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.database.AccountModel
 import dreammaker.android.expensetracker.databinding.InputAccountBinding
 import dreammaker.android.expensetracker.ui.util.Constants
 import dreammaker.android.expensetracker.ui.util.OperationResult
 import dreammaker.android.expensetracker.ui.util.setActivityTitle
-import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class AccountInputFragment : Fragment() {
@@ -28,7 +26,7 @@ class AccountInputFragment : Fragment() {
     private val binding get() = this._binding!!
 
     private val viewModel: AccountInputViewModel by viewModels()
-    private lateinit var navController: NavController
+    private val navController: NavController by lazy { findNavController() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,11 +47,10 @@ class AccountInputFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        navController = Navigation.findNavController(view)
         binding.btnSave.setOnClickListener{ onClickSave() }
         binding.btnCancel.setOnClickListener { navController.popBackStack() }
         lifecycleScope.launch {
-            viewModel.resultFlow.filterNotNull().collect{
+            viewModel.resultFlow.collectLatest{
                 onSave(it)
                 viewModel.emptyResult()
             }

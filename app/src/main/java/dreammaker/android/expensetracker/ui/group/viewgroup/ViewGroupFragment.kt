@@ -21,6 +21,7 @@ import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.database.GroupModel
 import dreammaker.android.expensetracker.database.HistoryType
 import dreammaker.android.expensetracker.databinding.ViewGroupLayoutBinding
+import dreammaker.android.expensetracker.ui.history.historieslist.HistoryListContainer
 import dreammaker.android.expensetracker.ui.history.historyinput.HistoryInputFragment
 import dreammaker.android.expensetracker.ui.util.Constants
 import dreammaker.android.expensetracker.ui.util.GroupModelParcel
@@ -30,7 +31,7 @@ import dreammaker.android.expensetracker.ui.util.putHistoryType
 import dreammaker.android.expensetracker.ui.util.toCurrencyString
 import dreammaker.android.expensetracker.ui.util.visibilityGone
 import dreammaker.android.expensetracker.ui.util.visible
-import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class ViewGroupFragment: Fragment(), MenuProvider {
@@ -60,7 +61,7 @@ class ViewGroupFragment: Fragment(), MenuProvider {
             val group = viewModel.getStoredGroup()
             group?.let {
                 navController.navigate(R.id.action_view_group_to_history_list, Bundle().apply {
-                    putParcelable(Constants.ARG_GROUP, GroupModelParcel(group))
+                    putParcelable(HistoryListContainer.ARG_SHOW_HISTORY_FOR, GroupModelParcel(group))
                 })
             }
         }
@@ -95,7 +96,7 @@ class ViewGroupFragment: Fragment(), MenuProvider {
         }
         viewModel.findGroupById(getArgGroupId()).observe(viewLifecycleOwner, this::onGroupLoaded)
         lifecycleScope.launch {
-            viewModel.resultState.filterNotNull().collect {
+            viewModel.resultState.collectLatest {
                 onGroupDeleted(it)
                 viewModel.emptyResult()
             }

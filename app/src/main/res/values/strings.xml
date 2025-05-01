@@ -296,5 +296,8 @@
 	<string name="label_october">October</string>
 	<string name="label_november">November</string>
 	<string name="label_december">December</string>
+	<string name="label_view_all">View All</string>
+	<string name="label_groups">Groups</string>
+    <string name="label_no_group">No Group</string>
 
 </resources>

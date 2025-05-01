@@ -87,6 +87,9 @@ interface AccountDao {
     @Query("SELECT * FROM `accounts` WHERE `_id` = :id")
     fun findAccountById(id: Long): LiveData<AccountModel?>
 
+    @Query("SELECT SUM(`balance`) AS `total_balance` FROM `accounts`")
+    fun getTotalBalance(): LiveData<Double?>
+
     @Delete
     fun deleteAccount(account: Account): Int
 }

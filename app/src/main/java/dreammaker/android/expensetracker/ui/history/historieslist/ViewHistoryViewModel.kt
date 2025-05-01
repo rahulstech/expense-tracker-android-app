@@ -68,6 +68,13 @@ class ViewHistoryViewModel(app: Application): AndroidViewModel(app) {
         return historiesLiveData
     }
 
+    fun getHistories(): List<HistoryModel>? {
+        if (!::historiesLiveData.isInitialized) {
+            return null
+        }
+        return historiesLiveData.value
+    }
+
     fun getMonthlyHistories(monthYear: MonthYear): LiveData<List<HistoryModel>>
     = getOrCreateHistoriesLiveData(HistoriesLiveDataFactory.forMonthYear(monthYear))
 

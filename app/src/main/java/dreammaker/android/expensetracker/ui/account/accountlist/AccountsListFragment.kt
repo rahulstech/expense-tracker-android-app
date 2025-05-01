@@ -3,8 +3,6 @@ package dreammaker.android.expensetracker.ui.account.accountlist
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
@@ -13,7 +11,6 @@ import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import dreammaker.android.expensetracker.R
-import dreammaker.android.expensetracker.database.Account
 import dreammaker.android.expensetracker.database.AccountModel
 import dreammaker.android.expensetracker.databinding.AccountsListBinding
 import dreammaker.android.expensetracker.ui.util.Constants
@@ -82,83 +79,5 @@ class AccountsListFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-//        inflater.inflate(R.menu.account_list_menu, menu)
-//        onPrepareSearchMenu(
-//            menu.findItem(R.id.search_account),
-//            R.string.search_account,
-//            saveData!!.queryAccount
-//        )
-    }
-
-//    override fun onQueryTextSubmit(query: String): Boolean {
-//        onFilter(query)
-//        return true
-//    }
-//
-//    override fun onQueryTextChange(newText: String): Boolean {
-//        super.onQueryTextChange(newText)
-//        if (Check.isEmptyString(newText)) {
-//            onFilter(null)
-//            return true
-//        }
-//        return false
-//    }
-
-//    private fun onFilter(key: String?) {
-//        adapter!!.filter.filter(key)
-//    }
-
-//    override fun onItemChildClicked(
-//        accountsAdapter: AccountsAdapter,
-//        vh: AccountViewHolder,
-//        v: View
-//    ) {
-//        if (null == context) return
-//        val account: Account = adapter!!.getItem(vh.absoluteAdapterPosition)
-//        if (vh.options === v) {
-//            val menu = PopupMenu(context!!, v)
-//            menu.inflate(R.menu.account_list_item_options_menu)
-//            menu.setOnMenuItemClickListener { item: MenuItem ->
-//                viewModel!!.selectedAccount = account
-//                val itemId = item.itemId
-//                if (R.id.edit === itemId) {
-//                    onEditAccount(account)
-//                    return@setOnMenuItemClickListener true
-//                } else if (R.id.delete === itemId) {
-//                    onDeleteAccount(account)
-//                    return@setOnMenuItemClickListener true
-//                }
-//                false
-//            }
-//            menu.show()
-//        } else if (vh.root === v) {
-//            onViewTransactions(account)
-//        }
-//    }
-
-//    private fun onAboutAccountFetched(accounts: List<AboutAccount>) {
-//        adapter!!.submitList(accounts)
-//        adapter!!.onRestoreData(saveData!!.adapterSaveData)
-//    }
-
-    private fun onAddAccount() {
-//        viewModel!!.selectedAccount = null
-//        navController!!.navigate(R.id.action_accountsList_to_inputAccount)
-    }
-
-    private fun onDeleteAccount(account: Account) {
-//        if (null == context) return
-//        AlertDialog.Builder(context!!)
-//            .setMessage(resources.getQuantityString(R.plurals.warning_delete_accounts, 1))
-//            .setPositiveButton(android.R.string.cancel, null)
-//            .setNegativeButton(android.R.string.ok) { di: DialogInterface?, which: Int ->
-//                viewModel!!.selectedAccount = null
-//                viewModel!!.deleteAccount(account)
-//            }
-//            .show()
     }
 }

@@ -117,10 +117,6 @@ abstract class HistoryDao(db: ExpensesDatabase) {
     @Transaction
     abstract fun getHistoriesBetweenDatesOnlyForGroup(start: Date, end: Date, groupId: Long): LiveData<List<HistoryModel>>
 
-    @Query("SELECT * FROM `histories` WHERE `date` = :date")
-    @Transaction
-    abstract fun getHistoriesForDate(date: Date): LiveData<List<HistoryModel>>
-
     fun insertHistory(history: History): Long {
         if (history.type == HistoryType.TRANSFER) {
             val moneyTransfer = history.toMoneyTransfer()
@@ -162,12 +158,12 @@ abstract class HistoryDao(db: ExpensesDatabase) {
 
     // Statistics
 
-    @Query("SELECT `_id`, `account_name`, `balance` FROM `accounts` WHERE `_id` IN " +
+    @Query("SELECT `_id`, `account_name` FROM `accounts` WHERE `_id` IN " +
             "(SELECT `primaryAccountId` FROM `histories` WHERE `primaryAccountId` IS NOT NULL GROUP BY primaryAccountId ORDER BY Max(`date`) DESC LIMIT 3)")
     abstract fun getLatestUsedThreeAccounts(): LiveData<List<AccountModel>>
 
-    @Query("SELECT `_id`, `person_name`, `due` FROM `persons` WHERE `_id` IN " +
-            "(SELECT `groupId` FROM `histories` WHERE `groupId` IS NOT NULL GROUP BY primaryAccountId ORDER BY Max(`date`) DESC LIMIT 3)")
+    @Query("SELECT `_id`, `person_name` FROM `persons` WHERE `_id` IN " +
+            "(SELECT `groupId` FROM `histories` WHERE `groupId` IS NOT NULL GROUP BY `groupId` ORDER BY Max(`date`) DESC LIMIT 3)")
     abstract fun getLatestUsedThreeGroups(): LiveData<List<GroupModel>>
 }
 

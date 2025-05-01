@@ -16,7 +16,7 @@ import dreammaker.android.expensetracker.database.GroupModel
 import dreammaker.android.expensetracker.databinding.InputGroupBinding
 import dreammaker.android.expensetracker.ui.util.Constants
 import dreammaker.android.expensetracker.ui.util.OperationResult
-import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class GroupInputFragment : Fragment() {
@@ -51,7 +51,7 @@ class GroupInputFragment : Fragment() {
             }
         }
         lifecycleScope.launch {
-            viewModel.resultState.filterNotNull().collect {
+            viewModel.resultState.collectLatest {
                 onSave(it)
                 viewModel.emptyState()
             }

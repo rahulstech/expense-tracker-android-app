@@ -20,8 +20,9 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:padding="24dp"
-        android:drawablePadding="24dp"
+        android:drawablePadding="16dp"
         android:text="@string/label_empty_group_list"
+        app:drawableTopCompat="@drawable/baseline_receipt_long_64"
         android:textAppearance="@style/TextAppearance.Material3.DisplaySmall"
         android:textStyle="italic"/>
 

@@ -21,6 +21,7 @@ import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.database.AccountModel
 import dreammaker.android.expensetracker.database.HistoryType
 import dreammaker.android.expensetracker.databinding.ViewAccountLayoutBinding
+import dreammaker.android.expensetracker.ui.history.historieslist.HistoryListContainer
 import dreammaker.android.expensetracker.ui.history.historyinput.HistoryInputFragment
 import dreammaker.android.expensetracker.ui.util.AccountModelParcel
 import dreammaker.android.expensetracker.ui.util.Constants
@@ -31,7 +32,7 @@ import dreammaker.android.expensetracker.ui.util.putHistoryType
 import dreammaker.android.expensetracker.ui.util.toCurrencyString
 import dreammaker.android.expensetracker.ui.util.visibilityGone
 import dreammaker.android.expensetracker.ui.util.visible
-import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class ViewAccountFragment: Fragment(), MenuProvider {
@@ -114,7 +115,7 @@ class ViewAccountFragment: Fragment(), MenuProvider {
         binding.btnViewHistory.setOnClickListener { handleClickViewHistory() }
         viewModel.findAccountById(getArgAccountId()).observe(viewLifecycleOwner, this::onAccountLoaded)
         lifecycleScope.launch {
-            viewModel.resultFlow.filterNotNull().collect {
+            viewModel.resultFlow.collectLatest {
                 onAccountDeleted(it)
                 viewModel.emptyResult()
             }
@@ -136,7 +137,7 @@ class ViewAccountFragment: Fragment(), MenuProvider {
         val account = viewModel.getStoredAccount()
         account?.let {
             navController.navigate(R.id.action_view_account_to_history_list, Bundle().apply {
-                putParcelable(Constants.ARG_ACCOUNT, AccountModelParcel(it))
+                putParcelable(HistoryListContainer.ARG_SHOW_HISTORY_FOR, AccountModelParcel(it))
             })
         }
     }

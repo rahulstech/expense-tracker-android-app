@@ -7,7 +7,7 @@ import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.database.GroupModel
 import dreammaker.android.expensetracker.database.HistoryModel
 import dreammaker.android.expensetracker.database.HistoryType
-import dreammaker.android.expensetracker.databinding.DayHistoryListItemBinding
+import dreammaker.android.expensetracker.databinding.HistoryListItemBinding
 import dreammaker.android.expensetracker.ui.util.ClickableViewHolder
 import dreammaker.android.expensetracker.ui.util.getBackgroundColor
 import dreammaker.android.expensetracker.ui.util.getColorOnBackground
@@ -17,7 +17,7 @@ import dreammaker.android.expensetracker.ui.util.toCurrencyString
 import dreammaker.android.expensetracker.ui.util.visible
 
 class HistoryViewHolder(
-    private val binding: DayHistoryListItemBinding,
+    private val binding: HistoryListItemBinding,
     onClick: (HistoryViewHolder, View)->Unit
 ) :  ClickableViewHolder<HistoryViewHolder>(binding.root) {
 

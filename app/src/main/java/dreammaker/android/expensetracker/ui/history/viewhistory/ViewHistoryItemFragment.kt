@@ -35,6 +35,7 @@ import dreammaker.android.expensetracker.ui.util.putHistoryType
 import dreammaker.android.expensetracker.ui.util.toCurrencyString
 import dreammaker.android.expensetracker.ui.util.visibilityGone
 import dreammaker.android.expensetracker.ui.util.visible
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
@@ -78,7 +79,7 @@ class ViewHistoryItemFragment: Fragment(), MenuProvider {
         val type = requireArguments().getHistoryType(ARG_HISTORY_TYPE)!!
         viewModel.findHistory(id,type).observe(viewLifecycleOwner, this::onHistoryLoaded)
         lifecycleScope.launch {
-            viewModel.resultState.filterNotNull().collect{
+            viewModel.resultState.collectLatest {
                 onHistoryDeleted(it)
                 viewModel.emptyResult()
             }

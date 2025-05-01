@@ -1,6 +1,5 @@
 package dreammaker.android.expensetracker.ui.util
 
-import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import java.text.NumberFormat
@@ -15,9 +14,9 @@ data class OperationResult<out T>(
 }
 
 object Constants {
-    const val ARG_DESTINATION_LABEL = "arg.destination_label"
-    const val ARG_INITIAL_SELECTION = "arg.initial_selection"
-    const val ARG_RESULT_KEY = "arg.tag"
+    const val ARG_DESTINATION_LABEL = "arg_destination_label"
+    const val ARG_INITIAL_SELECTION = "arg_initial_selection"
+    const val ARG_RESULT_KEY = "arg_tag"
     const val ARG_ACTION = "arg_action"
     const val ARG_ID = "arg_id"
     const val ARG_ACCOUNT = "arg_account"
@@ -43,16 +42,8 @@ fun Fragment.setActivityTitle(title: CharSequence) {
 
 fun Fragment.hasArgument(key: String): Boolean = arguments?.containsKey(key) ?: false
 
-fun Bundle.getIfContains(key: String, defaultValue: Any? = null): Any? {
-    if (containsKey(key)) {
-        return get(key)
-    }
-    return defaultValue
-}
-
 fun Number.toCurrencyString(currencyCode: String = "USD", textLocale: Locale = Locale.ENGLISH, ): String {
     val format = NumberFormat.getCurrencyInstance(textLocale)
     format.currency = Currency.getInstance(currencyCode)
     return format.format(toDouble())
 }
-
