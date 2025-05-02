@@ -1,10 +1,7 @@
 package dreammaker.android.expensetracker.ui.util
 
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Rect
 import android.view.View
-import android.view.ViewGroup
 import androidx.annotation.StringRes
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -244,100 +241,5 @@ abstract class BaseSelectableItemListAdapter<ItemType, KeyType, VH : ClickableVi
         val position = holder.bindingAdapterPosition
         toggleSelection(position)
         super.handleItemClick(holder, view)
-    }
-}
-
-// Sectioned Adapter
-
-open class SectionViewHolder(val itemView: View) {}
-
-interface ISectionAdapter<T, VH: SectionViewHolder> {
-
-    fun getSection(position: Int): T?
-
-    fun createSectionViewHolder(parent: ViewGroup, position: Int): VH
-
-    fun bindSectionViewHolder(holder: VH, position: Int)
-}
-class SectionItemDecoration<T, VH : SectionViewHolder>(
-    private val adapter: ISectionAdapter<T, VH>,
-) : RecyclerView.ItemDecoration() {
-
-    private val sectionCache = mutableMapOf<T, VH>()
-
-    override fun onDrawOver(canvas: Canvas, parent: RecyclerView, state: RecyclerView.State) {
-        val childCount = parent.childCount
-        if (childCount == 0) return
-
-        for (i in 0 until childCount) {
-            val child = parent.getChildAt(i) ?: continue
-            val position = parent.getChildAdapterPosition(child)
-            if (position == RecyclerView.NO_POSITION) continue
-
-            val section = adapter.getSection(position)!!
-            val isFirstInSection = position == 0 || adapter.getSection(position - 1) != section
-
-            if (isFirstInSection) {
-                val viewHolder = getSectionViewHolder(parent, section, position, rebind = true)
-                val sectionView = viewHolder.itemView
-                val left = child.left
-                val top = child.top - sectionView.measuredHeight
-
-                canvas.save()
-                canvas.translate(left.toFloat(), top.toFloat())
-                sectionView.draw(canvas)
-                canvas.restore()
-            }
-        }
-    }
-
-    override fun getItemOffsets(
-        outRect: Rect,
-        view: View,
-        parent: RecyclerView,
-        state: RecyclerView.State
-    ) {
-        val position = parent.getChildAdapterPosition(view)
-        if (position == RecyclerView.NO_POSITION) return
-
-        val section = adapter.getSection(position)!!
-        val isFirstInSection = position == 0 || adapter.getSection(position - 1) != section
-
-        if (isFirstInSection) {
-            val viewHolder = getSectionViewHolder(parent, section, position)
-            outRect.top = viewHolder.itemView.measuredHeight
-        } else {
-            outRect.top = 0
-        }
-    }
-
-    private fun getSectionViewHolder(
-        parent: RecyclerView,
-        section: T,
-        position: Int,
-        rebind: Boolean = false
-    ): VH {
-        val viewHolder: VH
-
-        if (!sectionCache.containsKey(section)) {
-            viewHolder = adapter.createSectionViewHolder(parent, position)
-            adapter.bindSectionViewHolder(viewHolder, position)
-            sectionCache[section] = viewHolder
-
-            val widthSpec = View.MeasureSpec.makeMeasureSpec(parent.width, View.MeasureSpec.EXACTLY)
-            val heightSpec = View.MeasureSpec.makeMeasureSpec(80, View.MeasureSpec.AT_MOST)
-
-            viewHolder.itemView.measure(widthSpec, heightSpec)
-            viewHolder.itemView.layout(0, 0, viewHolder.itemView.measuredWidth, viewHolder.itemView.measuredHeight)
-
-        } else {
-            viewHolder = sectionCache[section]!!
-
-            if (rebind) {
-                adapter.bindSectionViewHolder(viewHolder, position)
-            }
-        }
-
-        return viewHolder
     }
 }

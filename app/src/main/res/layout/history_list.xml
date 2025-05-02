@@ -65,12 +65,15 @@
             android:id="@+id/history_list"
             android:layout_height="match_parent"
             android:layout_width="match_parent"
+            android:background="?attr/colorSurfaceContainerLow"
             android:layout_marginTop="12dp"
             android:visibility="gone"
             app:layout_constraintTop_toBottomOf="@id/filter_types"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:visibility="visible"
+            tools:listitem="@layout/month_history_list_item"/>
 
         <TextView
             android:id="@+id/empty_view"

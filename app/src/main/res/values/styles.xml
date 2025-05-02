@@ -109,4 +109,29 @@
         <item name="backgroundTint">?attr/colorSecondary</item>
     </style>
 
+
+    <style name="ShapeAppearanceOverlay.AppTheme" parent="">
+    </style>
+
+    <dimen name="corner_size_large">16dp</dimen>
+
+    <style name="ShapeAppearanceOverlay.AppTheme.TopCornerLarge">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">@dimen/corner_size_large</item>
+        <item name="cornerSizeTopRight">@dimen/corner_size_large</item>
+        <item name="cornerSizeBottomLeft">0dp</item>
+        <item name="cornerSizeBottomRight">0dp</item>
+    </style>
+
+    <style name="ShapeAppearanceOverlay.AppTheme.BottomCornerLarge">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">0dp</item>
+        <item name="cornerSizeTopRight">0dp</item>
+        <item name="cornerSizeBottomLeft">@dimen/corner_size_large</item>
+        <item name="cornerSizeBottomRight">@dimen/corner_size_large</item>
+    </style>
+
+    <style name="ShapeAppearanceOverlay.AppTheme.CornerNone" parent="ShapeAppearance.Material3.Corner.None">
+    </style>
+
 </resources>

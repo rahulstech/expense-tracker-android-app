@@ -17,13 +17,7 @@ import dreammaker.android.expensetracker.ui.util.visible
 
 abstract class BaseHistoryViewHolder<VH:BaseHistoryViewHolder<VH>>(
     itemView: View,
-    onClick: (VH, View)->Unit
 ) :  ClickableViewHolder<VH>(itemView) {
-
-    init {
-        setItemClickListener(onClick)
-        attachItemClickListener()
-    }
 
     abstract fun bind(history: HistoryModel?, selected: Boolean)
 
