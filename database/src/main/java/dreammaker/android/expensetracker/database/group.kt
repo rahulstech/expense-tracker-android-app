@@ -37,4 +37,8 @@ interface GroupDao {
 
     @Query("SELECT `_id` , `person_name`, `due` FROM `persons`")
     fun getAllGroups(): LiveData<List<GroupModel>>
+
+    @Query("SELECT `_id`, `person_name` FROM `persons` WHERE `_id` IN " +
+            "(SELECT `groupId` FROM `histories` WHERE `groupId` IS NOT NULL GROUP BY `groupId` ORDER BY Max(`date`) DESC LIMIT 3)")
+    abstract fun getLatestUsedThreeGroups(): LiveData<List<GroupModel>>
 }

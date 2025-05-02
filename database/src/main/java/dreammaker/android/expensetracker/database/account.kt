@@ -92,4 +92,8 @@ interface AccountDao {
 
     @Delete
     fun deleteAccount(account: Account): Int
+
+    @Query("SELECT `_id`, `account_name` FROM `accounts` WHERE `_id` IN " +
+            "(SELECT `primaryAccountId` FROM `histories` WHERE `primaryAccountId` IS NOT NULL GROUP BY primaryAccountId ORDER BY Max(`date`) DESC LIMIT 3)")
+    abstract fun getLatestUsedThreeAccounts(): LiveData<List<AccountModel>>
 }

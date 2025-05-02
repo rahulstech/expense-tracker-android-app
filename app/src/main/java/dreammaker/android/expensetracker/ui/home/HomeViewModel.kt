@@ -6,18 +6,18 @@ import androidx.lifecycle.LiveData
 import dreammaker.android.expensetracker.database.AccountDao
 import dreammaker.android.expensetracker.database.AccountModel
 import dreammaker.android.expensetracker.database.ExpensesDatabase
+import dreammaker.android.expensetracker.database.GroupDao
 import dreammaker.android.expensetracker.database.GroupModel
-import dreammaker.android.expensetracker.database.HistoryDao
 
 class HomeViewModel(app: Application): AndroidViewModel(app) {
 
-    private val historyDao: HistoryDao
     private val accountDao: AccountDao
+    private val groupDao: GroupDao
 
     init {
         val db = ExpensesDatabase.getInstance(app)
-        historyDao = db.historyDao
         accountDao = db.accountDao
+        groupDao = db.groupDao
     }
 
     private lateinit var recentlyUsedAccountsLiveData: LiveData<List<AccountModel>>
@@ -26,14 +26,14 @@ class HomeViewModel(app: Application): AndroidViewModel(app) {
 
     fun getRecentlyUsedThreeAccounts(): LiveData<List<AccountModel>> {
         if (!::recentlyUsedAccountsLiveData.isInitialized) {
-            recentlyUsedAccountsLiveData = historyDao.getLatestUsedThreeAccounts()
+            recentlyUsedAccountsLiveData = accountDao.getLatestUsedThreeAccounts()
         }
         return recentlyUsedAccountsLiveData
     }
 
     fun getRecentlyUsedThreeGroups(): LiveData<List<GroupModel>> {
         if (!::recentlyUsedGroupsLiveData.isInitialized) {
-            recentlyUsedGroupsLiveData = historyDao.getLatestUsedThreeGroups()
+            recentlyUsedGroupsLiveData = groupDao.getLatestUsedThreeGroups()
         }
         return recentlyUsedGroupsLiveData
     }

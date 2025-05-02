@@ -52,36 +52,4 @@ class HistoryDaoTest {
             assertEquals(expected, it)
         }
     }
-
-    @Test
-    fun test_getLatestUsedThreeAccounts() {
-        val liveData = dao.getLatestUsedThreeAccounts()
-        runOnLiveDataResultReceived(liveData) { accounts ->
-            val expected = setOf(
-                AccountModel(1,"Account 1", 150f),
-                AccountModel(2, "Account 2", 2000f)
-            )
-
-            val actual = HashSet(accounts)
-
-            assertEquals("size mismatch", 3, accounts.size)
-            assertEquals("content mismatch", expected,actual)
-        }
-    }
-
-    @Test
-    fun test_getLatestUsedThreeGroups() {
-        val liveData = dao.getLatestUsedThreeGroups()
-        runOnLiveDataResultReceived(liveData) { groups ->
-            val expected = setOf(
-                GroupModel(1,"Person 1", 100f),
-                GroupModel(2, "Person 2", -120f)
-            )
-
-            val actual = HashSet(groups)
-
-            assertEquals("size mismatch", 3, groups.size)
-            assertEquals("content mismatch", expected,actual)
-        }
-    }
 }

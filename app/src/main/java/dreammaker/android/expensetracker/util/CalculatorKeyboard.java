@@ -18,7 +18,7 @@ public class CalculatorKeyboard {
 
     private static final String TAG = "CalculatorKeyboard";
 
-    private KeyboardView keyboardView;
+//    private KeyboardView keyboardView;
     private EditText editText;
     private Activity activity;
     private Calculator calculator = new Calculator();
@@ -26,13 +26,13 @@ public class CalculatorKeyboard {
     public CalculatorKeyboard(Activity activity, EditText editText) {
         Check.isNonNull(activity, "activity is null");
         this.activity = activity;
-        this.keyboardView = activity.findViewById(R.id.calculator_keyboard);
+//        this.keyboardView = activity.findViewById(R.id.calculator_keyboard);
         this.editText = editText;
         editText.setFocusable(false);
         editText.setOnTouchListener(touchListener);
-        keyboardView.setPreviewEnabled(false);
-        keyboardView.setKeyboard(new Keyboard(keyboardView.getContext(), R.xml.calculator_keyboard_keys));
-        keyboardView.setOnKeyboardActionListener(keyboardActionListener);
+//        keyboardView.setPreviewEnabled(false);
+//        keyboardView.setKeyboard(new Keyboard(keyboardView.getContext(), R.xml.calculator_keyboard_keys));
+//        keyboardView.setOnKeyboardActionListener(keyboardActionListener);
     }
 
     public boolean onBackPressed() {
@@ -61,20 +61,21 @@ public class CalculatorKeyboard {
     }
 
     private boolean isKeyboardVisible() {
-        return View.VISIBLE == keyboardView.getVisibility();
+//        return View.VISIBLE == keyboardView.getVisibility();
+        return false;
     }
 
     private void toggleKeyboardVisibility(boolean makeVisible) {
-        if (makeVisible) {
-            keyboardView.setVisibility(View.VISIBLE);
-        }
-        else {
-            try {
-                if (null != editText)
-                    calculate(editText.getText());
-            }catch (Exception ignore) {}
-            keyboardView.setVisibility(View.INVISIBLE);
-        }
+//        if (makeVisible) {
+//            keyboardView.setVisibility(View.VISIBLE);
+//        }
+//        else {
+//            try {
+//                if (null != editText)
+//                    calculate(editText.getText());
+//            }catch (Exception ignore) {}
+//            keyboardView.setVisibility(View.INVISIBLE);
+//        }
     }
 
     private View.OnTouchListener touchListener = (v,e) -> {

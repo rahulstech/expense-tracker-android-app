@@ -9,7 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavController
-import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import dreammaker.android.expensetracker.R
@@ -77,7 +77,7 @@ abstract class BaseViewHistoryFragment<T>: Fragment() {
 
     private var _binding: ViewHistoryBinding? = null
     private val binding get() = _binding!!
-    private lateinit var navController: NavController
+    private val navController: NavController by lazy { findNavController() }
     private var _adapter: ViewHistoryPageAdapter<T>? = null
     protected val adapter get() = _adapter!!
 
@@ -108,9 +108,9 @@ abstract class BaseViewHistoryFragment<T>: Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_container)
         _adapter = onCreatePageAdapter()
         binding.historyViewPager.adapter = adapter
+        binding.historyViewPager.offscreenPageLimit = 1
         binding.historyViewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 val data = adapter.getData(position)
@@ -132,7 +132,6 @@ abstract class BaseViewHistoryFragment<T>: Fragment() {
         }
         binding.btnAddCredit.setOnClickListener { handleCreateHistory(HistoryType.CREDIT) }
         binding.btnAddDebit.setOnClickListener {  handleCreateHistory(HistoryType.DEBIT) }
-//        binding.btnAddTransfer.setOnClickListener { handleCreateHistory(HistoryType.TRANSFER) }
     }
 
     override fun onResume() {

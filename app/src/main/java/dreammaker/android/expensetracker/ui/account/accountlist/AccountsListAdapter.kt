@@ -57,10 +57,4 @@ class AccountsAdapter :
     override fun getItemId(position: Int): Long = getItem(position).id ?: RecyclerView.NO_ID
 
     override fun getSelectionKey(position: Int): Long = getItemId(position)
-
-
-//    override fun onMatch(item: AboutAccount?, key: String): Boolean {
-//        return item!!.accountName.lowercase(Locale.getDefault())
-//            .contains(key.lowercase(Locale.getDefault()))
-//    }
 }

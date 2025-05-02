@@ -17,6 +17,8 @@ import dreammaker.android.expensetracker.ui.util.Constants
 import dreammaker.android.expensetracker.ui.util.SelectionMode
 import dreammaker.android.expensetracker.ui.util.SelectionStore
 import dreammaker.android.expensetracker.ui.util.setActivityTitle
+import dreammaker.android.expensetracker.ui.util.visibilityGone
+import dreammaker.android.expensetracker.ui.util.visible
 
 open class PickHistoryAccountFragment : Fragment() {
 
@@ -84,8 +86,16 @@ open class PickHistoryAccountFragment : Fragment() {
         return accountId
     }
 
-    protected open fun onAccountsLoaded(accounts: List<AccountModel>?) {
+    protected open fun onAccountsLoaded(accounts: List<AccountModel>) {
         adapter.submitList(accounts)
+        if (accounts.isEmpty()) {
+            binding.optionsList.visibilityGone()
+            binding.emptyPlaceholder.visible()
+        }
+        else {
+            binding.emptyPlaceholder.visibilityGone()
+            binding.optionsList.visible()
+        }
         if (selectionStore.hasSelection()) {
             showPickerButton()
         }
