@@ -47,10 +47,7 @@ private val callback = object: DiffUtil.ItemCallback<GroupModel>() {
 open class GroupPickerListAdapter: BaseSelectableItemListAdapter<GroupModel, Long, GroupPickerViewHolder>(
     callback
 ) {
-
     private val TAG = GroupPickerListAdapter::class.simpleName
-
-    override var itemClickListener: ((RecyclerView.Adapter<GroupPickerViewHolder>, View, Int)->Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GroupPickerViewHolder {
         val inflater = LayoutInflater.from(parent.context)
@@ -63,7 +60,7 @@ open class GroupPickerListAdapter: BaseSelectableItemListAdapter<GroupModel, Lon
         holder.bind(data, isSelected(position))
     }
 
-    override fun getItemId(position: Int): Long = getItem(position)?.id ?: -1
+    override fun getItemId(position: Int): Long = getItem(position)?.id ?: RecyclerView.NO_ID
 
     override fun getSelectionKey(position: Int): Long = getItemId(position)
 }

@@ -10,18 +10,8 @@
 		android:layout_width="match_parent"
 		android:layout_height="match_parent">
 
-		<com.google.android.material.appbar.AppBarLayout
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content">
-
-			<com.google.android.material.appbar.MaterialToolbar
-				android:id="@+id/toolbar"
-				android:layout_width="match_parent"
-				android:layout_height="?attr/actionBarSize"
-				android:background="?attr/colorSurfaceContainerHigh"
-				app:popupTheme="@style/ThemeOverlay.Material3.Light" />
-
-		</com.google.android.material.appbar.AppBarLayout>
+		<include android:id="@+id/action_bar"
+			layout="@layout/actionbar_layout"/>
 
 		<androidx.fragment.app.FragmentContainerView
 			android:id="@+id/nav_host_fragment_container"
@@ -31,16 +21,6 @@
 			app:navGraph="@navigation/main_activity_navigation"
 			app:defaultNavHost="true"
 			app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
-
-
-<!--		<android.inputmethodservice.KeyboardView-->
-<!--			android:id="@+id/calculator_keyboard"-->
-<!--			android:layout_width="match_parent"-->
-<!--			android:layout_height="wrap_content"-->
-<!--			android:layout_gravity="bottom|center_horizontal"-->
-<!--			android:focusable="true"-->
-<!--			android:focusableInTouchMode="true"-->
-<!--			android:visibility="invisible" />-->
 
 	</androidx.coordinatorlayout.widget.CoordinatorLayout>
 

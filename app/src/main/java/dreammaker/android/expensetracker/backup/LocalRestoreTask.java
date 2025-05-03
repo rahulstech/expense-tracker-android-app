@@ -13,12 +13,11 @@ import java.io.Reader;
 
 import androidx.annotation.NonNull;
 import dreammaker.android.expensetracker.R;
-import dreammaker.android.expensetracker.activity.MainActivity;
 import dreammaker.android.expensetracker.activity.RestoreActivity;
-import dreammaker.android.expensetracker.activity.SettingsActivity;
 import dreammaker.android.expensetracker.database.ExpensesBackupDao;
 import dreammaker.android.expensetracker.database.ExpensesDao;
 import dreammaker.android.expensetracker.database.ExpensesDatabase;
+import dreammaker.android.expensetracker.ui.main.MainActivity;
 import dreammaker.android.expensetracker.util.AppExecutor;
 import dreammaker.android.expensetracker.util.Check;
 import dreammaker.android.expensetracker.util.ResultCallback;
@@ -101,7 +100,7 @@ public class LocalRestoreTask implements Runnable {
         if (data.getVersion() <= VERSION_6) return;
         BackupData.SettingsData settings = data.getSettings();
         BackupRestoreHelper.setBackupAutoScheduleDuration(service,settings.getBackupAutoScheduleDuration());
-        SettingsActivity.setAutoDeleteDuration(service,settings.getAutoDeleteDuration());
+//        SettingsActivity.setAutoDeleteDuration(service,settings.getAutoDeleteDuration());
     }
 
     private void notifyStart() {

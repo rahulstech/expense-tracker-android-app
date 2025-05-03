@@ -23,6 +23,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
@@ -32,7 +34,6 @@ import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.backup.BackupRestoreHelper;
 import dreammaker.android.expensetracker.util.Check;
 import dreammaker.android.expensetracker.database.Date;
-//import dreammaker.android.expensetracker.view.BaseSpinnerAdapter;
 import dreammaker.android.expensetracker.view.BaseSpinnerAdapter;
 import dreammaker.android.expensetracker.viewmodel.BackupRestoreViewModel;
 
@@ -43,7 +44,7 @@ import static dreammaker.android.expensetracker.backup.BackupRestoreHelper.SCHED
 import static dreammaker.android.expensetracker.backup.BackupRestoreHelper.SCHEDULE_WEEKLY;
 import static dreammaker.android.expensetracker.backup.BackupRestoreHelper.setBackupAutoScheduleDuration;
 
-public class BackupRestoreActivity extends BaseActivity implements View.OnClickListener {
+public class BackupRestoreActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "BackupRestoreActivity";
 
@@ -99,6 +100,8 @@ public class BackupRestoreActivity extends BaseActivity implements View.OnClickL
                 .get(BackupRestoreViewModel.class);
         viewModel.getBackupWorkInfoLiveData().observe(this, infos -> onUpdateBackupProgress(infos));
 
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
@@ -124,6 +127,12 @@ public class BackupRestoreActivity extends BaseActivity implements View.OnClickL
         if (backup == v) {
             onClickBackup();
         }
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
     }
 
     private void onClickBackup() {

@@ -10,12 +10,13 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
-import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.database.GroupModel
 import dreammaker.android.expensetracker.databinding.InputGroupBinding
 import dreammaker.android.expensetracker.ui.util.Constants
 import dreammaker.android.expensetracker.ui.util.OperationResult
+import dreammaker.android.expensetracker.ui.util.hasArgument
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -27,7 +28,17 @@ class GroupInputFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: GroupInputViewModel by viewModels()
-    private lateinit var navController: NavController
+    private val navController: NavController by lazy { findNavController() }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        if (!hasArgument(Constants.ARG_ACTION)) {
+            throw IllegalStateException("'${Constants.ARG_ACTION}' argument not found")
+        }
+        if (getArgAction() == Constants.ACTION_EDIT && !hasArgument(Constants.ARG_ID)) {
+            throw IllegalStateException("'${Constants.ARG_ID}' argument not found; it is required for ${Constants.ARG_ACTION}='${Constants.ACTION_EDIT}'")
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -39,11 +50,8 @@ class GroupInputFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        navController = Navigation.findNavController(view)
-
         binding.btnSave.setOnClickListener { onClickSave() }
         binding.btnCancel.setOnClickListener { onClickCancel() }
-
         if (isActionEdit()) {
             if (null == viewModel.getStoredGroup()) {
                 val id = requireArguments().getLong(Constants.ARG_ID)
@@ -70,7 +78,7 @@ class GroupInputFragment : Fragment() {
         }
     }
 
-    private fun getArgAction(): String = arguments?.getString(Constants.ARG_ACTION) ?: ""
+    private fun getArgAction(): String? = arguments?.getString(Constants.ARG_ACTION)
 
     private fun isActionEdit(): Boolean = getArgAction() == Constants.ACTION_EDIT
 
@@ -119,7 +127,7 @@ class GroupInputFragment : Fragment() {
     private fun onSave(result: OperationResult<GroupModel>?) {
         result?.let {
             if (result.isFailure()) {
-                Log.e(TAG, "onSave action=${getArgAction()}",result.error)
+                Log.e(TAG, "onSave: action=${getArgAction()}",result.error)
                 val message = getString(
                     if (isActionEdit()) R.string.message_fail_edit_group
                     else R.string.message_fail_create_group
@@ -135,14 +143,6 @@ class GroupInputFragment : Fragment() {
                 navController.popBackStack()
             }
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-//        setActivityTitle(getString(
-//            if (isActionEdit()) R.string.title_edit_group
-//            else R.string.title_create_group
-//        ))
     }
 
     override fun onDestroyView() {

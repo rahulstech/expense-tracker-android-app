@@ -1,12 +1,8 @@
 package dreammaker.android.expensetracker.ui.history.historieslist.monthly
 
-import android.os.Bundle
 import dreammaker.android.expensetracker.R
-import dreammaker.android.expensetracker.database.HistoryType
 import dreammaker.android.expensetracker.ui.history.historieslist.BaseViewHistoryFragment
 import dreammaker.android.expensetracker.ui.history.historieslist.ViewHistoryPageAdapter
-import dreammaker.android.expensetracker.ui.history.historyinput.HistoryInputFragment
-import dreammaker.android.expensetracker.ui.util.putDate
 import dreammaker.android.expensetracker.util.MonthYear
 
 class MonthlyViewHistoryFragment: BaseViewHistoryFragment<MonthYear>() {
@@ -29,11 +25,5 @@ class MonthlyViewHistoryFragment: BaseViewHistoryFragment<MonthYear>() {
             }
         }
         monthPicker.show()
-    }
-
-    override fun onPutCreateHistoryArgument(type: HistoryType, argument: Bundle) {
-        argument.apply {
-            putDate(HistoryInputFragment.ARG_HISTORY_DATE, getCurrentData()!!.toFirstDate())
-        }
     }
 }

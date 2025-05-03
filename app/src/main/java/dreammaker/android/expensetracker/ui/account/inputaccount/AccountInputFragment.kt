@@ -1,6 +1,7 @@
 package dreammaker.android.expensetracker.ui.account.inputaccount
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,7 +16,7 @@ import dreammaker.android.expensetracker.database.AccountModel
 import dreammaker.android.expensetracker.databinding.InputAccountBinding
 import dreammaker.android.expensetracker.ui.util.Constants
 import dreammaker.android.expensetracker.ui.util.OperationResult
-import dreammaker.android.expensetracker.ui.util.setActivityTitle
+import dreammaker.android.expensetracker.ui.util.hasArgument
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -30,12 +31,17 @@ class AccountInputFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (arguments?.containsKey(Constants.ARG_ACTION) != true) {
+        if (!hasArgument(Constants.ARG_ACTION)) {
             throw IllegalStateException("'${Constants.ARG_ACTION}' argument not found")
+        }
+        if (getAction() == Constants.ACTION_EDIT && !hasArgument(Constants.ARG_ID)) {
+            throw IllegalStateException("'${Constants.ARG_ID}' argument not found; it is required for ${Constants.ARG_ACTION} = '${Constants.ACTION_EDIT}'")
         }
     }
 
-    private fun isActionEdit(): Boolean = arguments?.getString(Constants.ARG_ACTION) == Constants.ACTION_EDIT
+    private fun getAction(): String? = arguments?.getString(Constants.ARG_ACTION)
+
+    private fun isActionEdit(): Boolean = getAction() == Constants.ACTION_EDIT
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -48,7 +54,7 @@ class AccountInputFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding.btnSave.setOnClickListener{ onClickSave() }
-        binding.btnCancel.setOnClickListener { navController.popBackStack() }
+        binding.btnCancel.setOnClickListener { onClickCancel() }
         lifecycleScope.launch {
             viewModel.resultFlow.collectLatest{
                 onSave(it)
@@ -87,6 +93,10 @@ class AccountInputFragment : Fragment() {
         }
     }
 
+    private fun onClickCancel() {
+        navController.popBackStack()
+    }
+
     private fun validateInput(account: AccountModel): Boolean {
         var hasError = false
         binding.nameInputLayout.error = null
@@ -116,6 +126,7 @@ class AccountInputFragment : Fragment() {
     private fun onSave(result: OperationResult<AccountModel>?) {
         result?.let {
             if (result.isFailure()) {
+                Log.e(TAG, "onSave failed action='${getAction()}' ", result.error)
                 val message = getString(
                     if (isActionEdit()) R.string.message_fail_edit_account
                     else R.string.message_fail_create_account
@@ -123,22 +134,16 @@ class AccountInputFragment : Fragment() {
                 Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
             }
             else {
-                val message = getString(
-                    if (isActionEdit()) R.string.message_success_edit_account
-                    else R.string.message_success_create_account
-                )
-                Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
-                navController.popBackStack()
+                if (isActionEdit()) {
+                    Toast.makeText(requireContext(), R.string.message_success_edit_account, Toast.LENGTH_LONG).show()
+                    navController.popBackStack()
+                }
+                else {
+                    Toast.makeText(requireContext(),R.string.message_success_create_account, Toast.LENGTH_LONG).show()
+                    navController.popBackStack()
+                }
             }
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        setActivityTitle(getString(
-            if (isActionEdit()) R.string.title_edit_account
-            else R.string.title_create_account
-        ))
     }
 
     override fun onDestroyView() {

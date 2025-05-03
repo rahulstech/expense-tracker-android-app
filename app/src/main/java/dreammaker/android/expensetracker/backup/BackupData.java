@@ -5,7 +5,6 @@ import android.content.Context;
 import java.util.Collections;
 import java.util.List;
 
-import dreammaker.android.expensetracker.activity.SettingsActivity;
 import dreammaker.android.expensetracker.database.Account;
 import dreammaker.android.expensetracker.database.MoneyTransfer;
 import dreammaker.android.expensetracker.database.Person;
@@ -94,7 +93,7 @@ public class BackupData {
         public static SettingsData extract(Context context) {
             SettingsData data = new SettingsData();
             data.setBackupAutoScheduleDuration(BackupRestoreHelper.getBackupAutoScheduleDuration(context));
-            data.setAutoDeleteDuration(SettingsActivity.getAutoDeleteDuration(context));
+//            data.setAutoDeleteDuration(SettingsActivity.getAutoDeleteDuration(context));
             return data;
         }
     }

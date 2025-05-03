@@ -19,6 +19,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.backup.BackupRestoreHelper;
+import dreammaker.android.expensetracker.ui.main.MainActivity;
 
 public class RestoreActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -33,15 +34,17 @@ public class RestoreActivity extends AppCompatActivity implements View.OnClickLi
             });
 
     ActivityResultLauncher<Intent> restoreFileChooserLauncher =
-            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-                if (null == result) {
-                    Toast.makeText(RestoreActivity.this,R.string.message_restore_file_not_selected,Toast.LENGTH_SHORT).show();
-                }
-                else {
-                    startRestore(result.getData().getData());
-                    finish();
-                }
-            });
+    registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+        if (result.getResultCode() == RESULT_OK && result.getData() != null && result.getData().getData() != null) {
+            Uri uri = result.getData().getData();
+            startRestore(uri);
+        } else {
+            Toast.makeText(RestoreActivity.this, R.string.message_restore_file_not_selected, Toast.LENGTH_SHORT).show();
+        }
+        startActivity(new Intent(RestoreActivity.this, MainActivity.class));
+        finish();
+    });
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,6 +91,7 @@ public class RestoreActivity extends AppCompatActivity implements View.OnClickLi
 
     private void onCancel() {
         BackupRestoreHelper.setFirstRestoreAsked(this, true);
+        startActivity(new Intent(this, MainActivity.class));
         finish();
     }
 

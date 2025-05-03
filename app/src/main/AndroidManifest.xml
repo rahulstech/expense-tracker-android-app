@@ -14,29 +14,25 @@
             android:exported="false"
             android:theme="@style/AppTheme.NoActionBar.FullScreen" />
         <activity
-            android:name=".activity.SplashScreen"
-            android:label="@string/app_name"
+            android:name=".ui.splash.SplashActivity"
             android:noHistory="true"
             android:exported="true"
             android:theme="@style/AppTheme.NoActionBar.FullScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
-            android:name=".activity.SettingsActivity"
+            android:name=".settings.SettingsActivity"
             android:label="@string/title_activity_settings"
             android:exported="false"/>
         <activity
-            android:name=".activity.MainActivity"
-            android:label="@string/app_name"
+            android:name=".ui.main.MainActivity"
             android:exported="false"/>
         <activity
             android:name=".activity.BackupRestoreActivity"
             android:label="@string/backup"
-            android:screenOrientation="userPortrait"
             android:exported="false"/>
         <service
             android:name=".backup.WorkActionService"

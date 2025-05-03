@@ -48,9 +48,7 @@ class HistoryInputViewModel(app: Application) : AndroidViewModel(app) {
     val resultState: Flow<OperationResult<HistoryModel>?> = _resultState
 
     fun emptyResult() {
-        viewModelScope.launch {
-            _resultState.emit(null)
-        }
+        viewModelScope.launch { _resultState.emit(null) }
     }
 
     fun addHistory(history: HistoryModel) {

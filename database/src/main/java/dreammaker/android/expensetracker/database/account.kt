@@ -79,7 +79,7 @@ interface AccountDao {
     fun insertAccount(account: Account): Long
 
     @Update
-    fun updateAccount(account: Account): Int
+    fun updateAccount(account: Account)
 
     @Query("SELECT `_id`, `account_name`, `balance` FROM `accounts`")
     fun getAllAccounts(): LiveData<List<AccountModel>>
@@ -91,7 +91,7 @@ interface AccountDao {
     fun getTotalBalance(): LiveData<Double?>
 
     @Delete
-    fun deleteAccount(account: Account): Int
+    fun deleteAccount(account: Account)
 
     @Query("SELECT `_id`, `account_name` FROM `accounts` WHERE `_id` IN " +
             "(SELECT `primaryAccountId` FROM `histories` WHERE `primaryAccountId` IS NOT NULL GROUP BY primaryAccountId ORDER BY Max(`date`) DESC LIMIT 3)")

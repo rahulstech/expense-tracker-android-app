@@ -5,13 +5,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.shape.ShapeAppearanceModel
-import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.database.Date
 import dreammaker.android.expensetracker.database.HistoryModel
 import dreammaker.android.expensetracker.databinding.MonthHistoryListItemBinding
 import dreammaker.android.expensetracker.ui.history.historieslist.BaseHistoryViewHolder
 import dreammaker.android.expensetracker.ui.util.BaseSelectableItemListAdapter
+import dreammaker.android.expensetracker.ui.util.invisible
 import dreammaker.android.expensetracker.ui.util.visibilityGone
 import dreammaker.android.expensetracker.ui.util.visible
 
@@ -31,20 +30,18 @@ class MonthHistoryViewHolder(
 ) :  BaseHistoryViewHolder<MonthHistoryViewHolder>(binding.root) {
 
     init {
-        binding.card.setOnClickListener { onClick(this, it) }
+        binding.main.setOnClickListener { onClick(this, it) }
     }
 
     fun bind(history: HistoryModel?, selected: Boolean, isFirstInSection: Boolean, isLastInSection: Boolean) {
         bind(history, selected)
         bindHeader(history?.date, isFirstInSection)
-        val shapeStyleId = when {
-            isFirstInSection && isLastInSection -> com.google.android.material.R.style.ShapeAppearance_Material3_Corner_Large
-            isFirstInSection -> R.style.ShapeAppearanceOverlay_AppTheme_TopCornerLarge
-            isLastInSection -> R.style.ShapeAppearanceOverlay_AppTheme_BottomCornerLarge
-            else -> R.style.ShapeAppearanceOverlay_AppTheme_CornerNone
+        if (isLastInSection) {
+            binding.divider.invisible()
         }
-        val shape = ShapeAppearanceModel.builder(context, shapeStyleId, 0).build()
-        binding.card.shapeAppearanceModel = shape
+        else {
+            binding.divider.visible()
+        }
     }
 
     override fun bind(history: HistoryModel?, selected: Boolean) {
@@ -54,12 +51,7 @@ class MonthHistoryViewHolder(
         setNote(binding.note,history)
         setSource(binding.source,history)
         setDestination(binding.destination,history)
-        if (null == history) {
-            binding.card.isSelected = false
-        }
-        else {
-            binding.card.isSelected = selected
-        }
+        binding.main.isSelected = null != history && selected
     }
 
     private fun bindHeader(data: Date?, isFirstInSection: Boolean) {
@@ -73,7 +65,6 @@ class MonthHistoryViewHolder(
         }
     }
 }
-
 
 class MonthHistoryListAdapter
     : BaseSelectableItemListAdapter<HistoryModel, Long, MonthHistoryViewHolder>(callback) {

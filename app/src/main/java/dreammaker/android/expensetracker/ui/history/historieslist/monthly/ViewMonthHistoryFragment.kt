@@ -22,6 +22,7 @@ import dreammaker.android.expensetracker.ui.history.historieslist.ViewHistoryVie
 import dreammaker.android.expensetracker.ui.history.historieslist.doFilterHistory
 import dreammaker.android.expensetracker.ui.history.viewhistory.ViewHistoryItemFragment
 import dreammaker.android.expensetracker.ui.util.AccountModelParcel
+import dreammaker.android.expensetracker.ui.util.Constants
 import dreammaker.android.expensetracker.ui.util.Filter
 import dreammaker.android.expensetracker.ui.util.GroupModelParcel
 import dreammaker.android.expensetracker.ui.util.getMonthYear
@@ -94,7 +95,7 @@ class ViewMonthHistoryFragment : Fragment() {
     private fun handleItemClick(adapter: RecyclerView.Adapter<*>, view: View, position: Int) {
         val history = this.adapter.currentList[position]
         navController.navigate(R.id.action_history_list_to_view_history, Bundle().apply {
-            putLong(ViewHistoryItemFragment.ARG_HISTORY_ID, history.id!!)
+            putLong(Constants.ARG_ID, history.id!!)
             putHistoryType(ViewHistoryItemFragment.ARG_HISTORY_TYPE, history.type!!)
         })
     }

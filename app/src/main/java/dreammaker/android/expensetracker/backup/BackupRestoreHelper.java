@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.util.Log;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.gson.Gson;
@@ -124,16 +125,13 @@ public class BackupRestoreHelper {
 
     public static void checkAppFirstRestoreRequired(@NonNull Context context, @NonNull ResultCallback<Boolean> callback) {
         Context appContext = context.getApplicationContext();
-        if (!isFirstRestoreAsked(appContext)) {
-            AppExecutor.getDiskOperationsExecutor().execute(() -> {
-                ExpensesBackupDao dao = ExpensesDatabase.getInstance(appContext).getBackupDao();
-                final boolean isRequired = dao.isDatabaseEmpty();
-                AppExecutor.getMainThreadExecutor().execute(() -> {
-                    callback.onResult(isRequired);
-                    setFirstRestoreAsked(appContext, true);
-                });
+        AppExecutor.getDiskOperationsExecutor().execute(() -> {
+            ExpensesBackupDao dao = ExpensesDatabase.getInstance(appContext).getBackupDao();
+            final boolean isRequired = dao.isDatabaseEmpty();
+            AppExecutor.getMainThreadExecutor().execute(() -> {
+                callback.onResult(isRequired);
             });
-        }
+        });
     }
 
     public static void backupNow(@NonNull Context context) {

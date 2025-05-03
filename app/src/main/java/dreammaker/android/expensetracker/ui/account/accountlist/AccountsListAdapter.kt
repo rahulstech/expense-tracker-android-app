@@ -25,10 +25,12 @@ class AccountViewModel(
         if (null == data) {
             binding.name.text = null
             binding.balance.text = null
+            binding.root.isSelected = false
         }
         else {
             binding.name.text = data.name
             binding.balance.text = data.balance?.toCurrencyString()
+            binding.root.isSelected = selected
         }
     }
 }

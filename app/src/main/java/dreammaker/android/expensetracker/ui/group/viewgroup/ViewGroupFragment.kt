@@ -15,7 +15,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
-import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.database.GroupModel
@@ -42,7 +42,7 @@ class ViewGroupFragment: Fragment(), MenuProvider {
     private val binding get() = _binding!!
 
     private val viewModel: ViewGroupViewModel by viewModels()
-    private lateinit var navController: NavController
+    private val navController: NavController by lazy { findNavController() }
 
     private fun getArgGroupId(): Long = requireArguments().getLong(Constants.ARG_ID)
 
@@ -56,15 +56,7 @@ class ViewGroupFragment: Fragment(), MenuProvider {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        navController = Navigation.findNavController(view)
-        binding.btnViewHistory.setOnClickListener {
-            val group = viewModel.getStoredGroup()
-            group?.let {
-                navController.navigate(R.id.action_view_group_to_history_list, Bundle().apply {
-                    putParcelable(HistoryListContainer.ARG_SHOW_HISTORY_FOR, GroupModelParcel(group))
-                })
-            }
-        }
+        binding.btnViewHistory.setOnClickListener { handleClickViewHistory() }
         binding.addHistory.setOnClickListener {
             val target = binding.buttonsLayout
             if (target.isVisible()) {
@@ -74,26 +66,8 @@ class ViewGroupFragment: Fragment(), MenuProvider {
                 target.visible()
             }
         }
-        binding.btnAddDebit.setOnClickListener {
-            val group = viewModel.getStoredGroup()
-            group?.let {
-                navController.navigate(R.id.action_view_group_to_add_history,Bundle().apply {
-                    putString(Constants.ARG_ACTION,Constants.ACTION_CREATE)
-                    putParcelable(Constants.ARG_GROUP, GroupModelParcel(group))
-                    putHistoryType(HistoryInputFragment.ARG_HISTORY_TYPE, HistoryType.DEBIT)
-                })
-            }
-        }
-        binding.btnAddCredit.setOnClickListener {
-            val group = viewModel.getStoredGroup()
-            group?.let {
-                navController.navigate(R.id.action_view_group_to_add_history,Bundle().apply {
-                    putString(Constants.ARG_ACTION,Constants.ACTION_CREATE)
-                    putParcelable(Constants.ARG_GROUP, GroupModelParcel(group))
-                    putHistoryType(HistoryInputFragment.ARG_HISTORY_TYPE, HistoryType.CREDIT)
-                })
-            }
-        }
+        binding.btnAddDebit.setOnClickListener { navigateToCreateHistory(HistoryType.DEBIT) }
+        binding.btnAddCredit.setOnClickListener { navigateToCreateHistory(HistoryType.CREDIT) }
         viewModel.findGroupById(getArgGroupId()).observe(viewLifecycleOwner, this::onGroupLoaded)
         lifecycleScope.launch {
             viewModel.resultState.collectLatest {
@@ -113,6 +87,26 @@ class ViewGroupFragment: Fragment(), MenuProvider {
             binding.name.text = group.name
             binding.balance.text = group.balance!!.toCurrencyString()
             requireActivity().invalidateOptionsMenu()
+        }
+    }
+
+    private fun handleClickViewHistory() {
+        val group = viewModel.getStoredGroup()
+        group?.let {
+            navController.navigate(R.id.action_view_group_to_history_list, Bundle().apply {
+                putParcelable(HistoryListContainer.ARG_SHOW_HISTORY_FOR, GroupModelParcel(group))
+            })
+        }
+    }
+
+    private fun navigateToCreateHistory(type: HistoryType) {
+        val group = viewModel.getStoredGroup()
+        group?.let {
+            navController.navigate(R.id.action_view_group_to_add_history,Bundle().apply {
+                putString(Constants.ARG_ACTION,Constants.ACTION_CREATE)
+                putParcelable(Constants.ARG_GROUP, GroupModelParcel(group))
+                putHistoryType(HistoryInputFragment.ARG_HISTORY_TYPE, type)
+            })
         }
     }
 
@@ -136,11 +130,17 @@ class ViewGroupFragment: Fragment(), MenuProvider {
         }
     }
 
+    private fun onClickEdit() {
+        navController.navigate(R.id.action_view_group_to_edit_group, Bundle().apply {
+            putString(Constants.ARG_ACTION,Constants.ACTION_EDIT)
+            putLong(Constants.ARG_ID, getArgGroupId())
+        })
+    }
+
     private fun onClickDelete() {
         val group = viewModel.getStoredGroup()
         group?.let {
             MaterialAlertDialogBuilder(requireContext())
-                .setIcon(R.drawable.baseline_warning_64)
                 .setMessage(resources.getQuantityString(R.plurals.warning_delete_group, 1, group.name))
                 .setPositiveButton(R.string.label_no, null)
                 .setNegativeButton(R.string.label_yes) { _,_ -> viewModel.removeGroup(group) }
@@ -151,19 +151,12 @@ class ViewGroupFragment: Fragment(), MenuProvider {
     private fun onGroupDeleted(result: OperationResult<GroupModel>?) {
         result?.let {
             if (result.isFailure()) {
-                Log.e(TAG,"onGroupDeleted delete filed group=${viewModel.getStoredGroup()}",result.error)
+                Log.e(TAG,"onGroupDeleted: delete filed groupId=${getArgGroupId()}",result.error)
             }
             else {
                 navController.popBackStack()
             }
         }
-    }
-
-    private fun onClickEdit() {
-        navController.navigate(R.id.action_view_group_to_edit_group, Bundle().apply {
-            putString(Constants.ARG_ACTION,Constants.ACTION_EDIT)
-            putLong(Constants.ARG_ID, getArgGroupId())
-        })
     }
 
     override fun onDestroyView() {

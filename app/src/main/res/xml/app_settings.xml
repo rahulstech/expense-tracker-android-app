@@ -12,7 +12,7 @@
         android:summary="@string/summery_auto_delete"
         android:title="@string/title_auto_delete"
         app:useSimpleSummaryProvider="true" />
-    <dreammaker.android.expensetracker.activity.ClearAppDataConfirmationDialogPreference
+    <dreammaker.android.expensetracker.settings.ClearAppDataConfirmationDialogPreference
         android:icon="@drawable/ic_baseline_clear_all"
         app:dialogMessage="@string/message_clear_all"
         app:dialogTitle="@string/title_clear_all"

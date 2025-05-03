@@ -1,16 +1,13 @@
 package dreammaker.android.expensetracker.ui.group.groupslist
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
-import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.database.GroupModel
@@ -27,16 +24,9 @@ class GroupListFragment : Fragment() {
     private var _binding:GroupsListBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var viewModel: GroupListViewModel
+    private val viewModel: GroupListViewModel by viewModels()
     private lateinit var adapter: GroupsListAdapter
-    private lateinit var navController: NavController
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        viewModel = ViewModelProvider(this,
-            ViewModelProvider.AndroidViewModelFactory(requireActivity().application))[GroupListViewModel::class.java]
-        setHasOptionsMenu(true)
-    }
+    private val navController: NavController by lazy { findNavController() }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -48,17 +38,21 @@ class GroupListFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        navController = Navigation.findNavController(view)
-        binding.list.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
-        adapter = GroupsListAdapter()
-        adapter.itemClickListener = { _,_,position -> handleClickGroup(adapter.currentList[position]) }
-        binding.list.adapter = adapter
-        binding.add.setOnClickListener {
-            navController.navigate(R.id.action_groups_list_to_create_group, Bundle().apply {
-                putString(Constants.ARG_ACTION, Constants.ACTION_CREATE)
-            })
+        binding.list.apply {
+            layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+            adapter = GroupsListAdapter().also {
+                this@GroupListFragment.adapter = it
+            }
         }
+        adapter.itemClickListener = { _,_,position -> handleClickGroup(adapter.currentList[position]) }
+        binding.add.setOnClickListener { handleClickAddAccount() }
         viewModel.getAllGroups().observe(viewLifecycleOwner, this::onGroupsLoaded)
+    }
+
+    private fun handleClickAddAccount() {
+        navController.navigate(R.id.action_groups_list_to_create_group, Bundle().apply {
+            putString(Constants.ARG_ACTION, Constants.ACTION_CREATE)
+        })
     }
 
     private fun onGroupsLoaded(groups: List<GroupModel>) {
@@ -77,11 +71,6 @@ class GroupListFragment : Fragment() {
         navController.navigate(R.id.action_groups_list_to_view_group, Bundle().apply {
             putLong(Constants.ARG_ID,group.id!!)
         })
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-//        inflater.inflate(R.menu.person_list_menu, menu)
     }
 
     override fun onDestroyView() {

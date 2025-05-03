@@ -21,8 +21,11 @@ private val callback = object: DiffUtil.ItemCallback<HistoryModel>() {
 class DayViewHolder(
     val binding: DayHistoryListItemBinding,
     onClick: (DayViewHolder, View)->Unit
-): BaseHistoryViewHolder<DayViewHolder>(binding.root,onClick) {
+): BaseHistoryViewHolder<DayViewHolder>(binding.root) {
 
+    init {
+        binding.root.setOnClickListener{ onClick(this,it) }
+    }
     override fun bind(history: HistoryModel?, selected: Boolean) {
         setGroup(binding.group,history)
         setType(binding.type,history)

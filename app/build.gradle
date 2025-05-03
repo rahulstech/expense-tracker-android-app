@@ -20,6 +20,20 @@ android {
         }
     }
 
+    // flavours
+    flavorDimensions += "env"
+    productFlavors {
+        dev {
+            dimension = "env"
+            applicationIdSuffix = ".dev"
+            versionNameSuffix = "-dev"
+        }
+        prod {
+            dimension = "env"
+        }
+    }
+
+
     buildTypes {
         release {
             minifyEnabled false
@@ -44,10 +58,8 @@ dependencies {
 
     implementation project(':database')
 
-    implementation 'androidx.core:core-ktx:1.13.0'
-
-    implementation 'androidx.appcompat:appcompat:1.4.0'
-    implementation 'androidx.activity:activity-ktx:1.7.2'
+    implementation 'androidx.core:core-ktx:1.13.1'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
 
     // ui
     //noinspection GradleDependency
@@ -56,20 +68,15 @@ dependencies {
     implementation 'com.google.android.material:material:1.12.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
     implementation 'androidx.viewpager2:viewpager2:1.1.0'
+    implementation 'androidx.activity:activity-ktx:1.9.0'
 
     // android preference
-    implementation 'androidx.preference:preference:1.2.1'
-
-    // android test library
-    testImplementation 'junit:junit:4.13'
-    androidTestImplementation 'androidx.test:runner:1.2.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.2-alpha05'
+    implementation 'androidx.preference:preference-ktx:1.2.1'
 
     // android navigation
     implementation 'androidx.navigation:navigation-fragment-ktx:2.8.9'
     implementation 'androidx.navigation:navigation-ui-ktx:2.8.9'
 
     // work manager
-    implementation 'androidx.work:work-runtime:2.5.0'
+    implementation 'androidx.work:work-runtime-ktx:2.9.1'
 }

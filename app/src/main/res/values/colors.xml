@@ -3,7 +3,6 @@
 
     <color name="colorWhite">#FFFFFF</color>
     <color name="colorBlack">#000000</color>
-
     <color name="colorPrimary">#1B79CC</color>
     <color name="colorOnPrimary">@color/colorWhite</color>
     <color name="colorPrimaryContainer">#e8f1f9</color>
@@ -14,17 +13,7 @@
     <color name="colorOnSecondary">@color/colorBlack</color>
     <color name="colorSecondaryContainer">#f9f9e8</color>
     <color name="colorOnSecondaryContainer">#b5af1a</color>
-    <color name="colorAccent">@color/colorSecondary</color>
     <color name="colorSurface">@color/colorWhite</color>
-
-    <color name="text_green">#00be00</color>
-    <color name="text_red">#be0000</color>
-    <color name="light_blue_600">#FF039BE5</color>
-    <color name="light_blue_900">#FF01579B</color>
-    <color name="light_blue_A200">#FF40C4FF</color>
-    <color name="light_blue_A400">#FF00B0FF</color>
-    <color name="black_overlay">#66000000</color>
-
     <color name="colorCredit">#4B7831</color>
     <color name="colorOnCredit">@color/colorWhite</color>
     <color name="colorDebit">#CC2929</color>

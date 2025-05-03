@@ -14,7 +14,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
-import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.chip.Chip
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.database.AccountModel
@@ -51,7 +51,7 @@ class HistoryInputFragment : Fragment() {
     private var _binding: HistoryInputLayoutBinding? = null
     private val binding get() = _binding!!
     private val viewModel: HistoryInputViewModel by viewModels()
-    private lateinit var navController: NavController
+    private val navController: NavController by lazy { findNavController() }
     private lateinit var selectedDate: Date
     private lateinit var selectedType: HistoryType
 
@@ -60,7 +60,7 @@ class HistoryInputFragment : Fragment() {
     ///                 Fragment Argument                        ///
     ///////////////////////////////////////////////////////////////
 
-    private fun getArgAction(): String = arguments?.getString(Constants.ARG_ACTION) ?: ""
+    private fun getArgAction(): String? = arguments?.getString(Constants.ARG_ACTION)
 
     private fun getArgAccount(): AccountModelParcel?
             = arguments?.let { BundleCompat.getParcelable(it, Constants.ARG_ACCOUNT, AccountModelParcel::class.java) }
@@ -101,15 +101,15 @@ class HistoryInputFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (!requireArguments().containsKey(Constants.ARG_ACTION)) {
+        if (!hasArgument(Constants.ARG_ACTION)) {
             throw IllegalStateException("'${Constants.ARG_ACTION}' is not found in arguments")
         }
-        val action = requireArguments().getString(Constants.ARG_ACTION, Constants.ACTION_CREATE)
+        val action = getArgAction()
         if (action == Constants.ACTION_EDIT && !hasArgument(Constants.ARG_ID)) {
-            throw IllegalStateException("when ${Constants.ARG_ACTION}='${Constants.ACTION_EDIT}' then '${Constants.ARG_ID}' is required")
+            throw IllegalStateException("${Constants.ARG_ID} argument not found; ${Constants.ARG_ACTION}='${Constants.ACTION_EDIT}' requires ${Constants.ARG_ID}")
         }
         if (!hasArgument(ARG_HISTORY_TYPE)) {
-            throw IllegalStateException("when ${Constants.ARG_ACTION}='${Constants.ACTION_EDIT}' then $ARG_HISTORY_TYPE is required")
+            throw IllegalStateException("$ARG_HISTORY_TYPE argument not found")
         }
     }
 
@@ -123,7 +123,6 @@ class HistoryInputFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        navController = Navigation.findNavController(view)
         selectedType = requireArguments().getHistoryType(ARG_HISTORY_TYPE)!!
         prepareDateInput()
         prepareType(selectedType)
@@ -149,11 +148,9 @@ class HistoryInputFragment : Fragment() {
     }
 
     private fun onHistoryLoaded(history: HistoryModel?) {
-        Log.d(TAG, "onHistoryLoaded history=$history")
         if (null == history) {
             Toast.makeText(requireContext(), R.string.message_history_not_found, Toast.LENGTH_LONG).show()
             navController.popBackStack()
-            return
         }
         else {
             binding.inputAmount.setText(history.amount!!.toString())

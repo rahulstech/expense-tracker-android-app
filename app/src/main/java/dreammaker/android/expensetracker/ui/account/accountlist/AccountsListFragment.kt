@@ -1,14 +1,13 @@
 package dreammaker.android.expensetracker.ui.account.accountlist
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
-import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.database.AccountModel
@@ -24,15 +23,8 @@ class AccountsListFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var adapter: AccountsAdapter
-    private lateinit var viewModel: AccountsListViewModel
-    private lateinit var navController: NavController
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        viewModel = ViewModelProvider(this,
-            ViewModelProvider.AndroidViewModelFactory(requireActivity().application))[AccountsListViewModel::class.java]
-        setHasOptionsMenu(true)
-    }
+    private val viewModel: AccountsListViewModel by viewModels()
+    private val navController: NavController by lazy { findNavController() }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -44,7 +36,6 @@ class AccountsListFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        navController = Navigation.findNavController(view)
         adapter = AccountsAdapter()
         adapter.itemClickListener = { _,_,position -> handleAccountClick(adapter.currentList[position]) }
         binding.list.layoutManager = LinearLayoutManager(requireContext(),LinearLayoutManager.VERTICAL,false)

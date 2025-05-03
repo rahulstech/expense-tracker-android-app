@@ -33,9 +33,18 @@ class SettingsProvider private constructor(private val context: Context) {
         }
     }
 
+    fun isFirstRestoreAsked(): Boolean = store.getBoolean(KEY_FIRST_RESTORE_ASKED, false)
+
+    fun markFirstRestoreAsked() {
+        store.edit(true) {
+            putBoolean(KEY_FIRST_RESTORE_ASKED, true)
+        }
+    }
+
     companion object {
 
-        private const val KEY_VIW_HISTORY = "settings_provider.key.view_history"
+        private const val KEY_VIW_HISTORY = "key.view_history"
+        private const val KEY_FIRST_RESTORE_ASKED: String = "first_restore_asked"
 
         private lateinit var instance: SettingsProvider
 

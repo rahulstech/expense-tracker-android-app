@@ -27,7 +27,7 @@ class DailyViewHistoryFragment: BaseViewHistoryFragment<Date>() {
         return DailyHistoryFragmentAdapter(childFragmentManager, viewLifecycleOwner.lifecycle)
     }
 
-    override fun getGotoPresentButtonText(): CharSequence = getString(R.string.today)
+    override fun getGotoPresentButtonText(): CharSequence = getString(R.string.label_today)
 
     override fun onClickDataPicker(currentData: Date) {
         val datePicker = DatePickerDialog(requireContext(), { _, year, month, day ->

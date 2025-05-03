@@ -31,12 +31,12 @@ import dreammaker.android.expensetracker.ui.util.getBackgroundColor
 import dreammaker.android.expensetracker.ui.util.getColorOnBackground
 import dreammaker.android.expensetracker.ui.util.getHistoryType
 import dreammaker.android.expensetracker.ui.util.getLabel
+import dreammaker.android.expensetracker.ui.util.hasArgument
 import dreammaker.android.expensetracker.ui.util.putHistoryType
 import dreammaker.android.expensetracker.ui.util.toCurrencyString
 import dreammaker.android.expensetracker.ui.util.visibilityGone
 import dreammaker.android.expensetracker.ui.util.visible
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
 class ViewHistoryItemFragment: Fragment(), MenuProvider {
@@ -44,7 +44,6 @@ class ViewHistoryItemFragment: Fragment(), MenuProvider {
     companion object {
         private val TAG = ViewHistoryItemFragment::class.simpleName
         const val DATE_FORMAT = "EEEE, dd MMMM, yyyy"
-        const val ARG_HISTORY_ID = "arg.history_id"
         const val ARG_HISTORY_TYPE = "arg.history_type"
     }
 
@@ -54,12 +53,14 @@ class ViewHistoryItemFragment: Fragment(), MenuProvider {
     private lateinit var navController: NavController
     private val viewModel: ViewHistoryItemViewModel by viewModels()
 
+    private fun getArgHistoryId(): Long? = arguments?.getLong(Constants.ARG_ID)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (arguments?.containsKey(ARG_HISTORY_ID) != true) {
-            throw IllegalArgumentException("'$ARG_HISTORY_ID' argument is required")
+        if (!hasArgument(Constants.ARG_ID)) {
+            throw IllegalArgumentException("'${Constants.ARG_ID}' argument is required")
         }
-        if (arguments?.containsKey(ARG_HISTORY_TYPE) != true) {
+        if (!hasArgument(ARG_HISTORY_TYPE)) {
             throw IllegalArgumentException("'$ARG_HISTORY_TYPE' argument is required")
         }
     }
@@ -75,7 +76,7 @@ class ViewHistoryItemFragment: Fragment(), MenuProvider {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         navController = Navigation.findNavController(view)
-        val id = requireArguments().getLong(ARG_HISTORY_ID)
+        val id = getArgHistoryId()!!
         val type = requireArguments().getHistoryType(ARG_HISTORY_TYPE)!!
         viewModel.findHistory(id,type).observe(viewLifecycleOwner, this::onHistoryLoaded)
         lifecycleScope.launch {
@@ -236,7 +237,7 @@ class ViewHistoryItemFragment: Fragment(), MenuProvider {
     private fun onHistoryDeleted(result: OperationResult<HistoryModel>?) {
         result?.let {
             if (result.isFailure()) {
-                Log.e(TAG, "onHistoryDeleted delete failed history=${viewModel.getStoredHistory()}", result.error)
+                Log.e(TAG, "onHistoryDeleted failed history=${getArgHistoryId()}", result.error)
             }
             else {
                 navController.popBackStack()

@@ -1,15 +1,13 @@
 package dreammaker.android.expensetracker.ui.history.historyinput.picker.group
 
-import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
-import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import dreammaker.android.expensetracker.database.GroupModel
 import dreammaker.android.expensetracker.databinding.SingleGroupPickerListWithSearchLayoutBinding
@@ -27,14 +25,8 @@ open class PickHistoryGroupFragment : Fragment() {
 
     private lateinit var adapter: GroupPickerListAdapter
     private lateinit var selectionStore: SelectionStore<Long>
-    protected lateinit var navController: NavController
-    protected lateinit var viewModel: GroupPickerViewModel
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        viewModel = ViewModelProvider(this,
-            ViewModelProvider.AndroidViewModelFactory(requireActivity().application))[GroupPickerViewModel::class.java]
-    }
+    protected val navController: NavController by lazy { findNavController() }
+    protected val viewModel: GroupPickerViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -46,10 +38,13 @@ open class PickHistoryGroupFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        navController = Navigation.findNavController(view)
-        binding.optionsList.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
-        adapter = GroupPickerListAdapter()
-        binding.optionsList.adapter = adapter
+        binding.optionsList.apply {
+            layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+            adapter = GroupPickerListAdapter().also {
+                this@PickHistoryGroupFragment.adapter = it
+            }
+
+        }
         binding.btnChoose.setOnClickListener { handlePickGroup() }
         prepareSelectionStore(adapter)
         viewModel.getAllGroups().observe(viewLifecycleOwner, this::onGroupsLoaded)
@@ -85,7 +80,6 @@ open class PickHistoryGroupFragment : Fragment() {
 
     private fun handlePickGroup() {
         val selectedGroup = getSelectedGroup()
-        Log.d(TAG, "handlePickGroup selectedGroup=$selectedGroup")
         val resultKey = requireArguments().getString(Constants.ARG_RESULT_KEY)!!
         val resultValue = if (null == selectedGroup) null else GroupModelParcel(selectedGroup)
         navController.previousBackStackEntry?.savedStateHandle?.set(resultKey,resultValue)

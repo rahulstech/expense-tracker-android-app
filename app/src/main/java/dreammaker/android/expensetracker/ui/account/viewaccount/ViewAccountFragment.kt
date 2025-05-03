@@ -15,7 +15,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
-import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.database.AccountModel
@@ -37,50 +37,14 @@ import kotlinx.coroutines.launch
 
 class ViewAccountFragment: Fragment(), MenuProvider {
 
-    companion object {
-        private val TAG = ViewAccountFragment::class.simpleName
-    }
+    private val TAG = ViewAccountFragment::class.simpleName
 
     private var _binding: ViewAccountLayoutBinding? = null
     private val binding get() = _binding!!
-    private lateinit var navController: NavController
+    private val navController: NavController by lazy {  findNavController() }
     private val viewModel: ViewAccountViewModel by viewModels()
 
     private fun getArgAccountId(): Long = requireArguments().getLong(Constants.ARG_ID)
-
-    override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {
-        viewModel.getStoredAccount()?.let {
-            inflater.inflate(R.menu.view_account_menu, menu)
-        }
-    }
-
-    override fun onMenuItemSelected(item: MenuItem): Boolean {
-        return when(item.itemId) {
-            R.id.edit -> {
-                navController.navigate(R.id.action_view_account_to_edit_account, Bundle().apply {
-                    putString(Constants.ARG_ACTION, Constants.ACTION_EDIT)
-                    putLong(Constants.ARG_ID, getArgAccountId())
-                })
-                true
-            }
-            R.id.delete -> {
-                onClickDeleteAccount()
-                true
-            }
-            else -> false
-        }
-    }
-
-    private fun onClickDeleteAccount() {
-        val account = viewModel.getStoredAccount()
-        account?.let {
-            MaterialAlertDialogBuilder(requireContext())
-                .setMessage(resources.getQuantityString(R.plurals.warning_delete_accounts, 1, account.name))
-                .setPositiveButton(R.string.label_no, null)
-                .setNegativeButton(R.string.label_yes) { _,_ -> viewModel.removeAccount(account) }
-                .show()
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -99,7 +63,6 @@ class ViewAccountFragment: Fragment(), MenuProvider {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        navController = Navigation.findNavController(view)
         binding.addHistory.setOnClickListener {
             val target = binding.buttonsLayout
             if (target.isVisible()) {
@@ -146,7 +109,6 @@ class ViewAccountFragment: Fragment(), MenuProvider {
         if (account == null) {
             Toast.makeText(requireContext(), R.string.message_account_not_found, Toast.LENGTH_LONG).show()
             navController.popBackStack()
-            return
         }
         else {
             prepareName(account.name!!)
@@ -163,10 +125,44 @@ class ViewAccountFragment: Fragment(), MenuProvider {
         binding.name.text = name
     }
 
+    override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {
+        viewModel.getStoredAccount()?.let {
+            inflater.inflate(R.menu.view_account_menu, menu)
+        }
+    }
+
+    override fun onMenuItemSelected(item: MenuItem): Boolean {
+        return when(item.itemId) {
+            R.id.edit -> {
+                navController.navigate(R.id.action_view_account_to_edit_account, Bundle().apply {
+                    putString(Constants.ARG_ACTION, Constants.ACTION_EDIT)
+                    putLong(Constants.ARG_ID, getArgAccountId())
+                })
+                true
+            }
+            R.id.delete -> {
+                onClickDeleteAccount()
+                true
+            }
+            else -> false
+        }
+    }
+
+    private fun onClickDeleteAccount() {
+        val account = viewModel.getStoredAccount()
+        account?.let {
+            MaterialAlertDialogBuilder(requireContext())
+                .setMessage(resources.getQuantityString(R.plurals.warning_delete_accounts, 1, account.name))
+                .setPositiveButton(R.string.label_no, null)
+                .setNegativeButton(R.string.label_yes) { _,_ -> viewModel.removeAccount(account) }
+                .show()
+        }
+    }
+
     private fun onAccountDeleted(result: OperationResult<AccountModel>?) {
         result?.let {
             if (result.isFailure()) {
-                Log.e(TAG, "onAccountDeleted: delete failed account=${viewModel.getStoredAccount()}", result.error)
+                Log.e(TAG, "onAccountDeleted: failed accountId=${getArgAccountId()}", result.error)
             }
             else {
                 navController.popBackStack()

@@ -2,6 +2,9 @@ package dreammaker.android.expensetracker.ui.history.historieslist
 
 import android.view.View
 import android.widget.TextView
+import androidx.annotation.StringRes
+import androidx.core.text.bold
+import androidx.core.text.buildSpannedString
 import androidx.core.view.ViewCompat
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.database.HistoryModel
@@ -10,6 +13,7 @@ import dreammaker.android.expensetracker.ui.util.ClickableViewHolder
 import dreammaker.android.expensetracker.ui.util.getBackgroundColor
 import dreammaker.android.expensetracker.ui.util.getColorOnBackground
 import dreammaker.android.expensetracker.ui.util.getLabel
+import dreammaker.android.expensetracker.ui.util.getNonEmptyNote
 import dreammaker.android.expensetracker.ui.util.invisible
 import dreammaker.android.expensetracker.ui.util.toCurrencyString
 import dreammaker.android.expensetracker.ui.util.visibilityGone
@@ -27,7 +31,7 @@ abstract class BaseHistoryViewHolder<VH:BaseHistoryViewHolder<VH>>(
             view.text = null
         }
         else {
-            view.text = history.note ?: history.type?.getLabel(context)
+            view.text = history.getNonEmptyNote(context)
             view.visible()
         }
     }
@@ -44,42 +48,31 @@ abstract class BaseHistoryViewHolder<VH:BaseHistoryViewHolder<VH>>(
     }
 
     fun setSource(view: TextView, history: HistoryModel?) {
-        val source = history?.primaryAccount?.name ?: ""
-        val text = when (history?.type) {
-            HistoryType.TRANSFER -> {
-                getString(R.string.label_history_list_item_transfer_source, source)
+        when(history?.type) {
+            HistoryType.TRANSFER, HistoryType.DEBIT -> {
+                val sourceText = history.primaryAccount?.name
+                view.text = boldFieldText(R.string.label_history_list_item_source_account,sourceText)
+                view.visible()
             }
-            HistoryType.DEBIT -> {
-                getString(R.string.label_history_list_item_debit_source, source)
+            else -> {
+                view.visibilityGone()
+                view.text = null
             }
-            else -> null
-        }
-        if (text.isNullOrBlank()) {
-            view.visibilityGone()
-            view.text = null
-        }
-        else {
-            view.text = text
-            view.visible()
         }
     }
 
     fun setDestination(view: TextView, history: HistoryModel?) {
-        val text = when (history?.type) {
-            HistoryType.CREDIT -> {
-                getString(R.string.label_history_list_item_credit_destination, history.primaryAccount?.name ?: "")
-            }
-            HistoryType.TRANSFER -> {
-                getString(R.string.label_history_item_transfer_destination, history.secondaryAccount?.name ?: "")
-            }
+        val destText = when(history?.type) {
+            HistoryType.CREDIT-> history.primaryAccount?.name
+            HistoryType.TRANSFER -> history.secondaryAccount?.name
             else -> null
         }
-        if (text.isNullOrBlank()) {
-            view.visibilityGone()
+        if (null == destText) {
             view.text = null
+            view.visibilityGone()
         }
         else {
-            view.text = text
+            view.text = boldFieldText(R.string.label_history_list_item_destination_account,destText)
             view.visible()
         }
     }
@@ -107,6 +100,16 @@ abstract class BaseHistoryViewHolder<VH:BaseHistoryViewHolder<VH>>(
         else {
             view.text = group.name
             view.visible()
+        }
+    }
+
+    private fun boldFieldText(@StringRes labelResId: Int, text: String?): CharSequence = boldFieldText(getString(labelResId),text)
+
+    private fun boldFieldText(label: String?, text: String?): CharSequence {
+        return buildSpannedString {
+            append(label ?: "")
+            append(" ")
+            bold { append(text ?: "") }
         }
     }
 }

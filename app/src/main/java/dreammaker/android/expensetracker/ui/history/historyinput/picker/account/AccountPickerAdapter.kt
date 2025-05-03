@@ -9,7 +9,6 @@ import dreammaker.android.expensetracker.database.AccountModel
 import dreammaker.android.expensetracker.databinding.AccountChooserListItemBinding
 import dreammaker.android.expensetracker.ui.util.BaseSelectableItemListAdapter
 import dreammaker.android.expensetracker.ui.util.ClickableViewHolder
-import dreammaker.android.expensetracker.ui.util.SelectionStore
 import dreammaker.android.expensetracker.ui.util.toCurrencyString
 
 class AccountPickerViewHolder(
@@ -41,19 +40,12 @@ private val callback = object: DiffUtil.ItemCallback<AccountModel>() {
             = oldItem.id == newItem.id
 
     override fun areContentsTheSame(oldItem: AccountModel, newItem: AccountModel): Boolean
-            = oldItem.equals(newItem)
+            = oldItem == newItem
 
 }
 
-open class AccountPickerListAdapter: BaseSelectableItemListAdapter<AccountModel, Long, AccountPickerViewHolder>(
-    callback
-) {
-
+open class AccountPickerListAdapter: BaseSelectableItemListAdapter<AccountModel, Long, AccountPickerViewHolder>(callback) {
     private val TAG = AccountPickerListAdapter::class.simpleName
-
-    override var itemClickListener: ((RecyclerView.Adapter<AccountPickerViewHolder>, View, Int)->Unit)? = null
-
-    override var selectionStore: SelectionStore<Long>? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AccountPickerViewHolder {
         val inflater = LayoutInflater.from(parent.context)
@@ -63,12 +55,10 @@ open class AccountPickerListAdapter: BaseSelectableItemListAdapter<AccountModel,
 
     override fun onBindViewHolder(holder: AccountPickerViewHolder, position: Int) {
         val data = getItem(position)
-        val id = getItemId(position)
-        val selected = selectionStore?.isSelected(id) ?: false
-        holder.bind(data, selected)
+        holder.bind(data, isSelected(position))
     }
 
-    override fun getItemId(position: Int): Long = getItem(position)?.id ?: -1
+    override fun getItemId(position: Int): Long = getItem(position)?.id ?: RecyclerView.NO_ID
 
     override fun getSelectionKey(position: Int): Long = getItemId(position)
 }

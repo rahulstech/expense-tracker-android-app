@@ -3,7 +3,6 @@ package dreammaker.android.expensetracker.backup;
 import android.util.Log;
 
 import dreammaker.android.expensetracker.R;
-import dreammaker.android.expensetracker.activity.SettingsActivity;
 import dreammaker.android.expensetracker.database.ExpensesDao;
 import dreammaker.android.expensetracker.database.ExpensesDatabase;
 import dreammaker.android.expensetracker.util.AppExecutor;
@@ -49,33 +48,33 @@ public class AutoDeleteWork implements Runnable {
     }
 
     private void delete() {
-        String autoDeleteDuration = SettingsActivity.getAutoDeleteDuration(service);
-        Date now = new Date();
-        Date date;
-        switch (autoDeleteDuration) {
-            case "one_month": {
-                date = now.firstDateOfNPreviousMonths(1);
-            }
-            break;
-            case "three_month": {
-                date = now.firstDateOfNPreviousMonths(3);
-            }
-            break;
-            case "six_month": {
-                date = now.firstDateOfNPreviousMonths(6);
-            }
-            break;
-            case "one_year": {
-                date = now.firstDateOfNPreviousMonths(12);
-            }
-            break;
-            default: {
-                // this must never reach
-                throw new IllegalArgumentException("unknown auto delete duration: '"+autoDeleteDuration+"'");
-            }
-        }
-        dao.markTransactionDeletedOlderThan(date);
-        dao.deleteMoneyTransfersOlderThan(date);
+//        String autoDeleteDuration = SettingsActivity.getAutoDeleteDuration(service);
+//        Date now = new Date();
+//        Date date;
+//        switch (autoDeleteDuration) {
+//            case "one_month": {
+//                date = now.firstDateOfNPreviousMonths(1);
+//            }
+//            break;
+//            case "three_month": {
+//                date = now.firstDateOfNPreviousMonths(3);
+//            }
+//            break;
+//            case "six_month": {
+//                date = now.firstDateOfNPreviousMonths(6);
+//            }
+//            break;
+//            case "one_year": {
+//                date = now.firstDateOfNPreviousMonths(12);
+//            }
+//            break;
+//            default: {
+//                // this must never reach
+//                throw new IllegalArgumentException("unknown auto delete duration: '"+autoDeleteDuration+"'");
+//            }
+//        }
+//        dao.markTransactionDeletedOlderThan(date);
+//        dao.deleteMoneyTransfersOlderThan(date);
     }
 
     private void notifyStart() {

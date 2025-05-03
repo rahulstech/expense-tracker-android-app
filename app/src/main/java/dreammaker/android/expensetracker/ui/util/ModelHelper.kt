@@ -10,6 +10,7 @@ import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.database.AccountModel
 import dreammaker.android.expensetracker.database.Date
 import dreammaker.android.expensetracker.database.GroupModel
+import dreammaker.android.expensetracker.database.HistoryModel
 import dreammaker.android.expensetracker.database.HistoryType
 import dreammaker.android.expensetracker.util.MonthYear
 
@@ -132,6 +133,13 @@ fun HistoryType.getColorOnBackground(context: Context): ColorStateList {
         HistoryType.TRANSFER -> R.color.colorOnTransfer
     }
     return ResourcesCompat.getColorStateList(context.resources, resId, context.theme)!!
+}
+
+fun HistoryModel.getNonEmptyNote(context: Context): CharSequence {
+    if (note.isNullOrBlank()) {
+        return type?.getLabel(context) ?: ""
+    }
+    return note!!
 }
 
 fun AccountModel.getColorCodedBalance(context: Context, format: (Float)->String): CharSequence {

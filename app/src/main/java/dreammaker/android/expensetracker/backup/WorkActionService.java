@@ -24,7 +24,6 @@ import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.activity.BackupRestoreActivity;
 import dreammaker.android.expensetracker.util.AppExecutor;
 
-import static dreammaker.android.expensetracker.activity.SettingsActivity.setNextAutoDeleteDate;
 import static dreammaker.android.expensetracker.backup.BackupRestoreHelper.BACKUP_NOTIFICATION_ID;
 import static dreammaker.android.expensetracker.backup.BackupRestoreHelper.BACKUP_WORK_TAG;
 import static dreammaker.android.expensetracker.backup.BackupRestoreHelper.KEY_BACKUP_FILE;
@@ -126,7 +125,7 @@ public class WorkActionService extends Service {
     private void onStartAutoDelete() {
         if (null != autoDeleteWork) return;
         AutoDeleteWork task = new AutoDeleteWork(this, successful -> {
-            setNextAutoDeleteDate(this);
+//            setNextAutoDeleteDate(this);
             this.autoDeleteWork = null;
         });
         AppExecutor.getDiskOperationsExecutor().execute(task);
@@ -141,7 +140,7 @@ public class WorkActionService extends Service {
         return PendingIntent.getActivity(this,0,
                 new Intent(this, BackupRestoreActivity.class)
                         .setFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
-                ,0);
+                , PendingIntent.FLAG_IMMUTABLE);
     }
 
     private Notification newNotificationForLocalBackup(String message, NotificationCompat.Action action, boolean autoCancel) {
@@ -165,7 +164,7 @@ public class WorkActionService extends Service {
                 PendingIntent.getService(this,0,
                         new Intent(this,WorkActionService.class)
                                 .setAction(WorkActionService.ACTION_CANCEL_BACKUP),
-                        0));
+                        PendingIntent.FLAG_IMMUTABLE));
         notificationHelper.createNotificationChannel(NotificationHelper.BACKUP_RESTORE_CHANNEL_ID,
                 NotificationHelper.BACKUP_RESTORE_CHANNEL_DESCRIPTION);
         startForeground(BACKUP_NOTIFICATION_ID,

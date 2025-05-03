@@ -1,7 +1,6 @@
 package dreammaker.android.expensetracker.ui.account.inputaccount
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
@@ -73,8 +72,7 @@ class AccountInputViewModel(app: Application): AndroidViewModel(app) {
         viewModelScope.launch {
             flow {
                 try {
-                    val changes = accountDao.updateAccount(account.toAccount())
-                    Log.i(TAG, "setAccount: account=$account changes=$changes")
+                    accountDao.updateAccount(account.toAccount())
                     val copy = account.copy()
                     emit(OperationResult(copy,null))
                 }
@@ -83,9 +81,7 @@ class AccountInputViewModel(app: Application): AndroidViewModel(app) {
                 }
             }
                 .flowOn(Dispatchers.IO)
-                .collect {
-                    _resultFlow.value = it
-                }
+                .collect { _resultFlow.emit(it) }
         }
     }
 }
