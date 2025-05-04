@@ -119,7 +119,11 @@ class ViewHistoryItemFragment: Fragment(), MenuProvider {
     }
 
     private fun prepareNote(note: String?) {
-        note?.let {
+        if (note.isNullOrBlank()) {
+            binding.note.text = null
+            binding.note.visibilityGone()
+        }
+        else {
             binding.note.text = note
             binding.note.visible()
         }
@@ -128,12 +132,12 @@ class ViewHistoryItemFragment: Fragment(), MenuProvider {
     private fun prepareSource(history: HistoryModel) {
         when(history.type) {
             HistoryType.DEBIT -> {
-                binding.sourceLabel.text = getString(R.string.label_history_item_source_debit)
+                binding.sourceLabel.text = getString(R.string.label_history_item_source_account)
                 binding.source.text = history.primaryAccount?.name
                 binding.sourceGroup.visible()
             }
             HistoryType.TRANSFER -> {
-                binding.sourceLabel.text = getString(R.string.label_history_item_source_transfer)
+                binding.sourceLabel.text = getString(R.string.label_history_item_source_account)
                 binding.source.text = history.primaryAccount?.name
                 binding.sourceGroup.visible()
             }
@@ -156,12 +160,12 @@ class ViewHistoryItemFragment: Fragment(), MenuProvider {
     private fun prepareDestination(history: HistoryModel) {
         when(history.type) {
             HistoryType.CREDIT -> {
-                binding.destinationLabel.text = getString(R.string.label_history_item_destination_credit)
+                binding.destinationLabel.text = getString(R.string.label_history_item_destination_account)
                 binding.destination.text = history.primaryAccount?.name
                 binding.destinationGroup.visible()
             }
             HistoryType.TRANSFER -> {
-                binding.destinationLabel.text = getString(R.string.label_history_item_destination_transfer)
+                binding.destinationLabel.text = getString(R.string.label_history_item_destination_account)
                 binding.destination.text = history.secondaryAccount?.name
                 binding.destinationGroup.visible()
             }

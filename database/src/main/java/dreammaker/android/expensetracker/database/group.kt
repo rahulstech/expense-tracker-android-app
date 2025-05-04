@@ -35,7 +35,7 @@ interface GroupDao {
     @Query("SELECT `_id`, `person_name`, `due`  FROM `persons` WHERE `_id` = :id")
     fun findGroupById(id: Long): LiveData<GroupModel?>
 
-    @Query("SELECT `_id` , `person_name`, `due` FROM `persons`")
+    @Query("SELECT `_id` , `person_name`, `due` FROM `persons` ORDER BY `person_name` ASC")
     fun getAllGroups(): LiveData<List<GroupModel>>
 
     @Query("SELECT `_id`, `person_name` FROM `persons` WHERE `_id` IN " +

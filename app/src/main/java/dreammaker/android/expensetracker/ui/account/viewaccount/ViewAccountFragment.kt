@@ -26,10 +26,10 @@ import dreammaker.android.expensetracker.ui.history.historyinput.HistoryInputFra
 import dreammaker.android.expensetracker.ui.util.AccountModelParcel
 import dreammaker.android.expensetracker.ui.util.Constants
 import dreammaker.android.expensetracker.ui.util.OperationResult
+import dreammaker.android.expensetracker.ui.util.getBalanceText
 import dreammaker.android.expensetracker.ui.util.hasArgument
 import dreammaker.android.expensetracker.ui.util.isVisible
 import dreammaker.android.expensetracker.ui.util.putHistoryType
-import dreammaker.android.expensetracker.ui.util.toCurrencyString
 import dreammaker.android.expensetracker.ui.util.visibilityGone
 import dreammaker.android.expensetracker.ui.util.visible
 import kotlinx.coroutines.flow.collectLatest
@@ -111,18 +111,10 @@ class ViewAccountFragment: Fragment(), MenuProvider {
             navController.popBackStack()
         }
         else {
-            prepareName(account.name!!)
-            prepareBalance(account.balance!!)
+            binding.name.text = account.name
+            binding.balance.text = account.getBalanceText(requireContext())
             requireActivity().invalidateOptionsMenu()
         }
-    }
-
-    private fun prepareBalance(balance: Float) {
-        binding.balance.text = balance.toCurrencyString()
-    }
-
-    private fun prepareName(name: String) {
-        binding.name.text = name
     }
 
     override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {

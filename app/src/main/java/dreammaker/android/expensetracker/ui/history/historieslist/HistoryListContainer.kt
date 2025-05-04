@@ -53,10 +53,8 @@ class HistoryListContainer: Fragment(), MenuProvider {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-
         val entity =  arguments?.let { BundleCompat.getParcelable(it, ARG_SHOW_HISTORY_FOR, Parcelable::class.java) }
         navController.currentBackStackEntry?.savedStateHandle?.set(ARG_SHOW_HISTORY_FOR, entity)
-
         val viewAs = settings.getViewHistory()
         changeFragment(viewAs)
         (requireActivity() as MenuHost).addMenuProvider(this, viewLifecycleOwner)

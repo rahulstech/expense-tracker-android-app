@@ -5,7 +5,6 @@ import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Entity
-import androidx.room.Ignore
 import androidx.room.Insert
 import androidx.room.PrimaryKey
 import androidx.room.Query
@@ -24,9 +23,6 @@ open class Account (
     var accountName: String,
     open var balance: Float
 ): Cloneable {
-
-    @Ignore
-    constructor() : this(0, "", 0f)
 
     override fun equals(other: Any?): Boolean {
         if (other == this) return true
@@ -81,7 +77,7 @@ interface AccountDao {
     @Update
     fun updateAccount(account: Account)
 
-    @Query("SELECT `_id`, `account_name`, `balance` FROM `accounts`")
+    @Query("SELECT `_id`, `account_name`, `balance` FROM `accounts` ORDER BY `account_name` ASC")
     fun getAllAccounts(): LiveData<List<AccountModel>>
 
     @Query("SELECT * FROM `accounts` WHERE `_id` = :id")

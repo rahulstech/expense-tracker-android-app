@@ -81,9 +81,9 @@ open class PickHistoryAccountFragment : Fragment() {
         else {
             binding.emptyPlaceholder.visibilityGone()
             binding.optionsList.visible()
-        }
-        if (selectionStore.hasSelection()) {
-            binding.btnChoose.visible()
+            if (selectionStore.hasSelection()) {
+                binding.btnChoose.visible()
+            }
         }
     }
 

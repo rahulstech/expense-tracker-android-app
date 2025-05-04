@@ -9,6 +9,7 @@ import dreammaker.android.expensetracker.database.AccountModel
 import dreammaker.android.expensetracker.databinding.AccountListItemBinding
 import dreammaker.android.expensetracker.ui.util.BaseSelectableItemListAdapter
 import dreammaker.android.expensetracker.ui.util.ClickableViewHolder
+import dreammaker.android.expensetracker.ui.util.getBalanceText
 import dreammaker.android.expensetracker.ui.util.toCurrencyString
 
 class AccountViewModel(
@@ -29,7 +30,7 @@ class AccountViewModel(
         }
         else {
             binding.name.text = data.name
-            binding.balance.text = data.balance?.toCurrencyString()
+            binding.balance.text = data.getBalanceText(context)
             binding.root.isSelected = selected
         }
     }

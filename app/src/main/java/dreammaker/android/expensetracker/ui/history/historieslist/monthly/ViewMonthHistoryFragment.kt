@@ -18,6 +18,7 @@ import dreammaker.android.expensetracker.database.HistoryType
 import dreammaker.android.expensetracker.databinding.HistoryListBinding
 import dreammaker.android.expensetracker.ui.history.historieslist.HistoryFilterData
 import dreammaker.android.expensetracker.ui.history.historieslist.HistoryListContainer
+import dreammaker.android.expensetracker.ui.history.historieslist.HistorySummary
 import dreammaker.android.expensetracker.ui.history.historieslist.ViewHistoryViewModel
 import dreammaker.android.expensetracker.ui.history.historieslist.doFilterHistory
 import dreammaker.android.expensetracker.ui.history.viewhistory.ViewHistoryItemFragment
@@ -65,7 +66,7 @@ class ViewMonthHistoryFragment : Fragment() {
             }
         }
         adapter.itemClickListener = this::handleItemClick
-        binding.filterTypes.setOnCheckedStateChangeListener { _,_ -> filter() }
+        binding.filterContainer.setOnCheckedStateChangeListener { _,_ -> filter() }
         val monthYear = requireArguments().getMonthYear(ARG_MONTH_YEAR)!!
         val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
         val entity = savedStateHandle?.get<Parcelable?>(HistoryListContainer.ARG_SHOW_HISTORY_FOR)
@@ -76,11 +77,12 @@ class ViewMonthHistoryFragment : Fragment() {
         }
 
         lifecycleScope.launch { filter.start() }
-        filter.resultLiveData.observe(viewLifecycleOwner, this::onHistoryLoaded)
-        histories.observe(viewLifecycleOwner) { filter() }
+        filter.resultLiveData.observe(viewLifecycleOwner, this::onHistoryPrepared)
+        viewModel.historySummary.observe(viewLifecycleOwner, this::onHistorySummaryPrepared)
+        histories.observe(viewLifecycleOwner) { onHistoryLoaded()}
     }
 
-    private fun onHistoryLoaded(histories: List<HistoryModel>) {
+    private fun onHistoryPrepared(histories: List<HistoryModel>) {
         adapter.submitList(histories)
         if (histories.isEmpty()) {
             binding.historyList.visibilityGone()
@@ -90,6 +92,16 @@ class ViewMonthHistoryFragment : Fragment() {
             binding.emptyView.visibilityGone()
             binding.historyList.visible()
         }
+    }
+
+    private fun onHistorySummaryPrepared(summery: HistorySummary) {
+        binding.totalCredit.text = summery.getTotalCreditText(requireContext())
+        binding.totalDebit.text = summery.getTotalDebitText(requireContext())
+    }
+
+    private fun onHistoryLoaded() {
+        obtainSummary()
+        filter()
     }
 
     private fun handleItemClick(adapter: RecyclerView.Adapter<*>, view: View, position: Int) {
@@ -108,8 +120,13 @@ class ViewMonthHistoryFragment : Fragment() {
         filter.filter(query,histories)
     }
 
+    private fun obtainSummary() {
+        val histories = viewModel.getHistories()
+        viewModel.obtainSummary(histories)
+    }
+
     private fun getCheckedHistoryTypes(): List<HistoryType> {
-        val checkedIds = binding.filterTypes.checkedChipIds
+        val checkedIds = binding.filterContainer.checkedChipIds
         return checkedIds.mapNotNull { id ->
             when (id) {
                 R.id.filter_credit -> HistoryType.CREDIT

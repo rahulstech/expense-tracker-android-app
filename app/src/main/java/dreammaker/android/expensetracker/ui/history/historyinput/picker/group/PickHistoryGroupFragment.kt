@@ -15,6 +15,8 @@ import dreammaker.android.expensetracker.ui.util.Constants
 import dreammaker.android.expensetracker.ui.util.GroupModelParcel
 import dreammaker.android.expensetracker.ui.util.SelectionMode
 import dreammaker.android.expensetracker.ui.util.SelectionStore
+import dreammaker.android.expensetracker.ui.util.visibilityGone
+import dreammaker.android.expensetracker.ui.util.visible
 
 open class PickHistoryGroupFragment : Fragment() {
 
@@ -73,8 +75,16 @@ open class PickHistoryGroupFragment : Fragment() {
 
     protected open fun onGroupsLoaded(accounts: List<GroupModel>) {
         adapter.submitList(accounts)
-        if (selectionStore.hasSelection()) {
-            binding.btnChoose.show()
+        if (accounts.isEmpty()) {
+            binding.emptyPlaceholder.visibilityGone()
+            binding.emptyPlaceholder.visible()
+        }
+        else {
+            binding.emptyPlaceholder.visibilityGone()
+            binding.optionsList.visible()
+            if (selectionStore.hasSelection()) {
+                binding.btnChoose.show()
+            }
         }
     }
 

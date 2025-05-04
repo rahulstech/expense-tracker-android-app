@@ -8,7 +8,7 @@ import dreammaker.android.expensetracker.database.GroupModel
 import dreammaker.android.expensetracker.databinding.GroupListItemBinding
 import dreammaker.android.expensetracker.ui.util.BaseSelectableItemListAdapter
 import dreammaker.android.expensetracker.ui.util.ClickableViewHolder
-import dreammaker.android.expensetracker.ui.util.toCurrencyString
+import dreammaker.android.expensetracker.ui.util.getBalanceText
 
 class GroupsListViewHolder(
     val binding: GroupListItemBinding,
@@ -24,7 +24,7 @@ class GroupsListViewHolder(
         }
         else {
             binding.name.text = group.name
-            binding.balance.text = group.balance!!.toCurrencyString()
+            binding.balance.text = group.getBalanceText(context)
             binding.root.isSelected = selected
         }
     }

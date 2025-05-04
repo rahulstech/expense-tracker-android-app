@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.text.buildSpannedString
+import androidx.core.text.color
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.database.AccountModel
 import dreammaker.android.expensetracker.database.Date
@@ -13,6 +15,8 @@ import dreammaker.android.expensetracker.database.GroupModel
 import dreammaker.android.expensetracker.database.HistoryModel
 import dreammaker.android.expensetracker.database.HistoryType
 import dreammaker.android.expensetracker.util.MonthYear
+import java.util.Locale
+import kotlin.math.absoluteValue
 
 class AccountModelParcel(val id: Long, val name: String, val balance: Float): Parcelable {
 
@@ -142,16 +146,42 @@ fun HistoryModel.getNonEmptyNote(context: Context): CharSequence {
     return note!!
 }
 
-fun AccountModel.getColorCodedBalance(context: Context, format: (Float)->String): CharSequence {
-
-   return balance?.let {
-       val text = format(it)
-       when {
-           it < 0 -> ""
-           it > 0 -> ""
-           else -> text
-       }
-   } ?: ""
+fun AccountModel.getBalanceText(context: Context, currencyCode: String = "USD", locale: Locale = Locale.ENGLISH): CharSequence {
+    val balance = balance ?: 0f
+    val balanceText = balance.toCurrencyString(currencyCode,locale)
+    return if (balance < 0) {
+        buildSpannedString {
+            color(ResourcesCompat.getColor(context.resources,R.color.colorDebit, context.theme)) { append(balanceText) }
+        }
+    }
+    else if (balance > 0) {
+        buildSpannedString {
+            color(ResourcesCompat.getColor(context.resources,R.color.colorCredit, context.theme)) { append(balanceText) }
+        }
+    }
+    else {
+        balanceText
+    }
 }
 
-fun GroupModel.getColorCodedBalance(context: Context) {}
+fun GroupModel.getBalanceText(context: Context, currencyCode: String = "USD", locale: Locale = Locale.ENGLISH): CharSequence {
+    val balance = balance ?: 0f
+    val balanceText = balance.absoluteValue.toCurrencyString(currencyCode,locale)
+    return if (balance > 0) {
+        buildSpannedString {
+            append(context.getString(R.string.label_unsetteled))
+            append(" ")
+            color(ResourcesCompat.getColor(context.resources,R.color.colorDebit, context.theme)) { append(balanceText) }
+        }
+    }
+    else if (balance < 0) {
+        buildSpannedString {
+            append(context.getString(R.string.label_surplus))
+            append(" ")
+            color(ResourcesCompat.getColor(context.resources,R.color.colorCredit, context.theme)) { append(balanceText) }
+        }
+    }
+    else {
+        balanceText
+    }
+}

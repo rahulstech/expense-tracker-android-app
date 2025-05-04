@@ -26,9 +26,9 @@ import dreammaker.android.expensetracker.ui.history.historyinput.HistoryInputFra
 import dreammaker.android.expensetracker.ui.util.Constants
 import dreammaker.android.expensetracker.ui.util.GroupModelParcel
 import dreammaker.android.expensetracker.ui.util.OperationResult
+import dreammaker.android.expensetracker.ui.util.getBalanceText
 import dreammaker.android.expensetracker.ui.util.isVisible
 import dreammaker.android.expensetracker.ui.util.putHistoryType
-import dreammaker.android.expensetracker.ui.util.toCurrencyString
 import dreammaker.android.expensetracker.ui.util.visibilityGone
 import dreammaker.android.expensetracker.ui.util.visible
 import kotlinx.coroutines.flow.collectLatest
@@ -85,7 +85,7 @@ class ViewGroupFragment: Fragment(), MenuProvider {
         }
         else {
             binding.name.text = group.name
-            binding.balance.text = group.balance!!.toCurrencyString()
+            binding.balance.text = group.getBalanceText(requireContext())
             requireActivity().invalidateOptionsMenu()
         }
     }

@@ -175,7 +175,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
-        android:layout_marginBottom="76dp"
+        android:layout_marginBottom="70dp"
         app:cardCornerRadius="8dp"
         app:cardBackgroundColor="?attr/colorPrimaryContainer"
         android:visibility="gone"
@@ -227,7 +227,7 @@
         android:id="@+id/add_history"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
+        android:layout_margin="12dp"
         android:layout_gravity="bottom|center_horizontal"
         app:icon="@drawable/ic_add"
         android:text="@string/label_add_history"/>
