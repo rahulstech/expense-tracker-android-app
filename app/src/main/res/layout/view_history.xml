@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         style="@style/Widget.AppTheme.Button.DatePicker"
         app:icon="@drawable/baseline_calendar_month"
-        android:layout_margin="12dp"
+        android:layout_marginTop="12dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/btn_goto_present"
@@ -33,11 +33,12 @@
         android:id="@+id/history_view_pager"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="12dp"
         app:layout_constraintTop_toBottomOf="@id/btn_picker"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintBottom_toTopOf="@id/add_history"/>
 
     <androidx.cardview.widget.CardView
         android:id="@+id/buttons_layout"

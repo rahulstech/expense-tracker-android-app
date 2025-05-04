@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
@@ -13,10 +12,13 @@ import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.database.AccountModel
 import dreammaker.android.expensetracker.database.GroupModel
 import dreammaker.android.expensetracker.database.HistoryType
+import dreammaker.android.expensetracker.databinding.AccountListItemBinding
+import dreammaker.android.expensetracker.databinding.GroupListItemBinding
 import dreammaker.android.expensetracker.databinding.HomeBinding
-import dreammaker.android.expensetracker.databinding.RecentItemViewBinding
 import dreammaker.android.expensetracker.ui.history.historyinput.HistoryInputFragment
 import dreammaker.android.expensetracker.ui.util.Constants
+import dreammaker.android.expensetracker.ui.util.getBalanceText
+import dreammaker.android.expensetracker.ui.util.invisible
 import dreammaker.android.expensetracker.ui.util.isVisible
 import dreammaker.android.expensetracker.ui.util.putHistoryType
 import dreammaker.android.expensetracker.ui.util.toCurrencyString
@@ -82,41 +84,47 @@ class HomeFragment: Fragment()  {
     }
 
     private fun onRecentlyUsedAccountsLoaded(accounts: List<AccountModel>) {
-        addRecentlyUsedViews(binding.containerLatestUsedAccounts, accounts) { container, account ->
-            val binding = RecentItemViewBinding.inflate(layoutInflater, container, false)
-            val itemView = binding.root.apply {
-                text = account.name
-                icon = ResourcesCompat.getDrawable(resources,R.drawable.ic_account_black,requireContext().theme)
-                setOnClickListener {
+        addRecentlyUsedViews(binding.accounts, accounts) { container, account, index ->
+            val binding = AccountListItemBinding.inflate(layoutInflater, container, false)
+            binding.apply {
+                name.text = account.name
+                balance.text = account.getBalanceText(requireContext())
+                root.setOnClickListener {
                     navController.navigate(R.id.action_home_to_view_account, Bundle().apply {
                         putLong(Constants.ARG_ID, account.id!!)
                     })
                 }
+                if (index == accounts.size-1) {
+                    divider.invisible()
+                }
             }
-            itemView
+            binding.root
         }
     }
 
     private fun onRecentlyUsedGroupsLoaded(groups: List<GroupModel>) {
-        addRecentlyUsedViews(binding.containerLatestUsedGroups, groups) { container,group ->
-            val binding = RecentItemViewBinding.inflate(layoutInflater, container, false)
-            val itemView = binding.root.apply {
-                text = group.name
-                icon = ResourcesCompat.getDrawable(resources,R.drawable.baseline_receipt_long_64,requireContext().theme)
-                setOnClickListener {
+        addRecentlyUsedViews(binding.groups, groups) { container,group,index ->
+            val binding = GroupListItemBinding.inflate(layoutInflater, container, false)
+            binding.apply {
+                name.text = group.name
+                balance.text = group.getBalanceText(requireContext())
+                root.setOnClickListener {
                     navController.navigate(R.id.action_home_to_view_group, Bundle().apply {
                         putLong(Constants.ARG_ID, group.id!!)
                     })
                 }
+                if (index == groups.size-1) {
+                    divider.invisible()
+                }
             }
-            itemView
+            binding.root
         }
     }
 
-    private fun <T> addRecentlyUsedViews(container: ViewGroup, data: List<T>, factory: (ViewGroup, T)->View) {
+    private fun <T> addRecentlyUsedViews(container: ViewGroup, data: List<T>, factory: (ViewGroup, T, Int)->View) {
         container.removeAllViews()
-        data.forEach { item ->
-            val view = factory(container,item)
+        data.forEachIndexed { index, item ->
+            val view = factory(container,item, index)
             container.addView(view)
         }
     }

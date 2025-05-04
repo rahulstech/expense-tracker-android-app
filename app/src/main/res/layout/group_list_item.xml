@@ -4,8 +4,8 @@
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:orientation="vertical"
-	android:paddingTop="16dp"
-	android:background="@drawable/selectable_item_background">
+	android:paddingTop="12dp"
+	android:background="?attr/selectableItemBackground">
 
 	<TextView
 		android:id="@+id/name"
@@ -30,10 +30,10 @@
 		tools:text="$200.00"/>
 
 	<com.google.android.material.divider.MaterialDivider
+		android:id="@+id/divider"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_marginTop="16dp"
+		android:layout_marginTop="12dp"
 		app:lastItemDecorated="false"/>
-
 
 </LinearLayout>

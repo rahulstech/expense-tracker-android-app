@@ -167,7 +167,7 @@
     <fragment android:id="@+id/history_list"
         android:name="dreammaker.android.expensetracker.ui.history.historieslist.HistoryListContainer"
         android:label="@string/title_history_list"
-        tools:layout="@layout/list_content">
+        tools:layout="@layout/history_list">
 
         <action android:id="@+id/action_history_list_to_create_history"
             app:destination="@id/create_history"

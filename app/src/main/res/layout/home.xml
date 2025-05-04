@@ -6,7 +6,8 @@
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_marginBottom="70dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -98,18 +99,23 @@
                 app:layout_constraintVertical_chainStyle="spread"
                 tools:ignore="TouchTargetSizeCheck" />
 
-            <LinearLayout
+            <FrameLayout
                 android:id="@+id/container_latest_used_accounts"
                 android:layout_width="0dp"
-                android:layout_height="100dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:orientation="horizontal"
-                android:gravity="start|center_vertical"
+                android:orientation="vertical"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/btn_view_all_accounts">
 
-            </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/accounts"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"/>
+
+            </FrameLayout>
 
             <!-- Section Groups -->
 
@@ -117,7 +123,7 @@
                 android:id="@+id/label_section_group"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="16dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/container_latest_used_accounts"
                 app:layout_constraintVertical_chainStyle="spread"
@@ -128,7 +134,7 @@
                 android:id="@+id/divider_group"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="16dp"
                 android:layout_marginStart="12dp"
                 android:layout_marginEnd="12dp"
                 app:layout_constraintStart_toEndOf="@id/label_section_group"
@@ -142,7 +148,7 @@
                 style="@style/Widget.Material3.Button.ElevatedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="36dp"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="16dp"
                 android:text="@string/label_view_all"
                 android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
                 android:textColor="@color/stateful_color_on_surface"
@@ -153,31 +159,36 @@
                 app:layout_constraintVertical_chainStyle="spread"
                 tools:ignore="TouchTargetSizeCheck" />
 
-            <LinearLayout
+            <FrameLayout
                 android:id="@+id/container_latest_used_groups"
                 android:layout_width="0dp"
-                android:layout_height="100dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:orientation="horizontal"
-                android:gravity="start|center_vertical"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/btn_view_all_groups">
 
-            </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/groups"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"/>
+
+            </FrameLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.core.widget.NestedScrollView>
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.circularreveal.cardview.CircularRevealCardView
         android:id="@+id/buttons_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
         android:layout_marginBottom="70dp"
-        app:cardCornerRadius="8dp"
-        app:cardBackgroundColor="?attr/colorPrimaryContainer"
+        app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.Small"
+        app:cardElevation="2dp"
+        app:strokeWidth="0dp"
         android:visibility="gone"
         tools:visibility="visible">
 
@@ -186,7 +197,6 @@
             android:layout_height="wrap_content"
             android:padding="12dp"
             android:orientation="horizontal">
-
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_add_credit"
@@ -221,7 +231,7 @@
                 app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.Small"/>
 
         </LinearLayout>
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.circularreveal.cardview.CircularRevealCardView>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/add_history"
