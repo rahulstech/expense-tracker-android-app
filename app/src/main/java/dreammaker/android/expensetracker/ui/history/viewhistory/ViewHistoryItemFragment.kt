@@ -178,7 +178,7 @@ class ViewHistoryItemFragment: Fragment(), MenuProvider {
 
     private fun prepareGroupAndTags(group: GroupModel?) {
         group?.let {
-            val chip = createInputChip(requireContext(), group.name!!, false)
+            val chip = createInputChip(binding.containerGroupAndTags, group.name!!, false)
             chip.setOnClickListener {
                 navController.navigate(R.id.action_view_history_to_view_group, Bundle().apply {
                     putLong(Constants.ARG_ID, group.id!!)

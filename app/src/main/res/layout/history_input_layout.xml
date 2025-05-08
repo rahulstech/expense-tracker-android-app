@@ -25,7 +25,7 @@
             android:id="@+id/type"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             style="@style/Widget.AppTheme.AssistChip"
             tools:backgroundTint="@color/colorCredit"
             tools:text="Credit"/>
@@ -70,30 +70,30 @@
         <LinearLayout
             android:id="@+id/source_layout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="52dp"
             android:orientation="horizontal"
             android:gravity="center"
             android:layout_marginTop="24dp"
-            android:background="@drawable/rounded_rectangle_border"
-            android:visibility="gone"
-            tools:visibility="visible">
+            android:background="@drawable/rounded_rectangle_border">
 
             <TextView
+                android:id="@+id/label_source_account"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="0"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="12dp"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
                 android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                 android:text="@string/label_history_input_source_account"/>
 
-            <com.google.android.material.chip.ChipGroup
+            <FrameLayout
                 android:id="@+id/selected_source_container"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:animateLayoutChanges="true"
-                app:selectionRequired="false"/>
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:animateLayoutChanges="true"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/input_source"
@@ -101,7 +101,9 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="0"
                 app:icon="@drawable/baseline_arrow_right"
-                style="@style/Widget.AppTheme.Button.PickerArrow"/>
+                style="@style/Widget.AppTheme.Button.PickerArrow"
+                android:visibility="gone"
+                tools:visibility="visible"/>
         </LinearLayout>
 
         <TextView
@@ -120,7 +122,7 @@
         <LinearLayout
             android:id="@+id/destination_layout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="52dp"
             android:orientation="horizontal"
             android:gravity="center"
             android:layout_marginTop="12dp"
@@ -132,18 +134,19 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="0"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="12dp"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
                 android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                 android:text="@string/label_history_input_destination_account" />
 
-            <com.google.android.material.chip.ChipGroup
+            <FrameLayout
                 android:id="@+id/selected_destination_container"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:animateLayoutChanges="true"
-                app:selectionRequired="false"/>
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:animateLayoutChanges="true"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/input_destination"
@@ -152,7 +155,9 @@
                 android:layout_weight="0"
                 app:icon="@drawable/baseline_arrow_right"
                 style="@style/Widget.AppTheme.Button.PickerArrow"
-                tools:ignore="ContentDescription" />
+                tools:ignore="ContentDescription"
+                android:visibility="gone"
+                tools:visibility="visible"/>
         </LinearLayout>
 
         <TextView
@@ -171,7 +176,7 @@
         <LinearLayout
             android:id="@+id/group_layout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="52dp"
             android:orientation="horizontal"
             android:gravity="center"
             android:layout_marginTop="12dp"
@@ -183,18 +188,19 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="0"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="12dp"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
                 android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                 android:text="@string/label_history_input_group" />
 
-            <com.google.android.material.chip.ChipGroup
+            <FrameLayout
                 android:id="@+id/selected_group_container"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
                 android:layout_weight="1"
-                android:animateLayoutChanges="true"
-                app:selectionRequired="false"/>
+                android:animateLayoutChanges="true"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/input_group"
@@ -203,6 +209,8 @@
                 android:layout_weight="0"
                 app:icon="@drawable/baseline_arrow_right"
                 style="@style/Widget.AppTheme.Button.PickerArrow"
+                android:visibility="gone"
+                tools:visibility="visible"
                 tools:ignore="ContentDescription" />
         </LinearLayout>
 

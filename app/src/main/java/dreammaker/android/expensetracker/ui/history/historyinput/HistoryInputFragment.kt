@@ -1,7 +1,6 @@
 package dreammaker.android.expensetracker.ui.history.historyinput
 
 import android.app.DatePickerDialog
-import android.content.res.ColorStateList
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -28,10 +27,13 @@ import dreammaker.android.expensetracker.ui.util.Constants
 import dreammaker.android.expensetracker.ui.util.GroupModelParcel
 import dreammaker.android.expensetracker.ui.util.OperationResult
 import dreammaker.android.expensetracker.ui.util.createInputChip
-import dreammaker.android.expensetracker.ui.util.disable
+import dreammaker.android.expensetracker.ui.util.getBackgroundColor
+import dreammaker.android.expensetracker.ui.util.getColorOnBackground
 import dreammaker.android.expensetracker.ui.util.getDate
 import dreammaker.android.expensetracker.ui.util.getHistoryType
+import dreammaker.android.expensetracker.ui.util.getLabel
 import dreammaker.android.expensetracker.ui.util.hasArgument
+import dreammaker.android.expensetracker.ui.util.needsSecondaryAccount
 import dreammaker.android.expensetracker.ui.util.visibilityGone
 import dreammaker.android.expensetracker.ui.util.visible
 import kotlinx.coroutines.flow.collectLatest
@@ -62,6 +64,12 @@ class HistoryInputFragment : Fragment() {
 
     private fun getArgAction(): String? = arguments?.getString(Constants.ARG_ACTION)
 
+    private fun getArgId(): Long = arguments?.getLong(Constants.ARG_ID) ?: 0
+
+    private fun getArgDate(): Date? = arguments?.getDate(ARG_HISTORY_DATE)
+
+    private fun getArgType(): HistoryType = requireArguments().getHistoryType(ARG_HISTORY_TYPE)!!
+
     private fun getArgAccount(): AccountModelParcel?
             = arguments?.let { BundleCompat.getParcelable(it, Constants.ARG_ACCOUNT, AccountModelParcel::class.java) }
 
@@ -70,13 +78,12 @@ class HistoryInputFragment : Fragment() {
 
     private fun isActionEdit(): Boolean = getArgAction() == Constants.ACTION_EDIT
 
-
     /////////////////////////////////////////////////////////////////
     ///                     Selections                           ///
     ///////////////////////////////////////////////////////////////
 
-    private fun getSelectedAccountLiveData(key: String): LiveData<AccountModelParcel?>?
-            = navController.currentBackStackEntry?.savedStateHandle?.getLiveData(key, null)
+    private fun getSelectedAccountLiveData(key: String): LiveData<AccountModelParcel?>
+            = navController.currentBackStackEntry?.savedStateHandle!!.getLiveData(key, null)
 
     private fun getSelectedAccount(key: String): AccountModel?
             = navController.currentBackStackEntry?.savedStateHandle?.get<AccountModelParcel?>(key)?.toAccountModel()
@@ -85,8 +92,8 @@ class HistoryInputFragment : Fragment() {
         navController.currentBackStackEntry?.savedStateHandle?.set(key,null)
     }
 
-    private fun getSelectedGroupLiveData(): LiveData<GroupModelParcel?>?
-            = navController.currentBackStackEntry?.savedStateHandle?.getLiveData(Constants.ARG_GROUP, null)
+    private fun getSelectedGroupLiveData(): LiveData<GroupModelParcel?>
+            = navController.currentBackStackEntry?.savedStateHandle!!.getLiveData(Constants.ARG_GROUP, null)
 
     private fun getSelectedGroup(): GroupModel?
             = navController.currentBackStackEntry?.savedStateHandle?.get<GroupModelParcel?>(Constants.ARG_GROUP)?.toGroupModel()
@@ -123,12 +130,6 @@ class HistoryInputFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        selectedType = requireArguments().getHistoryType(ARG_HISTORY_TYPE)!!
-        prepareDateInput()
-        prepareType(selectedType)
-        prepareSourceInput(selectedType)
-        prepareDestinationInput(selectedType)
-        prepareGroupInput(selectedType)
         binding.btnSave.setOnClickListener { onClickSave() }
         binding.btnCancel.setOnClickListener { onClickCancel() }
         lifecycleScope.launch {
@@ -140,158 +141,36 @@ class HistoryInputFragment : Fragment() {
         if (isActionEdit()) {
             val history = viewModel.getStoredHistory()
             if (history == null) {
-                val id = requireArguments().getLong(Constants.ARG_ID)
-                val type = requireArguments().getHistoryType(ARG_HISTORY_TYPE)!!
-                viewModel.findHistory(id,type).observe(viewLifecycleOwner, this::onHistoryLoaded)
+                viewModel.findHistory(getArgId(),getArgType()).observe(viewLifecycleOwner, this::onHistoryLoaded)
             }
-        }
-    }
-
-    private fun onHistoryLoaded(history: HistoryModel?) {
-        if (null == history) {
-            Toast.makeText(requireContext(), R.string.message_history_not_found, Toast.LENGTH_LONG).show()
-            navController.popBackStack()
         }
         else {
-            binding.inputAmount.setText(history.amount!!.toString())
-            binding.inputNote.setText(history.note)
-            setSelectedDate(history.date!!)
-            binding.inputDate.disable()
-            binding.inputSource.disable()
-            binding.inputDestination.disable()
-            val type = history.type!!
-            if (type.needsSourceAccount()) {
-                showSourceAccount(history.primaryAccount,false)
-                binding.sourceLayout.visible()
-            }
-            if (type.needsDestinationAccount()) {
-                showDestinationAccount(history.secondaryAccount, false)
-                binding.destinationLayout.visible()
-            }
-            if (type.needsGroup()) {
-                showGroup(history.group, false)
-                binding.selectedGroupContainer.visible()
-            }
-            viewModel.historyLiveData.removeObservers(viewLifecycleOwner)
+            val type = getArgType()
+            val history = HistoryModel(
+                getArgId(),
+                type,
+                getArgAccount()?.id,
+                null,
+                getArgGroup()?.id,
+                getArgAccount()?.toAccountModel(),
+                null,
+                getArgGroup()?.toGroupModel(),
+                0f,
+                getArgDate(),
+                type.name
+            )
+            prepare(history)
         }
     }
 
-    private fun prepareType(type: HistoryType) {
-        var text: String? = null
-        var backgroundColor: ColorStateList? = null
-        val resources = requireContext().resources
-        when(type) {
-            HistoryType.CREDIT -> {
-                text = getString(R.string.label_history_type_credit)
-                backgroundColor = ColorStateList.valueOf(resources.getColor(R.color.colorCredit, null))
-            }
-            HistoryType.DEBIT -> {
-                text = getString(R.string.label_history_type_debit)
-                backgroundColor = ColorStateList.valueOf(resources.getColor(R.color.colorDebit, null))
-            }
-            HistoryType.TRANSFER -> {
-                text = getString(R.string.label_history_type_transfer)
-                backgroundColor = ColorStateList.valueOf(resources.getColor(R.color.colorTransfer, null))
-            }
-        }
-        binding.type.text = text
-        binding.type.chipBackgroundColor = backgroundColor
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
-    private fun prepareDateInput() {
-        val history = viewModel.getStoredHistory()
-        if (null != history) {
-            setSelectedDate(history.date!!)
-            binding.inputDate.disable()
-        }
-        else if (hasArgument(ARG_HISTORY_DATE)) {
-            val date = requireArguments().getDate(ARG_HISTORY_DATE)!!
-            setSelectedDate(date)
-            binding.inputDate.disable()
-        }
-        else {
-            val date = Date()
-            setSelectedDate(date)
-            binding.inputDate.setOnClickListener{ onClickInputDate(selectedDate) }
-        }
-    }
-
-    private fun prepareSourceInput(type: HistoryType) {
-        if (type.needsSourceAccount()) {
-            val history = viewModel.getStoredHistory()
-            if (null != history) {
-                showSourceAccount(history.primaryAccount,false)
-                binding.inputSource.disable()
-            }
-            else if (hasArgument(Constants.ARG_ACCOUNT)) {
-                val source = getArgAccount()?.toAccountModel()
-                source?.let {
-                    showSourceAccount(source, false)
-                    binding.inputSource.disable()
-                }
-            }
-            else {
-                getSelectedAccountLiveData(ARG_SOURCE)?.observe(viewLifecycleOwner) { showSourceAccount(it?.toAccountModel()) }
-                binding.inputSource.setOnClickListener{
-                    val args = Bundle().apply {
-                        putString(Constants.ARG_DESTINATION_LABEL, getString(R.string.title_choose_source_account))
-                        putString(Constants.ARG_RESULT_KEY, ARG_SOURCE)
-                        getSelectedAccount(ARG_SOURCE)?.let { putLong(Constants.ARG_INITIAL_SELECTION, it.id!!) }
-                    }
-                    navController.navigate(R.id.action_create_history_to_account_picker, args)
-                }
-            }
-            binding.sourceLayout.visible()
-        }
-    }
-
-    private fun prepareDestinationInput(type: HistoryType) {
-        if (type.needsDestinationAccount()) {
-            val history = viewModel.getStoredHistory()
-            if (null != history) {
-                showDestinationAccount(history.secondaryAccount, false)
-                binding.inputDestination.disable()
-            }
-            else {
-                getSelectedAccountLiveData(ARG_DESTINATION)?.observe(viewLifecycleOwner){ showDestinationAccount(it?.toAccountModel())}
-                binding.inputDestination.setOnClickListener{
-                    navController.navigate(R.id.action_create_history_to_account_picker, Bundle().apply {
-                        putString(Constants.ARG_DESTINATION_LABEL, getString(R.string.title_choose_destination_account))
-                        putString(Constants.ARG_RESULT_KEY, ARG_DESTINATION)
-                        getSelectedAccount(ARG_DESTINATION)?.let { putLong(Constants.ARG_INITIAL_SELECTION, it.id!!) }
-                    })
-                }
-            }
-            binding.destinationLayout.visible()
-        }
-    }
-
-    private fun prepareGroupInput(type: HistoryType) {
-        if (type.needsGroup()) {
-            val history = viewModel.getStoredHistory()
-            if (null != history) {
-                showGroup(history.group, false)
-                binding.inputGroup.disable()
-            }
-            else if (hasArgument(Constants.ARG_GROUP)) {
-                val group = getArgGroup()?.toGroupModel()
-                group?.let {
-                    showGroup(it, false)
-                    binding.inputGroup.disable()
-                }
-            }
-            else {
-                getSelectedGroupLiveData()?.observe(viewLifecycleOwner) { showGroup(it?.toGroupModel())}
-                binding.inputGroup.setOnClickListener {
-                    navController.navigate(R.id.action_create_history_to_group_picker, Bundle().apply {
-                        putString(Constants.ARG_RESULT_KEY, Constants.ARG_GROUP)
-                        getSelectedGroup()?.let { putLong(Constants.ARG_INITIAL_SELECTION, it.id!!) }
-                    })
-                }
-            }
-            binding.groupLayout.visible()
-        }
-    }
+    /////////////////////////////////////////////////////////////////
+    ///                     Event Handler                        ///
+    ///////////////////////////////////////////////////////////////
 
     private fun onClickSave() {
         val history = getInputHistory()
@@ -332,15 +211,15 @@ class HistoryInputFragment : Fragment() {
         val date = selectedDate
         val amount = binding.inputAmount.text.toString().toFloatOrNull()
         val note = binding.inputNote.text.toString()
-        val groupId: Long? = getSelectedGroup()?.id ?: getArgGroup()?.id
         return if (isActionEdit()) {
             viewModel.getStoredHistory()!!.copy(
-                type=type, date=date, amount=amount, note=note, groupId=groupId
+                type=type, date=date, amount=amount, note=note
             )
         }
         else {
             var srcAccountId: Long? = getSelectedAccount(ARG_SOURCE)?.id
             var destAccountId: Long? = getSelectedAccount(ARG_DESTINATION)?.id
+            val groupId: Long? = getSelectedGroup()?.id ?: getArgGroup()?.id
             if (null == srcAccountId && type.needsSourceAccount() && hasArgument(Constants.ARG_ACCOUNT)) {
                 srcAccountId = getArgAccount()?.id
             }
@@ -351,6 +230,24 @@ class HistoryInputFragment : Fragment() {
                 null,type, srcAccountId,destAccountId,groupId,null,null,null, amount,date,note
             )
         }
+    }
+
+    private fun onClickCancel() {
+        navController.popBackStack()
+    }
+
+    /////////////////////////////////////////////////////////////////
+    ///              Background Response Handlers                ///
+    ///////////////////////////////////////////////////////////////
+
+    private fun onHistoryLoaded(history: HistoryModel?) {
+        if (null == history) {
+            Toast.makeText(requireContext(), R.string.message_history_not_found, Toast.LENGTH_LONG).show()
+            navController.popBackStack()
+            return
+        }
+        prepare(history)
+        viewModel.historyLiveData.removeObservers(viewLifecycleOwner)
     }
 
     private fun onSave(result: OperationResult<HistoryModel>?) {
@@ -376,56 +273,179 @@ class HistoryInputFragment : Fragment() {
         }
     }
 
-    private fun onClickCancel() {
-        navController.popBackStack()
+    /////////////////////////////////////////////////////////////////
+    ///                     Prepare Methods                      ///
+    ///////////////////////////////////////////////////////////////
+
+    private fun prepare(history: HistoryModel) {
+        val type = history.type!!
+        val date = history.date
+        prepareDate(date, null == date)
+        prepareType(type)
+        prepareAmount(history.amount!!)
+        prepareNote(history.note)
+        preparePrimaryAccount(history.primaryAccount,type)
+        prepareSecondaryAccount(history.secondaryAccount, type)
+        prepareGroup(history.group,type)
+    }
+
+    private fun prepareDate(date: Date?, enabled: Boolean = true) {
+        binding.inputDate.isEnabled = enabled
+        updateDate(date ?: Date())
+        if (enabled) {
+            binding.inputDate.setOnClickListener { onClickInputDate(selectedDate) }
+        }
     }
 
     private fun onClickInputDate(date: Date) {
         val datePicker = DatePickerDialog(requireContext(), { _, year, month, day ->
             val newDate = Date(year, month, day)
-            setSelectedDate(newDate)
+            updateDate(newDate)
         }, date.year, date.month, date.dayOfMonth)
         datePicker.show()
     }
 
-    private fun setSelectedDate(date: Date) {
-        selectedDate = date
+    private fun prepareType(type: HistoryType) {
+        val view = binding.type
+        view.chipBackgroundColor = type.getBackgroundColor(requireContext())
+        view.setTextColor(type.getColorOnBackground(requireContext()))
+        view.text = type.getLabel(requireContext())
+        selectedType = type
+    }
+
+    private fun prepareAmount(amount: Float) {
+        binding.inputAmount.setText(amount.toString())
+    }
+
+    private fun prepareNote(note: String?) {
+        binding.inputNote.setText(note)
+    }
+
+    private fun preparePrimaryAccount(account: AccountModel?, type: HistoryType) {
+        binding.labelSourceAccount.text = when(type) {
+            HistoryType.CREDIT -> getString(R.string.label_history_input_destination_account)
+            else -> getString(R.string.label_history_input_source_account)
+        }
+        if (null != account) {
+            // primary account available, update the chip
+            updatePrimaryAccountChip(account, false)
+        }
+        else if (!isActionEdit()) {
+            // primary account not available and it is create action, observe primary account selection
+            binding.inputSource.visible()
+            binding.inputSource.setOnClickListener {
+                navController.navigate(R.id.action_create_history_to_account_picker,Bundle().apply {
+                    putString(Constants.ARG_RESULT_KEY, ARG_SOURCE)
+                    putLong(Constants.ARG_INITIAL_SELECTION, getSelectedAccount(ARG_SOURCE)?.id ?: 0)
+                })
+            }
+            getSelectedAccountLiveData(ARG_SOURCE).observe(viewLifecycleOwner) { selectedPrimary ->
+                updatePrimaryAccountChip(selectedPrimary?.toAccountModel())
+            }
+        }
+        else {
+            // it is edit action but primary account not found, may be deleted, show some placeholder
+            // TODO: show a placeholder account in history input for primary account
+        }
+    }
+
+    private fun prepareSecondaryAccount(account: AccountModel?, type: HistoryType) {
+        if (type.needsSecondaryAccount()) {
+            if (null != account) {
+                // secondary account available, update the chip
+                updateSecondaryAccountChip(account, false)
+            }
+            else if (!isActionEdit()) {
+                // secondary account not available and it is create action, observe secondary account selection
+                binding.inputDestination.visible()
+                binding.inputDestination.setOnClickListener {
+                    navController.navigate(R.id.action_create_history_to_account_picker,Bundle().apply {
+                        putString(Constants.ARG_RESULT_KEY, ARG_DESTINATION)
+                        putLong(Constants.ARG_INITIAL_SELECTION, getSelectedAccount(ARG_DESTINATION)?.id ?: 0)
+                    })
+                }
+                getSelectedAccountLiveData(ARG_DESTINATION).observe(viewLifecycleOwner) { selectedSecondary ->
+                    updateSecondaryAccountChip(selectedSecondary?.toAccountModel())
+                }
+            }
+            else {
+                // it is edit action but primary account not found, may be deleted, show some placeholder
+                // TODO: show a placeholder account in history input for primary account
+            }
+            binding.destinationLayout.visible()
+        }
+    }
+
+    private fun prepareGroup(group: GroupModel?, type: HistoryType) {
+        if (type.needsGroup()) {
+            if (null != group) {
+                // group is available, update the chip and don't allow group picking
+                updateGroupChip(group, false)
+            }
+            else if (!isActionEdit()) {
+                // group is not available and it is create action, observer the group selection
+                binding.inputGroup.visible()
+                binding.inputGroup.setOnClickListener {
+                    navController.navigate(R.id.action_create_history_to_group_picker,Bundle().apply {
+                        putString(Constants.ARG_RESULT_KEY, Constants.ARG_GROUP)
+                        putLong(Constants.ARG_ID, getSelectedGroup()?.id ?: 0)
+                    })
+                }
+                getSelectedGroupLiveData().observe(viewLifecycleOwner) { selectedGroup ->
+                    updateGroupChip(selectedGroup?.toGroupModel())
+                }
+            }
+            else {
+                // it is edit action but group not found, may be deleted, show some placeholder
+                // TODO: show a placeholder group in history input
+            }
+            binding.groupLayout.visible()
+        }
+    }
+
+    /////////////////////////////////////////////////////////////////
+    ///                     Update Methods                       ///
+    ///////////////////////////////////////////////////////////////
+
+    private fun updateDate(date: Date) {
         binding.inputDate.text = date.format(HISTORY_INPUT_DATE_FORMAT)
+        selectedDate = date
     }
 
-    private fun showSourceAccount(account: AccountModel?, enabled: Boolean = true) {
-        createChip(binding.selectedSourceContainer, account,
-            { createInputChip(requireContext(), it.name!!, true) }, { removeSelectedAccount(ARG_SOURCE) }, enabled)
+    private fun updatePrimaryAccountChip(account: AccountModel?, cancelable: Boolean = true) {
+        val container = binding.selectedSourceContainer
+        createChip(container,account,{
+            createInputChip(container, it.name!!, cancelable)
+        }, cancelable, { removeSelectedAccount(ARG_SOURCE)})
     }
 
-    private fun showDestinationAccount(account: AccountModel?, enabled: Boolean = true) {
-        createChip(binding.selectedDestinationContainer, account,
-            { createInputChip(requireContext(), it.name!!, true) }, { removeSelectedAccount(ARG_DESTINATION) }, enabled)
+    private fun updateSecondaryAccountChip(account: AccountModel?, cancelable: Boolean = true) {
+        val container = binding.selectedDestinationContainer
+        createChip(container,account,{
+            createInputChip(container, it.name!!, cancelable)
+        }, cancelable, { removeSelectedAccount(ARG_DESTINATION)})
     }
 
-    private fun showGroup(group: GroupModel?, enabled: Boolean = true) {
-        createChip(binding.selectedGroupContainer, group,
-            { createInputChip(requireContext(), it.name!!, true) }, { removeSelectedGroup() }, enabled)
+    private fun updateGroupChip(group: GroupModel?, cancelable: Boolean = true) {
+        val container = binding.selectedGroupContainer
+        createChip(container, group, {
+            createInputChip(container, it.name!!, cancelable)
+        }, cancelable, { removeSelectedGroup() })
     }
 
-    private fun <T> createChip(container: ViewGroup, data: T?, chipFactory: (T)->Chip, onRemove: ()->Unit, enabled: Boolean): Chip? {
-        Log.d(TAG, "createChip data=$data enabled=$enabled")
+    private fun <T> createChip(container: ViewGroup, data: T?, chipFactory: (T)->Chip, cancelable: Boolean = true, onRemove: (()->Unit)? = null): Chip? {
         container.removeAllViews()
         data?.let {
             val chip = chipFactory.invoke(it)
-            chip.setOnClickListener {
-                container.removeView(chip)
-                onRemove()
+            if (cancelable) {
+                chip.setOnClickListener {
+                    container.removeView(chip)
+                    onRemove?.invoke()
+                }
             }
-            chip.isEnabled = enabled
             container.addView(chip)
             return@createChip chip
         }
         return null
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 }
