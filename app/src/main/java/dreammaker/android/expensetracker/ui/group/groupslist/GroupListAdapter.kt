@@ -2,12 +2,14 @@ package dreammaker.android.expensetracker.ui.group.groupslist
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.text.buildSpannedString
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import dreammaker.android.expensetracker.database.GroupModel
 import dreammaker.android.expensetracker.databinding.GroupListItemBinding
 import dreammaker.android.expensetracker.ui.util.BaseSelectableItemListAdapter
 import dreammaker.android.expensetracker.ui.util.ClickableViewHolder
+import dreammaker.android.expensetracker.ui.util.getBalanceLabel
 import dreammaker.android.expensetracker.ui.util.getBalanceText
 
 class GroupsListViewHolder(
@@ -24,7 +26,11 @@ class GroupsListViewHolder(
         }
         else {
             binding.name.text = group.name
-            binding.balance.text = group.getBalanceText(context)
+            binding.balance.text = buildSpannedString {
+                append(group.getBalanceLabel(context))
+                append(" ")
+                append(group.getBalanceText(context)) // TODO: add country code and locale
+            }
             binding.root.isSelected = selected
         }
     }

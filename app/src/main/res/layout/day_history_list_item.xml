@@ -7,6 +7,34 @@
     android:paddingTop="12dp">
 
     <TextView
+        android:id="@+id/note"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:layout_marginStart="12dp"
+        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/amount"
+        app:layout_constraintBottom_toBottomOf="@id/amount"
+        app:layout_constraintEnd_toStartOf="@id/amount"
+        tools:text="THE DESCRIPTION ABOUT THE TRANSACTION WILL BE HERE" />
+
+    <TextView
+        android:id="@+id/amount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:singleLine="true"
+        android:layout_marginEnd="12dp"
+        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+        android:textStyle="bold"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:text="$200.00" />
+
+    <TextView
         android:id="@+id/destination"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -19,41 +47,9 @@
         android:textAppearance="@style/TextAppearance.Material3.BodySmall"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/source"
+        app:layout_constraintTop_toBottomOf="@id/note"
         tools:visibility="visible"
         tools:text="THIS IS VERY LONG PERSON NAME THAT MAY NOT FIT THE GIVE AREA" />
-
-    <TextView
-        android:id="@+id/amount"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:singleLine="true"
-        android:layout_marginTop="12dp"
-        android:layout_marginEnd="12dp"
-        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-        android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/type"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:text="$200.00" />
-
-    <TextView
-        android:id="@+id/type"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:singleLine="true"
-        android:background="@drawable/history_list_item_history_type_background"
-        android:layout_marginEnd="12dp"
-        android:paddingStart="8dp"
-        android:paddingEnd="8dp"
-        android:paddingTop="4dp"
-        android:paddingBottom="4dp"
-        android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-        android:textStyle="normal"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:backgroundTint="@color/colorCredit"
-        tools:textColor="@color/colorOnCredit"
-        tools:text="Credit" />
 
     <TextView
         android:id="@+id/source"
@@ -64,29 +60,33 @@
         android:singleLine="true"
         android:layout_marginStart="12dp"
         android:layout_marginEnd="12dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="8dp"
         android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-        app:layout_constraintTop_toBottomOf="@id/amount"
+        app:layout_constraintTop_toBottomOf="@id/destination"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         tools:visibility="visible"
         tools:text="TOO MUCH LONG NAME OF AN ACCOUNT" />
 
     <TextView
-        android:id="@+id/note"
-        android:layout_width="0dp"
+        android:id="@+id/type"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:ellipsize="end"
         android:singleLine="true"
+        android:background="@drawable/history_list_item_history_type_background"
         android:layout_marginStart="12dp"
-        android:layout_marginEnd="12dp"
-        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-        android:textStyle="bold"
+        android:layout_marginTop="8dp"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
+        android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
+        android:textStyle="normal"
+        app:layout_constraintTop_toBottomOf="@id/source"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/amount"
-        app:layout_constraintBottom_toBottomOf="@id/amount"
-        app:layout_constraintEnd_toStartOf="@id/amount"
-        tools:text="THE DESCRIPTION ABOUT THE TRANSACTION WILL BE HERE" />
+        tools:backgroundTint="@color/colorCredit"
+        tools:textColor="@color/colorOnCredit"
+        tools:text="Credit" />
 
     <TextView
         android:id="@+id/group"
@@ -96,28 +96,29 @@
         android:ellipsize="end"
         android:singleLine="true"
         android:background="@drawable/history_list_item_history_group_background"
-        android:layout_marginStart="12dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         android:paddingStart="8dp"
-        android:paddingEnd="8dp"
+        android:paddingEnd="12dp"
         android:paddingTop="4dp"
         android:paddingBottom="4dp"
         android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
         android:textStyle="normal"
         android:textColor="?attr/colorOnSecondary"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/type"
+        app:layout_constraintTop_toBottomOf="@id/source"
+        app:layout_constraintStart_toEndOf="@id/type"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0"
         app:layout_constrainedWidth="true"
         tools:visibility="visible"
         tools:text="Thailand Trip" />
 
     <com.google.android.material.divider.MaterialDivider
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginTop="16dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         app:lastItemDecorated="false"
-        app:layout_constraintTop_toBottomOf="@id/destination"
+        app:layout_constraintTop_toBottomOf="@id/group"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"/>

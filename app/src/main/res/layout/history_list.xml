@@ -103,7 +103,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            tools:visibility="visible"
+            tools:visibility="invisible"
             tools:listitem="@layout/month_history_list_item"/>
 
         <TextView
@@ -114,10 +114,11 @@
             android:layout_marginTop="96dp"
             android:padding="16dp"
             app:drawableTopCompat="@drawable/ic_history_36"
-            android:drawablePadding="16dp"
+            android:drawablePadding="12dp"
+            app:drawableTint="?android:attr/textColorSecondary"
+            android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
             android:text="@string/label_empty_history_list"
-            android:textAppearance="@style/TextAppearance.Material3.HeadlineMedium"
-            android:textStyle="italic"
+            android:textColor="?android:attr/textColorSecondary"
             app:layout_constraintTop_toBottomOf="@id/summery_container"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />

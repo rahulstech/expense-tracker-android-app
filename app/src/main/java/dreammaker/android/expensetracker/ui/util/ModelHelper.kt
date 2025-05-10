@@ -113,6 +113,9 @@ fun Bundle.getHistoryType(key: String, defaultType: HistoryType? = null): Histor
     return if (null == name) defaultType else HistoryType.valueOf(name)
 }
 
+/**
+ * HistoryType Extension Method
+ */
 fun HistoryType.needsSecondaryAccount(): Boolean = this == HistoryType.TRANSFER
 
 fun HistoryType.getLabel(context: Context): CharSequence {
@@ -148,6 +151,10 @@ fun HistoryModel.getNonEmptyNote(context: Context): CharSequence {
     return note!!
 }
 
+/**
+ * AccountModel Extension Methods
+ */
+
 fun AccountModel.getBalanceText(context: Context, currencyCode: String = "USD", locale: Locale = Locale.ENGLISH): CharSequence {
     val balance = balance ?: 0f
     val balanceText = balance.toCurrencyString(currencyCode,locale)
@@ -166,24 +173,32 @@ fun AccountModel.getBalanceText(context: Context, currencyCode: String = "USD", 
     }
 }
 
+/**
+ * Group Model Extension Methods
+ */
+
 fun GroupModel.getBalanceText(context: Context, currencyCode: String = "USD", locale: Locale = Locale.ENGLISH): CharSequence {
     val balance = balance ?: 0f
     val balanceText = balance.absoluteValue.toCurrencyString(currencyCode,locale)
-    return if (balance > 0) {
+    val coloredBalanceText = if (balance > 0) {
         buildSpannedString {
-            append(context.getString(R.string.label_unsetteled))
-            append(" ")
             color(ResourcesCompat.getColor(context.resources,R.color.colorDebit, context.theme)) { append(balanceText) }
         }
     }
     else if (balance < 0) {
         buildSpannedString {
-            append(context.getString(R.string.label_surplus))
-            append(" ")
             color(ResourcesCompat.getColor(context.resources,R.color.colorCredit, context.theme)) { append(balanceText) }
         }
     }
     else {
         balanceText
     }
+    return coloredBalanceText
+}
+
+fun GroupModel.getBalanceLabel(context: Context): CharSequence {
+    val balance = balance ?: 0f
+    return if (balance > 0) context.getString(R.string.label_unsetteled)
+    else if (balance < 0) context.getString(R.string.label_surplus)
+    else ""
 }

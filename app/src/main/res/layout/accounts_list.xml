@@ -13,20 +13,20 @@
 		app:layout_anchor="@id/add"
 		app:layout_anchorGravity="top"
 		tools:listitem="@layout/account_list_item"
-		tools:itemCount="20"
-		tools:visibility="visible"/>
+		tools:itemCount="20"/>
 
 	<TextView
 		android:id="@+id/empty_view"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="center"
-		android:padding="24dp"
-		android:drawablePadding="16dp"
+		android:padding="16dp"
+		app:drawableTopCompat="@drawable/ic_account_black_36"
+		android:drawablePadding="8dp"
+		app:drawableTint="?android:attr/textColorSecondary"
 		android:text="@string/label_empty_account_list"
-		app:drawableTopCompat="@drawable/ic_account_black"
-		android:textAppearance="@style/TextAppearance.Material3.DisplaySmall"
-		android:textStyle="italic"/>
+		android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+		android:textColor="?android:attr/textColorSecondary"/>
 
 	<com.google.android.material.button.MaterialButton
 		android:id="@+id/add"

@@ -248,6 +248,10 @@
 	<string name="label_surplus">Surplus</string>
 	<string name="label_total_credit">Total Credit</string>
 	<string name="label_total_debit">Total Debit</string>
+    <string name="label_empty_recent_account_list">No Recent Account</string>
+	<string name="description_empty_recent_account_list">add account histories to see latest used account.up to 3 latest used accounts will show here</string>
+	<string name="label_empty_recent_group_list">No Recent Group</string>
+	<string name="description_empty_recent_group_list">add group histories to see latest used group. up to 3 latest used groups will show here.</string>
 
 	<plurals name="warning_delete_accounts">
 		<item quantity="one">%1$s will be deleted permanently. Do you want to proceed?</item>

@@ -16,18 +16,19 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/btn_goto_present"
         app:layout_constraintHorizontal_chainStyle="packed"
-        tools:text="Mar 2025"/>
+        tools:text="Sat, 10-May-2025"/>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_goto_present"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
         style="@style/Widget.AppTheme.Button.DatePicker"
         app:layout_constraintStart_toEndOf="@id/btn_picker"
         app:layout_constraintTop_toTopOf="@id/btn_picker"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_chainStyle="packed"
-        tools:text="This Month"/>
+        tools:text="Today"/>
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/history_view_pager"

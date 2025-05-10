@@ -54,17 +54,19 @@ open class PickHistoryAccountFragment : Fragment() {
     private fun prepareSelectionStore(adapter: AccountPickerListAdapter) {
         selectionStore = viewModel.accountSelectionStore
             ?: SelectionStore<Long>(SelectionMode.SINGLE).apply { setInitialKey(getInitialSelection()) }
-        selectionStore.itemSelectionListener = { _,_,_,_ ->
-            if (selectionStore.hasSelection()) {
-                binding.btnChoose.visible()
-            }
-            else {
-                binding.btnChoose.visibilityGone()
-            }
-        }
+        selectionStore.itemSelectionListener = { _,_,_,_ -> togglePickerButton() }
         selectionStore.selectionProvider = adapter
         viewModel.accountSelectionStore = selectionStore
         adapter.selectionStore = selectionStore
+    }
+
+    private fun togglePickerButton() {
+        if (selectionStore.hasSelection()) {
+            binding.btnChoose.visible()
+        }
+        else {
+            binding.btnChoose.visibilityGone()
+        }
     }
 
     protected open fun getInitialSelection(): Long? {

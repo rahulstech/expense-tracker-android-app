@@ -55,17 +55,19 @@ open class PickHistoryGroupFragment : Fragment() {
     private fun prepareSelectionStore(adapter: GroupPickerListAdapter) {
         selectionStore = viewModel.groupSelectionStore
             ?: SelectionStore<Long>(SelectionMode.SINGLE).apply { setInitialKey(getInitialSelection()) }
-        selectionStore.itemSelectionListener = { _,_,_,_ ->
-            if (selectionStore.hasSelection()) {
-                binding.btnChoose.show()
-            }
-            else {
-                binding.btnChoose.hide()
-            }
-        }
+        selectionStore.itemSelectionListener = { _,_,_,_ -> toggleChooserButtonVisibility() }
         selectionStore.selectionProvider = adapter
         viewModel.groupSelectionStore = selectionStore
         adapter.selectionStore = selectionStore
+    }
+
+    private fun toggleChooserButtonVisibility() {
+        if (selectionStore.hasSelection()) {
+            binding.btnChoose.visible()
+        }
+        else {
+            binding.btnChoose.visibilityGone()
+        }
     }
 
     protected open fun getInitialSelection(): Long? {

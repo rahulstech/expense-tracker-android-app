@@ -19,22 +19,20 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:padding="24dp"
+        android:padding="16dp"
         android:drawablePadding="8dp"
-        app:drawableTopCompat="@drawable/ic_account_black"
+        app:drawableTopCompat="@drawable/ic_account_black_36"
+        app:drawableTint="?android:attr/textColorSecondary"
         android:text="@string/no_account"
-        android:textAppearance="@style/TextAppearance.Material3.DisplaySmall"
-        android:textStyle="italic"
-        />
+        android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+        android:textColor="?android:attr/textColorSecondary"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btnChoose"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:visibility="gone"
         style="@style/Widget.AppTheme.FloatingActionButton"
         app:srcCompat="@drawable/baseline_check"
-        tools:visibility="visible"
         tools:ignore="ContentDescription" />
 </FrameLayout>

@@ -26,6 +26,7 @@ import dreammaker.android.expensetracker.ui.history.historyinput.HistoryInputFra
 import dreammaker.android.expensetracker.ui.util.Constants
 import dreammaker.android.expensetracker.ui.util.GroupModelParcel
 import dreammaker.android.expensetracker.ui.util.OperationResult
+import dreammaker.android.expensetracker.ui.util.getBalanceLabel
 import dreammaker.android.expensetracker.ui.util.getBalanceText
 import dreammaker.android.expensetracker.ui.util.isVisible
 import dreammaker.android.expensetracker.ui.util.putHistoryType
@@ -86,6 +87,7 @@ class ViewGroupFragment: Fragment(), MenuProvider {
         else {
             binding.name.text = group.name
             binding.balance.text = group.getBalanceText(requireContext())
+            binding.balanceLabel.text = group.getBalanceLabel(requireContext())
             requireActivity().invalidateOptionsMenu()
         }
     }
