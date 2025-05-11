@@ -24,14 +24,14 @@
     <TextView
         android:id="@+id/text1"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="38dp"
         android:layout_marginTop="8dp"
         android:maxLines="2"
         android:ellipsize="end"
-        android:gravity="center"
+        android:gravity="top|center_horizontal"
         android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
         android:textStyle="bold"
-        tools:text="John John John John Doe"/>
+        tools:text="John Doe Junior"/>
 
     <TextView
         android:id="@+id/text2"

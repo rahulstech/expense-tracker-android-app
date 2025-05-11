@@ -218,15 +218,14 @@
 
     </androidx.core.widget.NestedScrollView>
 
-    <com.google.android.material.circularreveal.cardview.CircularRevealCardView
+    <androidx.cardview.widget.CardView
         android:id="@+id/buttons_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
         android:layout_marginBottom="70dp"
-        app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.Small"
-        app:cardElevation="2dp"
-        app:strokeWidth="0dp"
+        app:cardCornerRadius="8dp"
+        app:cardBackgroundColor="?attr/colorPrimaryContainer"
         android:visibility="gone"
         tools:visibility="visible">
 
@@ -269,7 +268,7 @@
                 app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.Small"/>
 
         </LinearLayout>
-    </com.google.android.material.circularreveal.cardview.CircularRevealCardView>
+    </androidx.cardview.widget.CardView>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/add_history"

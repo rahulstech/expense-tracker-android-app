@@ -23,9 +23,9 @@ import dreammaker.android.expensetracker.databinding.RecentItemViewBinding
 import dreammaker.android.expensetracker.ui.history.historyinput.HistoryInputFragment
 import dreammaker.android.expensetracker.ui.util.Constants
 import dreammaker.android.expensetracker.ui.util.getBalanceText
-import dreammaker.android.expensetracker.ui.util.isVisible
 import dreammaker.android.expensetracker.ui.util.putHistoryType
 import dreammaker.android.expensetracker.ui.util.toCurrencyString
+import dreammaker.android.expensetracker.ui.util.toggleAddButtonButtons
 import dreammaker.android.expensetracker.ui.util.visibilityGone
 import dreammaker.android.expensetracker.ui.util.visible
 
@@ -56,15 +56,7 @@ class HomeFragment: Fragment()  {
         binding.btnViewAllGroups.setOnClickListener {
             navController.navigate(R.id.action_home_to_groups_list)
         }
-        binding.addHistory.setOnClickListener {
-            val target = binding.buttonsLayout
-            if (target.isVisible()) {
-                target.visibilityGone()
-            }
-            else {
-                target.visible()
-            }
-        }
+        binding.addHistory.setOnClickListener { toggleAddButtonButtons(binding.buttonsLayout) }
         binding.btnAddCredit.setOnClickListener { navigateToCreateHistory(HistoryType.CREDIT) }
         binding.btnAddDebit.setOnClickListener { navigateToCreateHistory(HistoryType.DEBIT) }
 

@@ -28,10 +28,8 @@ import dreammaker.android.expensetracker.ui.util.Constants
 import dreammaker.android.expensetracker.ui.util.OperationResult
 import dreammaker.android.expensetracker.ui.util.getBalanceText
 import dreammaker.android.expensetracker.ui.util.hasArgument
-import dreammaker.android.expensetracker.ui.util.isVisible
 import dreammaker.android.expensetracker.ui.util.putHistoryType
-import dreammaker.android.expensetracker.ui.util.visibilityGone
-import dreammaker.android.expensetracker.ui.util.visible
+import dreammaker.android.expensetracker.ui.util.toggleAddButtonButtons
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -63,15 +61,7 @@ class ViewAccountFragment: Fragment(), MenuProvider {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        binding.addHistory.setOnClickListener {
-            val target = binding.buttonsLayout
-            if (target.isVisible()) {
-                target.visibilityGone()
-            }
-            else {
-                target.visible()
-            }
-        }
+        binding.addHistory.setOnClickListener { toggleAddButtonButtons(binding.buttonsLayout) }
         binding.btnAddCredit.setOnClickListener { navigateToCreateHistory(HistoryType.CREDIT) }
         binding.btnAddDebit.setOnClickListener { navigateToCreateHistory(HistoryType.DEBIT) }
         binding.btnAddTransfer.setOnClickListener { navigateToCreateHistory(HistoryType.TRANSFER) }

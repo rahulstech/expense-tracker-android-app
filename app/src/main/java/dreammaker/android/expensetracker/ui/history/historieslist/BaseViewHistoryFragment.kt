@@ -19,10 +19,8 @@ import dreammaker.android.expensetracker.ui.history.historyinput.HistoryInputFra
 import dreammaker.android.expensetracker.ui.util.AccountModelParcel
 import dreammaker.android.expensetracker.ui.util.Constants
 import dreammaker.android.expensetracker.ui.util.GroupModelParcel
-import dreammaker.android.expensetracker.ui.util.isVisible
 import dreammaker.android.expensetracker.ui.util.putHistoryType
-import dreammaker.android.expensetracker.ui.util.visibilityGone
-import dreammaker.android.expensetracker.ui.util.visible
+import dreammaker.android.expensetracker.ui.util.toggleAddButtonButtons
 
 abstract class ViewHistoryPageAdapter<T>(fragmentManager: FragmentManager, lifecycle: Lifecycle)
     : FragmentStateAdapter(fragmentManager, lifecycle) {
@@ -121,15 +119,7 @@ abstract class BaseViewHistoryFragment<T>: Fragment() {
         binding.btnGotoPresent.text = getGotoPresentButtonText()
         binding.btnGotoPresent.setOnClickListener { setCurrentData(adapter.getPresentData()) }
         binding.btnPicker.setOnClickListener{ onClickDataPicker(getCurrentData()!!) }
-        binding.addHistory.setOnClickListener {
-            val target = binding.buttonsLayout
-            if (target.isVisible()) {
-                target.visibilityGone()
-            }
-            else {
-                target.visible()
-            }
-        }
+        binding.addHistory.setOnClickListener { toggleAddButtonButtons(binding.buttonsLayout) }
         binding.btnAddCredit.setOnClickListener { handleCreateHistory(HistoryType.CREDIT) }
         binding.btnAddDebit.setOnClickListener {  handleCreateHistory(HistoryType.DEBIT) }
     }
