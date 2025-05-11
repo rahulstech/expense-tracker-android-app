@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -15,10 +16,14 @@ import dreammaker.android.expensetracker.ui.util.Constants
 import dreammaker.android.expensetracker.ui.util.GroupModelParcel
 import dreammaker.android.expensetracker.ui.util.SelectionMode
 import dreammaker.android.expensetracker.ui.util.SelectionStore
+import dreammaker.android.expensetracker.ui.util.SelectionStoreViewModel
 import dreammaker.android.expensetracker.ui.util.visibilityGone
 import dreammaker.android.expensetracker.ui.util.visible
 
-open class PickHistoryGroupFragment : Fragment() {
+
+class GroupSelectionViewModel: SelectionStoreViewModel<Long>()
+
+class PickHistoryGroupFragment : Fragment() {
 
     private val TAG = PickHistoryGroupFragment::class.simpleName
 
@@ -53,29 +58,17 @@ open class PickHistoryGroupFragment : Fragment() {
     }
 
     private fun prepareSelectionStore(adapter: GroupPickerListAdapter) {
-        selectionStore = viewModel.groupSelectionStore
-            ?: SelectionStore<Long>(SelectionMode.SINGLE).apply { setInitialKey(getInitialSelection()) }
-        selectionStore.itemSelectionListener = { _,_,_,_ -> toggleChooserButtonVisibility() }
-        selectionStore.selectionProvider = adapter
-        viewModel.groupSelectionStore = selectionStore
+        val selectionViewModel = ViewModelProvider(this)[GroupSelectionViewModel::class.java]
+        selectionStore = SelectionStore(SelectionMode.SINGLE, adapter, selectionViewModel).apply { setInitialKey(getInitialSelection()) }
         adapter.selectionStore = selectionStore
     }
 
-    private fun toggleChooserButtonVisibility() {
-        if (selectionStore.hasSelection()) {
-            binding.btnChoose.visible()
-        }
-        else {
-            binding.btnChoose.visibilityGone()
-        }
-    }
-
-    protected open fun getInitialSelection(): Long? {
+    private fun getInitialSelection(): Long? {
         val accountId = arguments?.getLong(Constants.ARG_INITIAL_SELECTION)
         return accountId
     }
 
-    protected open fun onGroupsLoaded(accounts: List<GroupModel>) {
+    private fun onGroupsLoaded(accounts: List<GroupModel>) {
         adapter.submitList(accounts)
         if (accounts.isEmpty()) {
             binding.emptyPlaceholder.visibilityGone()

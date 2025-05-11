@@ -11,7 +11,6 @@ import dreammaker.android.expensetracker.database.HistoryType
 import dreammaker.android.expensetracker.ui.util.OperationResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -44,7 +43,7 @@ class HistoryInputViewModel(app: Application) : AndroidViewModel(app) {
         return historyLiveData.value
     }
 
-    private val _resultState: MutableSharedFlow<OperationResult<HistoryModel>?> = MutableStateFlow(null)
+    private val _resultState: MutableStateFlow<OperationResult<HistoryModel>?> = MutableStateFlow(null)
     val resultState: Flow<OperationResult<HistoryModel>?> = _resultState
 
     fun emptyResult() {

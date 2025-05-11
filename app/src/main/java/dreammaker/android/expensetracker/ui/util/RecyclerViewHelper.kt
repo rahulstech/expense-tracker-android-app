@@ -1,12 +1,21 @@
 package dreammaker.android.expensetracker.ui.util
 
 import android.content.Context
+import android.util.Log
 import android.view.View
 import androidx.annotation.StringRes
+import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.lang.ref.WeakReference
 
 // Item Selection
@@ -24,14 +33,56 @@ enum class SelectionMode {
     SINGLE, MULTIPLE
 }
 
-class SelectionStore<T>(val selectionMode: SelectionMode = SelectionMode.SINGLE) {
+
+abstract class SelectionStoreViewModel<T>: ViewModel() {
+
+    var selectedKey: T? = null
+    var selectedKeys: HashSet<T>? = null
+
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private var keyPositionUpdateJob: Job? = null
+
+    fun updateKeyPosition(selectionProvider: SelectionKeyProvider<T>, collector: (result: Map<T,Int>)->Unit) {
+        keyPositionUpdateJob?.cancel()
+
+        scope.launch {
+            val count = selectionProvider.count()
+            val keyPositions = HashMap<T, Int>()
+            (0..<count).forEach { position ->
+                val key = selectionProvider.getSelectionKey(position)
+                keyPositions[key] = position
+            }
+
+            withContext(Dispatchers.Main) {
+                collector(keyPositions)
+            }
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        keyPositionUpdateJob?.cancel()
+        scope.cancel()
+    }
+}
+
+class SelectionStore<T>(val selectionMode: SelectionMode = SelectionMode.SINGLE,
+                        provider: SelectionKeyProvider<T>,
+                        private val viewModel: SelectionStoreViewModel<T>) {
 
     private val TAG = SelectionStore::class.simpleName
 
-    var selectionProvider: SelectionKeyProvider<T>? = null
-    var selectedKey: T? = null
-    var selectedKeys: HashSet<T>? = null
-    private var keyPositions = HashMap<T, Int>()
+    private var selectionProviderReference = WeakReference(provider)
+    private val selectionProvider: SelectionKeyProvider<T>?
+        get() = selectionProviderReference.get()
+
+    val selectedKey: T?
+        get() = viewModel.selectedKey
+
+    val selectedKeys: Set<T>?
+        get() = viewModel.selectedKeys
+
+    private var keyPositions: Map<T,Int> = emptyMap()
 
     private var itemSelectionListenerRef = WeakReference<((SelectionStore<T>, T, Int, Boolean)->Unit)?>(null)
     var itemSelectionListener: ((SelectionStore<T>, T, Int, Boolean)->Unit)?
@@ -40,36 +91,46 @@ class SelectionStore<T>(val selectionMode: SelectionMode = SelectionMode.SINGLE)
 
     init {
         if (selectionMode == SelectionMode.MULTIPLE) {
-            selectedKeys = HashSet()
+            viewModel.selectedKeys = HashSet()
         }
     }
 
     fun updateKeyPosition() {
-        if (null == selectionProvider) {
-            throw NullPointerException("SelectionKeyProvider not set")
+        selectionProvider?.let { provider ->
+            viewModel.updateKeyPosition(provider) { this.keyPositions = it }
         }
-        val count = selectionProvider!!.count()
-        val keyPositions = HashMap<T, Int>()
-        (0..<count).forEach { position ->
-            val key = selectionProvider!!.getSelectionKey(position)
-            keyPositions[key] = position
-        }
-        this.selectedKeys?.clear()
-        this.keyPositions = keyPositions
     }
 
     fun getPosition(key: T?): Int = keyPositions[key] ?: -1
+
+    private fun addSelectedKey(key: T) {
+        if (selectionMode == SelectionMode.SINGLE) {
+            viewModel.selectedKey = key
+        }
+        else {
+            viewModel.selectedKeys?.add(key)
+        }
+    }
+
+    private fun removeSelectedKey(key: T) {
+        if (selectionMode == SelectionMode.SINGLE) {
+            viewModel.selectedKey = null
+        }
+        else {
+            viewModel.selectedKeys?.remove(key)
+        }
+    }
 
     fun changeSelection(key: T, selected: Boolean): Boolean {
         val selectionMode = this.selectionMode
         if (selectionMode == SelectionMode.SINGLE) {
             val oldKey = selectedKey
             if (selected) {
-                selectedKey = key
+                addSelectedKey(key)
                 selectionProvider?.updateSelectionState(key, true)
             }
             else {
-                selectedKey = null
+                removeSelectedKey(key)
                 selectionProvider?.updateSelectionState(key, false)
             }
             if (oldKey != key && null != oldKey) {
@@ -78,13 +139,12 @@ class SelectionStore<T>(val selectionMode: SelectionMode = SelectionMode.SINGLE)
         }
         else {
             if (selected == isSelected(key)) return false
-            val selectedKeys = this.selectedKeys
             if (selected) {
-                selectedKeys?.add(key)
+                addSelectedKey(key)
                 selectionProvider?.updateSelectionState(key, true)
             }
             else {
-                selectedKeys?.remove(key)
+                removeSelectedKey(key)
                 selectionProvider?.updateSelectionState(key, false)
             }
         }
@@ -105,7 +165,12 @@ class SelectionStore<T>(val selectionMode: SelectionMode = SelectionMode.SINGLE)
     }
 
     fun isSelected(key: T): Boolean {
-        return key == selectedKey
+        return if (selectionMode == SelectionMode.SINGLE) {
+            key == selectedKey
+        }
+        else {
+            selectedKeys?.contains(key) ?: false
+        }
     }
 
     fun hasSelection(): Boolean {
@@ -118,14 +183,25 @@ class SelectionStore<T>(val selectionMode: SelectionMode = SelectionMode.SINGLE)
     }
 
     fun setInitialKey(key: T?) {
+        Log.d(TAG, "initial-key=${key}")
         if (selectionMode == SelectionMode.SINGLE) {
-            selectedKey = key
+            viewModel.selectedKey = key
         }
     }
 
     fun setInitialKeys(keys: Collection<T>) {
-        if (selectionMode == SelectionMode.MULTIPLE) {
-            selectedKeys = HashSet(keys)
+        Log.d(TAG,"initial-keys=${keys}")
+        if (!hasSelection() && selectionMode == SelectionMode.MULTIPLE) {
+            viewModel.selectedKeys = HashSet(keys)
+        }
+    }
+
+    fun clearSelection() {
+        if (selectionMode == SelectionMode.SINGLE) {
+            viewModel.selectedKey = null
+        }
+        else {
+            viewModel.selectedKeys?.clear()
         }
     }
 }
@@ -192,7 +268,7 @@ interface ISelectableItemAdapter<KeyType> : SelectionKeyProvider<KeyType> {
     }
 
     override fun updateSelectionState(key: KeyType, selected: Boolean) {
-        val position = selectionStore?.getPosition(key) ?: -1
+        val position = selectionStore?.getPosition(key) ?: RecyclerView.NO_POSITION
         updateSelectionState(position, selected)
     }
 

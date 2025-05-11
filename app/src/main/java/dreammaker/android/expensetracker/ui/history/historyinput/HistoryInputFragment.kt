@@ -388,7 +388,7 @@ class HistoryInputFragment : Fragment() {
                 binding.inputGroup.setOnClickListener {
                     navController.navigate(R.id.action_create_history_to_group_picker,Bundle().apply {
                         putString(Constants.ARG_RESULT_KEY, Constants.ARG_GROUP)
-                        putLong(Constants.ARG_ID, getSelectedGroup()?.id ?: 0)
+                        putLong(Constants.ARG_INITIAL_SELECTION, getSelectedGroup()?.id ?: 0)
                     })
                 }
                 getSelectedGroupLiveData().observe(viewLifecycleOwner) { selectedGroup ->

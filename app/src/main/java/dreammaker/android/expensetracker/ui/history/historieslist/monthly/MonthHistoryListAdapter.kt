@@ -74,6 +74,7 @@ class MonthHistoryListAdapter
         val binding = MonthHistoryListItemBinding.inflate(inflater,parent,false)
         return MonthHistoryViewHolder(binding, this::handleItemClick)
     }
+
     override fun onBindViewHolder(holder: MonthHistoryViewHolder, position: Int) {
         val data = getItem(position)
         holder.bind(data, isSelected(position), isFirstInSection(position), isLastInSection(position))
@@ -85,7 +86,10 @@ class MonthHistoryListAdapter
 
     fun getSection(position: Int): Date? = getItem(position)?.date
 
-    fun isFirstInSection(position: Int): Boolean = position == 0 || getSection(position-1) != getSection(position)
+    fun isFirstInSection(position: Int): Boolean {
+        val v = position == 0 || getSection(position-1) != getSection(position)
+        return v;
+    }
 
     fun isLastInSection(position: Int): Boolean = position == itemCount-1 || getSection(position+1) != getSection(position)
 }

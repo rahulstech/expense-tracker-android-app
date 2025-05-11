@@ -23,7 +23,7 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
                 android:textStyle="bold"
                 android:gravity="center"
                 tools:text="John Doe" />
@@ -50,7 +50,7 @@
                 app:layout_constraintTop_toBottomOf="@id/balance"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
+                android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
                 android:gravity="center"
                 tools:text="Unsettled" />
 

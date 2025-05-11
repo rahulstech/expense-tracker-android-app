@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -15,10 +16,13 @@ import dreammaker.android.expensetracker.ui.util.AccountModelParcel
 import dreammaker.android.expensetracker.ui.util.Constants
 import dreammaker.android.expensetracker.ui.util.SelectionMode
 import dreammaker.android.expensetracker.ui.util.SelectionStore
+import dreammaker.android.expensetracker.ui.util.SelectionStoreViewModel
 import dreammaker.android.expensetracker.ui.util.visibilityGone
 import dreammaker.android.expensetracker.ui.util.visible
 
-open class PickHistoryAccountFragment : Fragment() {
+class AccountSelectionViewModel: SelectionStoreViewModel<Long>()
+
+class PickHistoryAccountFragment : Fragment() {
 
     private val TAG = PickHistoryAccountFragment::class.simpleName
 
@@ -52,29 +56,17 @@ open class PickHistoryAccountFragment : Fragment() {
     }
 
     private fun prepareSelectionStore(adapter: AccountPickerListAdapter) {
-        selectionStore = viewModel.accountSelectionStore
-            ?: SelectionStore<Long>(SelectionMode.SINGLE).apply { setInitialKey(getInitialSelection()) }
-        selectionStore.itemSelectionListener = { _,_,_,_ -> togglePickerButton() }
-        selectionStore.selectionProvider = adapter
-        viewModel.accountSelectionStore = selectionStore
+        val selectionViewModel = ViewModelProvider(this)[AccountSelectionViewModel::class.java]
+        selectionStore = SelectionStore(SelectionMode.SINGLE, adapter, selectionViewModel).apply { setInitialKey(getInitialSelection()) }
         adapter.selectionStore = selectionStore
     }
 
-    private fun togglePickerButton() {
-        if (selectionStore.hasSelection()) {
-            binding.btnChoose.visible()
-        }
-        else {
-            binding.btnChoose.visibilityGone()
-        }
-    }
-
-    protected open fun getInitialSelection(): Long? {
+    private fun getInitialSelection(): Long? {
         val accountId = arguments?.getLong(Constants.ARG_INITIAL_SELECTION)
         return accountId
     }
 
-    protected open fun onAccountsLoaded(accounts: List<AccountModel>) {
+    private fun onAccountsLoaded(accounts: List<AccountModel>) {
         adapter.submitList(accounts)
         if (accounts.isEmpty()) {
             binding.optionsList.visibilityGone()

@@ -6,7 +6,6 @@ import androidx.lifecycle.LiveData
 import dreammaker.android.expensetracker.database.AccountDao
 import dreammaker.android.expensetracker.database.AccountModel
 import dreammaker.android.expensetracker.database.ExpensesDatabase
-import dreammaker.android.expensetracker.ui.util.SelectionStore
 
 
 class AccountPickerViewModel(app: Application): AndroidViewModel(app) {
@@ -17,8 +16,6 @@ class AccountPickerViewModel(app: Application): AndroidViewModel(app) {
         val db = ExpensesDatabase.getInstance(app)
         accountDao = db.accountDao
     }
-
-    var accountSelectionStore: SelectionStore<Long>? = null
 
     private lateinit var allAccount: LiveData<List<AccountModel>>
 
