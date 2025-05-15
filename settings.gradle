@@ -1,3 +1,5 @@
 include ':app'
 rootProject.name='Expense Tracker'
 include ':database'
+include ':feature:backup-restore'
+include ':app-settings'

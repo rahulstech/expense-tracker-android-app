@@ -11,7 +11,10 @@
           <set>
             <option value="$USER_HOME$/AndroidStudioProjects/expense-tracker-android-app" />
             <option value="$USER_HOME$/AndroidStudioProjects/expense-tracker-android-app/app" />
+            <option value="$USER_HOME$/AndroidStudioProjects/expense-tracker-android-app/app-settings" />
             <option value="$USER_HOME$/AndroidStudioProjects/expense-tracker-android-app/database" />
+            <option value="$USER_HOME$/AndroidStudioProjects/expense-tracker-android-app/feature" />
+            <option value="$USER_HOME$/AndroidStudioProjects/expense-tracker-android-app/feature/backup-restore" />
           </set>
         </option>
         <option name="resolveExternalAnnotations" value="false" />

@@ -21,23 +21,34 @@ public abstract class ExpensesDatabase extends RoomDatabase
     static final int DB_VERSION = 7;
     
     private static ExpensesDatabase mExpensesDB;
+    private static final Object lock = new Object();
     
     public synchronized static ExpensesDatabase getInstance(Context context){
-        if(null == mExpensesDB){
-            mExpensesDB = Room.databaseBuilder(context.getApplicationContext(), ExpensesDatabase.class, DB_NAME)
-                    .addCallback(new Callback() {
-                        @Override
-                        public void onOpen(@NonNull SupportSQLiteDatabase db) {
-                            super.onOpen(db);
-                            db.setForeignKeyConstraintsEnabled(true);
-                        }
-                    })
-                    .addMigrations(
-                            Migrations.INSTANCE.getMIGRATION_6_7()
-                    )
-					.build();
+        synchronized (lock) {
+            if(null == mExpensesDB){
+                mExpensesDB = Room.databaseBuilder(context.getApplicationContext(), ExpensesDatabase.class, DB_NAME)
+                        .addCallback(new Callback() {
+                            @Override
+                            public void onOpen(@NonNull SupportSQLiteDatabase db) {
+                                super.onOpen(db);
+                                db.setForeignKeyConstraintsEnabled(true);
+                            }
+                        })
+                        .addMigrations(
+                                Migrations.INSTANCE.getMIGRATION_6_7()
+                        )
+                        .build();
+            }
+            return mExpensesDB;
         }
-        return mExpensesDB;
+    }
+
+    @Override
+    public void close() {
+        super.close();
+        synchronized (lock) {
+            mExpensesDB = null;
+        }
     }
 
     public abstract ExpensesDao getDao();
