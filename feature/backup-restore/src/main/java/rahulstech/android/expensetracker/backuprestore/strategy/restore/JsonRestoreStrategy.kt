@@ -1,51 +1,59 @@
 package rahulstech.android.expensetracker.backuprestore.strategy.restore
 
 import android.content.Context
+import rahulstech.android.expensetracker.backuprestore.util.AppSettingsData
 import rahulstech.android.expensetracker.backuprestore.strategy.BaseStrategy
+import rahulstech.android.expensetracker.backuprestore.worker.Constants
 import rahulstech.android.expensetracker.backuprestore.strategy.Strategy
-import rahulstech.android.expensetracker.backuprestore.strategy.Constants
 
-class JsonRestoreStrategy(context: Context): BaseStrategy(context) {
+class JsonRestoreStrategy(context: Context,
+                          override val source: JsonRestoreSource,
+                          override val destination: LocalRestoreDestination): BaseStrategy(context) {
 
     companion object {
-        const val KEY_SOURCE_FILE = "key_source_file"
+        private val TAG = JsonRestoreSource::class.simpleName
+        private const val BUFFER_SIZE = 1000
     }
 
-    private val target = JsonRestoreDestination(context)
-    private var source: JsonRestoreSource? = null
-
     override fun doPerform(params: Strategy.Parameter) {
-        val uri = params.getUri(KEY_SOURCE_FILE)
-        requireNotNull(uri) { "$KEY_SOURCE_FILE not found" }
-
-//        val input = UriInput(applicationContext.contentResolver, uri)
-//        source = JsonRestoreSource(input)
-
-        source?.apply {
-            val version = readSingle<Int>(Constants.JSON_FIELD_VERSION)
-
+        while (source.moveNext()) {
+            val name = source.nextName()
+            when(name) {
+                Constants.JSON_FIELD_ACCOUNTS -> restoreAccounts()
+                Constants.JSON_FIELD_GROUPS, Constants.JSON_FIELD_PEOPLE -> restoreGroups()
+                Constants.JSON_FIELD_HISTORIES -> restoreHistories()
+                Constants.APP_SETTINGS -> restoreAppSettings()
+                Constants.AGENT_SETTINGS -> restoreAgentSettings()
+            }
         }
     }
 
-    override fun clean() {
-        super.clean()
-        target.cleanup()
-        source?.cleanup()
+    private fun restoreAccounts() {
+        restoreAppendMultiple(Constants.EXPENSE_DB_ACCOUNTS)
     }
 
-//    private class UriInput(val contentResolver: ContentResolver, val uri: Uri): InputStreamInput {
-//
-//        private var stream: InputStream? = null
-//
-//        override fun get(): InputStream = stream!!
-//
-//        override fun create() {
-//            stream = contentResolver.openInputStream(uri)
-//        }
-//
-//        override fun destroy() {
-//            stream?.close()
-//            stream = null
-//        }
-//    }
+    private fun restoreGroups() {
+        restoreAppendMultiple(Constants.EXPENSE_DB_GROUPS)
+    }
+
+    private fun restoreHistories() {
+        restoreAppendMultiple(Constants.EXPENSE_DB_HISTORIES)
+    }
+
+    private fun restoreAppendMultiple(name: String) {
+        destination.beginAppendMultiple(name)
+        source.bufferValue(BUFFER_SIZE) { _,_,buffer -> destination.appendMultiple(name, buffer)}
+        destination.endAppendMultiple(name)
+    }
+
+    private fun restoreAppSettings() {
+        val appSettings = source.nextValue<AppSettingsData>()?.toSettingsModel()
+        appSettings?.let {
+            destination.writeSingle(Constants.APP_SETTINGS, appSettings)
+        }
+    }
+
+    private fun restoreAgentSettings() {
+
+    }
 }

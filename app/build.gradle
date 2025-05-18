@@ -57,6 +57,8 @@ android {
 dependencies {
 
     implementation project(':database')
+    implementation project(':app-settings')
+    implementation project(':feature:backup-restore')
 
     implementation 'androidx.core:core-ktx:1.13.1'
     implementation 'androidx.appcompat:appcompat:1.7.0'

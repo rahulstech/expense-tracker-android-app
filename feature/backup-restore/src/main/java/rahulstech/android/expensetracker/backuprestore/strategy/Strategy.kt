@@ -49,12 +49,21 @@ interface Strategy {
     }
 
     data class Progress(
-        val current: Int,
-        val max: Int,
-        val message: CharSequence? = null
+        val message: CharSequence? = null,
+        val showProgress: Boolean = false,
+        val current: Int = -1,
+        val max: Int = -1
     )
 
+    interface ProgressListener {
+        fun onProgressUpdated(work: Strategy, progress: Progress)
+    }
+
     val applicationContext: Context
+
+    val source: Source
+
+    val destination: Destination
 
     fun getState(): State
 
@@ -71,8 +80,4 @@ interface Strategy {
     fun isCanceled(): Boolean
 
     fun clean()
-
-    interface ProgressListener {
-        fun onProgressUpdated(work: Strategy, progress: Progress)
-    }
 }

@@ -155,5 +155,10 @@ abstract class HistoryDao(db: ExpensesDatabase) {
             expensesDao.deleteTransactions(transaction)
         }
     }
+
+    fun insertHistories(histories: List<History>) {}
+
+    @Query("SELECT * FROM `histories` LIMIT :size OFFSET :from")
+    abstract fun getAllHistories(from: Long, size: Long): List<History>
 }
 

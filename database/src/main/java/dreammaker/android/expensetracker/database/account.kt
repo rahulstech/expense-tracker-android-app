@@ -8,6 +8,7 @@ import androidx.room.Entity
 import androidx.room.Insert
 import androidx.room.PrimaryKey
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import com.google.gson.annotations.SerializedName
 import java.util.Objects
@@ -55,10 +56,6 @@ data class AccountModel(
     val name: String?,
     val balance: Float?
 ) {
-    override fun toString(): String {
-        return "AccountModel{id=$id,name='$name',balance=$balance}"
-    }
-
     fun toAccount(): Account {
         return Account(
             id ?: 0,
@@ -91,5 +88,12 @@ interface AccountDao {
 
     @Query("SELECT `_id`, `account_name`, `balance` FROM `accounts` WHERE `_id` IN " +
             "(SELECT `primaryAccountId` FROM `histories` WHERE `primaryAccountId` IS NOT NULL GROUP BY primaryAccountId ORDER BY Max(`date`) DESC LIMIT 3)")
-    abstract fun getLatestUsedThreeAccounts(): LiveData<List<AccountModel>>
+    fun getLatestUsedThreeAccounts(): LiveData<List<AccountModel>>
+
+    @Insert
+    @Transaction
+    fun insertAccounts(accounts: List<Account>)
+
+    @Query("SELECT * FROM `accounts`")
+    fun getAccounts(): List<AccountModel>
 }

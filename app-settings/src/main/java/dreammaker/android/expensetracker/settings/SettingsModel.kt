@@ -1,9 +1,5 @@
 package dreammaker.android.expensetracker.settings
 
-data class SettingsData(
+data class SettingsModel(
     val viewHistory: ViewHistory
-)
-
-data class BackupableSettingsData(
-    val c: Int
 )

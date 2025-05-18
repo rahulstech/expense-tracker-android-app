@@ -17,9 +17,19 @@ enum class ViewHistory {
     })
 }
 
-class SettingsProvider private constructor(appContext: Context) {
+class SettingsProvider private constructor(context: Context) {
 
-    private val store: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(appContext)
+    private val store: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context.applicationContext)
+
+    fun backup(): SettingsModel {
+        val viewHistory = getViewHistory()
+
+        return SettingsModel(viewHistory)
+    }
+
+    fun restore(model: SettingsModel) {
+
+    }
 
     fun getViewHistory(): ViewHistory {
         val value = store.getString(KEY_VIW_HISTORY, ViewHistory.DAILY.name)!!
@@ -42,24 +52,18 @@ class SettingsProvider private constructor(appContext: Context) {
 
     companion object {
 
-        private const val KEY_VIW_HISTORY = "key.view_history"
-        private const val KEY_FIRST_RESTORE_ASKED: String = "first_restore_asked"
+        private const val KEY_VIW_HISTORY = "dreammaker.android.expensetracker.settings.VIEW_HISTORY"
+        private const val KEY_FIRST_RESTORE_ASKED: String = "dreammaker.android.expensetracker.settings.FIRST_RESTORE_ASKED"
 
         @Volatile
         private var instance: SettingsProvider? = null
 
         fun get(context: Context): SettingsProvider {
             return instance ?: synchronized(this) {
-                SettingsProvider(context.applicationContext)
+                val provider = SettingsProvider(context)
+                instance = provider
+                provider
             }
-        }
-
-        fun getSettingsData(context: Context): SettingsData {
-            val provider = SettingsProvider(context.applicationContext)
-
-            val viewHistory = provider.getViewHistory()
-
-            return SettingsData(viewHistory)
         }
     }
 }

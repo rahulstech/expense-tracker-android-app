@@ -52,4 +52,17 @@ class HistoryDaoTest {
             assertEquals(expected, it)
         }
     }
+
+    @Test
+    fun testGetHistories() {
+        val expected = listOf(
+            History(2, HistoryType.CREDIT, 2, null,1,
+                150.00f, Date.valueOf("2025-02-26"), "transaction 2"),
+
+            History(3, HistoryType.DEBIT, 1, null,null,
+                20.00f, Date.valueOf("2025-01-16"), "transaction 3")
+        )
+        val actual = dao.getAllHistories(2,2)
+        assertEquals(expected,actual)
+    }
 }

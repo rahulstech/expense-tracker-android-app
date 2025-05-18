@@ -1,19 +1,3 @@
 <resources>
 
-    <string-array name="auto_delete_entries">
-        <item>Never</item>
-        <item>1 Month</item>
-        <item>3 Month</item>
-        <item>6 Monthly</item>
-        <item>1 Year</item>
-    </string-array>
-
-    <string-array name="auto_delete_values">
-        <item>never</item>
-        <item>one_month</item>
-        <item>three_month</item>
-        <item>six_month</item>
-        <item>one_year</item>
-    </string-array>
-
 </resources>

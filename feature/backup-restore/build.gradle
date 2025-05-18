@@ -14,6 +14,10 @@ android {
         consumerProguardFiles "consumer-rules.pro"
     }
 
+    buildFeatures {
+        viewBinding true
+    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -34,25 +38,21 @@ dependencies {
     implementation 'androidx.core:core-ktx:1.13.0'
     implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation 'com.google.android.material:material:1.12.0'
+
+    // test
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
 
-    // database module
+    // modules
     implementation project(":database")
-
-    // app-settings module
     implementation project(':app-settings')
 
     // work manager
     def vWork = '2.9.1'
     implementation "androidx.work:work-runtime-ktx:$vWork"
-    androidTestImplementation "androidx.work:work-runtime-ktx:$vWork"
+    androidTestImplementation "androidx.work:work-testing:$vWork"
 
     // gson
     implementation 'com.google.code.gson:gson:2.10.1'
-
-    // jayway jsonpath
-    implementation 'com.jayway.jsonpath:json-path:2.9.0'
-
 }

@@ -18,9 +18,13 @@ interface Destination {
 
     fun canWrite(name: String): Boolean
 
-    fun writeSingle(name: String, entry: Any)
+    fun writeSingle(name: String, entry: Any?)
 
     fun writeMultiple(name: String, entries: List<Any>)
 
+    fun beginAppendMultiple(name: String)
+
     fun appendMultiple(name: String, entries: List<Any>)
+
+    fun endAppendMultiple(name: String)
 }

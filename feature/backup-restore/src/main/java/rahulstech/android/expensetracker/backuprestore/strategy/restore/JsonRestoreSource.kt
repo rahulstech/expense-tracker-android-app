@@ -1,25 +1,24 @@
 package rahulstech.android.expensetracker.backuprestore.strategy.restore
 
 import com.google.gson.Gson
-import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonToken
-import rahulstech.android.expensetracker.backuprestore.strategy.AccountData
-import rahulstech.android.expensetracker.backuprestore.strategy.GroupData
-import rahulstech.android.expensetracker.backuprestore.strategy.HistoryData
+import rahulstech.android.expensetracker.backuprestore.util.AccountData
+import rahulstech.android.expensetracker.backuprestore.util.AppSettingsData
+import rahulstech.android.expensetracker.backuprestore.worker.Constants
+import rahulstech.android.expensetracker.backuprestore.util.GroupData
+import rahulstech.android.expensetracker.backuprestore.util.HistoryData
 import rahulstech.android.expensetracker.backuprestore.strategy.InputStreamInput
-import rahulstech.android.expensetracker.backuprestore.strategy.MoneyTransferData
+import rahulstech.android.expensetracker.backuprestore.util.MoneyTransferData
 import rahulstech.android.expensetracker.backuprestore.strategy.Source
-import rahulstech.android.expensetracker.backuprestore.strategy.TransactionData
-import rahulstech.android.expensetracker.backuprestore.strategy.Constants
+import rahulstech.android.expensetracker.backuprestore.util.TransactionData
+import rahulstech.android.expensetracker.backuprestore.util.newGson
 import java.io.InputStreamReader
 
 class JsonRestoreSource(override val input: InputStreamInput): Source {
 
-    private val gson: Gson = GsonBuilder()
-        .setLenient()
-        .create()
+    private val gson: Gson by lazy { newGson() }
 
     private var _jsonReader: JsonReader? = null
     private val jsonReader: JsonReader get() = _jsonReader!!
@@ -39,9 +38,18 @@ class JsonRestoreSource(override val input: InputStreamInput): Source {
     override fun setup() { _jsonReader = newJsonReader() }
 
     override fun cleanup() {
-        _jsonReader = null
-        _cachedName = null
-        input.destroy()
+        try {
+            val reader = _jsonReader
+            reader?.let {
+                reader.endObject()
+                reader.close()
+            }
+            _jsonReader = null
+            _cachedName = null
+        }
+        finally {
+            input.destroy()
+        }
     }
 
     override fun moveFirst(): Boolean = false
@@ -64,13 +72,16 @@ class JsonRestoreSource(override val input: InputStreamInput): Source {
     @Suppress("UNCHECKED_CAST")
     override fun <T> nextValue(): T? {
         val name = getName()
-        val value = when(name) {
+        val value: Any? = when(name) {
             Constants.JSON_FIELD_VERSION -> {
                 jsonReader.nextInt()
             }
+            Constants.JSON_FIELD_APP_SETTINGS -> {
+                parseObject(jsonReader, AppSettingsData::class.java)
+            }
             else -> null
         }
-        return value as T
+        return value as T?
     }
 
     override fun bufferValue(limit: Int, callback: (name: String,offset: Int, buffer: List<Any>) -> Unit) {
@@ -141,7 +152,10 @@ class JsonRestoreSource(override val input: InputStreamInput): Source {
         return entries
     }
 
-    private fun <T> parseObject(reader: JsonReader, dataClass: Class<T>): T {
+    private fun <T> parseObject(reader: JsonReader, dataClass: Class<T>): T? {
+        if (reader.hasNext() && reader.peek() == JsonToken.NULL) {
+            return null
+        }
         val data = gson.fromJson<T>(reader, TypeToken.get(dataClass))
         return data
     }

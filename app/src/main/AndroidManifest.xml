@@ -24,8 +24,9 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".settings.SettingsActivity"
+            android:name="dreammaker.android.expensetracker.settings.SettingsActivity"
             android:label="@string/title_activity_settings"
+            android:theme="@style/AppTheme.NoActionBar"
             android:exported="false"/>
         <activity
             android:name=".ui.main.MainActivity"
@@ -34,6 +35,12 @@
             android:name=".activity.BackupRestoreActivity"
             android:label="@string/backup"
             android:exported="false"/>
+
+        <activity
+            android:name=".activity.BackupTestActivity"
+            android:label="@string/backup"
+            android:exported="false"/>
+
         <service
             android:name=".backup.WorkActionService"
             android:description="@string/work_action_service_description"

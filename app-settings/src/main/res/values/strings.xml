@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="title_auto_delete">Auto Delete</string>
-	<string name="summery_auto_delete">Automatically delete all data which are older than specified amount of time. This will only delete date oriented data like transaction and money transfers.</string>
 
 	<string name="title_clear_all">Clear All Data</string>
 	<string name="message_clear_all">You are about to clear all app data. You will loss all of your current app data permanently. Are you sure?</string>

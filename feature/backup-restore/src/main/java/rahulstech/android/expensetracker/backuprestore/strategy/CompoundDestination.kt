@@ -1,6 +1,8 @@
 package rahulstech.android.expensetracker.backuprestore.strategy
 
-class CompoundDestination(override val output: Destination.Output) : Destination {
+class CompoundDestination() : Destination {
+
+    override val output: Destination.Output = NO_OUTPUT
 
     private var destionations: MutableMap<String, Destination>? = null
 
@@ -44,12 +46,20 @@ class CompoundDestination(override val output: Destination.Output) : Destination
         return destionations?.let { it.values.find { d -> d.canWrite(name) } }
     }
 
-    override fun writeSingle(name: String, entry: Any) {
+    override fun writeSingle(name: String, entry: Any?) {
         getDestinationCanWrite(name)?.writeSingle(name,entry)
     }
 
     override fun writeMultiple(name: String, entries: List<Any>) {
         getDestinationCanWrite(name)?.writeMultiple(name,entries)
+    }
+
+    override fun beginAppendMultiple(name: String) {
+        getDestinationCanWrite(name)?.beginAppendMultiple(name)
+    }
+
+    override fun endAppendMultiple(name: String) {
+        getDestinationCanWrite(name)?.endAppendMultiple(name)
     }
 
     override fun appendMultiple(name: String, entries: List<Any>) {

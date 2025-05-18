@@ -1,11 +1,16 @@
-package rahulstech.android.expensetracker.backuprestore.strategy
+package rahulstech.android.expensetracker.backuprestore.util
 
 import com.google.gson.annotations.SerializedName
 import dreammaker.android.expensetracker.database.AccountModel
 import dreammaker.android.expensetracker.database.Date
 import dreammaker.android.expensetracker.database.GroupModel
+import dreammaker.android.expensetracker.database.History
 import dreammaker.android.expensetracker.database.HistoryModel
 import dreammaker.android.expensetracker.database.HistoryType
+import dreammaker.android.expensetracker.settings.SettingsModel
+import dreammaker.android.expensetracker.settings.ViewHistory
+import rahulstech.android.expensetracker.backuprestore.settings.AgentSettingsModel
+import rahulstech.android.expensetracker.backuprestore.settings.BackupFrequency
 
 data class AccountData(
     @SerializedName("id", alternate = ["_id"])
@@ -30,26 +35,26 @@ data class GroupData(
 
 data class HistoryData(
     val id: Long,
-    val type: String,
+    val type: HistoryType,
     val primaryAccountId: Long?,
     val secondaryAccountId: Long?,
     val groupId: Long?,
     val amount: Float,
-    val date: String,
+    val date: Date,
     val note: String?
 ) {
 
     fun toHistoryModel(): HistoryModel
-    = HistoryModel(id, HistoryType.valueOf(type),
+    = HistoryModel(id, type,
         primaryAccountId, secondaryAccountId, groupId, null, null, null,
-        amount, Date.valueOf(date), note)
+        amount, date, note)
 }
 
 data class MoneyTransferData(
     val id: Long,
     val amount: Float,
     @SerializedName("when")
-    val date: String,
+    val date: Date,
     @SerializedName("payer_account_id")
     val primaryAccountId: Long,
     @SerializedName("payee_account_id")
@@ -60,14 +65,14 @@ data class MoneyTransferData(
     fun toHistoryModel(): HistoryModel
     = HistoryModel(id, HistoryType.TRANSFER,
         primaryAccountId, secondaryAccountId, null, null, null, null,
-        amount, Date.valueOf(date), note)
+        amount, date, note)
 }
 
 data class TransactionData(
     @SerializedName("_id")
     val id: Long,
     val amount: Float,
-    val date: String,
+    val date: Date,
     @SerializedName("account_id")
     val primaryAccountId: Long,
     @SerializedName("person_id")
@@ -85,7 +90,43 @@ data class TransactionData(
         return HistoryModel(
             id, historyType,
             primaryAccountId, null, groupId, null, null, null,
-            amount, Date.valueOf(date), note
+            amount, date, note
         )
     }
+}
+
+data class AppSettingsData(
+    val viewHistory: ViewHistory
+) {
+    fun toSettingsModel(): SettingsModel {
+        return SettingsModel(viewHistory)
+    }
+}
+
+data class AgentSettingsData(
+    val backupFrequency: BackupFrequency
+) {
+    fun toAgentSettingsModel(): AgentSettingsModel {
+        return AgentSettingsModel(backupFrequency)
+    }
+}
+
+fun AccountModel.toAccountData(): AccountData {
+    return AccountData(id!!,name!!,balance!!)
+}
+
+fun GroupModel.toGroupData(): GroupData {
+    return GroupData(id!!,name!!,balance!!)
+}
+
+fun History.toHistoryData(): HistoryData {
+    return HistoryData(id,type,primaryAccountId,secondaryAccountId,groupId,amount,date,note)
+}
+
+fun SettingsModel.toSettingsData(): AppSettingsData {
+    return AppSettingsData(viewHistory)
+}
+
+fun AgentSettingsModel.toAgentSettingsData(): AgentSettingsData {
+    return AgentSettingsData(backupFrequency)
 }

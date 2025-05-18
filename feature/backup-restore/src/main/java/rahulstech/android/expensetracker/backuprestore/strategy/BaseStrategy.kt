@@ -70,5 +70,8 @@ abstract class BaseStrategy(context: Context): Strategy {
 
     override fun isCanceled(): Boolean = _state.get() == Strategy.State.CANCELED
 
-    override fun clean() {}
+    override fun clean() {
+        source.cleanup()
+        destination.cleanup()
+    }
 }

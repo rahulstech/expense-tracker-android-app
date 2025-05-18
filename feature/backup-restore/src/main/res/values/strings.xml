@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="notification_title_backup">Backup</string>
+    <string name="message_json_backup_start">Local backup start</string>
+    <string name="message_json_backup_complete">Local backup complete</string>
+    <string name="message_json_backup_accounts">Account backup in progress</string>
+    <string name="message_json_backup_groups">Group backup in progress</string>
+    <string name="message_json_backup_histories">History backup in progress</string>
+    <string name="message_json_backup_app_settings">App settings backup in progress</string>
+    <string name="message_json_backup_agent_setting">Agent setting backup in progress</string>
+    <string name="label_start_backup">Start Backup</string>
+</resources>

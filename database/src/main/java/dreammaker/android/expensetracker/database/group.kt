@@ -6,7 +6,14 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
+
+data class Group(
+    val id: Long,
+    val name: String,
+    val balance: Float
+): Person(id,name,balance)
 
 data class GroupModel(
     @ColumnInfo(name = "_id")
@@ -16,8 +23,8 @@ data class GroupModel(
     @ColumnInfo(name = "due")
     val balance: Float?
 ) {
-    fun toGroup(): Person
-    = Person(id ?: 0, name!!, balance ?: 0f)
+    fun toGroup(): Group
+    = Group(id ?: 0, name!!, balance ?: 0f)
 }
 
 @Dao
@@ -40,5 +47,12 @@ interface GroupDao {
 
     @Query("SELECT `_id`, `person_name`, `due` FROM `persons` WHERE `_id` IN " +
             "(SELECT `groupId` FROM `histories` WHERE `groupId` IS NOT NULL GROUP BY `groupId` ORDER BY Max(`date`) DESC LIMIT 3)")
-    abstract fun getLatestUsedThreeGroups(): LiveData<List<GroupModel>>
+    fun getLatestUsedThreeGroups(): LiveData<List<GroupModel>>
+
+    @Insert
+    @Transaction
+    fun insertGroups(groups: List<Person>)
+
+    @Query("SELECT * FROM `persons`")
+    fun getGroups(): List<GroupModel>
 }

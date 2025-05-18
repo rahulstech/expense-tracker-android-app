@@ -1,14 +1,15 @@
-package rahulstech.android.expensetracker.backuprestore.strategy.json.restore
+package rahulstech.android.expensetracker.backuprestore.strategy.restore
 
+import dreammaker.android.expensetracker.database.Date
+import dreammaker.android.expensetracker.database.HistoryType
 import junit.framework.TestCase.assertEquals
 import org.junit.Test
-import rahulstech.android.expensetracker.backuprestore.strategy.AccountData
-import rahulstech.android.expensetracker.backuprestore.strategy.GroupData
-import rahulstech.android.expensetracker.backuprestore.strategy.HistoryData
+import rahulstech.android.expensetracker.backuprestore.util.AccountData
+import rahulstech.android.expensetracker.backuprestore.util.GroupData
+import rahulstech.android.expensetracker.backuprestore.util.HistoryData
 import rahulstech.android.expensetracker.backuprestore.strategy.InputStreamInput
-import rahulstech.android.expensetracker.backuprestore.strategy.MoneyTransferData
-import rahulstech.android.expensetracker.backuprestore.strategy.TransactionData
-import rahulstech.android.expensetracker.backuprestore.strategy.restore.JsonRestoreSource
+import rahulstech.android.expensetracker.backuprestore.util.MoneyTransferData
+import rahulstech.android.expensetracker.backuprestore.util.TransactionData
 import java.io.ByteArrayInputStream
 
 class JsonRestoreSourceTest {
@@ -88,9 +89,9 @@ class JsonRestoreSourceTest {
         source.bufferValue(3) { _,_,buffer -> actual.addAll(buffer) }
         source.cleanup()
         val expected = listOf(
-            TransactionData(1,150.00f,"2023-05-16",1,1, null, 0, false),
-            TransactionData(2,150.00f,"2023-05-16",1,1, null, 0, true),
-            TransactionData(3,150.00f,"2023-05-16",1,null, "expense", 1, false)
+            TransactionData(1,150.00f, Date.valueOf("2023-05-16"),1,1, null, 0, false),
+            TransactionData(2,150.00f,Date.valueOf("2023-05-16"),1,1, null, 0, true),
+            TransactionData(3,150.00f,Date.valueOf("2023-05-16"),1,null, "expense", 1, false)
         )
         assertEquals(expected,actual)
     }
@@ -109,8 +110,8 @@ class JsonRestoreSourceTest {
         source.bufferValue(2) { _,_,buffer -> actual.addAll(buffer) }
         source.cleanup()
         val expected = listOf(
-            MoneyTransferData(1,150.00f,"2023-05-16",1,2,null),
-            MoneyTransferData(2,140.33f,"2023-05-16",1,2,"transfer")
+            MoneyTransferData(1,150.00f,Date.valueOf("2023-05-16"),1,2,null),
+            MoneyTransferData(2,140.33f,Date.valueOf("2023-05-16"),1,2,"TRANSFER")
         )
         assertEquals(expected,actual)
     }
@@ -131,10 +132,10 @@ class JsonRestoreSourceTest {
         source.bufferValue(4) { _,_, buffer -> actual.addAll(buffer) }
         source.cleanup()
         val expected = listOf(
-            HistoryData(1,"CREDIT", 1,null,2,150.00f,"2023-05-16",null) ,
-            HistoryData(2,"DEBIT", 1,null,2,150.00f,"2023-05-16",null),
-            HistoryData(3,"TRANSFER", 1,2,null,150.00f,"2023-05-16","transfer"),
-            HistoryData(4,"CREDIT", 1,null,null,150.00f,"2023-05-16","income")
+            HistoryData(1, HistoryType.CREDIT, 1,null,2,150.00f,Date.valueOf("2023-05-16"),null) ,
+            HistoryData(2,HistoryType.DEBIT, 1,null,2,150.00f,Date.valueOf("2023-05-16"),null),
+            HistoryData(3,HistoryType.TRANSFER, 1,2,null,150.00f,Date.valueOf("2023-05-16"),"CREDIT"),
+            HistoryData(4,HistoryType.CREDIT, 1,null,null,150.00f,Date.valueOf("2023-05-16"),"income")
         )
         assertEquals(expected,actual)
     }
@@ -169,12 +170,12 @@ class JsonRestoreSourceTest {
         source.cleanup()
         val expected = listOf(
             listOf(
-                HistoryData(1,"CREDIT", 1,null,2,150.00f,"2023-05-16",null) ,
-                HistoryData(2,"DEBIT", 1,null,2,150.00f,"2023-05-16",null),
-                HistoryData(3,"TRANSFER", 1,2,null,150.00f,"2023-05-16","transfer")
+                HistoryData(1,HistoryType.CREDIT, 1,null,2,150.00f,Date.valueOf("2023-05-16"),null) ,
+                HistoryData(2,HistoryType.DEBIT, 1,null,2,150.00f,Date.valueOf("2023-05-16"),null),
+                HistoryData(3,HistoryType.TRANSFER, 1,2,null,150.00f,Date.valueOf("2023-05-16"),"TRANSFER")
             ),
             listOf(
-                HistoryData(4,"CREDIT", 1,null,null,150.00f,"2023-05-16","income")
+                HistoryData(4,HistoryType.CREDIT, 1,null,null,150.00f,Date.valueOf("2023-05-16"),"income")
             )
         )
         assertEquals(expected,actual)

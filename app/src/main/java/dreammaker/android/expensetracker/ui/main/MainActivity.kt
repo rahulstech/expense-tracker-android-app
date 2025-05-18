@@ -10,7 +10,7 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI.setupActionBarWithNavController
 import androidx.navigation.ui.navigateUp
 import dreammaker.android.expensetracker.R
-import dreammaker.android.expensetracker.activity.BackupRestoreActivity
+import dreammaker.android.expensetracker.activity.BackupTestActivity
 import dreammaker.android.expensetracker.databinding.MainBinding
 import dreammaker.android.expensetracker.settings.SettingsActivity
 
@@ -50,7 +50,8 @@ class MainActivity : AppCompatActivity() {
         binding.drawerLayout.closeDrawer(binding.drawer)
         return when(item.itemId) {
             R.id.backup_restore -> {
-                startActivity(Intent(this@MainActivity, BackupRestoreActivity::class.java))
+//                startActivity(Intent(this@MainActivity, BackupRestoreActivity::class.java))
+                startActivity(Intent(this@MainActivity, BackupTestActivity::class.java))
                 true
             }
             R.id.settings -> {
