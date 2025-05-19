@@ -104,6 +104,7 @@ abstract class HistoryDao(db: ExpensesDatabase) {
     private val TAG = HistoryDao::class.simpleName
 
     private val expensesDao = db.dao
+    private val expenseBackupDao = db.backupDao
 
     @Query("SELECT * FROM `histories` WHERE :start <= `date` AND `date` <= :end ORDER BY `date` ASC")
     @Transaction
@@ -156,7 +157,14 @@ abstract class HistoryDao(db: ExpensesDatabase) {
         }
     }
 
-    fun insertHistories(histories: List<History>) {}
+    @Transaction
+    open fun insertHistories(histories: List<History>) {
+        val transactions = histories.filter { history -> history.type != HistoryType.TRANSFER }.map { history -> history.toTransaction() }
+        val moneyTransfers = histories.filter { history -> history.type == HistoryType.TRANSFER }.map { history -> history.toMoneyTransfer() }
+
+        expenseBackupDao.insertTransactions(transactions)
+        expenseBackupDao.insertMoneyTransfers(moneyTransfers)
+    }
 
     @Query("SELECT * FROM `histories` LIMIT :size OFFSET :from")
     abstract fun getAllHistories(from: Long, size: Long): List<History>

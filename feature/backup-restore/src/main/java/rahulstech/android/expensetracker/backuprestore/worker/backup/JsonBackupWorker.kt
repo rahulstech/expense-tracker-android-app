@@ -48,27 +48,24 @@ class JsonBackupWorker(context: Context, params: WorkerParameters): Worker(conte
 
     override fun doWork(): Result {
         setForegroundAsync(createForegroundInfo(createStartNotification()))
+        val gson = newGson()
         val backupFile: File = getBackupFile()
         val readHelper = ReadHelperImpl(applicationContext)
         var output: OutputStream? = null
         var writer: JsonWriter? = null
         try {
-            val gson = newGson()
             output = openFileOutput(backupFile)
             writer = gson.newJsonWriter(OutputStreamWriter(output))
             readHelper.open()
-            writer.beginObject()
             backup(readHelper, writer, gson)
-            writer.endObject()
-            writer.flush()
         }
         catch (ex: Exception) {
-            Log.e(TAG, "JsonBackupWork failed with exception: ",ex)
+            Log.e(TAG, "JsonBackupWork failed with exception",ex)
             return Result.failure()
         }
         finally {
             setForegroundAsync(createForegroundInfo(createEndNotification()))
-            runCatching { readHelper.close() }
+            runCatching { readHelper.close() }.onFailure { Log.e(TAG,"fail to close readHelper", it) }
             runCatching { writer?.close() }
             runCatching { output?.close() }
         }
@@ -108,6 +105,8 @@ class JsonBackupWorker(context: Context, params: WorkerParameters): Worker(conte
 
     @VisibleForTesting
     fun backup(readHelper: ReadHelper, writer: JsonWriter, gson: Gson) {
+        writer.beginObject()
+
         // write schema version
         writer.name(Constants.JSON_FIELD_VERSION)
         writer.value(SCHEMA_VERSION)
@@ -126,6 +125,9 @@ class JsonBackupWorker(context: Context, params: WorkerParameters): Worker(conte
         val agentSettings = readHelper.readAgentSettings()
         backupAppSettings(appSettings, writer, gson)
         backupAgentSettings(agentSettings,writer,gson)
+
+        writer.endObject()
+        writer.flush()
     }
 
     @VisibleForTesting

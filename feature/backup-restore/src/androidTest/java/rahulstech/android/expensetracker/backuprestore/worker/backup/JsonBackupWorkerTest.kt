@@ -20,8 +20,7 @@ import java.io.OutputStreamWriter
 @RunWith(AndroidJUnit4::class)
 class JsonBackupWorkerTest {
 
-    var _gson: Gson? = null
-    val gson: Gson get() = _gson!!
+    var gson: Gson = newGson()
 
     var _writer: JsonWriter? = null
     val writer: JsonWriter get() = _writer!!
@@ -42,7 +41,6 @@ class JsonBackupWorkerTest {
 
     @Before
     fun setup() {
-        _gson = newGson()
         _outputStream = ByteArrayOutputStream()
         _writer = gson.newJsonWriter(OutputStreamWriter(outputStream))
 
@@ -56,7 +54,6 @@ class JsonBackupWorkerTest {
         runCatching { writer.close() }
         runCatching { outputStream.close() }
         _writer = null
-        _gson = null
         _outputStream = null
         _worker = null
     }

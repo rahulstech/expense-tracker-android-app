@@ -41,7 +41,10 @@ data class HistoryData(
     val groupId: Long?,
     val amount: Float,
     val date: Date,
-    val note: String?
+    val note: String?,
+
+    @Transient
+    val deleted: Boolean = false
 ) {
 
     fun toHistoryModel(): HistoryModel
@@ -66,6 +69,9 @@ data class MoneyTransferData(
     = HistoryModel(id, HistoryType.TRANSFER,
         primaryAccountId, secondaryAccountId, null, null, null, null,
         amount, date, note)
+
+    fun toHistoryData(): HistoryData
+    = HistoryData(id, HistoryType.TRANSFER, primaryAccountId, secondaryAccountId, null, amount, date, note)
 }
 
 data class TransactionData(
@@ -82,16 +88,21 @@ data class TransactionData(
     val type: Int,
     val deleted: Boolean
 ) {
+    private fun getHistoryType(): HistoryType = if (type == 0) HistoryType.DEBIT else HistoryType.CREDIT
+
     fun toHistoryModel(): HistoryModel? {
         if (deleted) {
             return null
         }
-        val historyType = if (type == 0) HistoryType.DEBIT else HistoryType.CREDIT
         return HistoryModel(
-            id, historyType,
+            id, getHistoryType(),
             primaryAccountId, null, groupId, null, null, null,
             amount, date, note
         )
+    }
+
+    fun toHistoryData(): HistoryData {
+        return HistoryData(id,getHistoryType(), primaryAccountId, null, groupId, amount, date, note, deleted)
     }
 }
 

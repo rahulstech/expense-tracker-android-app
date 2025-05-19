@@ -20,7 +20,7 @@ interface WriteHelper {
 
     fun writeAppSettings(settings: AppSettingsData)
 
-    fun writeAgentSettings(settingsData: AgentSettingsData)
+    fun writeAgentSettings(settings: AgentSettingsData)
 }
 
 interface ReadHelper {
