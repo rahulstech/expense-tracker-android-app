@@ -9,4 +9,23 @@
     <string name="message_json_backup_app_settings">App settings backup in progress</string>
     <string name="message_json_backup_agent_setting">Agent setting backup in progress</string>
     <string name="label_start_backup">Start Backup</string>
+    <string name="label_auto_backup">Auto Backup</string>
+    <string name="description_backup_settings">Backup</string>
+    <string name="label_open_restore_local">Restore Local</string>
+    <string name="description_restore_settings">Restore</string>
+    <string name="label_choose_restore_file">Choose Restore File</string>
+    <string name="label_start_restore">Start Restore</string>
+
+    <string name="label_last_local_backup_time">Last Local Backup</string>
+    <string name="label_last_local_backup_time_never">Never</string>
+
+    <string name="label_cancel">Cancel</string>
+
+
+    <string name="backup_frequency_never">Never</string>
+    <string name="backup_frequency_daily">Daily</string>
+    <string name="backup_frequency_weekly">Weekly</string>
+    <string name="notification_title_restore">Restore</string>
+    <string name="message_json_restore_start">Restoring from %1$s</string>
+
 </resources>

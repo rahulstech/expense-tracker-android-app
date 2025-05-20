@@ -252,8 +252,10 @@
 	<string name="description_empty_recent_account_list">add account histories to see latest used account.up to 3 latest used accounts will show here</string>
 	<string name="label_empty_recent_group_list">No Recent Group</string>
 	<string name="description_empty_recent_group_list">add group histories to see latest used group. up to 3 latest used groups will show here.</string>
+    <string name="title_backup_restore_settings_home">Backup Restore</string>
+    <string name="menu_title_app_data">App Data</string>
 
-	<plurals name="warning_delete_accounts">
+    <plurals name="warning_delete_accounts">
 		<item quantity="one">%1$s will be deleted permanently. Do you want to proceed?</item>
 		<item quantity="other">You are going to DELETE some accounts PERMANENTLY. Are you sure?</item>
 	</plurals>

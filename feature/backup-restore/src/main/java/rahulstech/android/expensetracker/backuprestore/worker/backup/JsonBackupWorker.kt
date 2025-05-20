@@ -36,13 +36,10 @@ class JsonBackupWorker(context: Context, params: WorkerParameters): Worker(conte
 
     companion object {
         private val TAG = JsonBackupWorker::class.simpleName
-
+        private const val PRIVATE_BACKUP_DIR = "backup"
         private const val BUFFER_SIZE = 1000L
-
         private const val SCHEMA_VERSION = 8
-
         private const val BACKUP_FILENAME = "backup.json"
-
         private const val MAX_PROGRESS = 5
     }
 
@@ -50,24 +47,24 @@ class JsonBackupWorker(context: Context, params: WorkerParameters): Worker(conte
         setForegroundAsync(createForegroundInfo(createStartNotification()))
         val gson = newGson()
         val backupFile: File = getBackupFile()
-        val readHelper = ReadHelperImpl(applicationContext)
+        val readHelper: ReadHelper = ReadHelperImpl(applicationContext)
         var output: OutputStream? = null
         var writer: JsonWriter? = null
         try {
-            output = openFileOutput(backupFile)
+            output = openOutputStream(backupFile)
             writer = gson.newJsonWriter(OutputStreamWriter(output))
             readHelper.open()
             backup(readHelper, writer, gson)
         }
         catch (ex: Exception) {
             Log.e(TAG, "JsonBackupWork failed with exception",ex)
+            runCatching { backupFile.delete() }
             return Result.failure()
         }
         finally {
-            setForegroundAsync(createForegroundInfo(createEndNotification()))
             runCatching { readHelper.close() }.onFailure { Log.e(TAG,"fail to close readHelper", it) }
             runCatching { writer?.close() }
-            runCatching { output?.close() }
+            runCatching { output?.close() }.onFailure { Log.e(TAG,"fail to close output", it) }
         }
 
         val data = workDataOf(
@@ -87,13 +84,13 @@ class JsonBackupWorker(context: Context, params: WorkerParameters): Worker(conte
 
     private fun getBackupFile(): File {
         val dirFiles = applicationContext.getExternalFilesDir(null)
-        val dirBackup = File(dirFiles, Constants.DIR_BACKUP)
+        val dirBackup = File(dirFiles, PRIVATE_BACKUP_DIR)
         val backupFile = File(dirBackup, BACKUP_FILENAME)
         return backupFile
     }
 
-    private fun openFileOutput(file: File): OutputStream {
-        Log.i(TAG, "openFileOutput: file=${file.canonicalPath}")
+    private fun openOutputStream(file: File): OutputStream {
+        Log.i(TAG, "openOutputStream: file=${file.canonicalPath}")
         file.parentFile?.let { parent ->
             if (!parent.exists()) {
                 parent.mkdirs()
@@ -105,22 +102,30 @@ class JsonBackupWorker(context: Context, params: WorkerParameters): Worker(conte
 
     @VisibleForTesting
     fun backup(readHelper: ReadHelper, writer: JsonWriter, gson: Gson) {
+        throwIfStopped()
         writer.beginObject()
 
         // write schema version
+        throwIfStopped()
         writer.name(Constants.JSON_FIELD_VERSION)
         writer.value(SCHEMA_VERSION)
         writer.flush()
 
         // backup the database
         // backup accounts
+        throwIfStopped()
         backupAccounts(readHelper, writer, gson)
+
         // backup groups
+        throwIfStopped()
         backupGroups(readHelper, writer, gson)
+
         // backup histories
+        throwIfStopped()
         backupHistories(readHelper, writer, gson)
 
         // backup settings
+        throwIfStopped()
         val appSettings = readHelper.readAppSettings()
         val agentSettings = readHelper.readAgentSettings()
         backupAppSettings(appSettings, writer, gson)
@@ -205,17 +210,15 @@ class JsonBackupWorker(context: Context, params: WorkerParameters): Worker(conte
     }
 
     private fun createForegroundInfo(notification: Notification): ForegroundInfo {
-        val info = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             ForegroundInfo(NotificationConstants.BACKUP_NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
         } else {
             ForegroundInfo(NotificationConstants.BACKUP_NOTIFICATION_ID, notification)
         }
-        return info
     }
 
     private fun createStartNotification(): Notification {
         val builder = NotificationBuilder().apply {
-            setTitleResource(R.string.notification_title_backup)
             setMessageResource(R.string.message_json_backup_start)
         }
         return createBackupNotification(applicationContext, builder)
@@ -223,7 +226,6 @@ class JsonBackupWorker(context: Context, params: WorkerParameters): Worker(conte
 
     private fun createProgressNotification(message: CharSequence, max: Int, current: Int): Notification {
         val builder = NotificationBuilder().apply {
-            setTitleResource(R.string.notification_title_backup)
             setMessage(message)
             setProgress(current,max)
         }
@@ -232,9 +234,14 @@ class JsonBackupWorker(context: Context, params: WorkerParameters): Worker(conte
 
     private fun createEndNotification(): Notification {
         val builder = NotificationBuilder().apply {
-            setTitleResource(R.string.notification_title_backup)
             setMessageResource(R.string.message_json_backup_complete)
         }
         return createBackupNotification(applicationContext, builder)
+    }
+
+    private fun throwIfStopped() {
+        if (isStopped) {
+            throw IllegalStateException("JsonBackupWorker was stopped before finished")
+        }
     }
 }

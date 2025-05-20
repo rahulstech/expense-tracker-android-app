@@ -121,9 +121,7 @@ class JsonBackupWorkerTest {
 
     @Test
     fun testBackup() {
-        writer.beginObject()
         worker.backup(readHelper, writer, gson)
-        writer.endObject()
         writer.flush()
         val actual = getJson()
         val expected = "{\"version\":8," +

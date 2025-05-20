@@ -1,45 +1,48 @@
 package rahulstech.android.expensetracker.backuprestore.worker.restore
 
+import android.app.Notification
 import android.content.Context
+import android.content.pm.ServiceInfo
 import android.net.Uri
+import android.os.Build
 import android.util.Log
 import androidx.annotation.VisibleForTesting
+import androidx.work.ForegroundInfo
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.google.gson.stream.JsonReader
+import rahulstech.android.expensetracker.backuprestore.R
 import rahulstech.android.expensetracker.backuprestore.util.AccountData
 import rahulstech.android.expensetracker.backuprestore.util.AgentSettingsData
 import rahulstech.android.expensetracker.backuprestore.util.AppSettingsData
+import rahulstech.android.expensetracker.backuprestore.util.FileUtil
 import rahulstech.android.expensetracker.backuprestore.util.GroupData
 import rahulstech.android.expensetracker.backuprestore.util.HistoryData
 import rahulstech.android.expensetracker.backuprestore.util.MoneyTransferData
+import rahulstech.android.expensetracker.backuprestore.util.NotificationBuilder
+import rahulstech.android.expensetracker.backuprestore.util.NotificationConstants
 import rahulstech.android.expensetracker.backuprestore.util.TransactionData
+import rahulstech.android.expensetracker.backuprestore.util.createRestoreNotification
 import rahulstech.android.expensetracker.backuprestore.util.newGson
 import rahulstech.android.expensetracker.backuprestore.worker.Constants
 import rahulstech.android.expensetracker.backuprestore.worker.WriteHelper
-import java.io.ByteArrayInputStream
 import java.io.InputStream
 import java.io.InputStreamReader
 
 class JsonRestoreWorker(context: Context, parameters: WorkerParameters): Worker(context, parameters) {
+    private val TAG = JsonRestoreWorker::class.simpleName
 
-
-    companion object {
-        private val TAG = JsonRestoreWorker::class.simpleName
-    }
+    private val writeHelper: WriteHelper = WriterHelperImpl(applicationContext)
 
     override fun doWork(): Result {
-
+        setForegroundAsync(createForegroundInfo(createRestoreStartNotification()))
         val gson = newGson()
-        val uri = getRestoreFileUri()
-        val writeHelper: WriteHelper = WriterHelperImpl(applicationContext)
         var input: InputStream? = null
         var jsonReader: JsonReader? = null
-
         try {
-            input = openRestoreFileForReading(uri)
+            input = openRestoreFileForReading()
             jsonReader = gson.newJsonReader(InputStreamReader(input))
             writeHelper.open()
             restore(writeHelper,jsonReader,gson)
@@ -49,20 +52,19 @@ class JsonRestoreWorker(context: Context, parameters: WorkerParameters): Worker(
             return Result.failure()
         }
         finally {
+
             runCatching { writeHelper.close() }.onFailure { Log.e(TAG, "failed to close writerHelper", it) }
             runCatching { jsonReader?.close() }
-            runCatching { input?.close() }
+            runCatching { input?.close() }.onFailure { Log.e(TAG, "failed to close input stream", it) }
         }
-
         return Result.success()
     }
 
-    fun getRestoreFileUri(): Uri {
-        return Uri.parse("")
-    }
-
-    fun openRestoreFileForReading(uri: Uri): InputStream {
-        return ByteArrayInputStream(byteArrayOf())
+    private fun openRestoreFileForReading(): InputStream {
+        val backupFile = inputData.getString(Constants.DATA_BACKUP_FILE)
+        val uri = Uri.parse(backupFile)
+        Log.i(TAG, "restore backup file $uri")
+        return FileUtil.openInputStream(applicationContext, uri)
     }
 
     @VisibleForTesting
@@ -168,7 +170,19 @@ class JsonRestoreWorker(context: Context, parameters: WorkerParameters): Worker(
         writeHelper.writeAgentSettings(settings)
     }
 
-    private fun updateProgress(current: Int, message: CharSequence) {
+    private fun createRestoreStartNotification(): Notification {
+        val backupFileName = inputData.getString(Constants.DATA_BACKUP_FILE_NAME)
+        val builder = NotificationBuilder().apply {
+            setMessage(applicationContext.getString(R.string.message_json_restore_start, backupFileName))
+        }
+        return createRestoreNotification(applicationContext, builder)
+    }
 
+    private fun createForegroundInfo(notification: Notification): ForegroundInfo {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            ForegroundInfo(NotificationConstants.RESTORE_NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
+        } else {
+            ForegroundInfo(NotificationConstants.RESTORE_NOTIFICATION_ID, notification)
+        }
     }
 }

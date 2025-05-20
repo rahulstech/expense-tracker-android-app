@@ -21,7 +21,7 @@ import rahulstech.android.expensetracker.backuprestore.worker.Constants
 import java.io.InputStreamReader
 
 @RunWith(AndroidJUnit4::class)
-class JsonRestoreWork7 {
+class JsonRestoreWork7Test {
 
     var _worker: JsonRestoreWorker? = null
     val worker: JsonRestoreWorker get() = _worker!!

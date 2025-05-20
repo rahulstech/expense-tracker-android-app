@@ -3,12 +3,13 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/backup_restore"
-        android:title="@string/menu_title_backup_restore"
-        android:icon="@drawable/backup_restore"
-        app:showAsAction="always"/>
+        android:id="@+id/menu_app_data"
+        android:title="@string/menu_title_app_data"
+        android:icon="@drawable/database_64"
+        app:showAsAction="ifRoom"/>
+
     <item
-        android:id="@+id/settings"
+        android:id="@+id/menu_settings"
         android:icon="@drawable/ic_baseline_settings"
         android:title="@string/menu_title_settings"
         app:showAsAction="always" />
