@@ -1,14 +1,12 @@
 package rahulstech.android.expensetracker.backuprestore.worker.restore
 
 import rahulstech.android.expensetracker.backuprestore.util.AccountData
-import rahulstech.android.expensetracker.backuprestore.util.AgentSettingsData
 import rahulstech.android.expensetracker.backuprestore.util.AppSettingsData
 import rahulstech.android.expensetracker.backuprestore.util.GroupData
 import rahulstech.android.expensetracker.backuprestore.util.HistoryData
 import rahulstech.android.expensetracker.backuprestore.worker.Constants
-import rahulstech.android.expensetracker.backuprestore.worker.WriteHelper
 
-class FakeWriteHelper: WriteHelper {
+class FakeWriteHelper: JsonRestoreWorker.WriteHelper {
 
     var callback: ((String,Any?)->Unit)? = null
 
@@ -30,9 +28,5 @@ class FakeWriteHelper: WriteHelper {
 
     override fun writeAppSettings(settings: AppSettingsData) {
         callback?.invoke(Constants.JSON_FIELD_APP_SETTINGS,settings)
-    }
-
-    override fun writeAgentSettings(settings: AgentSettingsData) {
-        callback?.invoke(Constants.JSON_FIELD_AGENT_SETTINGS,settings)
     }
 }

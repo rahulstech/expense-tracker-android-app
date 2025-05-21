@@ -1,6 +1,7 @@
 package rahulstech.android.expensetracker.backuprestore.ui
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -11,7 +12,7 @@ import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.BaseAdapter
 import android.widget.TextView
-import androidx.activity.result.contract.ActivityResultContract
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -36,7 +37,9 @@ class BackupRestoreSettingsHomeActivity: AppCompatActivity() {
     private lateinit var adapterBackupFrequency: BackupFrequencyAdapter
     private lateinit var agentSettings: AgentSettingsProvider
 
-    private lateinit var requestLauncher: ActivityResultContract<String,Boolean>
+    private lateinit var permissionRequestLauncher: ActivityResultLauncher<String>
+
+    private var pendingOnPermissionGranted: (()->Unit)? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,6 +50,8 @@ class BackupRestoreSettingsHomeActivity: AppCompatActivity() {
         setSupportActionBar(binding.actionBar.toolbar)
         supportActionBar?.setHomeButtonEnabled(true)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        permissionRequestLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted -> onPermissionResult(isGranted) }
 
         updateLastLocalBackupTime()
         adapterBackupFrequency = BackupFrequencyAdapter()
@@ -69,7 +74,10 @@ class BackupRestoreSettingsHomeActivity: AppCompatActivity() {
             ViewModelProvider.AndroidViewModelFactory(application))[BackupRestoreSettingsViewModel::class.java]
 
         lifecycleScope.launch {
-            BackupRestoreHelper.getBackupProgress(this@BackupRestoreSettingsHomeActivity).collectLatest { updateBackupProgress(it) }
+            viewModel.getBackupProgressFlow().collectLatest { updateBackupProgress(it) }
+        }
+        lifecycleScope.launch {
+            viewModel.getRestoreProgressFlow().collectLatest { updateRestoreProgress(it) }
         }
     }
 
@@ -79,10 +87,9 @@ class BackupRestoreSettingsHomeActivity: AppCompatActivity() {
             if (PackageManager.PERMISSION_GRANTED
                 != ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                 // TODO: show permission rationale
-                val requestLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-                    if (isGranted) { onGranted.invoke() }
-                }
-                requestLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+
+                pendingOnPermissionGranted = onGranted
+                permissionRequestLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
             }
             else {
                 onGranted.invoke()
@@ -90,6 +97,13 @@ class BackupRestoreSettingsHomeActivity: AppCompatActivity() {
         }
         else {
             onGranted.invoke()
+        }
+    }
+
+    private fun onPermissionResult(granted: Boolean) {
+        if (granted) {
+            pendingOnPermissionGranted?.invoke()
+            pendingOnPermissionGranted = null
         }
     }
 
@@ -104,26 +118,9 @@ class BackupRestoreSettingsHomeActivity: AppCompatActivity() {
     }
 
     private fun openRestoreLocal() {
-//        lifecycleScope.launch {
-//            viewModel.getBackupFiles().collectLatest { entries ->
-//                var selectedEntry: FileEntry? = null
-//                val adapter = RestoreFileChooserAdapter(entries)
-//                val dialog = MaterialAlertDialogBuilder(requireContext())
-//                    .setTitle(R.string.label_choose_restore_file)
-//                    .setSingleChoiceItems(adapter, 0) { _, selection ->
-//                        selectedEntry = adapter.getItem(selection)
-//                        Log.i(TAG, "selected backup file $selectedEntry")
-//                    }
-//                    .setPositiveButton(R.string.label_start_restore) { _, _ ->
-//                        selectedEntry?.let { entry ->
-//                            BackupRestoreHelper.startRestore(this, entry.uri, entry.mimeType)
-//                        }
-//                    }
-//                    .setNeutralButton(R.string.label_cancel, null)
-//                    .create()
-//                dialog.show()
-//            }
-//        }
+        checkPermissionsGrantedOrRequest {
+            startActivity(Intent(this@BackupRestoreSettingsHomeActivity, ActivityPickBackupFile::class.java))
+        }
     }
 
     private fun updateBackupProgress(data: BackupRestoreHelper.ProgressData?) {
@@ -136,6 +133,23 @@ class BackupRestoreSettingsHomeActivity: AppCompatActivity() {
             binding.btnStartBackup.visibility = View.GONE
             binding.backupProgressMessage.text = data.message
             binding.backupProgressbar.apply {
+                isIndeterminate = data.max < 0 || data.current < 0
+                max = data.max
+                progress = data.current
+            }
+        }
+    }
+
+    private fun updateRestoreProgress(data: BackupRestoreHelper.ProgressData?) {
+        if (data == null) {
+            binding.layoutRestoreProgress.visibility = View.GONE
+            binding.btnOpenRestoreLocal.visibility = View.VISIBLE
+        }
+        else {
+            binding.layoutRestoreProgress.visibility = View.VISIBLE
+            binding.btnOpenRestoreLocal.visibility = View.GONE
+            binding.restoreProgressMessage.text = data.message
+            binding.restoreProgressbar.apply {
                 isIndeterminate = data.max < 0 || data.current < 0
                 max = data.max
                 progress = data.current

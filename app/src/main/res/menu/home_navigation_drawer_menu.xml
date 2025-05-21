@@ -5,7 +5,7 @@
     <item
         android:id="@+id/menu_app_data"
         android:title="@string/menu_title_app_data"
-        android:icon="@drawable/database_64"
+        android:icon="@drawable/database"
         app:showAsAction="ifRoom"/>
 
     <item

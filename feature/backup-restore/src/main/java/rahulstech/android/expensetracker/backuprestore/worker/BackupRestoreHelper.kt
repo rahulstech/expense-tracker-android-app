@@ -54,9 +54,13 @@ object BackupRestoreHelper {
         backupOnce(workManager)
     }
 
-    suspend fun getBackupProgress(context: Context): Flow<ProgressData?> {
-        val workManager = getWorkManager(context.applicationContext)
-        return workManager.getWorkInfosForUniqueWorkFlow(Constants.TAG_BACKUP_WORK)
+    fun getBackupProgress(context: Context): Flow<ProgressData?> = getProgress(context, Constants.TAG_BACKUP_WORK)
+
+    fun getRestoreProgress(context: Context): Flow<ProgressData?> = getProgress(context, Constants.TAG_RESTORE_WORK)
+
+    private fun getProgress(context: Context, uniqueWorkName: String): Flow<ProgressData?> {
+        val workManager = getWorkManager(context)
+        return workManager.getWorkInfosForUniqueWorkFlow(uniqueWorkName)
             .map { infos ->
                 val runningWorkInfo = infos.find { info -> info.state == WorkInfo.State.RUNNING }
                 runningWorkInfo?.let { info ->

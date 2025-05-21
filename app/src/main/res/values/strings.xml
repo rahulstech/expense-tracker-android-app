@@ -116,42 +116,16 @@
 	<string name="menu_title_view_history_daily">Daily</string>
 	<string name="menu_title_view_history_monthly">Monthly</string>
 
-<!--	<string name="label_history_list_item_debit_source">From: %s</string>-->
-<!--	<string name="label_history_list_item_credit_destination">In: %s</string>-->
-<!--	<string name="label_history_list_item_transfer_source">From: %s</string>-->
-<!--	<string name="label_history_item_transfer_destination">In: %s</string>-->
-
 	<string name="label_history_list_item_source_account">From</string>
 	<string name="label_history_list_item_destination_account">In</string>
 
-<!--	<string name="label_history_list_item_expense_source">From %1$s</string>-->
-<!--	<string name="label_history_list_item_income_destination">In %1$s</string>-->
-
 	<string name="hint_history_note">Note</string>
-
-<!--	<string name="label_history_input_source_credit">Receive From</string>-->
-<!--    <string name="label_history_input_destination_credit">Credit To</string>-->
-<!--	<string name="label_history_input_source_transfer">From</string>-->
-<!--	<string name="label_history_input_destination_transfer">In</string>-->
-<!--	<string name="label_history_input_source_debit">Debit To</string>-->
-<!--	<string name="label_history_input_destination_debit">Pay For</string>-->
-<!--	<string name="label_history_input_source_expense">Pay From</string>-->
-<!--	<string name="label_history_input_destination_income">Receive In</string>-->
 
 	<string name="label_empty_history_list">No History</string>
 	<string name="label_view">View</string>
 	<string name="label_history_type_credit">Credit</string>
 	<string name="label_history_type_debit">Debit</string>
 	<string name="label_history_type_transfer">Transfer</string>
-
-<!--	<string name="label_history_item_source_credit">From</string>-->
-<!--	<string name="label_history_item_destination_credit">In</string>-->
-<!--	<string name="label_history_item_source_transfer">From</string>-->
-<!--	<string name="label_history_item_destination_transfer">In</string>-->
-<!--	<string name="label_history_item_source_debit">From</string>-->
-<!--	<string name="label_history_item_destination_debit">For</string>-->
-<!--	<string name="label_history_item_source_expense">From</string>-->
-<!--	<string name="label_history_item_destination_income">In</string>-->
 
 	<string name="label_history_item_source_account">From</string>
 	<string name="label_history_item_destination_account">In</string>
@@ -252,8 +226,9 @@
 	<string name="description_empty_recent_account_list">add account histories to see latest used account.up to 3 latest used accounts will show here</string>
 	<string name="label_empty_recent_group_list">No Recent Group</string>
 	<string name="description_empty_recent_group_list">add group histories to see latest used group. up to 3 latest used groups will show here.</string>
-    <string name="title_backup_restore_settings_home">Backup Restore</string>
+    <string name="title_app_data">App Data</string>
     <string name="menu_title_app_data">App Data</string>
+    <string name="title_local_restore">Local Restore</string>
 
     <plurals name="warning_delete_accounts">
 		<item quantity="one">%1$s will be deleted permanently. Do you want to proceed?</item>

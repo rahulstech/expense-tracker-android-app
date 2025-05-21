@@ -85,7 +85,7 @@ class NotificationBuilder {
         val builder = NotificationCompat.Builder(context, channelId)
             .setContentTitle(titleText)
             .setContentText(messageText)
-            .setSmallIcon(IconCompat.createWithResource(context.applicationContext, _smallIconRes ?: R.drawable.database_64) )
+            .setSmallIcon(IconCompat.createWithResource(context.applicationContext, _smallIconRes ?: R.drawable.database) )
         if (_showProgress) {
             val indeterminate = _progressCurrent !in 0.._progressMax
             builder.setProgress(_progressMax, _progressCurrent, indeterminate)
@@ -122,7 +122,7 @@ fun createBackupNotification(context: Context, builder: NotificationBuilder): No
     val appContext = context.applicationContext
     builder.apply {
         setTitleResource(R.string.notification_title_backup)
-        setSmallIconResource(R.drawable.sd_card_64)
+        setSmallIconResource(R.drawable.sd_card)
 
         val flags = PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
         val intentCancelWork = Intent(appContext, WorkBroadcastReceiver::class.java).apply {
@@ -144,7 +144,7 @@ fun createRestoreNotification(context: Context, builder: NotificationBuilder): N
     val appContext = context.applicationContext
     builder.apply {
         setTitleResource(R.string.notification_title_restore)
-        setSmallIconResource(R.drawable.arrow_circle_down_64)
+        setSmallIconResource(R.drawable.arrow_circle_down)
         val actionContent = PendingIntent.getActivity(appContext,
             Constants.REQUEST_SHOW_RESTORE_ACTIVITY,
             Intent(appContext, BackupRestoreSettingsHomeActivity::class.java),

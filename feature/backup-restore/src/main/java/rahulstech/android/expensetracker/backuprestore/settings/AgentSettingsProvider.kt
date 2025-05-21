@@ -19,20 +19,9 @@ enum class BackupFrequency {
     }
 }
 
-class AgentSettingsProvider private constructor(val applicationContext: Context){
+class AgentSettingsProvider private constructor(private val applicationContext: Context){
 
     private val sharedPreferences = applicationContext.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
-
-    fun backup(): AgentSettingsModel {
-        val frequency = getBackupFrequency()
-        return AgentSettingsModel(frequency)
-    }
-
-    fun restore(data: AgentSettingsModel) {
-        sharedPreferences.edit(true) {
-            putString(KEY_BACKUP_FREQUENCY, data.backupFrequency.name)
-        }
-    }
 
     fun getBackupFrequency(): BackupFrequency {
         val name = sharedPreferences.getString(KEY_BACKUP_FREQUENCY, null)
@@ -56,8 +45,8 @@ class AgentSettingsProvider private constructor(val applicationContext: Context)
     companion object {
 
         private const val SHARED_PREFERENCES_NAME = "rahulstech.android.expensetrcker.backuprestore.settings.agent"
-        private const val KEY_BACKUP_FREQUENCY = "rahulstech.android.expensetracker.backuprestore.BACKUP_FREQUENCY"
-        private const val KEY_LAST_LOCAL_BACKUP_MILLIS = "rahulstech.android.expensetracker.backuprestore.LAST_LOCAL_BACKUP_MILLIS"
+        private const val KEY_BACKUP_FREQUENCY = "backup_frequency"
+        private const val KEY_LAST_LOCAL_BACKUP_MILLIS = "last_local_backup_millis"
 
         @Volatile
         private var instance: AgentSettingsProvider? = null

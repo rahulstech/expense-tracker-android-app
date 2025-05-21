@@ -5,9 +5,7 @@
 
     <application >
         <receiver android:name=".receiver.WorkBroadcastReceiver"
-            android:exported="false">
-
-        </receiver>
+            android:exported="false"/>
     </application>
 
 </manifest>

@@ -14,9 +14,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import rahulstech.android.expensetracker.backuprestore.settings.BackupFrequency
 import rahulstech.android.expensetracker.backuprestore.util.AccountData
-import rahulstech.android.expensetracker.backuprestore.util.AgentSettingsData
 import rahulstech.android.expensetracker.backuprestore.util.AppSettingsData
 import rahulstech.android.expensetracker.backuprestore.util.GroupData
 import rahulstech.android.expensetracker.backuprestore.util.HistoryData
@@ -127,21 +125,6 @@ class JsonRestoreWork8Test {
     }
 
     @Test
-    fun testRestoreAgentSettings() {
-        val json = "{\"agent_settings\":{\"backupFrequency\":\"NEVER\"}}"
-        newJsonReader(json)
-
-        val expected = AgentSettingsData(BackupFrequency.NEVER)
-        writeHelper.callback = { _,actual ->
-            assertEquals(expected,actual)
-        }
-
-        jsonReader.beginObject()
-        jsonReader.nextName()
-        worker.restoreAgentSettings(writeHelper,jsonReader,gson)
-    }
-
-    @Test
     fun testRestore() {
         val json = "{ \"version\": 8," +
                 "\"accounts\":[{\"id\": 1, \"name\": \"Account 1\", \"balance\": 150.00}]," +
@@ -151,8 +134,7 @@ class JsonRestoreWork8Test {
                 "{\"id\": 2, \"type\": \"DEBIT\", \"primaryAccountId\": 1, \"secondaryAccountId\": null, \"groupId\": 2, \"amount\": 150.00, \"date\": \"2023-05-16\", \"note\": null}," +
                 "{\"id\": 3, \"type\": \"TRANSFER\", \"primaryAccountId\": 1, \"secondaryAccountId\": 2, \"groupId\": null, \"amount\": 150.00, \"date\": \"2023-05-16\", \"note\": \"transfer\"}," +
                 "{\"id\": 4, \"type\": \"CREDIT\", \"primaryAccountId\": 1, \"secondaryAccountId\": null, \"groupId\": null, \"amount\": 150.00, \"date\": \"2023-05-16\", \"note\": \"income\"}]," +
-                "\"app_settings\":{\"viewHistory\":\"DAILY\"},"+
-                "\"agent_settings\":{\"backupFrequency\":\"NEVER\"}}"
+                "\"app_settings\":{\"viewHistory\":\"DAILY\"}}"
         newJsonReader(json)
 
         val expectedAccounts = listOf(AccountData(1,"Account 1", 150.0f))
@@ -164,14 +146,12 @@ class JsonRestoreWork8Test {
             HistoryData(4,HistoryType.CREDIT, 1,null,null,150.00f,Date.valueOf("2023-05-16"),"income")
         )
         val expectedAppSettings = AppSettingsData(ViewHistory.DAILY)
-        val expectedAgentSettings = AgentSettingsData(BackupFrequency.NEVER)
         writeHelper.callback = { name,actual ->
             when(name) {
                 Constants.JSON_FIELD_ACCOUNTS -> assertEquals(expectedAccounts, actual)
                 Constants.JSON_FIELD_PEOPLE -> assertEquals(expectedPeople, actual)
                 Constants.JSON_FIELD_HISTORIES -> assertEquals(expectedHistories, actual)
                 Constants.JSON_FIELD_APP_SETTINGS -> assertEquals(expectedAppSettings, actual)
-                Constants.JSON_FIELD_AGENT_SETTINGS -> assertEquals(expectedAgentSettings, actual)
             }
         }
 

@@ -7,10 +7,25 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme.NoActionBar">
 
+        <!-- START: activities for backup and restore -->
+
         <activity android:name="rahulstech.android.expensetracker.backuprestore.ui.BackupRestoreSettingsHomeActivity"
-            android:label="@string/title_backup_restore_settings_home"
+            android:label="@string/title_app_data"
             android:exported="false"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:theme="@style/AppTheme.NoActionBar"
+            android:parentActivityName=".ui.main.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.main.MainActivity" />
+        </activity>
+
+        <activity android:name="rahulstech.android.expensetracker.backuprestore.ui.ActivityPickBackupFile"
+            android:label="@string/title_local_restore"
+            android:exported="false"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+
+        <!-- END: activities for backup and restore -->
 
         <activity
             android:name=".ui.splash.SplashActivity"
@@ -22,11 +37,22 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- START: app settings -->
+
         <activity
             android:name="dreammaker.android.expensetracker.settings.SettingsActivity"
             android:label="@string/title_activity_settings"
             android:theme="@style/AppTheme.NoActionBar"
-            android:exported="false"/>
+            android:exported="false"
+            android:parentActivityName=".ui.main.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.main.MainActivity" />
+        </activity>
+
+        <!-- START: app settings -->
+
         <activity
             android:name=".ui.main.MainActivity"
             android:exported="false"/>

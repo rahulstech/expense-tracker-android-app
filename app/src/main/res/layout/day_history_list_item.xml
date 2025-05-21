@@ -118,7 +118,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         app:lastItemDecorated="false"
-        app:layout_constraintTop_toBottomOf="@id/group"
+        app:layout_constraintTop_toBottomOf="@id/group_result"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"/>

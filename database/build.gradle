@@ -50,8 +50,8 @@ android {
 
 dependencies {
 
-    implementation 'androidx.core:core-ktx:1.13.0'
-    implementation 'androidx.appcompat:appcompat:1.3.1'
+    implementation 'androidx.core:core-ktx:1.13.1'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
 
     // android room
     def roomVersion = '2.3.0'
@@ -60,11 +60,8 @@ dependencies {
     androidTestImplementation "androidx.room:room-testing:$roomVersion"
 
     // paging
-    def pagingVersion = '3.0.1'
-    api "androidx.paging:paging-runtime:$pagingVersion"
-
-    // gson
-    api 'com.google.code.gson:gson:2.8.5'
+//    def pagingVersion = '3.0.1'
+//    api "androidx.paging:paging-runtime:$pagingVersion"
 
     // android test library
     testImplementation 'junit:junit:4.13.2'

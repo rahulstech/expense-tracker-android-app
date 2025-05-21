@@ -3,15 +3,12 @@ package rahulstech.android.expensetracker.backuprestore.worker.backup
 import dreammaker.android.expensetracker.database.Date
 import dreammaker.android.expensetracker.database.HistoryType
 import dreammaker.android.expensetracker.settings.ViewHistory
-import rahulstech.android.expensetracker.backuprestore.settings.BackupFrequency
 import rahulstech.android.expensetracker.backuprestore.util.AccountData
-import rahulstech.android.expensetracker.backuprestore.util.AgentSettingsData
 import rahulstech.android.expensetracker.backuprestore.util.AppSettingsData
 import rahulstech.android.expensetracker.backuprestore.util.GroupData
 import rahulstech.android.expensetracker.backuprestore.util.HistoryData
-import rahulstech.android.expensetracker.backuprestore.worker.ReadHelper
 
-class FakeReadHelper: ReadHelper {
+class FakeReadHelper: JsonBackupWorker.ReadHelper {
 
     private val accounts = listOf(
         AccountData(1,"Account 1", 150.0f),
@@ -35,9 +32,9 @@ class FakeReadHelper: ReadHelper {
 
     override fun close() {}
 
-    override fun readAccounts(from: Long, size: Long): List<AccountData> = accounts
+    override fun readAccounts(): List<AccountData> = accounts
 
-    override fun readGroups(from: Long, size: Long): List<GroupData> = groups
+    override fun readGroups(): List<GroupData> = groups
 
     override fun readHistories(from: Long, size: Long): List<HistoryData> {
         val start = Math.max(0, from)
@@ -50,9 +47,5 @@ class FakeReadHelper: ReadHelper {
 
     override fun readAppSettings(): AppSettingsData {
         return AppSettingsData(ViewHistory.DAILY)
-    }
-
-    override fun readAgentSettings(): AgentSettingsData {
-        return AgentSettingsData(BackupFrequency.NEVER)
     }
 }

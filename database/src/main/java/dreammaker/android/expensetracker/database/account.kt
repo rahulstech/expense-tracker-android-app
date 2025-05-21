@@ -10,16 +10,13 @@ import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
-import com.google.gson.annotations.SerializedName
 import java.util.Objects
 
 @Entity(tableName = "accounts")
 open class Account (
-    @SerializedName("_id")
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")
     var accountId: Long,
-    @SerializedName("account_name")
     @ColumnInfo(name = "account_name")
     var accountName: String,
     open var balance: Float
@@ -95,5 +92,5 @@ interface AccountDao {
     fun insertAccounts(accounts: List<Account>)
 
     @Query("SELECT * FROM `accounts`")
-    fun getAccounts(): List<AccountModel>
+    fun getAccounts(): List<Account>
 }

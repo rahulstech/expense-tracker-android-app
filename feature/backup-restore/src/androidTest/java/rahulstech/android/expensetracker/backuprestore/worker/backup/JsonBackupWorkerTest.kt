@@ -12,7 +12,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import rahulstech.android.expensetracker.backuprestore.util.newGson
-import rahulstech.android.expensetracker.backuprestore.worker.ReadHelper
+import rahulstech.android.expensetracker.backuprestore.worker.JsonWorkReadHelper
 import java.io.ByteArrayOutputStream
 import java.io.OutputStream
 import java.io.OutputStreamWriter
@@ -31,7 +31,7 @@ class JsonBackupWorkerTest {
     var _worker: JsonBackupWorker? = null
     val worker: JsonBackupWorker get() = _worker!!
 
-    val readHelper: ReadHelper = FakeReadHelper()
+    val readHelper: JsonWorkReadHelper = FakeReadHelper()
 
     fun getJson(): String {
         val baos = outputStream as ByteArrayOutputStream
@@ -109,17 +109,6 @@ class JsonBackupWorkerTest {
     }
 
     @Test
-    fun testBackupAgentSettings() {
-        writer.beginObject()
-        worker.backupAgentSettings(readHelper.readAgentSettings(), writer, gson)
-        writer.endObject()
-        writer.flush()
-        val actual = getJson()
-        val expected = "{\"agent_settings\":{\"backupFrequency\":\"NEVER\"}}"
-        assertEquals(expected,actual)
-    }
-
-    @Test
     fun testBackup() {
         worker.backup(readHelper, writer, gson)
         writer.flush()
@@ -132,8 +121,7 @@ class JsonBackupWorkerTest {
                 "{\"amount\":150.0,\"date\":\"2023-05-16\",\"groupId\":1,\"id\":3,\"note\":\"credit\",\"primaryAccountId\":1,\"type\":\"CREDIT\"}," +
                 "{\"amount\":150.0,\"date\":\"2023-05-16\",\"groupId\":1,\"id\":4,\"primaryAccountId\":1,\"type\":\"DEBIT\"}," +
                 "{\"amount\":150.0,\"date\":\"2023-05-16\",\"id\":5,\"primaryAccountId\":1,\"secondaryAccountId\":2,\"type\":\"TRANSFER\"}]," +
-                "\"app_settings\":{\"viewHistory\":\"DAILY\"}," +
-                "\"agent_settings\":{\"backupFrequency\":\"NEVER\"}}".trimIndent()
+                "\"app_settings\":{\"viewHistory\":\"DAILY\"}}".trimIndent()
         assertEquals(expected,actual)
     }
 

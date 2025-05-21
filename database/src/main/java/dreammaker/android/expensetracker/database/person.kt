@@ -4,16 +4,13 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
-import com.google.gson.annotations.SerializedName
 import java.util.Objects
 
 @Entity(tableName = "persons")
 open class Person(
-    @SerializedName("_id")
     @PrimaryKey(autoGenerate = true)
-    @field:ColumnInfo(name = "_id",)
+    @ColumnInfo(name = "_id")
     var personId: Long,
-    @SerializedName("person_name")
     @ColumnInfo(name = "person_name",)
     var personName: String,
     open var due: Float

@@ -70,12 +70,15 @@
                     android:layout_marginRight="8dp"
                     android:textAppearance="@style/TextAppearance.Material3.BodySmall"
                     tools:text="backup accounts in progress"
+                    app:layout_constrainedWidth="true"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"/>
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/btn_cancel_backup"
+                    app:layout_constraintHorizontal_bias="0"/>
 
                 <com.google.android.material.progressindicator.LinearProgressIndicator
                     android:id="@+id/backup_progressbar"
-                    android:layout_width="0dp"
+                    android:layout_width="300dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:layout_marginLeft="8dp"
@@ -86,12 +89,7 @@
                     app:indicatorColor="?attr/colorPrimary"
                     app:layout_constraintTop_toBottomOf="@id/backup_progress_message"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/btn_cancel_backup"
-                    android:indeterminate="true"
-                    android:max="0"
-                    android:progress="0"
-                    tools:max="100"
-                    tools:progress="56"/>
+                    app:layout_constraintEnd_toStartOf="@id/btn_cancel_backup" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_cancel_backup"
@@ -99,11 +97,11 @@
                     android:layout_height="wrap_content"
                     style="@style/Widget.Material3.Button.IconButton"
                     app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.Full"
-                    app:icon="@drawable/baseline_close_64"
+                    app:icon="@drawable/baseline_close"
                     app:iconSize="20dp"
                     app:iconTint="?attr/colorOnBackground"
-                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/backup_progressbar"
                     app:layout_constraintBottom_toBottomOf="parent"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
@@ -147,23 +145,68 @@
             android:id="@+id/label_restore_settings"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="16dp"
             app:layout_constraintTop_toTopOf="@id/divider1"
             app:layout_constraintStart_toStartOf="parent"
             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
             android:text="@string/description_restore_settings"/>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_open_restore_local"
-            android:layout_width="wrap_content"
+        <FrameLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
-            android:text="@string/label_open_restore_local"
-            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="16dp"
             app:layout_constraintTop_toBottomOf="@id/label_restore_settings"
-            tools:visibility="visible"/>
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_open_restore_local"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:text="@string/label_open_restore_local"
+                android:visibility="visible"/>
+
+            <LinearLayout
+                android:id="@+id/layout_restore_progress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/restore_progress_message"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginRight="8dp"
+                    android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                    app:layout_constrainedWidth="true"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/btn_cancel_backup"
+                    app:layout_constraintHorizontal_bias="0"
+                    tools:text="restoring from backup.json"/>
+
+                <com.google.android.material.progressindicator.LinearProgressIndicator
+                    android:id="@+id/restore_progressbar"
+                    android:layout_width="300dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginRight="8dp"
+                    app:indicatorTrackGapSize="0dp"
+                    app:trackColor="?attr/colorPrimaryContainer"
+                    app:trackCornerRadius="24dp"
+                    app:indicatorColor="?attr/colorPrimary"
+                    app:layout_constraintTop_toBottomOf="@id/backup_progress_message"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/btn_cancel_backup" />
+            </LinearLayout>
+        </FrameLayout>
+
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

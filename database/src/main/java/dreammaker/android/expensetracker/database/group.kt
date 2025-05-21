@@ -10,10 +10,13 @@ import androidx.room.Transaction
 import androidx.room.Update
 
 data class Group(
+    @ColumnInfo(name = "_id")
     val id: Long,
+    @ColumnInfo(name = "person_name")
     val name: String,
+    @ColumnInfo(name = "due")
     val balance: Float
-): Person(id,name,balance)
+)
 
 data class GroupModel(
     @ColumnInfo(name = "_id")
@@ -23,8 +26,8 @@ data class GroupModel(
     @ColumnInfo(name = "due")
     val balance: Float?
 ) {
-    fun toGroup(): Group
-    = Group(id ?: 0, name!!, balance ?: 0f)
+    fun toGroup(): Person
+    = Person(id ?: 0, name!!, balance ?: 0f)
 }
 
 @Dao
@@ -54,5 +57,5 @@ interface GroupDao {
     fun insertGroups(groups: List<Person>)
 
     @Query("SELECT * FROM `persons`")
-    fun getGroups(): List<GroupModel>
+    fun getGroups(): List<Group>
 }

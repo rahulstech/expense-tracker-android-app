@@ -3,11 +3,13 @@ package rahulstech.android.expensetracker.backuprestore.util
 import android.content.Context
 import android.net.Uri
 import android.os.Build
+import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.webkit.MimeTypeMap
 import androidx.annotation.RequiresApi
 import androidx.core.net.toFile
+import androidx.core.os.bundleOf
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.io.File
@@ -20,7 +22,24 @@ data class FileEntry(
     val mimeType: String,
     val lastModifiedMillis: Long,
     val uri: Uri
-)
+) {
+
+    companion object {
+        fun fromBundle(bundle: Bundle): FileEntry = FileEntry(
+                bundle.getString("displayName", ""),
+                bundle.getString("mimeType", ""),
+                bundle.getLong("lastModifiedMillis", -1),
+                Uri.parse(bundle.getString("uri", ""))
+            )
+    }
+
+    fun toBundle(): Bundle = bundleOf(
+            "displayName" to displayName,
+            "mimeType" to mimeType,
+            "lastModifiedMillis" to lastModifiedMillis,
+            "uri" to uri.toString()
+        )
+}
 
 object FileUtil {
 

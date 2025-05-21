@@ -41,6 +41,9 @@
       <SelectionState runConfigName="JsonRestoreWork8">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
+      <SelectionState runConfigName="JsonRestoreWork8Test">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
     </selectionStates>
   </component>
 </project>

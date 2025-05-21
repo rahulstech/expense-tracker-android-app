@@ -1,7 +1,5 @@
 package dreammaker.android.expensetracker.database;
 
-import com.google.gson.annotations.SerializedName;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
@@ -49,40 +47,33 @@ public class Transaction implements Cloneable {
     @ColumnInfo(name = _ID, typeAffinity = ColumnInfo.INTEGER)
     @PrimaryKey(autoGenerate = true)
     @NonNull
-    @SerializedName(_ID)
     private long transactionId;
 
     @ColumnInfo(name = ACCOUNT_ID, typeAffinity = ColumnInfo.INTEGER)
     @NonNull
-    @SerializedName(ACCOUNT_ID)
     private long accountId;
 
     @ColumnInfo(name = PERSON_ID, typeAffinity = ColumnInfo.INTEGER)
     @Nullable
-    @SerializedName(PERSON_ID)
     private Long personId;
 
     @ColumnInfo(name = AMOUNT, typeAffinity = ColumnInfo.REAL, defaultValue = "0")
     @NonNull
-    @SerializedName(AMOUNT)
     private float amount;
 
     @ColumnInfo(name = TYPE, typeAffinity = ColumnInfo.INTEGER)
     @NonNull
-    @SerializedName(TYPE)
     private int type;
 
     @ColumnInfo(name = DATE, typeAffinity = ColumnInfo.TEXT)
     @NonNull
     @TypeConverters(Converters.class)
-    @SerializedName(DATE)
     private Date date;
 
     @NonNull
     private boolean deleted = false;
 
     @ColumnInfo(name = DESCRIPTION, typeAffinity = ColumnInfo.TEXT)
-    @SerializedName(DESCRIPTION)
     private String description;
 
     public Transaction(long transactionId, long accountId, Long personId, float amount, int type, @NonNull Date date, boolean deleted, String description) {

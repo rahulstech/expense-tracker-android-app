@@ -1,16 +1,16 @@
 package rahulstech.android.expensetracker.backuprestore.util
 
 import com.google.gson.annotations.SerializedName
+import dreammaker.android.expensetracker.database.Account
 import dreammaker.android.expensetracker.database.AccountModel
 import dreammaker.android.expensetracker.database.Date
+import dreammaker.android.expensetracker.database.Group
 import dreammaker.android.expensetracker.database.GroupModel
 import dreammaker.android.expensetracker.database.History
 import dreammaker.android.expensetracker.database.HistoryModel
 import dreammaker.android.expensetracker.database.HistoryType
 import dreammaker.android.expensetracker.settings.SettingsModel
 import dreammaker.android.expensetracker.settings.ViewHistory
-import rahulstech.android.expensetracker.backuprestore.settings.AgentSettingsModel
-import rahulstech.android.expensetracker.backuprestore.settings.BackupFrequency
 
 data class AccountData(
     @SerializedName("id", alternate = ["_id"])
@@ -114,20 +114,12 @@ data class AppSettingsData(
     }
 }
 
-data class AgentSettingsData(
-    val backupFrequency: BackupFrequency
-) {
-    fun toAgentSettingsModel(): AgentSettingsModel {
-        return AgentSettingsModel(backupFrequency)
-    }
+fun Account.toAccountData(): AccountData {
+    return AccountData(accountId,accountName,balance)
 }
 
-fun AccountModel.toAccountData(): AccountData {
-    return AccountData(id!!,name!!,balance!!)
-}
-
-fun GroupModel.toGroupData(): GroupData {
-    return GroupData(id!!,name!!,balance!!)
+fun Group.toGroupData(): GroupData {
+    return GroupData(id,name,balance)
 }
 
 fun History.toHistoryData(): HistoryData {
@@ -136,8 +128,4 @@ fun History.toHistoryData(): HistoryData {
 
 fun SettingsModel.toSettingsData(): AppSettingsData {
     return AppSettingsData(viewHistory)
-}
-
-fun AgentSettingsModel.toAgentSettingsData(): AgentSettingsData {
-    return AgentSettingsData(backupFrequency)
 }
