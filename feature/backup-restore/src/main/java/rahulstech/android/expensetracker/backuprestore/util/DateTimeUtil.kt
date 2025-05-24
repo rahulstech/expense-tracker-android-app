@@ -24,6 +24,11 @@ object DateTimeUtil {
         return formatTimeMillis(millis,pattern)
     }
 
+    fun formatDateTimeInFilename(millis: Long = currentTimeMillis()): String {
+        val pattern = "yyyyMMdd_HHmmss"
+        return formatTimeMillis(millis, pattern)
+    }
+
     private fun formatTimeMillis(millis: Long, pattern: String): String {
         val date = Date().apply { time = millis }
         val format = SimpleDateFormat(pattern, Locale.ENGLISH)

@@ -12,7 +12,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import rahulstech.android.expensetracker.backuprestore.util.newGson
-import rahulstech.android.expensetracker.backuprestore.worker.JsonWorkReadHelper
 import java.io.ByteArrayOutputStream
 import java.io.OutputStream
 import java.io.OutputStreamWriter
@@ -31,7 +30,7 @@ class JsonBackupWorkerTest {
     var _worker: JsonBackupWorker? = null
     val worker: JsonBackupWorker get() = _worker!!
 
-    val readHelper: JsonWorkReadHelper = FakeReadHelper()
+    val readHelper: JsonBackupWorker.ReadHelper = FakeReadHelper()
 
     fun getJson(): String {
         val baos = outputStream as ByteArrayOutputStream

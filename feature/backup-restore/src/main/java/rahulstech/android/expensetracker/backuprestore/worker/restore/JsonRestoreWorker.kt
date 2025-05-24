@@ -38,28 +38,24 @@ class JsonRestoreWorker(context: Context, parameters: WorkerParameters): Worker(
     private val TAG = JsonRestoreWorker::class.simpleName
 
     override fun doWork(): Result {
-        setForegroundAsync(createForegroundInfo(createRestoreStartNotification()))
+        setForegroundAsync(createForegroundInfo(createRestoreNotification()))
         val gson = newGson()
-        var input: InputStream? = null
-        var jsonReader: JsonReader? = null
         val writeHelper: WriteHelper = WriterHelperImpl(applicationContext)
         try {
-            input = openRestoreFileForReading()
-            jsonReader = gson.newJsonReader(InputStreamReader(input))
-            restore(writeHelper,jsonReader,gson)
+            val input = openInputBackupFile()
+            input.use {
+                val jsonReader = gson.newJsonReader(InputStreamReader(input))
+                jsonReader.use { restore(writeHelper,jsonReader,gson) }
+            }
         }
         catch (ex: Exception) {
             Log.e(TAG, "JsonRestoreWork failed with exception",ex)
             return Result.failure()
         }
-        finally {
-            runCatching { jsonReader?.close() }
-            runCatching { input?.close() }.onFailure { Log.e(TAG, "failed to close input stream", it) }
-        }
         return Result.success()
     }
 
-    private fun openRestoreFileForReading(): InputStream {
+    private fun openInputBackupFile(): InputStream {
         val uri = Uri.parse(inputData.getString(Constants.DATA_BACKUP_FILE))
         Log.i(TAG, "restore backup file $uri")
         return FileUtil.openInputStream(applicationContext, uri)
@@ -73,7 +69,6 @@ class JsonRestoreWorker(context: Context, parameters: WorkerParameters): Worker(
             jsonReader.beginObject()
             while (jsonReader.hasNext()) {
                 val name = jsonReader.nextName()
-                updateProgress()
                 when(name) {
                     Constants.JSON_FIELD_ACCOUNTS -> restoreAccounts(writeHelper, jsonReader, gson)
                     Constants.JSON_FIELD_GROUPS, Constants.JSON_FIELD_PEOPLE -> restoreGroups(writeHelper, jsonReader, gson)
@@ -190,29 +185,15 @@ class JsonRestoreWorker(context: Context, parameters: WorkerParameters): Worker(
         writeHelper.writeAppSettings(settings)
     }
 
-    private fun createRestoreStartNotification(): Notification {
-        val styledMessage = getStyledMessage()
+    private fun createRestoreNotification(): Notification {
         val builder = NotificationBuilder().apply {
-            setMessage(styledMessage)
+            setMessage(getStyledMessage())
         }
-        return createRestoreNotification(applicationContext, builder)
-    }
-
-    private fun updateProgress() {
-        val plainMessage = getPlainMessage()
-        val styledMessage = getStyledMessage()
-        setProgressAsync(
-            workDataOf(
-                Constants.DATA_PROGRESS_MAX to -1,
-                Constants.DATA_PROGRESS_CURRENT to -1,
-                Constants.DATA_PROGRESS_MESSAGE to plainMessage
-            )
+        val progressData = workDataOf(
+            Constants.DATA_PROGRESS_MESSAGE to getPlainMessage()
         )
-        val builder = NotificationBuilder().apply {
-            setMessage(styledMessage)
-            setProgress(-1,-1)
-        }
-        setForegroundAsync(createForegroundInfo(createRestoreNotification(applicationContext, builder)))
+        setProgressAsync(progressData)
+        return createRestoreNotification(applicationContext, builder)
     }
 
     private fun createForegroundInfo(notification: Notification): ForegroundInfo {

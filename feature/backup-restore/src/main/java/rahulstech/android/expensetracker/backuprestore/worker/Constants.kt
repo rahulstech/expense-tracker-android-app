@@ -12,7 +12,6 @@ object Constants {
     const val JSON_FIELD_APP_SETTINGS = "app_settings"
     const val JSON_FIELD_AGENT_SETTINGS = "agent_settings"
 
-    const val DATA_JSON_BACKUP_FILE = "json_backup_file"
     const val DATA_PROGRESS_MAX = "progress_max"
     const val DATA_PROGRESS_CURRENT = "progress_current"
     const val DATA_PROGRESS_MESSAGE = "progress_message"
@@ -26,8 +25,6 @@ object Constants {
     const val TAG_JSON_RESTORE_WORK = "json_restore_work"
     const val TAG_GZIP_RESTORE_WORK = "gzip_restore_work"
 
-
     const val REQUEST_CANCEL_BACKUP = 100
-    const val REQUEST_SHOW_RESTORE_ACTIVITY = 200
 
 }

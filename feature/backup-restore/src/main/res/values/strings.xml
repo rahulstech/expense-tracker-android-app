@@ -5,8 +5,8 @@
     <string name="label_last_local_backup_time">Local Backup</string>
     <string name="label_last_local_backup_time_never">Never</string>
     <string name="notification_title_backup">Backup</string>
-    <string name="message_json_backup_start">Local backup start</string>
-    <string name="message_json_backup_progress">Backup in progress</string>
+    <string name="message_backup_start">Local backup start</string>
+    <string name="message_backup_progress">Backup in progress</string>
     <string name="label_start_backup">Start Backup</string>
     <string name="label_auto_backup">Auto Backup</string>
     <string name="backup_frequency_never">Never</string>
@@ -27,4 +27,6 @@
     <string name="label_choose">Choose</string>
     <string name="message_no_backup_file_picked">No file selected, can not restore.</string>
     <string name="message_invalid_backup_file_type">Only .json or .tar.gz files are accepted. Can not restore %1$s</string>
+    <string name="message_backup_progress_copying">Copying</string>
+    <string name="message_backup_progress_archiving">Archiving</string>
 </resources>

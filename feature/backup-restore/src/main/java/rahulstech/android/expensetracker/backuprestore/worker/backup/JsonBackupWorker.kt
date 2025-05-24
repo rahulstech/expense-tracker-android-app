@@ -44,12 +44,13 @@ class JsonBackupWorker(context: Context, params: WorkerParameters): Worker(conte
     }
 
     override fun doWork(): Result {
-        setForegroundAsync(createForegroundInfo(createStartNotification()))
         val gson = newGson()
         var output: OutputStream? = null
         var writer: JsonWriter? = null
         val backupFile: File = getBackupFile()
         val readHelper: ReadHelper = ReadHelperImpl(applicationContext)
+
+        updateProgress(0)
         try {
             output = openOutputStream(backupFile)
             writer = gson.newJsonWriter(OutputStreamWriter(output))
@@ -63,13 +64,13 @@ class JsonBackupWorker(context: Context, params: WorkerParameters): Worker(conte
         finally {
             runCatching { readHelper.close() }.onFailure { Log.e(TAG,"fail to close readHelper", it) }
             runCatching { writer?.close() }
-            runCatching { output?.close() }.onFailure { Log.e(TAG,"fail to close output", it) }
+            runCatching { output?.close() }
         }
 
-        val data = workDataOf(
-            Constants.DATA_JSON_BACKUP_FILE to backupFile.canonicalPath
+        val resultData = workDataOf(
+            Constants.DATA_BACKUP_FILE to backupFile.canonicalPath
         )
-        return Result.success(data)
+        return Result.success(resultData)
     }
 
     private fun getBackupFile(): File {
@@ -181,34 +182,27 @@ class JsonBackupWorker(context: Context, params: WorkerParameters): Worker(conte
         writer.flush()
     }
 
+    private fun updateProgress(current: Int) {
+        val message = applicationContext.getString(R.string.message_backup_progress)
+        setProgressAsync(workDataOf(
+            Constants.DATA_PROGRESS_MAX to MAX_PROGRESS,
+            Constants.DATA_PROGRESS_CURRENT to current,
+            Constants.DATA_PROGRESS_MESSAGE to message
+        ))
+        val builder = NotificationBuilder().apply {
+            setMessage(message)
+            setProgress(current, MAX_PROGRESS)
+        }
+        val notification = createBackupNotification(applicationContext, builder)
+        setForegroundAsync(createForegroundInfo(notification))
+    }
+
     private fun createForegroundInfo(notification: Notification): ForegroundInfo {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             ForegroundInfo(NotificationConstants.BACKUP_NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
         } else {
             ForegroundInfo(NotificationConstants.BACKUP_NOTIFICATION_ID, notification)
         }
-    }
-
-    private fun createStartNotification(): Notification {
-        val builder = NotificationBuilder().apply {
-            setMessageResource(R.string.message_json_backup_start)
-        }
-        return createBackupNotification(applicationContext, builder)
-    }
-
-    private fun updateProgress(current: Int, max: Int = MAX_PROGRESS) {
-        val message = applicationContext.getString(R.string.message_json_backup_progress)
-        setProgressAsync(workDataOf(
-            Constants.DATA_PROGRESS_MAX to max,
-            Constants.DATA_PROGRESS_CURRENT to current,
-            Constants.DATA_PROGRESS_MESSAGE to message
-        ))
-        val builder = NotificationBuilder().apply {
-            setMessage(message)
-            setProgress(current, max)
-        }
-        val notification = createBackupNotification(applicationContext, builder)
-        setForegroundAsync(createForegroundInfo(notification))
     }
 
     private fun throwIfStopped() {
