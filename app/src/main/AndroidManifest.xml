@@ -9,20 +9,13 @@
 
         <!-- START: activities for backup and restore -->
 
-        <activity android:name="rahulstech.android.expensetracker.backuprestore.ui.BackupRestoreSettingsHomeActivity"
+        <activity android:name=".ui.settings.BackupRestoreActivity"
             android:label="@string/title_app_data"
             android:exported="false"
-            android:theme="@style/AppTheme.NoActionBar"
             android:parentActivityName=".ui.main.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.main.MainActivity" />
-        </activity>
-
-        <activity android:name="rahulstech.android.expensetracker.backuprestore.ui.ActivityPickBackupFile"
-            android:label="@string/title_local_restore"
-            android:exported="false"
-            android:theme="@style/AppTheme.NoActionBar">
         </activity>
 
         <!-- END: activities for backup and restore -->
@@ -41,9 +34,8 @@
         <!-- START: app settings -->
 
         <activity
-            android:name="dreammaker.android.expensetracker.settings.SettingsActivity"
-            android:label="@string/title_activity_settings"
-            android:theme="@style/AppTheme.NoActionBar"
+            android:name="dreammaker.android.expensetracker.ui.settings.AppSettingsActivity"
+            android:label="@string/title_app_settings"
             android:exported="false"
             android:parentActivityName=".ui.main.MainActivity">
             <meta-data

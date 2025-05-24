@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">Expense Tracker</string>
-	<string name="title_activity_settings">Settings</string>
+	<string name="title_app_settings">Settings</string>
 	<string name="work_action_service_name">WorkActionService</string>
 	<string name="work_action_service_description">
 		Service to handle different action in backup and restore notification

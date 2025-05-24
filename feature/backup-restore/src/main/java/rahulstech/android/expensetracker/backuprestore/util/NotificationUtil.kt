@@ -12,7 +12,6 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.graphics.drawable.IconCompat
 import rahulstech.android.expensetracker.backuprestore.R
 import rahulstech.android.expensetracker.backuprestore.receiver.WorkBroadcastReceiver
-import rahulstech.android.expensetracker.backuprestore.ui.BackupRestoreSettingsHomeActivity
 import rahulstech.android.expensetracker.backuprestore.worker.Constants
 
 object NotificationConstants {
@@ -145,11 +144,11 @@ fun createRestoreNotification(context: Context, builder: NotificationBuilder): N
     builder.apply {
         setTitleResource(R.string.notification_title_restore)
         setSmallIconResource(R.drawable.arrow_circle_down)
-        val actionContent = PendingIntent.getActivity(appContext,
-            Constants.REQUEST_SHOW_RESTORE_ACTIVITY,
-            Intent(appContext, BackupRestoreSettingsHomeActivity::class.java),
-            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
-        setContentAction(actionContent)
+//        val actionContent = PendingIntent.getActivity(appContext,
+//            Constants.REQUEST_SHOW_RESTORE_ACTIVITY,
+//            Intent(appContext, BackupRestoreSettingsHomeActivity::class.java),
+//            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
+//        setContentAction(actionContent)
     }
     createNotificationChannel(appContext,NotificationConstants.NOTIFICATION_CHANNEL_ID_BACKUP_RESTORE)
     return builder.create(appContext, NotificationConstants.NOTIFICATION_CHANNEL_ID_BACKUP_RESTORE)

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="message_pick_backup_file_instruction">
+        Go to the directory Documents > ExpenseTracker > backup and choose one of the .tar.gz files.
+    </string>
+</resources>

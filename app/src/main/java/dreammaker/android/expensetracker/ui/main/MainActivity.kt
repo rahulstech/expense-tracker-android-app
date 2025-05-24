@@ -11,8 +11,8 @@ import androidx.navigation.ui.NavigationUI.setupActionBarWithNavController
 import androidx.navigation.ui.navigateUp
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.databinding.MainBinding
-import dreammaker.android.expensetracker.settings.SettingsActivity
-import rahulstech.android.expensetracker.backuprestore.ui.BackupRestoreSettingsHomeActivity
+import dreammaker.android.expensetracker.ui.settings.AppSettingsActivity
+import dreammaker.android.expensetracker.ui.settings.BackupRestoreActivity
 
 class MainActivity : AppCompatActivity() {
 
@@ -50,11 +50,11 @@ class MainActivity : AppCompatActivity() {
         binding.drawerLayout.closeDrawer(binding.drawer)
         return when(item.itemId) {
             R.id.menu_app_data -> {
-                startActivity(Intent(this@MainActivity, BackupRestoreSettingsHomeActivity::class.java))
+                startActivity(Intent(this, BackupRestoreActivity::class.java))
                 true
             }
             R.id.menu_settings -> {
-                startActivity(Intent(this, SettingsActivity::class.java))
+                startActivity(Intent(this, AppSettingsActivity::class.java))
                 true
             }
             else -> false

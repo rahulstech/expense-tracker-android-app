@@ -1,35 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="notification_title_backup">Backup</string>
-    <string name="message_json_backup_start">Local backup start</string>
-    <string name="message_json_backup_complete">Local backup complete</string>
-    <string name="message_json_backup_accounts">Account backup in progress</string>
-    <string name="message_json_backup_groups">Group backup in progress</string>
-    <string name="message_json_backup_histories">History backup in progress</string>
-    <string name="message_json_backup_app_settings">App settings backup in progress</string>
-    <string name="message_json_backup_agent_setting">Agent setting backup in progress</string>
-    <string name="label_start_backup">Start Backup</string>
-    <string name="label_auto_backup">Auto Backup</string>
-    <string name="description_backup_settings">Backup</string>
-    <string name="label_open_restore_local">Restore Local</string>
-    <string name="description_restore_settings">Restore</string>
-    <string name="label_choose_restore_file">Choose Restore File</string>
-    <string name="label_start_restore">Start Restore</string>
 
+    <string name="description_backup_settings">Backup</string>
     <string name="label_last_local_backup_time">Local Backup</string>
     <string name="label_last_local_backup_time_never">Never</string>
-
-    <string name="label_cancel">Cancel</string>
-
-
+    <string name="notification_title_backup">Backup</string>
+    <string name="message_json_backup_start">Local backup start</string>
+    <string name="message_json_backup_progress">Backup in progress</string>
+    <string name="label_start_backup">Start Backup</string>
+    <string name="label_auto_backup">Auto Backup</string>
     <string name="backup_frequency_never">Never</string>
     <string name="backup_frequency_daily">Daily</string>
     <string name="backup_frequency_weekly">Weekly</string>
-    <string name="notification_title_restore">Restore</string>
-    <string name="message_json_restore">Restoring </string>
-    <string name="message_loading_backup_files">Fetching locally saved backup files, please wait till finish. Don\'t press back or exit from this screen.</string>
-    <string name="label_restore">Restore</string>
-    <string name="label_no_local_backup_file">No local backup file found</string>
-    <string name="message_picked_backup_file">Following backup file found</string>
 
+    <string name="description_restore_settings">Restore</string>
+    <string name="label_open_restore_local">Restore Local</string>
+    <string name="label_start_restore">Start Restore</string>
+    <string name="notification_title_restore">Restore</string>
+    <string name="message_json_restore">Restoring</string>
+    <string name="message_pick_backup_file_instruction">
+        Go to the directory ExpenseTracker > backup and choose one of the .json or .tar.gz file.
+    </string>
+
+
+    <string name="label_cancel">Cancel</string>
+    <string name="label_choose">Choose</string>
+    <string name="message_no_backup_file_picked">No file selected, can not restore.</string>
+    <string name="message_invalid_backup_file_type">Only .json or .tar.gz files are accepted. Can not restore %1$s</string>
 </resources>

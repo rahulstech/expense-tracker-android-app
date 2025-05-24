@@ -21,8 +21,10 @@ object Constants {
 
     const val TAG_BACKUP_WORK = "backup_work"
     const val TAG_JSON_BACKUP_WORK = "json_backup_work"
+    const val TAG_GZIP_BACKUP_WORK = "gzip_backup_work"
     const val TAG_RESTORE_WORK = "restore_work"
     const val TAG_JSON_RESTORE_WORK = "json_restore_work"
+    const val TAG_GZIP_RESTORE_WORK = "gzip_restore_work"
 
 
     const val REQUEST_CANCEL_BACKUP = 100

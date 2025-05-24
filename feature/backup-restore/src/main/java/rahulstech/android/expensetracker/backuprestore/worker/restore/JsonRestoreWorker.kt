@@ -46,7 +46,6 @@ class JsonRestoreWorker(context: Context, parameters: WorkerParameters): Worker(
         try {
             input = openRestoreFileForReading()
             jsonReader = gson.newJsonReader(InputStreamReader(input))
-            writeHelper.open()
             restore(writeHelper,jsonReader,gson)
         }
         catch (ex: Exception) {
@@ -54,7 +53,6 @@ class JsonRestoreWorker(context: Context, parameters: WorkerParameters): Worker(
             return Result.failure()
         }
         finally {
-            runCatching { writeHelper.close() }.onFailure { Log.e(TAG, "failed to close writerHelper", it) }
             runCatching { jsonReader?.close() }
             runCatching { input?.close() }.onFailure { Log.e(TAG, "failed to close input stream", it) }
         }
@@ -69,21 +67,28 @@ class JsonRestoreWorker(context: Context, parameters: WorkerParameters): Worker(
 
     @VisibleForTesting
     fun restore(writeHelper: WriteHelper, jsonReader: JsonReader, gson: Gson) {
-        jsonReader.beginObject()
-        while (jsonReader.hasNext()) {
-            val name = jsonReader.nextName()
-            updateProgress()
-            when(name) {
-                Constants.JSON_FIELD_ACCOUNTS -> restoreAccounts(writeHelper, jsonReader, gson)
-                Constants.JSON_FIELD_GROUPS, Constants.JSON_FIELD_PEOPLE -> restoreGroups(writeHelper, jsonReader, gson)
-                Constants.JSON_FIELD_TRANSACTIONS -> restoreTransactions(writeHelper, jsonReader, gson)
-                Constants.JSON_FIELD_MONEY_TRANSFER -> restoreMoneyTransfers(writeHelper, jsonReader, gson)
-                Constants.JSON_FIELD_HISTORIES -> restoreHistories(writeHelper, jsonReader, gson)
-                Constants.JSON_FIELD_APP_SETTINGS -> restoreAppSettings(writeHelper, jsonReader, gson)
-                else -> jsonReader.skipValue()
+        try {
+            writeHelper.open()
+
+            jsonReader.beginObject()
+            while (jsonReader.hasNext()) {
+                val name = jsonReader.nextName()
+                updateProgress()
+                when(name) {
+                    Constants.JSON_FIELD_ACCOUNTS -> restoreAccounts(writeHelper, jsonReader, gson)
+                    Constants.JSON_FIELD_GROUPS, Constants.JSON_FIELD_PEOPLE -> restoreGroups(writeHelper, jsonReader, gson)
+                    Constants.JSON_FIELD_TRANSACTIONS -> restoreTransactions(writeHelper, jsonReader, gson)
+                    Constants.JSON_FIELD_MONEY_TRANSFER -> restoreMoneyTransfers(writeHelper, jsonReader, gson)
+                    Constants.JSON_FIELD_HISTORIES -> restoreHistories(writeHelper, jsonReader, gson)
+                    Constants.JSON_FIELD_APP_SETTINGS -> restoreAppSettings(writeHelper, jsonReader, gson)
+                    else -> jsonReader.skipValue()
+                }
             }
+            jsonReader.endObject()
         }
-        jsonReader.endObject()
+        finally {
+            runCatching { writeHelper.close() }.onFailure { Log.e(TAG, "failed to close writerHelper", it) }
+        }
     }
 
     @VisibleForTesting
@@ -211,7 +216,7 @@ class JsonRestoreWorker(context: Context, parameters: WorkerParameters): Worker(
     }
 
     private fun createForegroundInfo(notification: Notification): ForegroundInfo {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             ForegroundInfo(NotificationConstants.RESTORE_NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
         } else {
             ForegroundInfo(NotificationConstants.RESTORE_NOTIFICATION_ID, notification)

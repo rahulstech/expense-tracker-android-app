@@ -2,6 +2,7 @@ package rahulstech.android.expensetracker.backuprestore.worker
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
@@ -12,13 +13,17 @@ import androidx.work.workDataOf
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import rahulstech.android.expensetracker.backuprestore.settings.BackupFrequency
+import rahulstech.android.expensetracker.backuprestore.worker.backup.GZipBackupWork
 import rahulstech.android.expensetracker.backuprestore.worker.backup.JsonBackupWorker
 import rahulstech.android.expensetracker.backuprestore.worker.backup.StartPeriodicBackupWorker
+import rahulstech.android.expensetracker.backuprestore.worker.restore.GZipRestoreWorker
 import rahulstech.android.expensetracker.backuprestore.worker.restore.JsonRestoreWorker
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 object BackupRestoreHelper {
+
+    private val TAG = BackupRestoreHelper::class.simpleName
 
     data class ProgressData(
         val workId: UUID,
@@ -81,11 +86,15 @@ object BackupRestoreHelper {
     }
 
     private fun backupOnce(workManager: WorkManager) {
-        val request = OneTimeWorkRequestBuilder<JsonBackupWorker>()
+        val jsonWorkRequest = OneTimeWorkRequestBuilder<JsonBackupWorker>()
             .addTag(Constants.TAG_JSON_BACKUP_WORK)
             .build()
+        val gzipWorkRequest = OneTimeWorkRequestBuilder<GZipBackupWork>()
+            .addTag(Constants.TAG_GZIP_BACKUP_WORK)
+            .build()
         workManager
-            .beginUniqueWork(Constants.TAG_BACKUP_WORK, ExistingWorkPolicy.REPLACE, request)
+            .beginUniqueWork(Constants.TAG_BACKUP_WORK, ExistingWorkPolicy.REPLACE, jsonWorkRequest)
+            .then(gzipWorkRequest)
             .enqueue()
     }
 
@@ -98,6 +107,32 @@ object BackupRestoreHelper {
 
     fun startRestore(context: Context, backupFile: Uri, mimeType: String, name: String) {
         val workManager = getWorkManager(context)
+        when(mimeType) {
+            "application/json" -> startRestoreFromJson(workManager, backupFile, name)
+            "application/gzip" -> startRestoreFromGZip(workManager, backupFile, name)
+            else -> Log.w(TAG,"unknown mime type $mimeType")
+        }
+    }
+
+    private fun startRestoreFromGZip(workManager: WorkManager, backupFile: Uri, name: String) {
+        val inputData = workDataOf(
+            Constants.DATA_BACKUP_FILE to backupFile.toString(),
+            Constants.DATA_BACKUP_FILE_NAME to name
+        )
+        val gzipWorkRequest = OneTimeWorkRequestBuilder<GZipRestoreWorker>()
+            .addTag(Constants.TAG_GZIP_RESTORE_WORK)
+            .setInputData(inputData)
+            .build()
+        val jsonWorkRequest = OneTimeWorkRequestBuilder<JsonRestoreWorker>()
+            .setInputData(inputData)
+            .build()
+        workManager
+            .beginUniqueWork(Constants.TAG_RESTORE_WORK, ExistingWorkPolicy.REPLACE, gzipWorkRequest)
+            .then(jsonWorkRequest)
+            .enqueue()
+    }
+
+    private fun startRestoreFromJson(workManager: WorkManager, backupFile: Uri, name: String) {
         val inputData = workDataOf(
             Constants.DATA_BACKUP_FILE to backupFile.toString(),
             Constants.DATA_BACKUP_FILE_NAME to name
