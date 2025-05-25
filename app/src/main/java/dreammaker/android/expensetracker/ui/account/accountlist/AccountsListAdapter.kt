@@ -10,7 +10,6 @@ import dreammaker.android.expensetracker.databinding.AccountListItemBinding
 import dreammaker.android.expensetracker.ui.util.BaseSelectableItemListAdapter
 import dreammaker.android.expensetracker.ui.util.ClickableViewHolder
 import dreammaker.android.expensetracker.ui.util.getBalanceText
-import dreammaker.android.expensetracker.ui.util.toCurrencyString
 
 class AccountViewModel(
     val binding: AccountListItemBinding,

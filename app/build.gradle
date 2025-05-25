@@ -72,6 +72,10 @@ dependencies {
     implementation 'androidx.viewpager2:viewpager2:1.1.0'
     implementation 'androidx.activity:activity-ktx:1.9.0'
 
+    // splash screen compat library, this is useful when app minsdk is below 31
+    // starting from android sdk 31 it has built in splashscreen api
+    implementation 'androidx.core:core-splashscreen:1.0.1'
+
     // android preference
     implementation 'androidx.preference:preference-ktx:1.2.1'
 

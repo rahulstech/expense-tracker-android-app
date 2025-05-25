@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- Circle background -->
+    <path
+        android:fillColor="@color/colorSecondary"
+        android:pathData="M12,0A12,12 0 1,0 24,12A12,12 0 0,0 12,0Z" />
+
+    <!-- Southeast arrow (↘) shifted slightly to bottom-right -->
+    <group android:translateX="7.2" android:translateY="2" android:scaleX="0.65" android:scaleY="0.65">
+        <path
+            android:fillColor="@color/colorDebit"
+            android:pathData="M5,15h2V8.41L18.59,20L20,18.59L8.41,7H15V5H5V15z"/>
+    </group>
+
+    <!-- Northwest arrow (↖) shifted slightly to top-left -->
+    <group android:translateX="1.6" android:translateY="7" android:scaleX="0.65" android:scaleY="0.65">
+        <path
+            android:fillColor="@color/colorCredit"
+            android:pathData="M19,9h-2v6.59L5.41,4L4,5.41L15.59,17H9v2h10V9z"/>
+    </group>
+</vector>
+

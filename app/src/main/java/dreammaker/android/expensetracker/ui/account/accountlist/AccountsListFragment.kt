@@ -1,6 +1,7 @@
 package dreammaker.android.expensetracker.ui.account.accountlist
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,6 +19,7 @@ import dreammaker.android.expensetracker.ui.util.visible
 
 
 class AccountsListFragment : Fragment() {
+    private val TAG = AccountsListFragment::class.simpleName
 
     private var _binding: AccountsListBinding? = null
     private val binding get() = _binding!!
@@ -49,8 +51,9 @@ class AccountsListFragment : Fragment() {
     }
 
     private fun onAccountsLoaded(accounts: List<AccountModel>) {
+        Log.i(TAG, "loaded account ${accounts.size}")
         adapter.submitList(accounts)
-        if (adapter.currentList.isEmpty()) {
+        if (accounts.isEmpty()) {
             binding.list.visibilityGone()
             binding.emptyView.visible()
         }

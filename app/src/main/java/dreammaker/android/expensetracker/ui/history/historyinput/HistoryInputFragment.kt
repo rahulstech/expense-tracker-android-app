@@ -155,7 +155,7 @@ class HistoryInputFragment : Fragment() {
                 getArgAccount()?.toAccountModel(),
                 null,
                 getArgGroup()?.toGroupModel(),
-                0f,
+                null,
                 getArgDate(),
                 type.name
             )
@@ -282,7 +282,7 @@ class HistoryInputFragment : Fragment() {
         val date = history.date
         prepareDate(date, null == date)
         prepareType(type)
-        prepareAmount(history.amount!!)
+        prepareAmount(history.amount)
         prepareNote(history.note)
         preparePrimaryAccount(history.primaryAccount,type)
         prepareSecondaryAccount(history.secondaryAccount, type)
@@ -313,8 +313,8 @@ class HistoryInputFragment : Fragment() {
         selectedType = type
     }
 
-    private fun prepareAmount(amount: Float) {
-        binding.inputAmount.setText(amount.toString())
+    private fun prepareAmount(amount: Float?) {
+        binding.inputAmount.setText(amount?.toString() ?: "")
     }
 
     private fun prepareNote(note: String?) {

@@ -16,6 +16,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
+import com.google.android.material.chip.Chip
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.database.Date
@@ -100,7 +101,7 @@ class ViewHistoryItemFragment: Fragment(), MenuProvider {
         prepareNote(history.note)
         prepareSource(history)
         prepareDestination(history)
-        prepareGroupAndTags(history.group)
+        prepareGroup(history.group)
         requireActivity().invalidateOptionsMenu()
     }
 
@@ -109,9 +110,11 @@ class ViewHistoryItemFragment: Fragment(), MenuProvider {
     }
 
     private fun prepareType(type: HistoryType) {
-        binding.type.text = type.getLabel(requireContext())
-        binding.type.chipBackgroundColor = type.getBackgroundColor(requireContext())
-        binding.type.setTextColor(type.getColorOnBackground(requireContext()))
+        val container = binding.containerGroupAndTags
+        val chip = createChip(container, type.getLabel(requireContext()))
+        chip.chipBackgroundColor = type.getBackgroundColor(requireContext())
+        chip.setTextColor(type.getColorOnBackground(requireContext()))
+        container.addView(chip, 0)
     }
 
     private fun prepareAmount(amount: Float,) {
@@ -176,17 +179,21 @@ class ViewHistoryItemFragment: Fragment(), MenuProvider {
         binding.viewDestination.setOnClickListener { onClickViewDestination(history) }
     }
 
-    private fun prepareGroupAndTags(group: GroupModel?) {
+    private fun prepareGroup(group: GroupModel?) {
+        // TODO: handle null group
         group?.let {
-            val chip = createInputChip(binding.containerGroupAndTags, group.name!!, false)
+            val chip = createChip(binding.containerGroupAndTags, group.name!!)
             chip.setOnClickListener {
                 navController.navigate(R.id.action_view_history_to_view_group, Bundle().apply {
                     putLong(Constants.ARG_ID, group.id!!)
                 })
             }
             binding.containerGroupAndTags.addView(chip)
-            binding.groupAndTagsGroup.visible()
         }
+    }
+
+    private fun createChip(container: ViewGroup, text: String): Chip {
+        return createInputChip(container, text, false)
     }
 
     private fun onClickViewDestination(history: HistoryModel) {

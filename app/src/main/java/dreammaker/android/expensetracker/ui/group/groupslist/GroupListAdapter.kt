@@ -2,7 +2,6 @@ package dreammaker.android.expensetracker.ui.group.groupslist
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.text.buildSpannedString
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import dreammaker.android.expensetracker.database.GroupModel
@@ -11,6 +10,8 @@ import dreammaker.android.expensetracker.ui.util.BaseSelectableItemListAdapter
 import dreammaker.android.expensetracker.ui.util.ClickableViewHolder
 import dreammaker.android.expensetracker.ui.util.getBalanceLabel
 import dreammaker.android.expensetracker.ui.util.getBalanceText
+import dreammaker.android.expensetracker.ui.util.visibilityGone
+import dreammaker.android.expensetracker.ui.util.visible
 
 class GroupsListViewHolder(
     val binding: GroupListItemBinding,
@@ -25,12 +26,16 @@ class GroupsListViewHolder(
             binding.balance.text = null
         }
         else {
+            val label = group.getBalanceLabel(context)
             binding.name.text = group.name
-            binding.balance.text = buildSpannedString {
-                append(group.getBalanceLabel(context))
-                append(" ")
-                append(group.getBalanceText(context)) // TODO: add country code and locale
+            if (label.isBlank()) {
+                binding.labelBalance.visibilityGone()
             }
+            else {
+                binding.labelBalance.text = label
+                binding.labelBalance.visible()
+            }
+            binding.balance.text = group.getBalanceText(context) // TODO: add country code and locale
             binding.root.isSelected = selected
         }
     }

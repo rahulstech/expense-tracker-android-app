@@ -118,7 +118,7 @@ fun Bundle.getHistoryType(key: String, defaultType: HistoryType? = null): Histor
  */
 fun HistoryType.needsSecondaryAccount(): Boolean = this == HistoryType.TRANSFER
 
-fun HistoryType.getLabel(context: Context): CharSequence {
+fun HistoryType.getLabel(context: Context): String {
     return when(this) {
         HistoryType.CREDIT -> context.getString(R.string.label_history_type_credit)
         HistoryType.DEBIT -> context.getString(R.string.label_history_type_debit)

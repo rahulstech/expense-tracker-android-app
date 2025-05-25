@@ -3,7 +3,9 @@ package dreammaker.android.expensetracker.ui.main
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
@@ -21,6 +23,13 @@ class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        // installSplashScreen before calling parent onCreate. this method must be called to apply post theme
+        // properly otherwise app will crash
+        // it returns splashScreen; use it for showing splashscreen for longer time and any other customization
+        // if there is no such requirement then do nothing,
+         installSplashScreen()
+
         super.onCreate(savedInstanceState)
         binding = MainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -31,6 +40,10 @@ class MainActivity : AppCompatActivity() {
             .build()
         binding.drawer.setNavigationItemSelectedListener(this::onClickLeftDrawerItem)
         setupActionBarWithNavController(this, navController, appBarConfiguration)
+
+        val packageInfo = packageManager.getPackageInfo(packageName, 0)
+        val appVersionView = binding.drawer.getHeaderView(0).findViewById<TextView>(R.id.app_version)
+        appVersionView.text = packageInfo.versionName
     }
 
     override fun onSupportNavigateUp(): Boolean {
