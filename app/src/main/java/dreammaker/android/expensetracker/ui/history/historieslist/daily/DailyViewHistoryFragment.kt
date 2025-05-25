@@ -7,7 +7,6 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.database.Date
-import dreammaker.android.expensetracker.database.HistoryType
 import dreammaker.android.expensetracker.ui.history.historieslist.BaseViewHistoryFragment
 import dreammaker.android.expensetracker.ui.history.historieslist.ViewHistoryPageAdapter
 import dreammaker.android.expensetracker.ui.history.historyinput.HistoryInputFragment
@@ -39,7 +38,7 @@ class DailyViewHistoryFragment: BaseViewHistoryFragment<Date>() {
         datePicker.show()
     }
 
-    override fun onPutCreateHistoryArgument(type: HistoryType, argument: Bundle) {
+    override fun onPutCreateHistoryArgument(argument: Bundle) {
         argument.apply {
             putDate(HistoryInputFragment.ARG_HISTORY_DATE, getCurrentData())
         }

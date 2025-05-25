@@ -19,17 +19,13 @@ import androidx.navigation.fragment.findNavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.database.AccountModel
-import dreammaker.android.expensetracker.database.HistoryType
 import dreammaker.android.expensetracker.databinding.ViewAccountLayoutBinding
 import dreammaker.android.expensetracker.ui.history.historieslist.HistoryListContainer
-import dreammaker.android.expensetracker.ui.history.historyinput.HistoryInputFragment
 import dreammaker.android.expensetracker.ui.util.AccountModelParcel
 import dreammaker.android.expensetracker.ui.util.Constants
 import dreammaker.android.expensetracker.ui.util.OperationResult
 import dreammaker.android.expensetracker.ui.util.getBalanceText
 import dreammaker.android.expensetracker.ui.util.hasArgument
-import dreammaker.android.expensetracker.ui.util.putHistoryType
-import dreammaker.android.expensetracker.ui.util.toggleAddButtonButtons
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -61,10 +57,8 @@ class ViewAccountFragment: Fragment(), MenuProvider {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        binding.addHistory.setOnClickListener { toggleAddButtonButtons(binding.buttonsLayout) }
-        binding.btnAddCredit.setOnClickListener { navigateToCreateHistory(HistoryType.CREDIT) }
-        binding.btnAddDebit.setOnClickListener { navigateToCreateHistory(HistoryType.DEBIT) }
-        binding.btnAddTransfer.setOnClickListener { navigateToCreateHistory(HistoryType.TRANSFER) }
+        binding.addHistory.setOnClickListener { navigateToCreateHistory() }
+        binding.btnAddTransfer.setOnClickListener { navigateToCreateTransferHistory() }
         binding.btnViewHistory.setOnClickListener { handleClickViewHistory() }
         viewModel.findAccountById(getArgAccountId()).observe(viewLifecycleOwner, this::onAccountLoaded)
         lifecycleScope.launch {
@@ -76,11 +70,19 @@ class ViewAccountFragment: Fragment(), MenuProvider {
         (requireActivity() as MenuHost).addMenuProvider(this, viewLifecycleOwner)
     }
 
-    private fun navigateToCreateHistory(type: HistoryType) {
+    private fun navigateToCreateHistory() {
         viewModel.getStoredAccount()?.let {
             navController.navigate(R.id.action_view_account_to_create_history, Bundle().apply {
                 putString(Constants.ARG_ACTION, Constants.ACTION_CREATE)
-                putHistoryType(HistoryInputFragment.ARG_HISTORY_TYPE, type)
+                putParcelable(Constants.ARG_ACCOUNT, AccountModelParcel(it))
+            })
+        }
+    }
+
+    private fun navigateToCreateTransferHistory() {
+        viewModel.getStoredAccount()?.let {
+            navController.navigate(R.id.action_view_account_to_create_transfer_history, Bundle().apply {
+                putString(Constants.ARG_ACTION, Constants.ACTION_CREATE)
                 putParcelable(Constants.ARG_ACCOUNT, AccountModelParcel(it))
             })
         }

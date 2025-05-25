@@ -21,40 +21,17 @@
             style="@style/Widget.AppTheme.Button.DatePicker"
             tools:text="Wednesday, 18 November, 2024"/>
 
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/container_types"
+        <com.google.android.material.chip.Chip
+            android:id="@+id/type_transfer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="8dp"
-            app:singleLine="true"
-            app:singleSelection="true"
-            app:selectionRequired="true">
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/type_credit"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                style="@style/Widget.AppTheme.FilterChip"
-                app:chipBackgroundColor="@color/background_color_credit"
-                android:textColor="@color/on_background_color_credit"
-                android:text="@string/credit"
-                app:chipIcon="@drawable/ic_credit_64"
-                app:chipIconTint="@color/on_background_color_credit" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/type_debit"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checked="true"
-                style="@style/Widget.AppTheme.FilterChip"
-                app:chipBackgroundColor="@color/background_color_debit"
-                android:textColor="@color/on_background_color_debit"
-                android:text="@string/debit"
-                app:chipIcon="@drawable/ic_debit_64"
-                app:chipIconTint="@color/on_background_color_debit" />
-
-        </com.google.android.material.chip.ChipGroup>
-
+            android:layout_marginTop="8dp"
+            style="@style/Widget.AppTheme.FilterChip"
+            app:chipBackgroundColor="@color/colorTransfer"
+            android:textColor="@color/colorOnTransfer"
+            android:text="@string/label_send_money"
+            app:chipIcon="@drawable/ic_send_money_64"
+            app:chipIconTint="@color/colorOnTransfer" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/amount_input_layout"
@@ -110,7 +87,7 @@
                 android:paddingLeft="16dp"
                 android:paddingRight="16dp"
                 android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                android:text="@string/label_account"/>
+                android:text="@string/label_history_item_source_account"/>
 
             <FrameLayout
                 android:id="@+id/selected_source_container"
@@ -145,67 +122,13 @@
             android:visibility="gone"
             tools:visibility="visible"/>
 
-<!--        <LinearLayout-->
-<!--            android:id="@+id/destination_layout"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="52dp"-->
-<!--            android:orientation="horizontal"-->
-<!--            android:gravity="center"-->
-<!--            android:layout_marginTop="12dp"-->
-<!--            android:background="@drawable/rounded_rectangle_border"-->
-<!--            android:visibility="gone"-->
-<!--            tools:visibility="visible">-->
-
-<!--            <TextView-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_weight="0"-->
-<!--                android:paddingLeft="16dp"-->
-<!--                android:paddingRight="16dp"-->
-<!--                android:textAppearance="@style/TextAppearance.Material3.BodyMedium"-->
-<!--                android:text="@string/label_history_input_destination_account" />-->
-
-<!--            <FrameLayout-->
-<!--                android:id="@+id/selected_destination_container"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_weight="1"-->
-<!--                android:layout_marginLeft="8dp"-->
-<!--                android:layout_marginRight="8dp"-->
-<!--                android:animateLayoutChanges="true"/>-->
-
-<!--            <com.google.android.material.button.MaterialButton-->
-<!--                android:id="@+id/input_destination"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_weight="0"-->
-<!--                app:icon="@drawable/baseline_arrow_right"-->
-<!--                style="@style/Widget.AppTheme.Button.PickerArrow"-->
-<!--                tools:ignore="ContentDescription"-->
-<!--                android:visibility="gone"-->
-<!--                tools:visibility="visible"/>-->
-<!--        </LinearLayout>-->
-
-<!--        <TextView-->
-<!--            android:id="@+id/error_destination"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="@string/error_no_selection"-->
-<!--            android:layout_marginTop="6dp"-->
-<!--            android:paddingStart="16dp"-->
-<!--            android:paddingEnd="16dp"-->
-<!--            android:textAppearance="@style/TextAppearance.Material3.LabelSmall"-->
-<!--            android:textColor="?attr/colorError"-->
-<!--            android:visibility="gone"-->
-<!--            tools:visibility="visible" />-->
-
         <LinearLayout
-            android:id="@+id/group_layout"
+            android:id="@+id/destination_layout"
             android:layout_width="match_parent"
             android:layout_height="52dp"
             android:orientation="horizontal"
             android:gravity="center"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="12dp"
             android:background="@drawable/rounded_rectangle_border"
             android:visibility="visible">
 
@@ -216,28 +139,41 @@
                 android:paddingLeft="16dp"
                 android:paddingRight="16dp"
                 android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                android:text="@string/label_history_input_group" />
+                android:text="@string/label_history_input_destination_account" />
 
             <FrameLayout
-                android:id="@+id/selected_group_container"
+                android:id="@+id/selected_destination_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:layout_marginLeft="8dp"
                 android:layout_marginRight="8dp"
-                android:layout_weight="1"
                 android:animateLayoutChanges="true"/>
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/input_group"
+                android:id="@+id/input_destination"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="0"
                 app:icon="@drawable/baseline_arrow_right"
                 style="@style/Widget.AppTheme.Button.PickerArrow"
+                tools:ignore="ContentDescription"
                 android:visibility="gone"
-                tools:visibility="visible"
-                tools:ignore="ContentDescription" />
+                tools:visibility="visible"/>
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/error_destination"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/error_no_selection"
+            android:layout_marginTop="6dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
+            android:textColor="?attr/colorError"
+            android:visibility="gone"
+            tools:visibility="visible" />
 
         <Button
             android:id="@+id/btnSave"

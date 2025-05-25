@@ -19,17 +19,13 @@ import androidx.navigation.fragment.findNavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.database.GroupModel
-import dreammaker.android.expensetracker.database.HistoryType
 import dreammaker.android.expensetracker.databinding.ViewGroupLayoutBinding
 import dreammaker.android.expensetracker.ui.history.historieslist.HistoryListContainer
-import dreammaker.android.expensetracker.ui.history.historyinput.HistoryInputFragment
 import dreammaker.android.expensetracker.ui.util.Constants
 import dreammaker.android.expensetracker.ui.util.GroupModelParcel
 import dreammaker.android.expensetracker.ui.util.OperationResult
 import dreammaker.android.expensetracker.ui.util.getBalanceLabel
 import dreammaker.android.expensetracker.ui.util.getBalanceText
-import dreammaker.android.expensetracker.ui.util.putHistoryType
-import dreammaker.android.expensetracker.ui.util.toggleAddButtonButtons
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -56,9 +52,7 @@ class ViewGroupFragment: Fragment(), MenuProvider {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding.btnViewHistory.setOnClickListener { handleClickViewHistory() }
-        binding.addHistory.setOnClickListener { toggleAddButtonButtons(binding.buttonsLayout) }
-        binding.btnAddDebit.setOnClickListener { navigateToCreateHistory(HistoryType.DEBIT) }
-        binding.btnAddCredit.setOnClickListener { navigateToCreateHistory(HistoryType.CREDIT) }
+        binding.addHistory.setOnClickListener { navigateToCreateHistory() }
         viewModel.findGroupById(getArgGroupId()).observe(viewLifecycleOwner, this::onGroupLoaded)
         lifecycleScope.launch {
             viewModel.resultState.collectLatest {
@@ -91,13 +85,12 @@ class ViewGroupFragment: Fragment(), MenuProvider {
         }
     }
 
-    private fun navigateToCreateHistory(type: HistoryType) {
+    private fun navigateToCreateHistory() {
         val group = viewModel.getStoredGroup()
         group?.let {
             navController.navigate(R.id.action_view_group_to_add_history,Bundle().apply {
                 putString(Constants.ARG_ACTION,Constants.ACTION_CREATE)
                 putParcelable(Constants.ARG_GROUP, GroupModelParcel(group))
-                putHistoryType(HistoryInputFragment.ARG_HISTORY_TYPE, type)
             })
         }
     }

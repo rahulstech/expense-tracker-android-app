@@ -13,14 +13,10 @@ import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import dreammaker.android.expensetracker.R
-import dreammaker.android.expensetracker.database.HistoryType
 import dreammaker.android.expensetracker.databinding.ViewHistoryBinding
-import dreammaker.android.expensetracker.ui.history.historyinput.HistoryInputFragment
 import dreammaker.android.expensetracker.ui.util.AccountModelParcel
 import dreammaker.android.expensetracker.ui.util.Constants
 import dreammaker.android.expensetracker.ui.util.GroupModelParcel
-import dreammaker.android.expensetracker.ui.util.putHistoryType
-import dreammaker.android.expensetracker.ui.util.toggleAddButtonButtons
 
 abstract class ViewHistoryPageAdapter<T>(fragmentManager: FragmentManager, lifecycle: Lifecycle)
     : FragmentStateAdapter(fragmentManager, lifecycle) {
@@ -119,9 +115,7 @@ abstract class BaseViewHistoryFragment<T>: Fragment() {
         binding.btnGotoPresent.text = getGotoPresentButtonText()
         binding.btnGotoPresent.setOnClickListener { setCurrentData(adapter.getPresentData()) }
         binding.btnPicker.setOnClickListener{ onClickDataPicker(getCurrentData()!!) }
-        binding.addHistory.setOnClickListener { toggleAddButtonButtons(binding.buttonsLayout) }
-        binding.btnAddCredit.setOnClickListener { handleCreateHistory(HistoryType.CREDIT) }
-        binding.btnAddDebit.setOnClickListener {  handleCreateHistory(HistoryType.DEBIT) }
+        binding.addHistory.setOnClickListener { navigateCreateHistory() }
     }
 
     override fun onResume() {
@@ -135,21 +129,20 @@ abstract class BaseViewHistoryFragment<T>: Fragment() {
 
     protected abstract fun onClickDataPicker(currentData: T)
 
-    private fun handleCreateHistory(type: HistoryType) {
+    private fun navigateCreateHistory() {
         val entity = navController.currentBackStackEntry?.savedStateHandle?.get<Parcelable>(HistoryListContainer.ARG_SHOW_HISTORY_FOR)
         val args = Bundle().apply {
             putString(Constants.ARG_ACTION, Constants.ACTION_CREATE)
-            putHistoryType(HistoryInputFragment.ARG_HISTORY_TYPE, type)
             when (entity) {
                 is AccountModelParcel -> putParcelable(Constants.ARG_ACCOUNT, entity)
                 is GroupModelParcel -> putParcelable(Constants.ARG_GROUP, entity)
             }
         }
-        onPutCreateHistoryArgument(type, args)
+        onPutCreateHistoryArgument(args)
         navController.navigate(R.id.action_history_list_to_create_history,args)
     }
 
-    protected open fun onPutCreateHistoryArgument(type: HistoryType, argument: Bundle) {}
+    protected open fun onPutCreateHistoryArgument(argument: Bundle) {}
 
     protected open fun changePageLabel(data: T?) {
         binding.btnPicker.text = if (null == data) null else adapter.getDataLabel(data)

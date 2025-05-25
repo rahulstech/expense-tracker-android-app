@@ -54,7 +54,9 @@ class ViewHistoryItemFragment: Fragment(), MenuProvider {
     private lateinit var navController: NavController
     private val viewModel: ViewHistoryItemViewModel by viewModels()
 
-    private fun getArgHistoryId(): Long? = arguments?.getLong(Constants.ARG_ID)
+    private fun getArgHistoryId(): Long = requireArguments().getLong(Constants.ARG_ID)
+
+    private fun getArgHistoryType(): HistoryType = requireArguments().getHistoryType(ARG_HISTORY_TYPE)!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,8 +79,8 @@ class ViewHistoryItemFragment: Fragment(), MenuProvider {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         navController = Navigation.findNavController(view)
-        val id = getArgHistoryId()!!
-        val type = requireArguments().getHistoryType(ARG_HISTORY_TYPE)!!
+        val id = getArgHistoryId()
+        val type = getArgHistoryType()
         viewModel.findHistory(id,type).observe(viewLifecycleOwner, this::onHistoryLoaded)
         lifecycleScope.launch {
             viewModel.resultState.collectLatest {
@@ -95,6 +97,7 @@ class ViewHistoryItemFragment: Fragment(), MenuProvider {
             navController.popBackStack()
             return
         }
+        binding.containerGroupAndTags.removeAllViews()
         prepareDate(history.date!!)
         prepareType(history.type!!)
         prepareAmount(history.amount!!)
@@ -227,11 +230,23 @@ class ViewHistoryItemFragment: Fragment(), MenuProvider {
 
     private fun onClickEditHistory(history: HistoryModel?) {
         history?.let {
-            navController.navigate(R.id.action_view_history_to_edit_history, Bundle().apply {
-                putString(Constants.ARG_ACTION, Constants.ACTION_EDIT)
-                putLong(Constants.ARG_ID, history.id!!)
-                putHistoryType(HistoryInputFragment.ARG_HISTORY_TYPE, history.type!!)
-            })
+            val type = history.type
+            when(type) {
+                null -> {}
+                HistoryType.TRANSFER -> {
+                    navController.navigate(R.id.action_view_history_to_edit_transfer_history, Bundle().apply {
+                        putString(Constants.ARG_ACTION, Constants.ACTION_EDIT)
+                        putLong(Constants.ARG_ID, history.id!!)
+                    })
+                }
+                else -> {
+                    navController.navigate(R.id.action_view_history_to_edit_history, Bundle().apply {
+                        putString(Constants.ARG_ACTION, Constants.ACTION_EDIT)
+                        putLong(Constants.ARG_ID, history.id!!)
+                        putHistoryType(HistoryInputFragment.ARG_HISTORY_TYPE, history.type!!)
+                    })
+                }
+            }
         }
     }
 

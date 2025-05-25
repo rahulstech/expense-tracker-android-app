@@ -78,6 +78,13 @@
             app:popEnterAnim="@anim/slide_in_right"
             app:popExitAnim="@anim/slide_out_left"/>
 
+        <action android:id="@+id/action_view_account_to_create_transfer_history"
+            app:destination="@id/create_transfer_history"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:popEnterAnim="@anim/slide_in_right"
+            app:popExitAnim="@anim/slide_out_left"/>
+
         <action android:id="@+id/action_view_account_to_edit_account"
             app:destination="@id/edit_account"
             app:enterAnim="@anim/slide_in_left"
@@ -209,6 +216,13 @@
             app:exitAnim="@anim/slide_out_right"
             app:popEnterAnim="@anim/slide_in_right"
             app:popExitAnim="@anim/slide_out_left" />
+
+        <action android:id="@+id/action_view_history_to_edit_transfer_history"
+            app:destination="@id/edit_transfer_history"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:popEnterAnim="@anim/slide_in_right"
+            app:popExitAnim="@anim/slide_out_left" />
     </fragment>
 
     <fragment
@@ -238,7 +252,27 @@
         android:name="dreammaker.android.expensetracker.ui.history.historyinput.HistoryInputFragment"
         android:label="@string/title_input_history_edit"
         tools:layout="@layout/history_input_layout">
+    </fragment>
 
+    <fragment
+        android:id="@+id/create_transfer_history"
+        android:name="dreammaker.android.expensetracker.ui.history.historyinput.TransferHistoryInputFragment"
+        android:label="@string/title_create_transfer_history"
+        tools:layout="@layout/transfer_history_input_layout">
+
+        <action android:id="@+id/action_create_history_to_account_picker"
+            app:destination="@id/pick_history_account"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:popEnterAnim="@anim/slide_in_right"
+            app:popExitAnim="@anim/slide_out_left"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/edit_transfer_history"
+        android:name="dreammaker.android.expensetracker.ui.history.historyinput.TransferHistoryInputFragment"
+        android:label="@string/title_edit_transfer_history"
+        tools:layout="@layout/transfer_history_input_layout">
     </fragment>
 
     <fragment

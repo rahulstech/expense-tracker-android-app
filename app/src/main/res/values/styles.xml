@@ -4,7 +4,7 @@
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorOnPrimary">@color/colorOnPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorPrimaryDark">@color/colorPrimary</item>
         <item name="colorPrimaryContainer">@color/colorPrimaryContainer</item>
         <item name="colorOnPrimaryContainer">@color/colorOnPrimaryContainer</item>
         <item name="colorSecondary">@color/colorSecondary</item>
@@ -17,7 +17,7 @@
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorOnPrimary">@color/colorOnPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorPrimaryDark">@color/colorPrimary</item>
         <item name="colorPrimaryContainer">@color/colorPrimaryContainer</item>
         <item name="colorOnPrimaryContainer">@color/colorOnPrimaryContainer</item>
         <item name="colorSecondary">@color/colorSecondary</item>
@@ -70,13 +70,12 @@
     <style name="Widget.AppTheme.AssistChip" parent="Widget.Material3.Chip.Assist">
         <item name="shapeAppearance">@style/ShapeAppearance.Material3.Corner.Large</item>
         <item name="chipStrokeColor">@android:color/transparent</item>
-        <item name="android:textColor">@android:color/white</item>
-        <item name="closeIconTint">@android:color/white</item>
+        <item name="chipBackgroundColor">?attr/colorSecondary</item>
+        <item name="android:textColor">?attr/colorOnSecondary</item>
+        <item name="closeIconTint">?attr/colorOnSecondary</item>
         <item name="android:singleLine">true</item>
         <item name="android:checkable">false</item>
-        <item name="android:clickable">false</item>
         <item name="android:focusable">true</item>
-        <item name="android:textAppearance">@style/TextAppearance.Material3.BodySmall</item>
     </style>
 
     <style name="Widget.AppTheme.FilterChip" parent="Widget.Material3.Chip.Filter">

@@ -79,7 +79,7 @@ class ViewMonthHistoryFragment : Fragment() {
         lifecycleScope.launch { filter.start() }
         filter.resultLiveData.observe(viewLifecycleOwner, this::onHistoryPrepared)
         viewModel.historySummary.observe(viewLifecycleOwner, this::onHistorySummaryPrepared)
-        histories.observe(viewLifecycleOwner) { onHistoryLoaded()}
+        histories.observe(viewLifecycleOwner) { onHistoryLoaded() }
     }
 
     private fun onHistoryPrepared(histories: List<HistoryModel>) {

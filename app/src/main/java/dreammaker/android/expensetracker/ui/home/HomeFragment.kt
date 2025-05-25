@@ -17,15 +17,11 @@ import androidx.navigation.fragment.findNavController
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.database.AccountModel
 import dreammaker.android.expensetracker.database.GroupModel
-import dreammaker.android.expensetracker.database.HistoryType
 import dreammaker.android.expensetracker.databinding.HomeBinding
 import dreammaker.android.expensetracker.databinding.RecentItemViewBinding
-import dreammaker.android.expensetracker.ui.history.historyinput.HistoryInputFragment
 import dreammaker.android.expensetracker.ui.util.Constants
 import dreammaker.android.expensetracker.ui.util.getBalanceText
-import dreammaker.android.expensetracker.ui.util.putHistoryType
 import dreammaker.android.expensetracker.ui.util.toCurrencyString
-import dreammaker.android.expensetracker.ui.util.toggleAddButtonButtons
 import dreammaker.android.expensetracker.ui.util.visibilityGone
 import dreammaker.android.expensetracker.ui.util.visible
 
@@ -56,9 +52,7 @@ class HomeFragment: Fragment()  {
         binding.btnViewAllGroups.setOnClickListener {
             navController.navigate(R.id.action_home_to_groups_list)
         }
-        binding.addHistory.setOnClickListener { toggleAddButtonButtons(binding.buttonsLayout) }
-        binding.btnAddCredit.setOnClickListener { navigateToCreateHistory(HistoryType.CREDIT) }
-        binding.btnAddDebit.setOnClickListener { navigateToCreateHistory(HistoryType.DEBIT) }
+        binding.addHistory.setOnClickListener { navigateToCreateHistory() }
 
         viewModel.getTotalBalance().observe(viewLifecycleOwner, this::onTotalBalanceLoaded)
         viewModel.getRecentlyUsedThreeAccounts().observe(viewLifecycleOwner, this::onRecentlyUsedAccountsLoaded)
@@ -83,10 +77,9 @@ class HomeFragment: Fragment()  {
         }
     }
 
-    private fun navigateToCreateHistory(type: HistoryType) {
+    private fun navigateToCreateHistory() {
         navController.navigate(R.id.action_home_to_create_history, Bundle().apply {
             putString(Constants.ARG_ACTION, Constants.ACTION_CREATE)
-            putHistoryType(HistoryInputFragment.ARG_HISTORY_TYPE, type)
         })
     }
 

@@ -21,32 +21,30 @@ import dreammaker.android.expensetracker.database.Date
 import dreammaker.android.expensetracker.database.GroupModel
 import dreammaker.android.expensetracker.database.HistoryModel
 import dreammaker.android.expensetracker.database.HistoryType
-import dreammaker.android.expensetracker.databinding.HistoryInputLayoutBinding
+import dreammaker.android.expensetracker.databinding.TransferHistoryInputLayoutBinding
 import dreammaker.android.expensetracker.ui.util.AccountModelParcel
 import dreammaker.android.expensetracker.ui.util.Constants
 import dreammaker.android.expensetracker.ui.util.GroupModelParcel
 import dreammaker.android.expensetracker.ui.util.OperationResult
 import dreammaker.android.expensetracker.ui.util.createInputChip
-import dreammaker.android.expensetracker.ui.util.disable
 import dreammaker.android.expensetracker.ui.util.getDate
-import dreammaker.android.expensetracker.ui.util.getHistoryType
 import dreammaker.android.expensetracker.ui.util.hasArgument
 import dreammaker.android.expensetracker.ui.util.visibilityGone
 import dreammaker.android.expensetracker.ui.util.visible
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-class HistoryInputFragment : Fragment() {
+class TransferHistoryInputFragment : Fragment() {
 
     companion object {
-        private val TAG = HistoryInputFragment::class.simpleName
+        private val TAG = TransferHistoryInputFragment::class.simpleName
         private const val HISTORY_INPUT_DATE_FORMAT = "EEEE, dd MMMM, yyyy"
-        const val ARG_HISTORY_TYPE = "arg.history_type"
         const val ARG_HISTORY_DATE = "arg.history_date"
         const val ARG_SOURCE = "arg_source"
+        const val ARG_DESTINATION = "arg_destination"
     }
 
-    private var _binding: HistoryInputLayoutBinding? = null
+    private var _binding: TransferHistoryInputLayoutBinding? = null
     private val binding get() = _binding!!
     private val viewModel: HistoryInputViewModel by viewModels()
     private val navController: NavController by lazy { findNavController() }
@@ -63,13 +61,8 @@ class HistoryInputFragment : Fragment() {
 
     private fun getArgDate(): Date? = arguments?.getDate(ARG_HISTORY_DATE)
 
-    private fun getArgType(): HistoryType = arguments?.getHistoryType(ARG_HISTORY_TYPE)!!
-
     private fun getArgAccount(): AccountModelParcel?
             = arguments?.let { BundleCompat.getParcelable(it, Constants.ARG_ACCOUNT, AccountModelParcel::class.java) }
-
-    private fun getArgGroup(): GroupModelParcel?
-            = arguments?.let { BundleCompat.getParcelable(it, Constants.ARG_GROUP, GroupModelParcel::class.java) }
 
     private fun isActionEdit(): Boolean = getArgAction() == Constants.ACTION_EDIT
 
@@ -77,14 +70,14 @@ class HistoryInputFragment : Fragment() {
     ///                     Selections                           ///
     ///////////////////////////////////////////////////////////////
 
-    private fun getSelectedAccountLiveData(): LiveData<AccountModelParcel?>
-            = navController.currentBackStackEntry?.savedStateHandle!!.getLiveData(ARG_SOURCE, null)
+    private fun getSelectedAccountLiveData(key: String): LiveData<AccountModelParcel?>
+            = navController.currentBackStackEntry?.savedStateHandle!!.getLiveData(key, null)
 
-    private fun getSelectedAccount(): AccountModel?
-            = navController.currentBackStackEntry?.savedStateHandle?.get<AccountModelParcel?>(ARG_SOURCE)?.toAccountModel()
+    private fun getSelectedAccount(key: String): AccountModel?
+            = navController.currentBackStackEntry?.savedStateHandle?.get<AccountModelParcel?>(key)?.toAccountModel()
 
-    private fun removeSelectedAccount() {
-        navController.currentBackStackEntry?.savedStateHandle?.set(ARG_SOURCE,null)
+    private fun removeSelectedAccount(key: String) {
+        navController.currentBackStackEntry?.savedStateHandle?.set(key,null)
     }
 
     private fun getSelectedGroupLiveData(): LiveData<GroupModelParcel?>
@@ -92,10 +85,6 @@ class HistoryInputFragment : Fragment() {
 
     private fun getSelectedGroup(): GroupModel?
             = navController.currentBackStackEntry?.savedStateHandle?.get<GroupModelParcel?>(Constants.ARG_GROUP)?.toGroupModel()
-
-    private fun removeSelectedGroup() {
-        navController.currentBackStackEntry?.savedStateHandle?.set(Constants.ARG_GROUP,null)
-    }
 
     /////////////////////////////////////////////////////////////////
     ///                     Fragment Api                         ///
@@ -106,13 +95,8 @@ class HistoryInputFragment : Fragment() {
         if (!hasArgument(Constants.ARG_ACTION)) {
             throw IllegalStateException("'${Constants.ARG_ACTION}' is not found in arguments")
         }
-        if (isActionEdit()) {
-            if (!hasArgument(Constants.ARG_ID)) {
-                throw IllegalStateException("${Constants.ARG_ID} argument not found; ${Constants.ACTION_EDIT} requires ${Constants.ARG_ID}")
-            }
-            if (!hasArgument(ARG_HISTORY_TYPE)) {
-                throw IllegalStateException("$ARG_HISTORY_TYPE argument not found; ${Constants.ACTION_EDIT} requires $ARG_HISTORY_TYPE")
-            }
+        if (isActionEdit() && !hasArgument(Constants.ARG_ID)) {
+            throw IllegalStateException("${Constants.ARG_ID} argument not found; ${Constants.ARG_ACTION}='${Constants.ACTION_EDIT}' requires ${Constants.ARG_ID}")
         }
     }
 
@@ -121,7 +105,7 @@ class HistoryInputFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = HistoryInputLayoutBinding.inflate(inflater, container, false)
+        _binding = TransferHistoryInputLayoutBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -130,31 +114,31 @@ class HistoryInputFragment : Fragment() {
         binding.btnCancel.setOnClickListener { onClickCancel() }
         lifecycleScope.launch {
             viewModel.resultState.collectLatest {
-                    onSave(it)
-                    viewModel.emptyResult()
-                }
+                onSave(it)
+                viewModel.emptyResult()
+            }
         }
         if (isActionEdit()) {
             val history = viewModel.getStoredHistory()
             if (history == null) {
-                viewModel.findHistory(getArgId(),getArgType()).observe(viewLifecycleOwner, this::onHistoryLoaded)
+                viewModel.findHistory(getArgId(),HistoryType.TRANSFER).observe(viewLifecycleOwner, this::onHistoryLoaded)
             }
         }
         else {
+            val type = HistoryType.TRANSFER
             val argAccount = getArgAccount()
-            val argGroup = getArgGroup()
             val history = HistoryModel(
-                null,
-                null,
+                getArgId(),
+                type,
                 argAccount?.id,
                 null,
-                argGroup?.id,
+                null,
                 argAccount?.toAccountModel(),
                 null,
-                argGroup?.toGroupModel(),
+                null,
                 null,
                 getArgDate(),
-                null
+                type.name
             )
             prepare(history)
         }
@@ -183,39 +167,37 @@ class HistoryInputFragment : Fragment() {
     }
 
     private fun validateInput(history: HistoryModel): Boolean {
-        val type = history.type!!
         binding.amountInputLayout.error = null
         binding.errorSource.visibilityGone()
+        binding.errorDestination.visibilityGone()
         var hasError = false
         if (null == history.amount) {
             hasError = true
             binding.amountInputLayout.error = getString(R.string.error_invalid_history_amount_input)
         }
-        if ((type.needsSourceAccount() && null == history.primaryAccountId)) {
+        if (null == history.primaryAccountId) {
             hasError = true
             binding.errorSource.visible()
+        }
+        if (null == history.secondaryAccountId) {
+            hasError = true
+            binding.errorDestination.visible()
         }
         return hasError
     }
 
     private fun getInputHistory(): HistoryModel {
-        val type = getSelectedHistoryType() /*selectedType*/
         val date = selectedDate
         val amount = binding.inputAmount.text.toString().toFloatOrNull()
         val note = binding.inputNote.text.toString()
         return if (isActionEdit()) {
-            viewModel.getStoredHistory()!!.copy(
-                type=type, date=date, amount=amount, note=note
-            )
+            viewModel.getStoredHistory()!!.copy(date=date, amount=amount, note=note)
         }
         else {
-            var srcAccountId: Long? = getSelectedAccount()?.id
-            val groupId: Long? = getSelectedGroup()?.id ?: getArgGroup()?.id
-            if (null == srcAccountId && type.needsSourceAccount() && hasArgument(Constants.ARG_ACCOUNT)) {
-                srcAccountId = getArgAccount()?.id
-            }
+            val srcAccountId: Long? = getSelectedAccount(ARG_SOURCE)?.id ?: getArgAccount()?.id
+            val destAccountId: Long? = getSelectedAccount(ARG_DESTINATION)?.id
             HistoryModel(
-                null,type, srcAccountId,null,groupId,null,null,null, amount,date,note
+                null,HistoryType.TRANSFER, srcAccountId,destAccountId,null,null,null,null, amount,date,note
             )
         }
     }
@@ -266,19 +248,20 @@ class HistoryInputFragment : Fragment() {
     ///////////////////////////////////////////////////////////////
 
     private fun prepare(history: HistoryModel) {
-        val type = history.type ?: HistoryType.DEBIT
-        val date = history.date ?: Date()
-        prepareDate(date)
-        prepareType(type)
+        val date = history.date
+        prepareDate(date, null == date)
         prepareAmount(history.amount)
-        prepareNote(history.note ?: type.name)
+        prepareNote(history.note)
         preparePrimaryAccount(history.primaryAccount)
-        prepareGroup(history.group)
+        prepareSecondaryAccount(history.secondaryAccount)
     }
 
-    private fun prepareDate(date: Date) {
-        updateDate(date)
-        binding.inputDate.setOnClickListener { onClickInputDate(selectedDate) }
+    private fun prepareDate(date: Date?, enabled: Boolean = true) {
+        binding.inputDate.isEnabled = enabled
+        updateDate(date ?: Date())
+        if (enabled) {
+            binding.inputDate.setOnClickListener { onClickInputDate(selectedDate) }
+        }
     }
 
     private fun onClickInputDate(date: Date) {
@@ -287,39 +270,6 @@ class HistoryInputFragment : Fragment() {
             updateDate(newDate)
         }, date.year, date.month, date.dayOfMonth)
         datePicker.show()
-    }
-
-    private fun prepareType(type: HistoryType) {
-        if (type == HistoryType.CREDIT) {
-            binding.containerTypes.check(R.id.type_credit)
-        }
-        else {
-            binding.containerTypes.check(R.id.type_debit)
-        }
-        if (isActionEdit()) {
-            binding.containerTypes.disable()
-            binding.typeCredit.disable()
-            binding.typeDebit.disable()
-        }
-        else {
-            binding.containerTypes.setOnCheckedStateChangeListener { _,_ ->
-                val note = binding.inputNote.text.toString()
-                val selectedType = getSelectedHistoryType()
-                if (note == HistoryType.CREDIT.name || note == HistoryType.DEBIT.name) {
-                    binding.inputNote.setText(selectedType.name)
-                }
-            }
-        }
-    }
-
-    private fun getSelectedHistoryType(): HistoryType {
-        val checkedId = binding.containerTypes.checkedChipId
-        return if (checkedId == R.id.type_credit) {
-            HistoryType.CREDIT
-        }
-        else {
-            HistoryType.DEBIT
-        }
     }
 
     private fun prepareAmount(amount: Float?) {
@@ -341,10 +291,10 @@ class HistoryInputFragment : Fragment() {
             binding.inputSource.setOnClickListener {
                 navController.navigate(R.id.action_create_history_to_account_picker,Bundle().apply {
                     putString(Constants.ARG_RESULT_KEY, ARG_SOURCE)
-                    putLong(Constants.ARG_INITIAL_SELECTION, getSelectedAccount()?.id ?: 0)
+                    putLong(Constants.ARG_INITIAL_SELECTION, getSelectedAccount(ARG_SOURCE)?.id ?: 0)
                 })
             }
-            getSelectedAccountLiveData().observe(viewLifecycleOwner) { selectedPrimary ->
+            getSelectedAccountLiveData(ARG_SOURCE).observe(viewLifecycleOwner) { selectedPrimary ->
                 updatePrimaryAccountChip(selectedPrimary?.toAccountModel())
             }
         }
@@ -354,27 +304,27 @@ class HistoryInputFragment : Fragment() {
         }
     }
 
-    private fun prepareGroup(group: GroupModel?) {
-        if (null != group) {
-            // group is available, update the chip and don't allow group picking
-            updateGroupChip(group, false)
+    private fun prepareSecondaryAccount(account: AccountModel?) {
+        if (null != account) {
+            // secondary account available, update the chip
+            updateSecondaryAccountChip(account, false)
         }
         else if (!isActionEdit()) {
-            // group is not available and it is create action, observer the group selection
-            binding.inputGroup.visible()
-            binding.inputGroup.setOnClickListener {
-                navController.navigate(R.id.action_create_history_to_group_picker,Bundle().apply {
-                    putString(Constants.ARG_RESULT_KEY, Constants.ARG_GROUP)
-                    putLong(Constants.ARG_INITIAL_SELECTION, getSelectedGroup()?.id ?: 0)
+            // secondary account not available and it is create action, observe secondary account selection
+            binding.inputDestination.visible()
+            binding.inputDestination.setOnClickListener {
+                navController.navigate(R.id.action_create_history_to_account_picker,Bundle().apply {
+                    putString(Constants.ARG_RESULT_KEY, ARG_DESTINATION)
+                    putLong(Constants.ARG_INITIAL_SELECTION, getSelectedAccount(ARG_DESTINATION)?.id ?: 0)
                 })
             }
-            getSelectedGroupLiveData().observe(viewLifecycleOwner) { selectedGroup ->
-                updateGroupChip(selectedGroup?.toGroupModel())
+            getSelectedAccountLiveData(ARG_DESTINATION).observe(viewLifecycleOwner) { selectedSecondary ->
+                updateSecondaryAccountChip(selectedSecondary?.toAccountModel())
             }
         }
         else {
-            // it is edit action but group not found, may be deleted, show some placeholder
-            // TODO: show a placeholder group in history input
+            // it is edit action but primary account not found, may be deleted, show some placeholder
+            // TODO: show a placeholder account in history input for primary account
         }
     }
 
@@ -391,14 +341,14 @@ class HistoryInputFragment : Fragment() {
         val container = binding.selectedSourceContainer
         createChip(container,account,{
             createInputChip(container, it.name!!, cancelable)
-        }, cancelable, { removeSelectedAccount()})
+        }, cancelable, { removeSelectedAccount(ARG_SOURCE)})
     }
 
-    private fun updateGroupChip(group: GroupModel?, cancelable: Boolean = true) {
-        val container = binding.selectedGroupContainer
-        createChip(container, group, {
+    private fun updateSecondaryAccountChip(account: AccountModel?, cancelable: Boolean = true) {
+        val container = binding.selectedDestinationContainer
+        createChip(container,account,{
             createInputChip(container, it.name!!, cancelable)
-        }, cancelable, { removeSelectedGroup() })
+        }, cancelable, { removeSelectedAccount(ARG_DESTINATION)})
     }
 
     private fun <T> createChip(container: ViewGroup, data: T?, chipFactory: (T)->Chip, cancelable: Boolean = true, onRemove: (()->Unit)? = null): Chip? {
