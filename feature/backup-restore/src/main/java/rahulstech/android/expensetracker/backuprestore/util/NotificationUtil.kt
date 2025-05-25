@@ -19,7 +19,7 @@ object NotificationConstants {
     const val RESTORE_NOTIFICATION_ID = 56
     const val NOTIFICATION_CHANNEL_ID_BACKUP_RESTORE = "rahulstech.android.expensetracker.notificationchannel.BACKUP_RESTORE"
     const val NOTIFICATION_CHANNEL_NAME_BACKUP_RESTORE = "Backup and Restore"
-    const val NOTIFICATION_CHANNEL_DESCRIPTION_BACKUP_RESTORE = ""
+    const val NOTIFICATION_CHANNEL_DESCRIPTION_BACKUP_RESTORE = "Notification related to app data backup and restore"
 }
 
 class NotificationBuilder {
@@ -27,7 +27,6 @@ class NotificationBuilder {
     private var _titleRes: Int? = null
     private var _message: CharSequence? = null
     private var _messageRes: Int? = null
-    private var _actionContent: PendingIntent? = null
     private var _actionPosition: NotificationCompat.Action? = null
     private var _actionNegative: NotificationCompat.Action? = null
     private var _actionNeutral: NotificationCompat.Action? = null
@@ -74,10 +73,6 @@ class NotificationBuilder {
         _smallIconRes = resId
     }
 
-    fun setContentAction(action: PendingIntent) {
-        _actionContent = action
-    }
-
     fun create(context: Context, channelId: String): Notification {
         val titleText = _title ?: _titleRes?.let { context.getText(it) } ?: ""
         val messageText = _message ?: _messageRes?.let { context.getText(it) } ?: ""
@@ -89,7 +84,6 @@ class NotificationBuilder {
             val indeterminate = _progressCurrent !in 0.._progressMax
             builder.setProgress(_progressMax, _progressCurrent, indeterminate)
         }
-        _actionContent?.let { action -> builder.setContentIntent(action) }
         _actionNeutral?.let { action -> builder.addAction(action) }
         _actionNegative?.let { action -> builder.addAction(action) }
         _actionPosition?.let { action -> builder.addAction(action) }
@@ -144,11 +138,6 @@ fun createRestoreNotification(context: Context, builder: NotificationBuilder): N
     builder.apply {
         setTitleResource(R.string.notification_title_restore)
         setSmallIconResource(R.drawable.arrow_circle_down)
-//        val actionContent = PendingIntent.getActivity(appContext,
-//            Constants.REQUEST_SHOW_RESTORE_ACTIVITY,
-//            Intent(appContext, BackupRestoreSettingsHomeActivity::class.java),
-//            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
-//        setContentAction(actionContent)
     }
     createNotificationChannel(appContext,NotificationConstants.NOTIFICATION_CHANNEL_ID_BACKUP_RESTORE)
     return builder.create(appContext, NotificationConstants.NOTIFICATION_CHANNEL_ID_BACKUP_RESTORE)

@@ -73,7 +73,7 @@ class BackupRestoreFragment: Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        updateLastLocalBack()
+        updateLastLocalBackupTime()
         adapterBackupFrequency = BackupFrequencyAdapter()
         binding.autoBackupFrequency.apply {
             adapter = adapterBackupFrequency
@@ -93,6 +93,7 @@ class BackupRestoreFragment: Fragment() {
         binding.btnCancelBackup.setOnClickListener { onClickCancelBackup() }
         binding.btnOpenRestoreLocal.setOnClickListener { onClickPickBackupFile() }
 
+        viewModel.getLastLocalBackupTime().observe(viewLifecycleOwner) { updateLastLocalBackupTime() }
         lifecycleScope.launch {
             viewModel.getBackupProgressFlow().collectLatest { updateBackupProgress(it) }
         }
@@ -228,7 +229,7 @@ class BackupRestoreFragment: Fragment() {
         }
     }
 
-    private fun updateLastLocalBack() {
+    private fun updateLastLocalBackupTime() {
         val milli = settings.getLastLocalBackupMillis()
         val time = if (milli < 0) {
             getString(R.string.label_last_local_backup_time_never)
@@ -238,7 +239,7 @@ class BackupRestoreFragment: Fragment() {
         }
         binding.labelLastLocalBackup.text = buildString {
             append(getString(R.string.label_last_local_backup_time))
-            append(" ")
+            append(": ")
             append(time)
         }
     }

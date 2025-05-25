@@ -71,7 +71,7 @@ object BackupRestoreHelper {
                 runningWorkInfo?.let { info ->
                     val progress = info.progress
                     if (progress.keyValueMap.isNotEmpty()) {
-                        ProgressData(
+                        return@let ProgressData(
                             info.id,
                             progress.getInt(Constants.DATA_PROGRESS_MAX, -1),
                             progress.getInt(Constants.DATA_PROGRESS_CURRENT, -1),

@@ -1,23 +1,16 @@
 package dreammaker.android.expensetracker.database;
 
 import android.text.TextUtils;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.Month;
 import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Locale;
 
-import kotlin.time.Duration;
-import kotlin.time.DurationKt;
-
 public class Date implements Cloneable {
-
-    private static final String TAG = "Date";
 
     public static final String ISO_DATE_PATTERN = "yyyy-MM-dd";
 
@@ -48,8 +41,7 @@ public class Date implements Cloneable {
             return date;
         }
         catch(Exception ex){
-            Log.e(TAG,ex.getMessage());
-            throw new RuntimeException(ex);
+            throw new IllegalStateException(ex);
         }
     }
 
@@ -112,92 +104,9 @@ public class Date implements Cloneable {
         return new Date(getYear(),getMonth(), getDayOfMonth());
     }
 
-    public boolean isTomorrow(){
-        Date today = new Date();
-        return getYear() == today.getYear()
-                && getMonth() == today.getMonth()
-                && getDayOfMonth()-today.getDayOfMonth() == 1;
-    }
-
-    public boolean isToday(){
-        Date today = new Date();
-        return getYear() == today.getYear()
-                && getMonth() == today.getMonth()
-                && getDayOfMonth() == today.getDayOfMonth();
-    }
-
-    public boolean isYesterday(){
-        Date today = new Date();
-        return getYear() == today.getYear()
-                && getMonth() == today.getMonth()
-                && today.getDayOfMonth()-getDayOfMonth() == 1;
-    }
-
-    public Date yesterday() {
-        final Calendar copy = (Calendar) this.calendar.clone();
-        copy.add(Calendar.DAY_OF_YEAR,-1);
-        return new Date(copy);
-    }
-
-    public Date firstDateOfThisWeek() {
-        final Calendar copy = (Calendar) this.calendar.clone();
-        final int firstDayOfWeek = copy.getFirstDayOfWeek();
-        final int todayOfWeek = copy.get(Calendar.DAY_OF_WEEK);
-        final int diff = Math.abs(firstDayOfWeek-todayOfWeek);
-        copy.add(Calendar.DAY_OF_WEEK,-diff);
-        return new Date(copy);
-    }
-
-    public Date lastDateOfThisWeek() {
-        final Calendar copy = (Calendar) this.firstDateOfThisWeek().calendar.clone();
-        copy.add(Calendar.DAY_OF_WEEK,6);
-        return new Date(copy);
-    }
-
-    public Date firstDateOfLastWeek() {
-        final Calendar copy = (Calendar) this.firstDateOfThisWeek().calendar.clone();
-        copy.add(Calendar.DAY_OF_WEEK,-7);
-        return new Date(copy);
-    }
-
-    public Date lastDateOfLastWeek() {
-        final Calendar copy = (Calendar) this.lastDateOfThisWeek().calendar.clone();
-        copy.add(Calendar.DAY_OF_WEEK,7);
-        return new Date(copy);
-    }
-
-    public Date firstDateOfThisMonth() {
-        final Calendar copy = (Calendar) this.calendar.clone();
-        copy.set(Calendar.DAY_OF_MONTH,1);
-        return new Date(copy);
-    }
-
     public Date lastDateOfThisMonth() {
         final Calendar copy = (Calendar) this.calendar.clone();
         copy.set(Calendar.DAY_OF_MONTH, copy.getActualMaximum(Calendar.DAY_OF_MONTH));
-        return new Date(copy);
-    }
-
-    public Date firstDateOfLastMonth() {
-        return firstDateOfNPreviousMonths(1);
-    }
-
-    public Date lastDateOfLastMonth() {
-        final Calendar copy = (Calendar) this.calendar.clone();
-        copy.add(Calendar.MONTH,-1);
-        copy.set(Calendar.DAY_OF_MONTH,copy.getActualMaximum(Calendar.DAY_OF_MONTH));
-        return new Date(copy);
-    }
-
-    public Date firstDateOfNPreviousMonths(int n) {
-        final Calendar copy = (Calendar) this.firstDateOfThisMonth().calendar.clone();
-        copy.add(Calendar.MONTH,-Math.abs(n));
-        return new Date(copy);
-    }
-
-    public Date firstDateOfNNextMonths(int n) {
-        final Calendar copy = (Calendar) this.firstDateOfThisMonth().calendar.clone();
-        copy.add(Calendar.MONTH,Math.abs(n));
         return new Date(copy);
     }
 

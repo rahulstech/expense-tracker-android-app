@@ -65,11 +65,6 @@ data class MoneyTransferData(
     @SerializedName("description")
     val note: String?
 ) {
-    fun toHistoryModel(): HistoryModel
-    = HistoryModel(id, HistoryType.TRANSFER,
-        primaryAccountId, secondaryAccountId, null, null, null, null,
-        amount, date, note)
-
     fun toHistoryData(): HistoryData
     = HistoryData(id, HistoryType.TRANSFER, primaryAccountId, secondaryAccountId, null, amount, date, note)
 }
@@ -89,17 +84,6 @@ data class TransactionData(
     val deleted: Boolean
 ) {
     private fun getHistoryType(): HistoryType = if (type == 0) HistoryType.DEBIT else HistoryType.CREDIT
-
-    fun toHistoryModel(): HistoryModel? {
-        if (deleted) {
-            return null
-        }
-        return HistoryModel(
-            id, getHistoryType(),
-            primaryAccountId, null, groupId, null, null, null,
-            amount, date, note
-        )
-    }
 
     fun toHistoryData(): HistoryData {
         return HistoryData(id,getHistoryType(), primaryAccountId, null, groupId, amount, date, note, deleted)

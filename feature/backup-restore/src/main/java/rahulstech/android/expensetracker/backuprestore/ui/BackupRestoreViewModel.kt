@@ -2,7 +2,9 @@ package rahulstech.android.expensetracker.backuprestore.ui
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import kotlinx.coroutines.flow.Flow
+import rahulstech.android.expensetracker.backuprestore.settings.AgentSettingsProvider
 import rahulstech.android.expensetracker.backuprestore.worker.BackupRestoreHelper
 
 class BackupRestoreViewModel(app: Application): AndroidViewModel(app) {
@@ -29,5 +31,14 @@ class BackupRestoreViewModel(app: Application): AndroidViewModel(app) {
             restoreProgress = BackupRestoreHelper.getRestoreProgress(applicationContext)
         }
         return restoreProgress!!
+    }
+
+    private var lastLocalBackupTime: LiveData<Long>? = null
+
+    fun getLastLocalBackupTime(): LiveData<Long> {
+        if (null == lastLocalBackupTime) {
+            lastLocalBackupTime = AgentSettingsProvider.get(applicationContext).getLastLocalBackupMillisLiveData()
+        }
+        return lastLocalBackupTime!!
     }
 }

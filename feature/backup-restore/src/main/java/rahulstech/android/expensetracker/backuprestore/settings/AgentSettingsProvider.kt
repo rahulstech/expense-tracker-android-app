@@ -1,7 +1,9 @@
 package rahulstech.android.expensetracker.backuprestore.settings
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.core.content.edit
+import androidx.lifecycle.LiveData
 import rahulstech.android.expensetracker.backuprestore.R
 
 enum class BackupFrequency {
@@ -19,7 +21,7 @@ enum class BackupFrequency {
     }
 }
 
-class AgentSettingsProvider private constructor(private val applicationContext: Context){
+class AgentSettingsProvider private constructor(applicationContext: Context){
 
     private val sharedPreferences = applicationContext.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
 
@@ -42,6 +44,18 @@ class AgentSettingsProvider private constructor(private val applicationContext: 
 
     fun getLastLocalBackupMillis(): Long = sharedPreferences.getLong(KEY_LAST_LOCAL_BACKUP_MILLIS, -1)
 
+    fun getLastLocalBackupMillisLiveData(): LiveData<Long> = SharedPreferenceLiveData(KEY_LAST_LOCAL_BACKUP_MILLIS)
+
+    @Suppress("UNCHECKED_CAST")
+    private fun <T> getValue(key: String): T? {
+        val value = when(key) {
+            KEY_BACKUP_FREQUENCY -> getBackupFrequency()
+            KEY_LAST_LOCAL_BACKUP_MILLIS -> getLastLocalBackupMillis()
+            else -> throw IllegalStateException("unknown key $key") // should never reach this branch
+        }
+        return value as T
+    }
+
     companion object {
 
         private const val SHARED_PREFERENCES_NAME = "rahulstech.android.expensetrcker.backuprestore.settings.agent"
@@ -57,6 +71,30 @@ class AgentSettingsProvider private constructor(private val applicationContext: 
                 instance = tmp
                 tmp
             }
+        }
+    }
+
+    private inner class SharedPreferenceLiveData<T>(val observeKey: String): LiveData<T>() {
+
+
+        private val sharedPreferenceCallback: SharedPreferences.OnSharedPreferenceChangeListener
+        = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (observeKey == key) {
+                val value = getValue<T>(key)
+                postValue(value)
+            }
+        }
+
+        init {
+            value = getValue(observeKey)
+        }
+
+        override fun onActive() {
+            sharedPreferences.registerOnSharedPreferenceChangeListener(sharedPreferenceCallback)
+        }
+
+        override fun onInactive() {
+            sharedPreferences.unregisterOnSharedPreferenceChangeListener(sharedPreferenceCallback)
         }
     }
 }
