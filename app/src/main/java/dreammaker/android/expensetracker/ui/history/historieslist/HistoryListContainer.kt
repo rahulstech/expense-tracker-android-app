@@ -31,6 +31,7 @@ class HistoryListContainer: Fragment(), MenuProvider {
         private const val CONTAINER_ID = 1
 
         const val ARG_SHOW_HISTORY_FOR = "arg_show_history_for"
+        const val ARG_SORT_HISTORY = "arg_sort_history"
     }
 
     private var _container: FragmentContainerView? = null
@@ -84,6 +85,14 @@ class HistoryListContainer: Fragment(), MenuProvider {
                 changeViewHistory(ViewHistory.MONTHLY)
                 true
             }
+            R.id.menu_sort_newest_first -> {
+                changeSortHistory(true)
+                true
+            }
+            R.id.menu_sort_oldest_first -> {
+                changeSortHistory(false)
+                true
+            }
             else -> false
         }
     }
@@ -92,6 +101,10 @@ class HistoryListContainer: Fragment(), MenuProvider {
         settings.setViewHistory(viewAs)
         requireActivity().invalidateOptionsMenu()
         changeFragment(viewAs)
+    }
+
+    private fun changeSortHistory(dateDesc: Boolean) {
+        // TODO: handle history sort change
     }
 
     private fun changeFragment(viewAs: ViewHistory) {

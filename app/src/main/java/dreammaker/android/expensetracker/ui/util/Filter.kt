@@ -27,12 +27,19 @@ class Filter<FilterData, ResultType>(private val filterCallback: FilterCallback<
         }
     }
 
-   fun filter(data: FilterData?, original: ResultType?) {
-       filterArgs.value = (data to original)
+   suspend fun filter(data: FilterData?, original: ResultType?) {
+//       filterArgs.value = (data to original)
+
+       withContext(Dispatchers.Default) {
+           ensureActive()
+           val result = filterCallback.doFilter(data, original)
+           ensureActive()
+           submitResult(result)
+       }
     }
 
     private suspend fun performFilter(data: FilterData?, original: ResultType?) {
-        withContext(Dispatchers.IO) {
+        withContext(Dispatchers.Default) {
             ensureActive()
             val result = filterCallback.doFilter(data, original)
             ensureActive()

@@ -232,6 +232,9 @@
     <string name="label_account">Account</string>
     <string name="title_edit_transfer_history">Edit Trnasfer</string>
 	<string name="title_create_transfer_history">Create Transfer</string>
+    <string name="menu_title_sort_histories">Sort History List</string>
+    <string name="menu_title_sort_newest_first">Newest First</string>
+	<string name="menu_title_sort_oldest_first">Oldest First</string>
 
 	<plurals name="warning_delete_accounts">
 		<item quantity="one">%1$s will be deleted permanently. Do you want to proceed?</item>
