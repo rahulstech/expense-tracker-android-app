@@ -18,6 +18,10 @@ import dreammaker.android.expensetracker.util.MonthYear
 import java.util.Locale
 import kotlin.math.absoluteValue
 
+val UNKNOWN_ACCOUNT = AccountModel(null,"Unknown Account", 0f)
+
+val UNKNOWN_GROUP = GroupModel(null,"Unknown Group", 0f)
+
 class AccountModelParcel(val id: Long, val name: String, val balance: Float): Parcelable {
 
     constructor(account: AccountModel): this(

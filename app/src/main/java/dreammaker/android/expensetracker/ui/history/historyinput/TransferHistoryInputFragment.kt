@@ -18,17 +18,16 @@ import com.google.android.material.chip.Chip
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.database.AccountModel
 import dreammaker.android.expensetracker.database.Date
-import dreammaker.android.expensetracker.database.GroupModel
 import dreammaker.android.expensetracker.database.HistoryModel
 import dreammaker.android.expensetracker.database.HistoryType
 import dreammaker.android.expensetracker.databinding.TransferHistoryInputLayoutBinding
 import dreammaker.android.expensetracker.ui.util.AccountModelParcel
 import dreammaker.android.expensetracker.ui.util.Constants
-import dreammaker.android.expensetracker.ui.util.GroupModelParcel
 import dreammaker.android.expensetracker.ui.util.OperationResult
 import dreammaker.android.expensetracker.ui.util.createInputChip
 import dreammaker.android.expensetracker.ui.util.getDate
 import dreammaker.android.expensetracker.ui.util.hasArgument
+import dreammaker.android.expensetracker.ui.util.setActivitySubTitle
 import dreammaker.android.expensetracker.ui.util.visibilityGone
 import dreammaker.android.expensetracker.ui.util.visible
 import kotlinx.coroutines.flow.collectLatest
@@ -79,12 +78,6 @@ class TransferHistoryInputFragment : Fragment() {
     private fun removeSelectedAccount(key: String) {
         navController.currentBackStackEntry?.savedStateHandle?.set(key,null)
     }
-
-    private fun getSelectedGroupLiveData(): LiveData<GroupModelParcel?>
-            = navController.currentBackStackEntry?.savedStateHandle!!.getLiveData(Constants.ARG_GROUP, null)
-
-    private fun getSelectedGroup(): GroupModel?
-            = navController.currentBackStackEntry?.savedStateHandle?.get<GroupModelParcel?>(Constants.ARG_GROUP)?.toGroupModel()
 
     /////////////////////////////////////////////////////////////////
     ///                     Fragment Api                         ///
@@ -241,6 +234,11 @@ class TransferHistoryInputFragment : Fragment() {
                 }
             }
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        setActivitySubTitle("")
     }
 
     /////////////////////////////////////////////////////////////////

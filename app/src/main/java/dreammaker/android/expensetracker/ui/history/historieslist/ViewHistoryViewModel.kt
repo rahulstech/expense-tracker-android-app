@@ -88,8 +88,8 @@ class ViewHistoryViewModel(app: Application): AndroidViewModel(app) {
         // cancel running filter job
         filterJob?.cancel()
 
-        val filterData = _historyFilterDataLiveData.value
         val histories = _originalHistoryLiveData?.value
+        val filterData = _historyFilterDataLiveData.value
 
         // if original histories is null or empty then send empty list
         if (histories.isNullOrEmpty()) {
@@ -108,7 +108,7 @@ class ViewHistoryViewModel(app: Application): AndroidViewModel(app) {
             ensureActive()
 
             // perform actual filter
-            val filteredHistories = filterData.let {  histories.filter{ history -> filterData.match(history) } }
+            var filteredHistories = filterData.let {  histories.filter{ history -> filterData.match(history) } }
 
             // before returning result ensure coroutine is active to avoid posting unuseful histories
             ensureActive()
@@ -119,15 +119,17 @@ class ViewHistoryViewModel(app: Application): AndroidViewModel(app) {
     }
 
     private fun handleHistorySummaryLiveDataSourceChanged() {
-
+        // cancel on going job
         summaryJob?.cancel()
 
+        // if source histories is null or empty then set default summary
         val histories = _originalHistoryLiveData?.value
         if (histories.isNullOrEmpty()) {
             _historySummaryLiveData.value = getDefaultHistorySummary()
             return
         }
 
+        // start summary calculation
         summaryJob = viewModelScope.launch(Dispatchers.Default) {
             var totalCredit = 0f
             var totalDebit = 0f

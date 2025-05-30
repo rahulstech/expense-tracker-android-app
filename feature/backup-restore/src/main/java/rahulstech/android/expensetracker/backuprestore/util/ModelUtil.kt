@@ -10,7 +10,6 @@ import dreammaker.android.expensetracker.database.History
 import dreammaker.android.expensetracker.database.HistoryModel
 import dreammaker.android.expensetracker.database.HistoryType
 import dreammaker.android.expensetracker.settings.SettingsModel
-import dreammaker.android.expensetracker.settings.ViewHistory
 
 data class AccountData(
     @SerializedName("id", alternate = ["_id"])
@@ -90,11 +89,18 @@ data class TransactionData(
     }
 }
 
-data class AppSettingsData(
-    val viewHistory: ViewHistory
-) {
+class AppSettingsData {
+    
     fun toSettingsModel(): SettingsModel {
-        return SettingsModel(viewHistory)
+        return SettingsModel()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return this === other || other is AppSettingsData
+    }
+
+    override fun hashCode(): Int {
+        return javaClass.hashCode()
     }
 }
 
@@ -111,5 +117,5 @@ fun History.toHistoryData(): HistoryData {
 }
 
 fun SettingsModel.toSettingsData(): AppSettingsData {
-    return AppSettingsData(viewHistory)
+    return AppSettingsData()
 }

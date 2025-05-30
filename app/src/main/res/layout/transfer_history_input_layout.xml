@@ -77,6 +77,8 @@
             android:orientation="horizontal"
             android:gravity="center"
             android:layout_marginTop="24dp"
+            android:paddingStart="6dp"
+            android:paddingEnd="6dp"
             android:background="@drawable/rounded_rectangle_border">
 
             <TextView
@@ -84,10 +86,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="0"
-                android:paddingLeft="16dp"
-                android:paddingRight="16dp"
+                android:paddingStart="10dp"
+                android:paddingEnd="16dp"
                 android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                android:text="@string/label_history_item_source_account"/>
+                android:text="@string/label_history_input_source_account"/>
 
             <FrameLayout
                 android:id="@+id/selected_source_container"
@@ -106,7 +108,8 @@
                 app:icon="@drawable/baseline_arrow_right"
                 style="@style/Widget.AppTheme.Button.PickerArrow"
                 android:visibility="gone"
-                tools:visibility="visible"/>
+                tools:visibility="visible"
+                tools:ignore="ContentDescription"/>
         </LinearLayout>
 
         <TextView
@@ -128,7 +131,9 @@
             android:layout_height="52dp"
             android:orientation="horizontal"
             android:gravity="center"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="24dp"
+            android:paddingStart="6dp"
+            android:paddingEnd="6dp"
             android:background="@drawable/rounded_rectangle_border"
             android:visibility="visible">
 
@@ -136,8 +141,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="0"
-                android:paddingLeft="16dp"
-                android:paddingRight="16dp"
+                android:paddingStart="10dp"
+                android:paddingEnd="16dp"
                 android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                 android:text="@string/label_history_input_destination_account" />
 
@@ -157,9 +162,9 @@
                 android:layout_weight="0"
                 app:icon="@drawable/baseline_arrow_right"
                 style="@style/Widget.AppTheme.Button.PickerArrow"
-                tools:ignore="ContentDescription"
                 android:visibility="gone"
-                tools:visibility="visible"/>
+                tools:visibility="visible"
+                tools:ignore="ContentDescription"/>
         </LinearLayout>
 
         <TextView

@@ -27,7 +27,6 @@ import dreammaker.android.expensetracker.ui.util.Constants
 import dreammaker.android.expensetracker.ui.util.GroupModelParcel
 import dreammaker.android.expensetracker.ui.util.OperationResult
 import dreammaker.android.expensetracker.ui.util.createInputChip
-import dreammaker.android.expensetracker.ui.util.disable
 import dreammaker.android.expensetracker.ui.util.getDate
 import dreammaker.android.expensetracker.ui.util.getHistoryType
 import dreammaker.android.expensetracker.ui.util.hasArgument
@@ -297,9 +296,12 @@ class HistoryInputFragment : Fragment() {
             binding.containerTypes.check(R.id.type_debit)
         }
         if (isActionEdit()) {
-            binding.containerTypes.disable()
-            binding.typeCredit.disable()
-            binding.typeDebit.disable()
+            if (type == HistoryType.CREDIT) {
+                binding.typeDebit.visibilityGone()
+            }
+            else {
+                binding.typeCredit.visibilityGone()
+            }
         }
         else {
             binding.containerTypes.setOnCheckedStateChangeListener { _,_ ->

@@ -35,11 +35,8 @@ class ViewMonthHistoryFragment : Fragment() {
     }
 
     private lateinit var binding: HistoryListBinding
-
     private val viewModel: ViewHistoryViewModel by viewModels()
-
     private lateinit var adapter: MonthHistoryListAdapter
-
     private val navController: NavController by lazy { findNavController() }
 
     override fun onCreateView(

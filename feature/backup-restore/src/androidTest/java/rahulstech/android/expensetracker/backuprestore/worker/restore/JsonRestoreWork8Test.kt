@@ -8,7 +8,6 @@ import androidx.work.workDataOf
 import com.google.gson.stream.JsonReader
 import dreammaker.android.expensetracker.database.Date
 import dreammaker.android.expensetracker.database.HistoryType
-import dreammaker.android.expensetracker.settings.ViewHistory
 import junit.framework.TestCase.assertEquals
 import org.junit.After
 import org.junit.Before
@@ -110,21 +109,6 @@ class JsonRestoreWork8Test {
     }
 
     @Test
-    fun testRestoreAppSettings() {
-        val json = "{\"app_settings\":{\"viewHistory\":\"DAILY\"}}"
-        newJsonReader(json)
-
-        val expected = AppSettingsData(ViewHistory.DAILY)
-        writeHelper.callback = { _,actual ->
-            assertEquals(expected,actual)
-        }
-
-        jsonReader.beginObject()
-        jsonReader.nextName()
-        worker.restoreAppSettings(writeHelper,jsonReader,gson)
-    }
-
-    @Test
     fun testRestore() {
         val json = "{ \"version\": 8," +
                 "\"accounts\":[{\"id\": 1, \"name\": \"Account 1\", \"balance\": 150.00}]," +
@@ -134,7 +118,7 @@ class JsonRestoreWork8Test {
                 "{\"id\": 2, \"type\": \"DEBIT\", \"primaryAccountId\": 1, \"secondaryAccountId\": null, \"groupId\": 2, \"amount\": 150.00, \"date\": \"2023-05-16\", \"note\": null}," +
                 "{\"id\": 3, \"type\": \"TRANSFER\", \"primaryAccountId\": 1, \"secondaryAccountId\": 2, \"groupId\": null, \"amount\": 150.00, \"date\": \"2023-05-16\", \"note\": \"transfer\"}," +
                 "{\"id\": 4, \"type\": \"CREDIT\", \"primaryAccountId\": 1, \"secondaryAccountId\": null, \"groupId\": null, \"amount\": 150.00, \"date\": \"2023-05-16\", \"note\": \"income\"}]," +
-                "\"app_settings\":{\"viewHistory\":\"DAILY\"}}"
+                "\"app_settings\":{}}"
         newJsonReader(json)
 
         val expectedAccounts = listOf(AccountData(1,"Account 1", 150.0f))
@@ -145,7 +129,7 @@ class JsonRestoreWork8Test {
             HistoryData(3,HistoryType.TRANSFER, 1,2,null,150.00f,Date.valueOf("2023-05-16"),"transfer"),
             HistoryData(4,HistoryType.CREDIT, 1,null,null,150.00f,Date.valueOf("2023-05-16"),"income")
         )
-        val expectedAppSettings = AppSettingsData(ViewHistory.DAILY)
+        val expectedAppSettings = AppSettingsData()
         writeHelper.callback = { name,actual ->
             when(name) {
                 Constants.JSON_FIELD_ACCOUNTS -> assertEquals(expectedAccounts, actual)

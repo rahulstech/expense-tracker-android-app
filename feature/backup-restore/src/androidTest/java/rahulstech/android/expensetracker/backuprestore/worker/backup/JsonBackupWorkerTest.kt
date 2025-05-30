@@ -96,16 +96,6 @@ class JsonBackupWorkerTest {
         assertEquals(expected,actual)
     }
 
-    @Test
-    fun testBackupAppSettings() {
-        writer.beginObject()
-        worker.backupAppSettings(readHelper.readAppSettings(), writer, gson)
-        writer.endObject()
-        writer.flush()
-        val actual = getJson()
-        val expected = "{\"app_settings\":{\"viewHistory\":\"DAILY\"}}"
-        assertEquals(expected,actual)
-    }
 
     @Test
     fun testBackup() {
@@ -120,7 +110,8 @@ class JsonBackupWorkerTest {
                 "{\"amount\":150.0,\"date\":\"2023-05-16\",\"groupId\":1,\"id\":3,\"note\":\"credit\",\"primaryAccountId\":1,\"type\":\"CREDIT\"}," +
                 "{\"amount\":150.0,\"date\":\"2023-05-16\",\"groupId\":1,\"id\":4,\"primaryAccountId\":1,\"type\":\"DEBIT\"}," +
                 "{\"amount\":150.0,\"date\":\"2023-05-16\",\"id\":5,\"primaryAccountId\":1,\"secondaryAccountId\":2,\"type\":\"TRANSFER\"}]," +
-                "\"app_settings\":{\"viewHistory\":\"DAILY\"}}".trimIndent()
+                "\"app_settings\":{}}"
+                    .trimIndent()
         assertEquals(expected,actual)
     }
 

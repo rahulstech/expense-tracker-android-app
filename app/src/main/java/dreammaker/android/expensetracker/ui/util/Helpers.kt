@@ -25,18 +25,18 @@ object Constants {
     const val ACTION_EDIT = "action_edit"
 }
 
-fun Fragment.setActivityTitle(title: CharSequence) {
+fun Fragment.setActivitySubTitle(title: CharSequence) {
     val activity = activity ?: return
     if (activity is AppCompatActivity) {
         if (null == activity.supportActionBar) {
-            activity.title = title
+            activity.actionBar?.subtitle = title
         }
         else {
-            activity.supportActionBar?.title = title
+            activity.supportActionBar?.subtitle = title
         }
     }
     else {
-        activity.title = title
+        activity.actionBar?.subtitle = title
     }
 }
 

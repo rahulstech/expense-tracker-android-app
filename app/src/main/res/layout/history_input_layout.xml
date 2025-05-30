@@ -100,6 +100,8 @@
             android:orientation="horizontal"
             android:gravity="center"
             android:layout_marginTop="24dp"
+            android:paddingStart="6dp"
+            android:paddingEnd="6dp"
             android:background="@drawable/rounded_rectangle_border">
 
             <TextView
@@ -107,8 +109,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="0"
-                android:paddingLeft="16dp"
-                android:paddingRight="16dp"
+                android:paddingStart="10dp"
+                android:paddingEnd="16dp"
                 android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                 android:text="@string/label_account"/>
 
@@ -145,60 +147,6 @@
             android:visibility="gone"
             tools:visibility="visible"/>
 
-<!--        <LinearLayout-->
-<!--            android:id="@+id/destination_layout"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="52dp"-->
-<!--            android:orientation="horizontal"-->
-<!--            android:gravity="center"-->
-<!--            android:layout_marginTop="12dp"-->
-<!--            android:background="@drawable/rounded_rectangle_border"-->
-<!--            android:visibility="gone"-->
-<!--            tools:visibility="visible">-->
-
-<!--            <TextView-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_weight="0"-->
-<!--                android:paddingLeft="16dp"-->
-<!--                android:paddingRight="16dp"-->
-<!--                android:textAppearance="@style/TextAppearance.Material3.BodyMedium"-->
-<!--                android:text="@string/label_history_input_destination_account" />-->
-
-<!--            <FrameLayout-->
-<!--                android:id="@+id/selected_destination_container"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_weight="1"-->
-<!--                android:layout_marginLeft="8dp"-->
-<!--                android:layout_marginRight="8dp"-->
-<!--                android:animateLayoutChanges="true"/>-->
-
-<!--            <com.google.android.material.button.MaterialButton-->
-<!--                android:id="@+id/input_destination"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_weight="0"-->
-<!--                app:icon="@drawable/baseline_arrow_right"-->
-<!--                style="@style/Widget.AppTheme.Button.PickerArrow"-->
-<!--                tools:ignore="ContentDescription"-->
-<!--                android:visibility="gone"-->
-<!--                tools:visibility="visible"/>-->
-<!--        </LinearLayout>-->
-
-<!--        <TextView-->
-<!--            android:id="@+id/error_destination"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="@string/error_no_selection"-->
-<!--            android:layout_marginTop="6dp"-->
-<!--            android:paddingStart="16dp"-->
-<!--            android:paddingEnd="16dp"-->
-<!--            android:textAppearance="@style/TextAppearance.Material3.LabelSmall"-->
-<!--            android:textColor="?attr/colorError"-->
-<!--            android:visibility="gone"-->
-<!--            tools:visibility="visible" />-->
-
         <LinearLayout
             android:id="@+id/group_layout"
             android:layout_width="match_parent"
@@ -206,6 +154,8 @@
             android:orientation="horizontal"
             android:gravity="center"
             android:layout_marginTop="16dp"
+            android:paddingStart="6dp"
+            android:paddingEnd="6dp"
             android:background="@drawable/rounded_rectangle_border"
             android:visibility="visible">
 
