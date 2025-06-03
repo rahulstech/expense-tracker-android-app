@@ -66,8 +66,11 @@ abstract class ViewHistoryPageAdapter<T>(fragmentManager: FragmentManager, lifec
 }
 
 abstract class BaseViewHistoryFragment<T>: Fragment() {
-    private val TAG = BaseViewHistoryFragment::class.simpleName
-    private val KEY_CURRENT_PAGE_POSITION = "${javaClass.name}:key.current_page_position"
+
+    companion object {
+        private val TAG = BaseViewHistoryFragment::class.simpleName
+        private val KEY_CURRENT_PAGE_POSITION = "current_page_position"
+    }
 
     private var _binding: ViewHistoryBinding? = null
     private val binding get() = _binding!!

@@ -57,6 +57,7 @@ class ViewDayHistoryFragment : Fragment() {
         }
         adapter.itemClickListener = { _,_,position -> handleItemClick(position) }
         binding.filterContainer.setOnCheckedStateChangeListener { _, _ -> filter() }
+        binding.shimmerContainer.startShimmer()
 
         observeSummary()
         observeHistories()
@@ -88,6 +89,9 @@ class ViewDayHistoryFragment : Fragment() {
             binding.emptyView.visibilityGone()
             binding.historyList.visible()
         }
+        binding.shimmerContainer.visibilityGone()
+        binding.mainContainer.visible()
+        binding.shimmerContainer.stopShimmer()
     }
 
     private fun onHistorySummaryPrepared(summery: HistorySummary) {

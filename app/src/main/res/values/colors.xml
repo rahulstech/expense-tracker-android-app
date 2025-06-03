@@ -25,4 +25,6 @@
     <color name="colorIncome">#4B7831</color>
     <color name="colorOnIncome">@color/colorWhite</color>
 
+    <color name="colorShimmer">#B2C6D5</color>
+
 </resources>
