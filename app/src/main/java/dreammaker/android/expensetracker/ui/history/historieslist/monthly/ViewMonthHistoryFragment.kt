@@ -35,7 +35,8 @@ class ViewMonthHistoryFragment : Fragment() {
         const val ARG_MONTH_YEAR = "arg.month_year"
     }
 
-    private lateinit var binding: HistoryListBinding
+    private var _binding: HistoryListBinding? = null
+    private val binding: HistoryListBinding get() = _binding!!
     private val viewModel: ViewHistoryViewModel by viewModels()
     private lateinit var adapter: MonthHistoryListAdapter
     private val navController: NavController by lazy { findNavController() }
@@ -46,7 +47,7 @@ class ViewMonthHistoryFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = HistoryListBinding.inflate(inflater, container, false)
+        _binding = HistoryListBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -139,16 +140,16 @@ class ViewMonthHistoryFragment : Fragment() {
     }
 
     private fun getCheckedHistoryTypes(): Array<HistoryType> {
-        var types = arrayOf<HistoryType>()
+        val types = arrayListOf<HistoryType>()
         if (binding.filterCredit.isChecked) {
-            types = types.plusElement(HistoryType.CREDIT)
+            types.add(HistoryType.CREDIT)
         }
         if (binding.filterDebit.isChecked) {
-            types = types.plusElement(HistoryType.DEBIT)
+            types.add(HistoryType.DEBIT)
         }
         if (binding.filterTransfer.isChecked) {
-            types = types.plusElement(HistoryType.DEBIT)
+           types.add(HistoryType.TRANSFER)
         }
-        return types
+        return types.toTypedArray()
     }
 }

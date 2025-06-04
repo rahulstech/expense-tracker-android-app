@@ -142,16 +142,16 @@ class ViewDayHistoryFragment : Fragment() {
     }
 
     private fun getCheckedHistoryTypes(): Array<HistoryType> {
-        var types = arrayOf<HistoryType>()
+        val types = arrayListOf<HistoryType>()
         if (binding.filterCredit.isChecked) {
-            types = types.plusElement(HistoryType.CREDIT)
+            types.add(HistoryType.CREDIT)
         }
         if (binding.filterDebit.isChecked) {
-            types = types.plusElement(HistoryType.DEBIT)
+            types.add(HistoryType.DEBIT)
         }
         if (binding.filterTransfer.isChecked) {
-            types = types.plusElement(HistoryType.DEBIT)
+            types.add(HistoryType.TRANSFER)
         }
-        return types
+        return types.toTypedArray()
     }
 }

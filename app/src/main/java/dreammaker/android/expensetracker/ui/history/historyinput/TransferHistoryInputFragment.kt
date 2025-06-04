@@ -27,7 +27,6 @@ import dreammaker.android.expensetracker.util.OperationResult
 import dreammaker.android.expensetracker.util.createInputChip
 import dreammaker.android.expensetracker.util.getDate
 import dreammaker.android.expensetracker.util.hasArgument
-import dreammaker.android.expensetracker.util.setActivitySubTitle
 import dreammaker.android.expensetracker.util.visibilityGone
 import dreammaker.android.expensetracker.util.visible
 import kotlinx.coroutines.flow.collectLatest
@@ -217,28 +216,13 @@ class TransferHistoryInputFragment : Fragment() {
         result?.let {
             if (result.isFailure()) {
                 Log.e(TAG, "onSave: action=${getArgAction()}", result.error)
-                if (isActionEdit()) {
-                    Toast.makeText(requireContext(), R.string.message_fail_edit_history, Toast.LENGTH_LONG).show()
-                }
-                else {
-                    Toast.makeText(requireContext(), R.string.message_fail_create_history, Toast.LENGTH_LONG).show()
-                }
+                Toast.makeText(requireContext(), R.string.message_history_not_saved, Toast.LENGTH_LONG).show()
             }
             else {
-                if (isActionEdit()) {
-                    Toast.makeText(requireContext(), R.string.message_success_edit_history, Toast.LENGTH_LONG).show()
-                    navController.popBackStack()
-                }
-                else {
-                    Toast.makeText(requireContext(), R.string.message_success_create_history, Toast.LENGTH_LONG).show()
-                }
+                Toast.makeText(requireContext(), R.string.message_history_saved, Toast.LENGTH_LONG).show()
+                navController.popBackStack()
             }
         }
-    }
-
-    override fun onPause() {
-        super.onPause()
-        setActivitySubTitle("")
     }
 
     /////////////////////////////////////////////////////////////////

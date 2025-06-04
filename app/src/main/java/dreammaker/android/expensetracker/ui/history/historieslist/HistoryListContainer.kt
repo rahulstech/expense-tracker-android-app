@@ -21,6 +21,9 @@ import dreammaker.android.expensetracker.settings.SettingsProvider
 import dreammaker.android.expensetracker.settings.ViewHistory
 import dreammaker.android.expensetracker.ui.history.historieslist.daily.DailyViewHistoryFragment
 import dreammaker.android.expensetracker.ui.history.historieslist.monthly.MonthlyViewHistoryFragment
+import dreammaker.android.expensetracker.util.AccountModelParcel
+import dreammaker.android.expensetracker.util.GroupModelParcel
+import dreammaker.android.expensetracker.util.setActivitySubTitle
 
 class HistoryListContainer: Fragment(), MenuProvider {
 
@@ -39,6 +42,8 @@ class HistoryListContainer: Fragment(), MenuProvider {
     private val navController: NavController by lazy { findNavController() }
     private lateinit var settings: SettingsProvider
 
+    private var showHistoryFor: Parcelable? = null
+
     override fun onCreateView(
         inflater: LayoutInflater,
         parent: ViewGroup?,
@@ -53,8 +58,9 @@ class HistoryListContainer: Fragment(), MenuProvider {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val entity =  arguments?.let { BundleCompat.getParcelable(it, ARG_SHOW_HISTORY_FOR, Parcelable::class.java) }
-        navController.currentBackStackEntry?.savedStateHandle?.set(ARG_SHOW_HISTORY_FOR, entity)
+        showHistoryFor =  arguments?.let { BundleCompat.getParcelable(it, ARG_SHOW_HISTORY_FOR, Parcelable::class.java) }
+
+        navController.currentBackStackEntry?.savedStateHandle?.set(ARG_SHOW_HISTORY_FOR, showHistoryFor)
         val viewAs = settings.getViewHistory()
         changeFragment(viewAs)
         (requireActivity() as MenuHost).addMenuProvider(this, viewLifecycleOwner)
@@ -84,6 +90,21 @@ class HistoryListContainer: Fragment(), MenuProvider {
             }
             else -> false
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        showHistoryFor?.let { entity ->
+            when(entity) {
+                is AccountModelParcel -> setActivitySubTitle(entity.name)
+                is GroupModelParcel -> setActivitySubTitle(entity.name)
+            }
+        }
+    }
+
+    override fun onPause() {
+        setActivitySubTitle("")
+        super.onPause()
     }
 
     private fun changeViewHistory(viewAs: ViewHistory) {

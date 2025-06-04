@@ -191,10 +191,8 @@
 	<string name="message_success_edit_account">account saved</string>
 	<string name="message_account_not_found">account not found</string>
     <string name="message_history_not_found">history not found</string>
-    <string name="message_success_edit_history">history saved</string>
-	<string name="message_success_create_history">history created</string>
-	<string name="message_fail_create_history">history not created</string>
-	<string name="message_fail_edit_history">history not saved</string>
+    <string name="message_history_saved">history saved</string>
+	<string name="message_history_not_saved">history not saved</string>
 	<string name="message_success_create_group">group created</string>
 	<string name="message_success_edit_group">group saved</string>
 	<string name="message_fail_edit_group">group not saved</string>

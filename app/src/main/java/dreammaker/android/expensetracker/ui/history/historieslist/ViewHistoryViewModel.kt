@@ -1,6 +1,7 @@
 package dreammaker.android.expensetracker.ui.history.historieslist
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
@@ -11,8 +12,8 @@ import dreammaker.android.expensetracker.database.ExpensesDatabase
 import dreammaker.android.expensetracker.database.HistoryDao
 import dreammaker.android.expensetracker.database.HistoryModel
 import dreammaker.android.expensetracker.database.HistoryType
-import dreammaker.android.expensetracker.util.UIState
 import dreammaker.android.expensetracker.util.MonthYear
+import dreammaker.android.expensetracker.util.UIState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.ensureActive
@@ -106,6 +107,8 @@ class ViewHistoryViewModel(app: Application): AndroidViewModel(app) {
         filterJob = viewModelScope.launch(Dispatchers.Default) {
             // before start ensure coroutine is active to avoid unnecessary computation
             ensureActive()
+
+            Log.d(TAG, "filtering histories by filterData $filterData")
 
             // perform actual filter
             val filteredHistories = filterData.let {  histories.filter{ history -> filterData.match(history) } }

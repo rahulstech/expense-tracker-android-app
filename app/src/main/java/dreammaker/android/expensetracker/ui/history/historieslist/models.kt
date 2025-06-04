@@ -16,7 +16,7 @@ class HistoryFilterData {
 
     private var _types: Array<HistoryType>? = null
 
-    fun setTypes(types: Array<HistoryType>?) {
+    fun setTypes(types: Array<HistoryType>) {
         _types = types
     }
 
@@ -25,8 +25,26 @@ class HistoryFilterData {
         return hasType
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as HistoryFilterData
+
+        if (_types != null) {
+            if (other._types == null) return false
+            if (!_types.contentEquals(other._types)) return false
+        } else if (other._types != null) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return _types?.contentHashCode() ?: 0
+    }
+
     override fun toString(): String {
-        return "HistoryFilterData(types=$_types)"
+        return "HistoryFilterData(_types=${_types?.contentToString()})"
     }
 }
 

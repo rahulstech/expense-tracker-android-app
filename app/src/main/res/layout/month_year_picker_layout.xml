@@ -16,7 +16,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/input_year"
-        app:layout_constraintBottom_toBottomOf="@id/input_year"/>
+        app:layout_constraintBottom_toBottomOf="@id/input_year" />
 
     <Spinner
         android:id="@+id/input_year"

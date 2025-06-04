@@ -39,7 +39,7 @@
         app:layout_constraintTop_toBottomOf="@id/btn_picker"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/add_history"/>
+        app:layout_constraintBottom_toTopOf="@id/add_history" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/add_history"

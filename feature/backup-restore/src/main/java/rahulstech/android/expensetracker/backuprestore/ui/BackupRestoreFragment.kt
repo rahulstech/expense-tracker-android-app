@@ -197,12 +197,12 @@ class BackupRestoreFragment: Fragment() {
 
     private fun updateBackupProgress(data: BackupRestoreHelper.ProgressData?) {
         if (data == null) {
-            binding.layoutBackupProgress.visibility = View.GONE
+            binding.groupBackupProgress.visibility = View.INVISIBLE
             binding.btnStartBackup.visibility = View.VISIBLE
         }
         else {
-            binding.layoutBackupProgress.visibility = View.VISIBLE
-            binding.btnStartBackup.visibility = View.GONE
+            binding.groupBackupProgress.visibility = View.VISIBLE
+            binding.btnStartBackup.visibility = View.INVISIBLE
             binding.backupProgressMessage.text = data.message
             binding.backupProgressbar.apply {
                 isIndeterminate = data.max < 0 || data.current < 0
@@ -214,12 +214,12 @@ class BackupRestoreFragment: Fragment() {
 
     private fun updateRestoreProgress(data: BackupRestoreHelper.ProgressData?) {
         if (data == null) {
-            binding.layoutRestoreProgress.visibility = View.GONE
+            binding.groupRestoreProgress.visibility = View.INVISIBLE
             binding.btnOpenRestoreLocal.visibility = View.VISIBLE
         }
         else {
-            binding.layoutRestoreProgress.visibility = View.VISIBLE
-            binding.btnOpenRestoreLocal.visibility = View.GONE
+            binding.groupRestoreProgress.visibility = View.VISIBLE
+            binding.btnOpenRestoreLocal.visibility = View.INVISIBLE
             binding.restoreProgressMessage.text = data.message
             binding.restoreProgressbar.apply {
                 isIndeterminate = data.max < 0 || data.current < 0
