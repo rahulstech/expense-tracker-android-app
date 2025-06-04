@@ -13,9 +13,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.database.AccountModel
 import dreammaker.android.expensetracker.databinding.AccountsListBinding
-import dreammaker.android.expensetracker.ui.util.Constants
-import dreammaker.android.expensetracker.ui.util.visibilityGone
-import dreammaker.android.expensetracker.ui.util.visible
+import dreammaker.android.expensetracker.util.Constants
+import dreammaker.android.expensetracker.util.visibilityGone
+import dreammaker.android.expensetracker.util.visible
 
 
 class AccountsListFragment : Fragment() {

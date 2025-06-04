@@ -21,15 +21,15 @@ import dreammaker.android.expensetracker.database.Date
 import dreammaker.android.expensetracker.database.HistoryModel
 import dreammaker.android.expensetracker.database.HistoryType
 import dreammaker.android.expensetracker.databinding.TransferHistoryInputLayoutBinding
-import dreammaker.android.expensetracker.ui.util.AccountModelParcel
-import dreammaker.android.expensetracker.ui.util.Constants
-import dreammaker.android.expensetracker.ui.util.OperationResult
-import dreammaker.android.expensetracker.ui.util.createInputChip
-import dreammaker.android.expensetracker.ui.util.getDate
-import dreammaker.android.expensetracker.ui.util.hasArgument
-import dreammaker.android.expensetracker.ui.util.setActivitySubTitle
-import dreammaker.android.expensetracker.ui.util.visibilityGone
-import dreammaker.android.expensetracker.ui.util.visible
+import dreammaker.android.expensetracker.util.AccountModelParcel
+import dreammaker.android.expensetracker.util.Constants
+import dreammaker.android.expensetracker.util.OperationResult
+import dreammaker.android.expensetracker.util.createInputChip
+import dreammaker.android.expensetracker.util.getDate
+import dreammaker.android.expensetracker.util.hasArgument
+import dreammaker.android.expensetracker.util.setActivitySubTitle
+import dreammaker.android.expensetracker.util.visibilityGone
+import dreammaker.android.expensetracker.util.visible
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 

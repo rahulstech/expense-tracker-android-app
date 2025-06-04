@@ -7,9 +7,9 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import dreammaker.android.expensetracker.database.AccountModel
 import dreammaker.android.expensetracker.databinding.AccountChooserListItemBinding
-import dreammaker.android.expensetracker.ui.util.BaseSelectableItemListAdapter
-import dreammaker.android.expensetracker.ui.util.ClickableViewHolder
-import dreammaker.android.expensetracker.ui.util.getBalanceText
+import dreammaker.android.expensetracker.util.BaseSelectableItemListAdapter
+import dreammaker.android.expensetracker.util.ClickableViewHolder
+import dreammaker.android.expensetracker.util.getBalanceText
 
 class AccountPickerViewHolder(
     private val binding: AccountChooserListItemBinding,

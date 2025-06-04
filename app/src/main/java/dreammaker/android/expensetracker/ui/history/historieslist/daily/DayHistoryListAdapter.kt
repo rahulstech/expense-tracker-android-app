@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import dreammaker.android.expensetracker.database.HistoryModel
 import dreammaker.android.expensetracker.databinding.DayHistoryListItemBinding
 import dreammaker.android.expensetracker.ui.history.historieslist.BaseHistoryViewHolder
-import dreammaker.android.expensetracker.ui.util.BaseSelectableItemListAdapter
+import dreammaker.android.expensetracker.util.BaseSelectableItemListAdapter
 
 private val callback = object: DiffUtil.ItemCallback<HistoryModel>() {
     override fun areItemsTheSame(oldItem: HistoryModel, newItem: HistoryModel): Boolean =

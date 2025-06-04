@@ -9,7 +9,7 @@ import androidx.core.text.color
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.database.HistoryModel
 import dreammaker.android.expensetracker.database.HistoryType
-import dreammaker.android.expensetracker.ui.util.toCurrencyString
+import dreammaker.android.expensetracker.util.toCurrencyString
 import java.util.Locale
 
 class HistoryFilterData {

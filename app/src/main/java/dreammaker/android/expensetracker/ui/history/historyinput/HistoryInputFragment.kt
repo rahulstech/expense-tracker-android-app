@@ -22,16 +22,16 @@ import dreammaker.android.expensetracker.database.GroupModel
 import dreammaker.android.expensetracker.database.HistoryModel
 import dreammaker.android.expensetracker.database.HistoryType
 import dreammaker.android.expensetracker.databinding.HistoryInputLayoutBinding
-import dreammaker.android.expensetracker.ui.util.AccountModelParcel
-import dreammaker.android.expensetracker.ui.util.Constants
-import dreammaker.android.expensetracker.ui.util.GroupModelParcel
-import dreammaker.android.expensetracker.ui.util.OperationResult
-import dreammaker.android.expensetracker.ui.util.createInputChip
-import dreammaker.android.expensetracker.ui.util.getDate
-import dreammaker.android.expensetracker.ui.util.getHistoryType
-import dreammaker.android.expensetracker.ui.util.hasArgument
-import dreammaker.android.expensetracker.ui.util.visibilityGone
-import dreammaker.android.expensetracker.ui.util.visible
+import dreammaker.android.expensetracker.util.AccountModelParcel
+import dreammaker.android.expensetracker.util.Constants
+import dreammaker.android.expensetracker.util.GroupModelParcel
+import dreammaker.android.expensetracker.util.OperationResult
+import dreammaker.android.expensetracker.util.createInputChip
+import dreammaker.android.expensetracker.util.getDate
+import dreammaker.android.expensetracker.util.getHistoryType
+import dreammaker.android.expensetracker.util.hasArgument
+import dreammaker.android.expensetracker.util.visibilityGone
+import dreammaker.android.expensetracker.util.visible
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -90,7 +90,8 @@ class HistoryInputFragment : Fragment() {
             = navController.currentBackStackEntry?.savedStateHandle!!.getLiveData(Constants.ARG_GROUP, null)
 
     private fun getSelectedGroup(): GroupModel?
-            = navController.currentBackStackEntry?.savedStateHandle?.get<GroupModelParcel?>(Constants.ARG_GROUP)?.toGroupModel()
+            = navController.currentBackStackEntry?.savedStateHandle?.get<GroupModelParcel?>(
+        Constants.ARG_GROUP)?.toGroupModel()
 
     private fun removeSelectedGroup() {
         navController.currentBackStackEntry?.savedStateHandle?.set(Constants.ARG_GROUP,null)

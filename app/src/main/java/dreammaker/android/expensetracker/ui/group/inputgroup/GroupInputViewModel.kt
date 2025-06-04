@@ -7,7 +7,7 @@ import androidx.lifecycle.viewModelScope
 import dreammaker.android.expensetracker.database.ExpensesDatabase
 import dreammaker.android.expensetracker.database.GroupDao
 import dreammaker.android.expensetracker.database.GroupModel
-import dreammaker.android.expensetracker.ui.util.OperationResult
+import dreammaker.android.expensetracker.util.OperationResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow

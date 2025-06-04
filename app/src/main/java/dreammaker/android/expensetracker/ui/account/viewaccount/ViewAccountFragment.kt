@@ -21,11 +21,11 @@ import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.database.AccountModel
 import dreammaker.android.expensetracker.databinding.ViewAccountLayoutBinding
 import dreammaker.android.expensetracker.ui.history.historieslist.HistoryListContainer
-import dreammaker.android.expensetracker.ui.util.AccountModelParcel
-import dreammaker.android.expensetracker.ui.util.Constants
-import dreammaker.android.expensetracker.ui.util.OperationResult
-import dreammaker.android.expensetracker.ui.util.getBalanceText
-import dreammaker.android.expensetracker.ui.util.hasArgument
+import dreammaker.android.expensetracker.util.AccountModelParcel
+import dreammaker.android.expensetracker.util.Constants
+import dreammaker.android.expensetracker.util.OperationResult
+import dreammaker.android.expensetracker.util.getBalanceText
+import dreammaker.android.expensetracker.util.hasArgument
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 

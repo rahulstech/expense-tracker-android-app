@@ -11,6 +11,7 @@ import dreammaker.android.expensetracker.database.ExpensesDatabase
 import dreammaker.android.expensetracker.database.HistoryDao
 import dreammaker.android.expensetracker.database.HistoryModel
 import dreammaker.android.expensetracker.database.HistoryType
+import dreammaker.android.expensetracker.util.UIState
 import dreammaker.android.expensetracker.util.MonthYear
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -20,42 +21,36 @@ import kotlinx.coroutines.launch
 class ViewHistoryViewModel(app: Application): AndroidViewModel(app) {
     private val TAG = ViewHistoryViewModel::class.simpleName
 
-    private class HistoriesLiveDataFactory private constructor(val start: Date, val end: Date){
+    class HistoryLoadParams private constructor(val start: Date, val end: Date){
 
         private var accountId: Long? = null
 
         private var groupId: Long? = null
 
         companion object {
-            fun forMonthYear(monthYear: MonthYear) = HistoriesLiveDataFactory(monthYear.toFirstDate(), monthYear.toLastDate())
+            fun forMonthYear(monthYear: MonthYear) = HistoryLoadParams(monthYear.toFirstDate(), monthYear.toLastDate())
 
-            fun forDate(date: Date) = HistoriesLiveDataFactory(date, date)
+            fun forDate(date: Date) = HistoryLoadParams(date, date)
         }
 
-        fun ofAccount(id: Long): HistoriesLiveDataFactory {
+        fun ofAccount(id: Long): HistoryLoadParams {
             accountId = id
             return this
         }
 
-        fun ofGroup(id: Long): HistoriesLiveDataFactory {
+        fun ofGroup(id: Long): HistoryLoadParams {
             groupId = id
             return this
         }
 
         fun createLiveData(dao: HistoryDao): LiveData<List<HistoryModel>> {
-            if (null != accountId) {
-                return dao.getHistoriesBetweenDatesOnlyForAccount(start,end, accountId!!)
+            return if (null != accountId) {
+                dao.getHistoriesBetweenDatesOnlyForAccount(start,end, accountId!!)
+            } else if (null != groupId) {
+                dao.getHistoriesBetweenDatesOnlyForGroup(start,end, groupId!!)
+            } else {
+                dao.getHistoriesBetweenDates(start,end)
             }
-            else if (null != groupId) {
-                return dao.getHistoriesBetweenDatesOnlyForGroup(start,end, groupId!!)
-            }
-            else {
-                return dao.getHistoriesBetweenDates(start,end)
-            }
-        }
-
-        override fun toString(): String {
-            return "HistoriesLiveDataFactory{start=$start, end=$end, accountId=$accountId, groupId=$groupId}"
         }
     }
 
@@ -65,7 +60,7 @@ class ViewHistoryViewModel(app: Application): AndroidViewModel(app) {
         historiesDao = db.historyDao
     }
 
-    private val _historyLiveData = MediatorLiveData<List<HistoryModel>>()
+    private val _uiStateLiveData = MediatorLiveData<UIState<List<HistoryModel>>>()
     private val _historySummaryLiveData = MediatorLiveData<HistorySummary>()
     private var _originalHistoryLiveData: LiveData<List<HistoryModel>>? = null
     private val _historyFilterDataLiveData = MutableLiveData<HistoryFilterData>(null)
@@ -74,12 +69,14 @@ class ViewHistoryViewModel(app: Application): AndroidViewModel(app) {
 
     val historySummary: LiveData<HistorySummary> get() = _historySummaryLiveData
 
-    private fun loadHistories(factory: HistoriesLiveDataFactory) {
+    fun getStateLiveData(): LiveData<UIState<List<HistoryModel>>> = _uiStateLiveData
+
+    fun loadHistories(params: HistoryLoadParams) {
         if (_originalHistoryLiveData == null){
-            val source = factory.createLiveData(historiesDao)
-            _historyLiveData.addSource(source) { handleHistoryLiveDataSourceChanged() }
+            val source = params.createLiveData(historiesDao)
+            _uiStateLiveData.addSource(source) { handleHistoryLiveDataSourceChanged() }
+            _uiStateLiveData.addSource(_historyFilterDataLiveData) { handleHistoryLiveDataSourceChanged() }
             _historySummaryLiveData.addSource(source) { handleHistorySummaryLiveDataSourceChanged() }
-            _historyLiveData.addSource(_historyFilterDataLiveData) { handleHistoryLiveDataSourceChanged() }
             _originalHistoryLiveData = source
         }
     }
@@ -91,15 +88,18 @@ class ViewHistoryViewModel(app: Application): AndroidViewModel(app) {
         val histories = _originalHistoryLiveData?.value
         val filterData = _historyFilterDataLiveData.value
 
+        // change ui state to loading
+        _uiStateLiveData.postValue(UIState.UILoading())
+
         // if original histories is null or empty then send empty list
         if (histories.isNullOrEmpty()) {
-            _historyLiveData.postValue(emptyList())
+            _uiStateLiveData.postValue(UIState.UIData<List<HistoryModel>>(emptyList()))
             return
         }
 
         // is filter data is null then set original histories
         if (null == filterData) {
-            _historyLiveData.postValue(histories)
+            _uiStateLiveData.postValue(UIState.UIData(histories))
             return
         }
 
@@ -108,13 +108,13 @@ class ViewHistoryViewModel(app: Application): AndroidViewModel(app) {
             ensureActive()
 
             // perform actual filter
-            var filteredHistories = filterData.let {  histories.filter{ history -> filterData.match(history) } }
+            val filteredHistories = filterData.let {  histories.filter{ history -> filterData.match(history) } }
 
             // before returning result ensure coroutine is active to avoid posting unuseful histories
             ensureActive()
 
             // post the filtered histories
-            _historyLiveData.postValue(filteredHistories)
+            _uiStateLiveData.postValue(UIState.UIData(filteredHistories))
         }
     }
 
@@ -151,36 +151,6 @@ class ViewHistoryViewModel(app: Application): AndroidViewModel(app) {
     }
 
     private fun getDefaultHistorySummary(): HistorySummary = HistorySummary()
-
-    fun getMonthlyHistories(monthYear: MonthYear): LiveData<List<HistoryModel>> {
-        loadHistories(HistoriesLiveDataFactory.forMonthYear(monthYear))
-        return _historyLiveData
-    }
-
-    fun getMonthlyHistoriesForAccount(monthYear: MonthYear, accountId: Long): LiveData<List<HistoryModel>> {
-        loadHistories(HistoriesLiveDataFactory.forMonthYear(monthYear).ofAccount(accountId))
-        return _historyLiveData
-    }
-
-    fun getMonthlyHistoriesForGroup(monthYear: MonthYear, groupId: Long): LiveData<List<HistoryModel>> {
-        loadHistories(HistoriesLiveDataFactory.forMonthYear(monthYear).ofGroup(groupId))
-        return _historyLiveData
-    }
-
-    fun getDailyHistories(date: Date): LiveData<List<HistoryModel>> {
-        loadHistories(HistoriesLiveDataFactory.forDate(date))
-        return _historyLiveData
-    }
-
-    fun getDailyHistoriesForAccount(date: Date, accountId: Long): LiveData<List<HistoryModel>> {
-        loadHistories(HistoriesLiveDataFactory.forDate(date).ofAccount(accountId))
-        return _historyLiveData
-    }
-
-    fun getDailyHistoriesForGroup(date: Date, groupId: Long): LiveData<List<HistoryModel>> {
-        loadHistories(HistoriesLiveDataFactory.forDate(date).ofGroup(groupId))
-        return _historyLiveData
-    }
 
     fun applyHistoryFilter(filterData: HistoryFilterData) {
         _historyFilterDataLiveData.value = filterData

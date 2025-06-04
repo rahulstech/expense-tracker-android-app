@@ -1,4 +1,4 @@
-package dreammaker.android.expensetracker.ui.util
+package dreammaker.android.expensetracker.util
 
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -14,7 +14,6 @@ data class OperationResult<out T>(
 }
 
 object Constants {
-    const val ARG_DESTINATION_LABEL = "arg_destination_label"
     const val ARG_INITIAL_SELECTION = "arg_initial_selection"
     const val ARG_RESULT_KEY = "arg_tag"
     const val ARG_ACTION = "arg_action"

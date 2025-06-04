@@ -1,4 +1,4 @@
-package dreammaker.android.expensetracker.ui.util
+package dreammaker.android.expensetracker.util
 
 import android.view.View
 

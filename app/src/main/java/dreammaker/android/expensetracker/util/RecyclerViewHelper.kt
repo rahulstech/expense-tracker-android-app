@@ -1,4 +1,4 @@
-package dreammaker.android.expensetracker.ui.util
+package dreammaker.android.expensetracker.util
 
 import android.content.Context
 import android.util.Log
@@ -68,7 +68,8 @@ abstract class SelectionStoreViewModel<T>: ViewModel() {
 
 class SelectionStore<T>(val selectionMode: SelectionMode = SelectionMode.SINGLE,
                         provider: SelectionKeyProvider<T>,
-                        private val viewModel: SelectionStoreViewModel<T>) {
+                        private val viewModel: SelectionStoreViewModel<T>
+) {
 
     private val TAG = SelectionStore::class.simpleName
 
@@ -276,7 +277,7 @@ interface ISelectableItemAdapter<KeyType> : SelectionKeyProvider<KeyType> {
 }
 
 abstract class BaseClickableItemListAdapter<T, VH : ClickableViewHolder<VH>>(callback: DiffUtil.ItemCallback<T>)
-    : ListAdapter<T,VH>(callback), IClickableItemAdapter<T,VH> {
+    : ListAdapter<T,VH>(callback), IClickableItemAdapter<T, VH> {
 
     override var itemClickListener: ((RecyclerView.Adapter<VH>, View, Int)->Unit)? = null
 
@@ -294,7 +295,7 @@ abstract class BaseClickableItemListAdapter<T, VH : ClickableViewHolder<VH>>(cal
 }
 
 abstract class BaseSelectableItemListAdapter<ItemType, KeyType, VH : ClickableViewHolder<VH>>(callback: DiffUtil.ItemCallback<ItemType>)
-    : BaseClickableItemListAdapter<ItemType,VH>(callback), ISelectableItemAdapter<KeyType> {
+    : BaseClickableItemListAdapter<ItemType, VH>(callback), ISelectableItemAdapter<KeyType> {
 
     override var selectionStore: SelectionStore<KeyType>? = null
 

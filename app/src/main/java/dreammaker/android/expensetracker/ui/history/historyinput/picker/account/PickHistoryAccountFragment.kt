@@ -12,13 +12,13 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import dreammaker.android.expensetracker.database.AccountModel
 import dreammaker.android.expensetracker.databinding.SingleAccountPickerListWithSearchLayoutBinding
-import dreammaker.android.expensetracker.ui.util.AccountModelParcel
-import dreammaker.android.expensetracker.ui.util.Constants
-import dreammaker.android.expensetracker.ui.util.SelectionMode
-import dreammaker.android.expensetracker.ui.util.SelectionStore
-import dreammaker.android.expensetracker.ui.util.SelectionStoreViewModel
-import dreammaker.android.expensetracker.ui.util.visibilityGone
-import dreammaker.android.expensetracker.ui.util.visible
+import dreammaker.android.expensetracker.util.AccountModelParcel
+import dreammaker.android.expensetracker.util.Constants
+import dreammaker.android.expensetracker.util.SelectionMode
+import dreammaker.android.expensetracker.util.SelectionStore
+import dreammaker.android.expensetracker.util.SelectionStoreViewModel
+import dreammaker.android.expensetracker.util.visibilityGone
+import dreammaker.android.expensetracker.util.visible
 
 class AccountSelectionViewModel: SelectionStoreViewModel<Long>()
 

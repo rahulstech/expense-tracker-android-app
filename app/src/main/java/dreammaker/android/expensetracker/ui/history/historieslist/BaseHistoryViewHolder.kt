@@ -9,15 +9,15 @@ import androidx.core.view.ViewCompat
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.database.HistoryModel
 import dreammaker.android.expensetracker.database.HistoryType
-import dreammaker.android.expensetracker.ui.util.ClickableViewHolder
-import dreammaker.android.expensetracker.ui.util.getBackgroundColor
-import dreammaker.android.expensetracker.ui.util.getColorOnBackground
-import dreammaker.android.expensetracker.ui.util.getLabel
-import dreammaker.android.expensetracker.ui.util.getNonEmptyNote
-import dreammaker.android.expensetracker.ui.util.invisible
-import dreammaker.android.expensetracker.ui.util.toCurrencyString
-import dreammaker.android.expensetracker.ui.util.visibilityGone
-import dreammaker.android.expensetracker.ui.util.visible
+import dreammaker.android.expensetracker.util.ClickableViewHolder
+import dreammaker.android.expensetracker.util.getBackgroundColor
+import dreammaker.android.expensetracker.util.getColorOnBackground
+import dreammaker.android.expensetracker.util.getLabel
+import dreammaker.android.expensetracker.util.getNonEmptyNote
+import dreammaker.android.expensetracker.util.invisible
+import dreammaker.android.expensetracker.util.toCurrencyString
+import dreammaker.android.expensetracker.util.visibilityGone
+import dreammaker.android.expensetracker.util.visible
 
 abstract class BaseHistoryViewHolder<VH:BaseHistoryViewHolder<VH>>(
     itemView: View,

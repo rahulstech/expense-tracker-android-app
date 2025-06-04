@@ -19,11 +19,11 @@ import dreammaker.android.expensetracker.database.AccountModel
 import dreammaker.android.expensetracker.database.GroupModel
 import dreammaker.android.expensetracker.databinding.HomeBinding
 import dreammaker.android.expensetracker.databinding.RecentItemViewBinding
-import dreammaker.android.expensetracker.ui.util.Constants
-import dreammaker.android.expensetracker.ui.util.getBalanceText
-import dreammaker.android.expensetracker.ui.util.toCurrencyString
-import dreammaker.android.expensetracker.ui.util.visibilityGone
-import dreammaker.android.expensetracker.ui.util.visible
+import dreammaker.android.expensetracker.util.Constants
+import dreammaker.android.expensetracker.util.getBalanceText
+import dreammaker.android.expensetracker.util.toCurrencyString
+import dreammaker.android.expensetracker.util.visibilityGone
+import dreammaker.android.expensetracker.util.visible
 
 class HomeFragment: Fragment()  {
     private val TAG = HomeFragment::class.simpleName

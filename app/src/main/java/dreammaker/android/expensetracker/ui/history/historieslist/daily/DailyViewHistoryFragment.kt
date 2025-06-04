@@ -10,7 +10,7 @@ import dreammaker.android.expensetracker.database.Date
 import dreammaker.android.expensetracker.ui.history.historieslist.BaseViewHistoryFragment
 import dreammaker.android.expensetracker.ui.history.historieslist.ViewHistoryPageAdapter
 import dreammaker.android.expensetracker.ui.history.historyinput.HistoryInputFragment
-import dreammaker.android.expensetracker.ui.util.putDate
+import dreammaker.android.expensetracker.util.putDate
 
 class DailyViewHistoryFragment: BaseViewHistoryFragment<Date>() {
     private val TAG = DailyViewHistoryFragment::class.simpleName

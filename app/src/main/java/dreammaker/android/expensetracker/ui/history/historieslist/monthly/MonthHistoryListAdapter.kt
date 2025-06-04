@@ -9,10 +9,10 @@ import dreammaker.android.expensetracker.database.Date
 import dreammaker.android.expensetracker.database.HistoryModel
 import dreammaker.android.expensetracker.databinding.MonthHistoryListItemBinding
 import dreammaker.android.expensetracker.ui.history.historieslist.BaseHistoryViewHolder
-import dreammaker.android.expensetracker.ui.util.BaseSelectableItemListAdapter
-import dreammaker.android.expensetracker.ui.util.invisible
-import dreammaker.android.expensetracker.ui.util.visibilityGone
-import dreammaker.android.expensetracker.ui.util.visible
+import dreammaker.android.expensetracker.util.BaseSelectableItemListAdapter
+import dreammaker.android.expensetracker.util.invisible
+import dreammaker.android.expensetracker.util.visibilityGone
+import dreammaker.android.expensetracker.util.visible
 
 private val DATE_FORMAT = "MMMM dd, yyyy"
 

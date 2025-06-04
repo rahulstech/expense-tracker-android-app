@@ -21,11 +21,11 @@ import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.database.GroupModel
 import dreammaker.android.expensetracker.databinding.ViewGroupLayoutBinding
 import dreammaker.android.expensetracker.ui.history.historieslist.HistoryListContainer
-import dreammaker.android.expensetracker.ui.util.Constants
-import dreammaker.android.expensetracker.ui.util.GroupModelParcel
-import dreammaker.android.expensetracker.ui.util.OperationResult
-import dreammaker.android.expensetracker.ui.util.getBalanceLabel
-import dreammaker.android.expensetracker.ui.util.getBalanceText
+import dreammaker.android.expensetracker.util.Constants
+import dreammaker.android.expensetracker.util.GroupModelParcel
+import dreammaker.android.expensetracker.util.OperationResult
+import dreammaker.android.expensetracker.util.getBalanceLabel
+import dreammaker.android.expensetracker.util.getBalanceText
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -89,7 +89,7 @@ class ViewGroupFragment: Fragment(), MenuProvider {
         val group = viewModel.getStoredGroup()
         group?.let {
             navController.navigate(R.id.action_view_group_to_add_history,Bundle().apply {
-                putString(Constants.ARG_ACTION,Constants.ACTION_CREATE)
+                putString(Constants.ARG_ACTION, Constants.ACTION_CREATE)
                 putParcelable(Constants.ARG_GROUP, GroupModelParcel(group))
             })
         }
@@ -117,7 +117,7 @@ class ViewGroupFragment: Fragment(), MenuProvider {
 
     private fun onClickEdit() {
         navController.navigate(R.id.action_view_group_to_edit_group, Bundle().apply {
-            putString(Constants.ARG_ACTION,Constants.ACTION_EDIT)
+            putString(Constants.ARG_ACTION, Constants.ACTION_EDIT)
             putLong(Constants.ARG_ID, getArgGroupId())
         })
     }

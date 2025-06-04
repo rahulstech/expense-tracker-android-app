@@ -5,7 +5,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import dreammaker.android.expensetracker.ui.history.historieslist.ViewHistoryPageAdapter
-import dreammaker.android.expensetracker.ui.util.putMonthYear
+import dreammaker.android.expensetracker.util.putMonthYear
 import dreammaker.android.expensetracker.util.MonthYear
 
 class MonthlyHistoryFragmentAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle): ViewHistoryPageAdapter<MonthYear>(fragmentManager,lifecycle) {

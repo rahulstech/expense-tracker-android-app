@@ -6,7 +6,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import dreammaker.android.expensetracker.database.Date
 import dreammaker.android.expensetracker.ui.history.historieslist.ViewHistoryPageAdapter
-import dreammaker.android.expensetracker.ui.util.putDate
+import dreammaker.android.expensetracker.util.putDate
 
 class DailyHistoryFragmentAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle)
     : ViewHistoryPageAdapter<Date>(fragmentManager,lifecycle) {

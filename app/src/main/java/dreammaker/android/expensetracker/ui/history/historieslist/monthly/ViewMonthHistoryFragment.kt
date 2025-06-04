@@ -19,13 +19,14 @@ import dreammaker.android.expensetracker.ui.history.historieslist.HistoryListCon
 import dreammaker.android.expensetracker.ui.history.historieslist.HistorySummary
 import dreammaker.android.expensetracker.ui.history.historieslist.ViewHistoryViewModel
 import dreammaker.android.expensetracker.ui.history.viewhistory.ViewHistoryItemFragment
-import dreammaker.android.expensetracker.ui.util.AccountModelParcel
-import dreammaker.android.expensetracker.ui.util.Constants
-import dreammaker.android.expensetracker.ui.util.GroupModelParcel
-import dreammaker.android.expensetracker.ui.util.getMonthYear
-import dreammaker.android.expensetracker.ui.util.putHistoryType
-import dreammaker.android.expensetracker.ui.util.visibilityGone
-import dreammaker.android.expensetracker.ui.util.visible
+import dreammaker.android.expensetracker.util.AccountModelParcel
+import dreammaker.android.expensetracker.util.Constants
+import dreammaker.android.expensetracker.util.GroupModelParcel
+import dreammaker.android.expensetracker.util.UIState
+import dreammaker.android.expensetracker.util.getMonthYear
+import dreammaker.android.expensetracker.util.putHistoryType
+import dreammaker.android.expensetracker.util.visibilityGone
+import dreammaker.android.expensetracker.util.visible
 
 class ViewMonthHistoryFragment : Fragment() {
 
@@ -38,6 +39,7 @@ class ViewMonthHistoryFragment : Fragment() {
     private val viewModel: ViewHistoryViewModel by viewModels()
     private lateinit var adapter: MonthHistoryListAdapter
     private val navController: NavController by lazy { findNavController() }
+    private var isFirstVisible = true
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -58,26 +60,50 @@ class ViewMonthHistoryFragment : Fragment() {
         adapter.itemClickListener = { _,_,position -> handleItemClick(position) }
         binding.filterContainer.setOnCheckedStateChangeListener { _,_ -> filter() }
 
-        binding.shimmerContainer.startShimmer()
-
-        observeSummary()
-        observeHistory()
+        observe()
     }
 
-    private fun observeSummary() {
+    override fun onResume() {
+        super.onResume()
+        if (isFirstVisible) {
+            loadHistories()
+            isFirstVisible = false
+        }
+    }
+
+    private fun observe() {
         viewModel.historySummary.observe(viewLifecycleOwner, this::onHistorySummaryPrepared)
+        viewModel.getStateLiveData().observe(viewLifecycleOwner) { state ->
+            when(state) {
+                is UIState.UILoading -> {
+                    binding.mainContainer.visibilityGone()
+                    binding.shimmerContainer.startShimmer()
+                    binding.shimmerContainer.visible()
+                }
+                is UIState.UIData -> {
+                    onHistoryPrepared(state.data)
+                    binding.shimmerContainer.visibilityGone()
+                    binding.mainContainer.visible()
+                    binding.shimmerContainer.stopShimmer()
+                }
+                is UIState.UIError -> {
+                    // TODO: handle ui state error
+                }
+            }
+        }
     }
 
-    private fun observeHistory() {
+    private fun loadHistories() {
         val monthYear = requireArguments().getMonthYear(ARG_MONTH_YEAR)!!
         val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
         val entity = savedStateHandle?.get<Parcelable?>(HistoryListContainer.ARG_SHOW_HISTORY_FOR)
-        val histories = when(entity) {
-            is AccountModelParcel -> viewModel.getMonthlyHistoriesForAccount(monthYear, entity.id)
-            is GroupModelParcel -> viewModel.getMonthlyHistoriesForGroup(monthYear,entity.id)
-            else -> viewModel.getMonthlyHistories(monthYear)
+        val params = ViewHistoryViewModel.HistoryLoadParams.forMonthYear(monthYear).apply {
+            when(entity) {
+                is AccountModelParcel -> ofAccount(entity.id)
+                is GroupModelParcel -> ofGroup(entity.id)
+            }
         }
-        histories.observe(viewLifecycleOwner, this::onHistoryPrepared)
+        viewModel.loadHistories(params)
     }
 
     private fun onHistoryPrepared(histories: List<HistoryModel>) {
@@ -90,9 +116,6 @@ class ViewMonthHistoryFragment : Fragment() {
             binding.emptyView.visibilityGone()
             binding.historyList.visible()
         }
-        binding.shimmerContainer.visibilityGone()
-        binding.mainContainer.visible()
-        binding.shimmerContainer.stopShimmer()
     }
 
     private fun onHistorySummaryPrepared(summery: HistorySummary) {

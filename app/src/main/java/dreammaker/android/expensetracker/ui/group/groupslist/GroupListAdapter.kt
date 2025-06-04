@@ -6,12 +6,12 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import dreammaker.android.expensetracker.database.GroupModel
 import dreammaker.android.expensetracker.databinding.GroupListItemBinding
-import dreammaker.android.expensetracker.ui.util.BaseSelectableItemListAdapter
-import dreammaker.android.expensetracker.ui.util.ClickableViewHolder
-import dreammaker.android.expensetracker.ui.util.getBalanceLabel
-import dreammaker.android.expensetracker.ui.util.getBalanceText
-import dreammaker.android.expensetracker.ui.util.visibilityGone
-import dreammaker.android.expensetracker.ui.util.visible
+import dreammaker.android.expensetracker.util.BaseSelectableItemListAdapter
+import dreammaker.android.expensetracker.util.ClickableViewHolder
+import dreammaker.android.expensetracker.util.getBalanceLabel
+import dreammaker.android.expensetracker.util.getBalanceText
+import dreammaker.android.expensetracker.util.visibilityGone
+import dreammaker.android.expensetracker.util.visible
 
 class GroupsListViewHolder(
     val binding: GroupListItemBinding,
@@ -49,7 +49,7 @@ private val callback = object : DiffUtil.ItemCallback<GroupModel>() {
     = oldItem == newItem
 }
 
-class GroupsListAdapter: BaseSelectableItemListAdapter<GroupModel,Long,GroupsListViewHolder>(callback) {
+class GroupsListAdapter: BaseSelectableItemListAdapter<GroupModel, Long, GroupsListViewHolder>(callback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GroupsListViewHolder {
         val inflater = LayoutInflater.from(parent.context)
