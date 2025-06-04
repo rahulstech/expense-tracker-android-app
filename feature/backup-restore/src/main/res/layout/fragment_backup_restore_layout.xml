@@ -76,19 +76,21 @@
         android:id="@+id/btn_cancel_backup"
         android:layout_width="48dp"
         android:layout_height="48dp"
+        android:layout_marginStart="12dp"
         style="@style/Widget.Material3.Button.IconButton"
         app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.Full"
         app:icon="@drawable/baseline_close"
         app:iconSize="20dp"
         app:iconTint="?attr/colorOnBackground"
         app:layout_constraintTop_toTopOf="@id/backup_progressbar"
-        app:layout_constraintStart_toEndOf="@id/backup_progressbar"/>
+        app:layout_constraintStart_toEndOf="@id/backup_progressbar"
+        app:layout_constraintBottom_toBottomOf="@id/backup_progressbar"/>
 
     <androidx.constraintlayout.widget.Group
         android:id="@+id/group_backup_progress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone"
+        android:visibility="invisible"
         app:constraint_referenced_ids="btn_cancel_backup,backup_progressbar,backup_progress_message"/>
 
     <!-- backup frequency -->
