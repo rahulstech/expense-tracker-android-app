@@ -46,6 +46,8 @@
 		android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
 		app:layout_constraintTop_toBottomOf="@id/name"
 		app:layout_constraintStart_toEndOf="@id/label_balance"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintBottom_toTopOf="@id/divider"
 		tools:text="$200.00"/>
 
 	<com.google.android.material.divider.MaterialDivider
