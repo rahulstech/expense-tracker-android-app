@@ -4,7 +4,7 @@ import rahulstech.android.expensetracker.backuprestore.util.AccountData
 import rahulstech.android.expensetracker.backuprestore.util.AppSettingsData
 import rahulstech.android.expensetracker.backuprestore.util.GroupData
 import rahulstech.android.expensetracker.backuprestore.util.HistoryData
-import rahulstech.android.expensetracker.backuprestore.worker.Constants
+import rahulstech.android.expensetracker.backuprestore.Constants
 
 class FakeWriteHelper: JsonRestoreWorker.WriteHelper {
 

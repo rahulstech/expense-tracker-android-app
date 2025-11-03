@@ -6,29 +6,28 @@ import androidx.lifecycle.LiveData
 import kotlinx.coroutines.flow.Flow
 import rahulstech.android.expensetracker.backuprestore.settings.AgentSettingsProvider
 import rahulstech.android.expensetracker.backuprestore.worker.BackupRestoreHelper
+import rahulstech.android.expensetracker.backuprestore.worker.ProgressData
 
-class BackupRestoreViewModel(app: Application): AndroidViewModel(app) {
+class BackupRestoreViewModel(private val app: Application): AndroidViewModel(app) {
 
     companion object {
-        private val TAG = BackupRestoreViewModel::class.simpleName
+        private const val TAG = "BackupRestoreViewModel"
     }
 
-    private val applicationContext = getApplication<Application>().applicationContext
+    private var backupProgress: Flow<ProgressData?>? = null
 
-    private var backupProgress: Flow<BackupRestoreHelper.ProgressData?>? = null
+    private var restoreProgress: Flow<ProgressData?>? = null
 
-    private var restoreProgress: Flow<BackupRestoreHelper.ProgressData?>? = null
-
-    fun getBackupProgressFlow(): Flow<BackupRestoreHelper.ProgressData?> {
+    fun getBackupProgressFlow(): Flow<ProgressData?> {
         if (null == backupProgress) {
-            backupProgress = BackupRestoreHelper.getBackupProgress(applicationContext)
+            backupProgress = BackupRestoreHelper.getBackupProgress(app.applicationContext)
         }
         return backupProgress!!
     }
 
-    fun getRestoreProgressFlow(): Flow<BackupRestoreHelper.ProgressData?> {
+    fun getRestoreProgressFlow(): Flow<ProgressData?> {
         if (null == restoreProgress) {
-            restoreProgress = BackupRestoreHelper.getRestoreProgress(applicationContext)
+            restoreProgress = BackupRestoreHelper.getRestoreProgress(app.applicationContext)
         }
         return restoreProgress!!
     }
@@ -37,7 +36,7 @@ class BackupRestoreViewModel(app: Application): AndroidViewModel(app) {
 
     fun getLastLocalBackupTime(): LiveData<Long> {
         if (null == lastLocalBackupTime) {
-            lastLocalBackupTime = AgentSettingsProvider.get(applicationContext).getLastLocalBackupMillisLiveData()
+            lastLocalBackupTime = AgentSettingsProvider.get(app.applicationContext).getLastLocalBackupMillisLiveData()
         }
         return lastLocalBackupTime!!
     }

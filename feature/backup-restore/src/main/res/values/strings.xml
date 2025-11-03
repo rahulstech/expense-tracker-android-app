@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <string name="activity_title_backup_restore">Backup Restore</string>
+
     <string name="description_backup_settings">Backup</string>
     <string name="label_last_local_backup_time">Local Backup</string>
     <string name="label_last_local_backup_time_never">Never</string>
@@ -26,7 +28,7 @@
     <string name="label_cancel">Cancel</string>
     <string name="label_choose">Choose</string>
     <string name="message_no_backup_file_picked">No file selected, can not restore.</string>
-    <string name="message_invalid_backup_file_type">Only .json or .tar.gz files are accepted. Can not restore %1$s</string>
+    <string name="message_invalid_backup_file_type">Invalid backup file. Can not restore %1$s</string>
     <string name="message_backup_progress_copying">Copying</string>
     <string name="message_backup_progress_archiving">Archiving</string>
 </resources>

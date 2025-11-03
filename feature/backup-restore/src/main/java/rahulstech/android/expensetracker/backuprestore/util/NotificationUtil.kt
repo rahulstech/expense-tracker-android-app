@@ -12,7 +12,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.graphics.drawable.IconCompat
 import rahulstech.android.expensetracker.backuprestore.R
 import rahulstech.android.expensetracker.backuprestore.receiver.WorkBroadcastReceiver
-import rahulstech.android.expensetracker.backuprestore.worker.Constants
+import rahulstech.android.expensetracker.backuprestore.Constants
 
 object NotificationConstants {
     const val BACKUP_NOTIFICATION_ID = 55

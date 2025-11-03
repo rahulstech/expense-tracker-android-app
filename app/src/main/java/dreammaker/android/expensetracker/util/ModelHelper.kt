@@ -14,7 +14,6 @@ import dreammaker.android.expensetracker.database.Date
 import dreammaker.android.expensetracker.database.GroupModel
 import dreammaker.android.expensetracker.database.HistoryModel
 import dreammaker.android.expensetracker.database.HistoryType
-import dreammaker.android.expensetracker.util.MonthYear
 import java.util.Locale
 import kotlin.math.absoluteValue
 
@@ -202,7 +201,7 @@ fun GroupModel.getBalanceText(context: Context, currencyCode: String = "USD", lo
 
 fun GroupModel.getBalanceLabel(context: Context): CharSequence {
     val balance = balance ?: 0f
-    return if (balance > 0) context.getString(R.string.label_unsetteled)
+    return if (balance > 0) context.getString(R.string.label_unsettled)
     else if (balance < 0) context.getString(R.string.label_surplus)
     else ""
 }

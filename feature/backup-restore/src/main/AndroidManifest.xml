@@ -1,22 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <uses-permission android:maxSdkVersion="28" android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <!--
+        since android 14 i.e. sdk 34 following permission is required for foreground service doing data sync
+        i need this permission because worker starts foreground service for backup and restore work
+    -->
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
 
-    <!-- since android 14 i.e. sdk 34 following permission is required for foreground service doing data sync
-         i need this permission because worker starts foreground service for backup and restore work -->
+    <!--
+        since android 14 i.e. sdk 34 following permission is required for foreground service doing data sync
+        i need this permission because worker starts foreground service for backup and restore work
+    -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
-
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
-    <application >
-        <receiver android:name=".receiver.WorkBroadcastReceiver"
-            android:exported="false"/>
-
-        <!-- need to explicitly set this service with foregroundServiceType="dataSync" for android 14 i.e. sdk 34+  -->
-        <service android:name="androidx.work.impl.foreground.SystemForegroundService"
-            android:foregroundServiceType="dataSync"
+    <application>
+        <activity android:name=".ui.BackupRestoreActivity"
+            android:exported="false"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:label="@string/activity_title_backup_restore"/>
+        <receiver
+            android:name=".receiver.WorkBroadcastReceiver"
             android:exported="false" />
+
+        <!-- need to explicitly set this service with foregroundServiceType="dataSync" for android 14+ sdk 34+ -->
+        <service
+            android:name="androidx.work.impl.foreground.SystemForegroundService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
     </application>
 
 </manifest>
