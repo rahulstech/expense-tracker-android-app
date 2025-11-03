@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     package="dreammaker.android.expensetracker">
 
     <application
@@ -18,33 +17,5 @@
             </intent-filter>
         </activity>
 
-        <!-- START: activities for backup and restore -->
-
-        <activity android:name=".ui.settings.BackupRestoreActivity"
-            android:label="@string/title_app_data"
-            android:exported="false"
-            android:parentActivityName=".ui.main.MainActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.main.MainActivity" />
-        </activity>
-
-        <!-- END: activities for backup and restore -->
-
-        <!-- START: app settings -->
-
-        <activity
-            android:name="dreammaker.android.expensetracker.ui.settings.AppSettingsActivity"
-            android:label="@string/title_app_settings"
-            android:exported="false"
-            android:parentActivityName=".ui.main.MainActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.main.MainActivity" />
-        </activity>
-
-        <!-- START: app settings -->
-
     </application>
-
 </manifest>

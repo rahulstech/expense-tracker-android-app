@@ -1,0 +1,3 @@
+package dreammaker.android.expensetracker.settings
+
+class SettingsModel

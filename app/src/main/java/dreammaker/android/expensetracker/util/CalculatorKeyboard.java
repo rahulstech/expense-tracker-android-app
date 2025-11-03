@@ -11,6 +11,8 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
+import java.util.Objects;
+
 import dreammaker.android.expensetracker.R;
 import dreammaker.android.expensetracker.math.Calculator;
 
@@ -24,7 +26,8 @@ public class CalculatorKeyboard {
     private Calculator calculator = new Calculator();
 
     public CalculatorKeyboard(Activity activity, EditText editText) {
-        Check.isNonNull(activity, "activity is null");
+//        Check.isNonNull(activity, "activity is null");
+        Objects.requireNonNull(activity, "activity is null");
         this.activity = activity;
 //        this.keyboardView = activity.findViewById(R.id.calculator_keyboard);
         this.editText = editText;
@@ -49,7 +52,7 @@ public class CalculatorKeyboard {
             float result = calculator.calculate(expression).floatValue();
             Log.d(TAG, expression + " = " + result);
             editable.clear();
-            editable.append(Helper.floatToString(result));
+            editable.append(String.valueOf(result));
             return result;
         } catch (Throwable ex) {
             throw ex;

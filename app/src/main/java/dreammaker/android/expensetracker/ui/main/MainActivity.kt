@@ -13,8 +13,8 @@ import androidx.navigation.ui.NavigationUI.setupActionBarWithNavController
 import androidx.navigation.ui.navigateUp
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.databinding.MainBinding
-import dreammaker.android.expensetracker.ui.settings.AppSettingsActivity
-import dreammaker.android.expensetracker.ui.settings.BackupRestoreActivity
+import dreammaker.android.expensetracker.settings.ui.AppSettingsActivity
+import rahulstech.android.expensetracker.backuprestore.ui.BackupRestoreActivity
 
 class MainActivity : AppCompatActivity() {
 

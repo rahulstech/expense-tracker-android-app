@@ -1,90 +1,9 @@
 <resources>
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.Material3.DayNight">
-        <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorOnPrimary">@color/colorOnPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimary</item>
-        <item name="colorPrimaryContainer">@color/colorPrimaryContainer</item>
-        <item name="colorOnPrimaryContainer">@color/colorOnPrimaryContainer</item>
-        <item name="colorSecondary">@color/colorSecondary</item>
-        <item name="colorOnSecondary">@color/colorOnSecondary</item>
-        <item name="colorSecondaryContainer">@color/colorSecondaryContainer</item>
-        <item name="colorOnSecondaryContainer">@color/colorOnSecondaryContainer</item>
-    </style>
-
-    <style name="AppTheme.Dark" parent="Theme.Material3.Dark">
-        <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorOnPrimary">@color/colorOnPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimary</item>
-        <item name="colorPrimaryContainer">@color/colorPrimaryContainer</item>
-        <item name="colorOnPrimaryContainer">@color/colorOnPrimaryContainer</item>
-        <item name="colorSecondary">@color/colorSecondary</item>
-        <item name="colorOnSecondary">@color/colorOnSecondary</item>
-        <item name="colorSecondaryContainer">@color/colorSecondaryContainer</item>
-        <item name="colorOnSecondaryContainer">@color/colorOnSecondaryContainer</item>
-    </style>
 
     <style name="AppTheme.SplashScreen" parent="Theme.SplashScreen">
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash</item>
         <item name="windowSplashScreenAnimationDuration">3000</item> <!-- only 3 seconds -->
         <item name="postSplashScreenTheme">@style/AppTheme.NoActionBar</item>
-    </style>
-
-    <!-- NoActionBar Theme -->
-    <style name="AppTheme.NoActionBar">
-        <!-- Customize your theme here. -->
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-    </style>
-
-    <!-- Widget Style -->
-
-    <style name="Widget.AppTheme" parent="android:Widget" />
-
-    <style name="Widget.AppTheme.FloatingActionButton">
-        <item name="shapeAppearance">@style/ShapeAppearance.Material3.Corner.Full</item>
-        <item name="useCompatPadding">true</item>
-        <item name="fabSize">normal</item>
-        <item name="backgroundTint">?attr/colorPrimary</item>
-        <item name="tint">?attr/colorOnPrimary</item>
-    </style>
-
-    <style name="Widget.AppTheme.InputChip" parent="Widget.Material3.Chip.Input">
-        <item name="android:checkable">false</item>
-        <item name="shapeAppearance">@style/ShapeAppearance.Material3.Corner.Large</item>
-        <item name="chipStrokeWidth">0dp</item>
-        <item name="chipBackgroundColor">@color/stateful_color_secondary</item>
-        <item name="android:textColor">@color/stateful_color_on_secondary</item>
-        <item name="closeIconTint">@color/stateful_color_on_secondary</item>
-        <item name="android:singleLine">true</item>
-        <item name="singleLine">true</item>
-    </style>
-
-    <style name="Widget.AppTheme.AssistChip" parent="Widget.Material3.Chip.Assist">
-        <item name="shapeAppearance">@style/ShapeAppearance.Material3.Corner.Large</item>
-        <item name="chipStrokeColor">@android:color/transparent</item>
-        <item name="chipBackgroundColor">?attr/colorSecondary</item>
-        <item name="android:textColor">?attr/colorOnSecondary</item>
-        <item name="closeIconTint">?attr/colorOnSecondary</item>
-        <item name="android:singleLine">true</item>
-        <item name="android:checkable">false</item>
-        <item name="android:focusable">true</item>
-    </style>
-
-    <style name="Widget.AppTheme.FilterChip" parent="Widget.Material3.Chip.Filter">
-        <item name="shapeAppearance">@style/ShapeAppearance.Material3.Corner.Large</item>
-        <item name="android:singleLine">true</item>
-        <item name="android:checkable">true</item>
-        <item name="android:textAppearance">@style/TextAppearance.Material3.BodySmall</item>
-        <item name="chipStartPadding">8dp</item>
-        <item name="chipEndPadding">8dp</item>
-        <item name="chipIconEnabled">true</item>
-        <item name="chipIconVisible">true</item>
-        <item name="checkedIconEnabled">false</item>
-        <item name="checkedIconVisible">false</item>
-        <item name="iconSize">18dp</item>
     </style>
 
     <style name="Widget.AppTheme.MonthChip" parent="Widget.Material3.Chip.Filter">
@@ -94,32 +13,6 @@
         <item name="chipBackgroundColor">@color/background_color_month</item>
         <item name="android:textAppearance">@style/TextAppearance.Material3.LabelMedium</item>
         <item name="android:textColor">@color/on_background_color_month</item>
-    </style>
-
-    <style name="Widget.AppTheme.Button.DatePicker" parent="Widget.Material3.Button.OutlinedButton">
-        <item name="android:textColor">@color/stateful_color_on_surface</item>
-        <item name="android:textAppearance">@style/TextAppearance.Material3.BodyLarge</item>
-        <item name="android:textStyle">bold</item>
-        <item name="iconTint">@color/stateful_color_on_surface</item>
-        <item name="iconPadding">8dp</item>
-    </style>
-
-    <style name="Widget.AppTheme.Button.PickerArrow" parent="Widget.Material3.Button.IconButton.Filled.Tonal">
-        <item name="android:minWidth">24dp</item>
-        <item name="android:minHeight">24dp</item>
-        <item name="android:padding">6dp</item>
-        <item name="iconSize">24dp</item>
-        <item name="iconTint">?attr/colorOnSurface</item>
-        <item name="iconGravity">textStart</item>
-        <item name="backgroundTint">?attr/colorPrimaryContainer</item>
-    </style>
-
-    <style name="Widget.AppTheme.Button.Secondary" parent="Widget.Material3.Button">
-        <item name="iconSize">24dp</item>
-        <item name="iconGravity">textStart</item>
-        <item name="iconTint">?attr/colorOnSecondary</item>
-        <item name="android:textColor">?attr/colorOnSecondary</item>
-        <item name="backgroundTint">?attr/colorSecondary</item>
     </style>
 
 </resources>
