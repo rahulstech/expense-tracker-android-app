@@ -31,7 +31,6 @@ import dreammaker.android.expensetracker.util.visible
 class ViewDayHistoryFragment : Fragment() {
 
     companion object {
-        private val TAG = ViewDayHistoryFragment::class.simpleName
         const val ARG_DATE = "arg.date"
     }
 
@@ -80,8 +79,8 @@ class ViewDayHistoryFragment : Fragment() {
                     binding.shimmerContainer.startShimmer()
                     binding.shimmerContainer.visible()
                 }
-                is UIState.UIData -> {
-                    onHistoryPrepared(state.data)
+                is UIState.UISuccess -> {
+                    onHistoryPrepared(state.data as List<HistoryModel>)
                     binding.shimmerContainer.visibilityGone()
                     binding.mainContainer.visible()
                     binding.shimmerContainer.stopShimmer()

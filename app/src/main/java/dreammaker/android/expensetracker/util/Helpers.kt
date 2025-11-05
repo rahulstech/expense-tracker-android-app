@@ -39,7 +39,7 @@ fun Fragment.setActivitySubTitle(title: CharSequence) {
     }
 }
 
-fun Fragment.hasArgument(key: String): Boolean = arguments?.containsKey(key) ?: false
+fun Fragment.hasArgument(key: String): Boolean = arguments?.containsKey(key) == true
 
 fun Number.toCurrencyString(currencyCode: String = "USD", textLocale: Locale = Locale.ENGLISH, ): String {
     val format = NumberFormat.getCurrencyInstance(textLocale)

@@ -81,8 +81,8 @@ class ViewMonthHistoryFragment : Fragment() {
                     binding.shimmerContainer.startShimmer()
                     binding.shimmerContainer.visible()
                 }
-                is UIState.UIData -> {
-                    onHistoryPrepared(state.data)
+                is UIState.UISuccess -> {
+                    onHistoryPrepared(state.data as List<HistoryModel>)
                     binding.shimmerContainer.visibilityGone()
                     binding.mainContainer.visible()
                     binding.shimmerContainer.stopShimmer()

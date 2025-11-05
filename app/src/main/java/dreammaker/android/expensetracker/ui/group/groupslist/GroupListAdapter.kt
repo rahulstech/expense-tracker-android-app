@@ -2,11 +2,12 @@ package dreammaker.android.expensetracker.ui.group.groupslist
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.selection.ItemDetailsLookup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import dreammaker.android.expensetracker.database.GroupModel
 import dreammaker.android.expensetracker.databinding.GroupListItemBinding
-import dreammaker.android.expensetracker.util.BaseSelectableItemListAdapter
+import dreammaker.android.expensetracker.util.BaseSelectableItemListAdapter2
 import dreammaker.android.expensetracker.util.ClickableViewHolder
 import dreammaker.android.expensetracker.util.getBalanceLabel
 import dreammaker.android.expensetracker.util.getBalanceText
@@ -16,14 +17,12 @@ import dreammaker.android.expensetracker.util.visible
 class GroupsListViewHolder(
     val binding: GroupListItemBinding,
 ): ClickableViewHolder<GroupsListViewHolder>(binding.root) {
-    init {
-        attachItemClickListener()
-    }
 
     fun bind(group: GroupModel?, selected: Boolean) {
         if (null == group) {
             binding.name.text = null
             binding.balance.text = null
+            binding.root.isActivated = false
         }
         else {
             val label = group.getBalanceLabel(context)
@@ -36,8 +35,14 @@ class GroupsListViewHolder(
                 binding.labelBalance.visible()
             }
             binding.balance.text = group.getBalanceText(context) // TODO: add country code and locale
-            binding.root.isSelected = selected
+            binding.root.isActivated = selected
         }
+    }
+
+    fun getSelectedItemDetails(): ItemDetailsLookup.ItemDetails<Long?>? = object: ItemDetailsLookup.ItemDetails<Long?>() {
+        override fun getPosition(): Int = absoluteAdapterPosition
+
+        override fun getSelectionKey(): Long? = itemId
     }
 }
 
@@ -49,14 +54,18 @@ private val callback = object : DiffUtil.ItemCallback<GroupModel>() {
     = oldItem == newItem
 }
 
-class GroupsListAdapter: BaseSelectableItemListAdapter<GroupModel, Long, GroupsListViewHolder>(callback) {
+class GroupsListAdapter: BaseSelectableItemListAdapter2<GroupModel, Long, GroupsListViewHolder>(callback) {
+
+    init {
+        setHasStableIds(true)
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GroupsListViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val binding = GroupListItemBinding.inflate(inflater,parent,false)
         return GroupsListViewHolder(binding).apply {
-            setItemClickListener { holder,view-> handleItemClick(holder,view) }
-            setLongClickListener { holder,view -> handleItemLongClick(holder,view) }
+            attachItemClickListener { holder,view-> handleItemClick(holder,view) }
+            attachItemLongClickListener { holder,view -> handleItemLongClick(holder,view) }
         }
     }
 
@@ -67,5 +76,8 @@ class GroupsListAdapter: BaseSelectableItemListAdapter<GroupModel, Long, GroupsL
 
     override fun getItemId(position: Int): Long = getItem(position)?.id ?: RecyclerView.NO_ID
 
-    override fun getSelectionKey(position: Int): Long = getItemId(position)
+    override fun getSelectionKey(position: Int): Long? {
+        val id = getItemId(position)
+        return if (id == RecyclerView.NO_ID) null else id
+    }
 }

@@ -1,37 +1,37 @@
 package dreammaker.android.expensetracker.ui.account.accountlist
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.selection.ItemDetailsLookup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import dreammaker.android.expensetracker.database.AccountModel
 import dreammaker.android.expensetracker.databinding.AccountListItemBinding
-import dreammaker.android.expensetracker.util.BaseSelectableItemListAdapter
+import dreammaker.android.expensetracker.util.BaseSelectableItemListAdapter2
 import dreammaker.android.expensetracker.util.ClickableViewHolder
 import dreammaker.android.expensetracker.util.getBalanceText
 
-class AccountViewModel(
-    val binding: AccountListItemBinding,
-    onClick: (AccountViewModel,View)->Unit
-): ClickableViewHolder<AccountViewModel>(binding.root) {
-
-    init {
-        setItemClickListener(onClick)
-        attachItemClickListener()
-    }
+class AccountViewHolder(
+    val binding: AccountListItemBinding
+): ClickableViewHolder<AccountViewHolder>(binding.root) {
 
     fun bind(data: AccountModel?, selected: Boolean) {
         if (null == data) {
             binding.name.text = null
             binding.balance.text = null
-            binding.root.isSelected = false
+            binding.root.isActivated = false
         }
         else {
             binding.name.text = data.name
             binding.balance.text = data.getBalanceText(context)
-            binding.root.isSelected = selected
+            binding.root.isActivated = selected
         }
+    }
+
+    fun getSelectedItemDetails(): ItemDetailsLookup.ItemDetails<Long?> = object : ItemDetailsLookup.ItemDetails<Long?>() {
+        override fun getPosition(): Int = absoluteAdapterPosition
+
+        override fun getSelectionKey(): Long? = itemId
     }
 }
 
@@ -43,20 +43,29 @@ private val callback = object: DiffUtil.ItemCallback<AccountModel>() {
         oldItem == newItem
 }
 
-class AccountsAdapter :
-    BaseSelectableItemListAdapter<AccountModel, Long, AccountViewModel>(callback) {
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AccountViewModel {
+class AccountsAdapter: BaseSelectableItemListAdapter2<AccountModel, Long, AccountViewHolder>(callback) {
+
+    init {
+        setHasStableIds(true)
+    }
+
+    override fun getSelectionKey(position: Int): Long? {
+        val id = getItemId(position)
+        return if (id == RecyclerView.NO_ID) null else id
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AccountViewHolder {
         val inflate = LayoutInflater.from(parent.context)
         val binding = AccountListItemBinding.inflate(inflate, parent, false)
-        return AccountViewModel(binding,this::handleItemClick)
+        return AccountViewHolder(binding).apply {
+            attachItemClickListener {  vh, v -> handleItemClick(vh,v) }
+            attachItemLongClickListener { vh, v -> handleItemLongClick(vh,v) }
+        }
     }
 
-    override fun onBindViewHolder(holder: AccountViewModel, position: Int) {
-        val data = getItem(position)
-        holder.bind(data,isSelected(position))
+    override fun onBindViewHolder(holder: AccountViewHolder, position: Int) {
+        holder.bind(getItem(position),isSelected(position))
     }
 
-    override fun getItemId(position: Int): Long = getItem(position).id ?: RecyclerView.NO_ID
-
-    override fun getSelectionKey(position: Int): Long = getItemId(position)
+    override fun getItemId(position: Int): Long = getItem(position)?.id ?: RecyclerView.NO_ID
 }

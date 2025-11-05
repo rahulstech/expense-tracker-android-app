@@ -1,7 +1,6 @@
 package dreammaker.android.expensetracker.ui.account.inputaccount
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,13 +14,13 @@ import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.database.AccountModel
 import dreammaker.android.expensetracker.databinding.InputAccountBinding
 import dreammaker.android.expensetracker.util.Constants
-import dreammaker.android.expensetracker.util.OperationResult
+import dreammaker.android.expensetracker.util.QuickMessages
+import dreammaker.android.expensetracker.util.UIState
 import dreammaker.android.expensetracker.util.hasArgument
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class AccountInputFragment : Fragment() {
-    private val TAG = AccountInputFragment::class.simpleName
 
     private var _binding: InputAccountBinding? = null
     private val binding get() = this._binding!!
@@ -55,10 +54,18 @@ class AccountInputFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding.btnSave.setOnClickListener{ onClickSave() }
         binding.btnCancel.setOnClickListener { onClickCancel() }
-        lifecycleScope.launch {
-            viewModel.resultFlow.collectLatest{
-                onSave(it)
-                viewModel.emptyResult()
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.saveAccountState.collectLatest{ state ->
+                when(state) {
+                    is UIState.UISuccess -> {
+                        QuickMessages.toastSuccess(requireContext(),getString(R.string.message_success_save_account))
+                        navController.popBackStack()
+                    }
+                    is UIState.UIError -> {
+                        QuickMessages.simpleAlertError(requireContext(),R.string.message_fail_save_account)
+                    }
+                    else -> {}
+                }
             }
         }
         if (isActionEdit()) {
@@ -113,36 +120,17 @@ class AccountInputFragment : Fragment() {
     }
 
     private fun getInputAccount(): AccountModel {
-        val balance = binding.balance.text.toString().toFloatOrNull()
         val name = binding.name.text.toString()
+        val balanceText = binding.balance.text.toString()
+        var balance = 0f
+        if (balanceText.isNotBlank()) {
+            balance = balanceText.toFloat()
+        }
         return if (isActionEdit()) {
             viewModel.getStoredAccount()!!.copy(name=name, balance=balance)
         }
         else {
             AccountModel(null,name, balance)
-        }
-    }
-
-    private fun onSave(result: OperationResult<AccountModel>?) {
-        result?.let {
-            if (result.isFailure()) {
-                Log.e(TAG, "onSave failed action='${getAction()}' ", result.error)
-                val message = getString(
-                    if (isActionEdit()) R.string.message_fail_edit_account
-                    else R.string.message_fail_create_account
-                )
-                Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
-            }
-            else {
-                if (isActionEdit()) {
-                    Toast.makeText(requireContext(), R.string.message_success_edit_account, Toast.LENGTH_LONG).show()
-                    navController.popBackStack()
-                }
-                else {
-                    Toast.makeText(requireContext(),R.string.message_success_create_account, Toast.LENGTH_LONG).show()
-                    navController.popBackStack()
-                }
-            }
         }
     }
 

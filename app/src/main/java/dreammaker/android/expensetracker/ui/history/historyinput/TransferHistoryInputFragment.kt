@@ -23,7 +23,8 @@ import dreammaker.android.expensetracker.database.HistoryType
 import dreammaker.android.expensetracker.databinding.TransferHistoryInputLayoutBinding
 import dreammaker.android.expensetracker.util.AccountModelParcel
 import dreammaker.android.expensetracker.util.Constants
-import dreammaker.android.expensetracker.util.OperationResult
+import dreammaker.android.expensetracker.util.QuickMessages
+import dreammaker.android.expensetracker.util.UIState
 import dreammaker.android.expensetracker.util.createInputChip
 import dreammaker.android.expensetracker.util.getDate
 import dreammaker.android.expensetracker.util.hasArgument
@@ -104,11 +105,8 @@ class TransferHistoryInputFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding.btnSave.setOnClickListener { onClickSave() }
         binding.btnCancel.setOnClickListener { onClickCancel() }
-        lifecycleScope.launch {
-            viewModel.resultState.collectLatest {
-                onSave(it)
-                viewModel.emptyResult()
-            }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.saveHistoryState.collectLatest { onSave(it) }
         }
         if (isActionEdit()) {
             val history = viewModel.getStoredHistory()
@@ -212,16 +210,24 @@ class TransferHistoryInputFragment : Fragment() {
         viewModel.historyLiveData.removeObservers(viewLifecycleOwner)
     }
 
-    private fun onSave(result: OperationResult<HistoryModel>?) {
-        result?.let {
-            if (result.isFailure()) {
-                Log.e(TAG, "onSave: action=${getArgAction()}", result.error)
-                Toast.makeText(requireContext(), R.string.message_history_not_saved, Toast.LENGTH_LONG).show()
+    private fun onSave(state: UIState) {
+        when(state) {
+            is UIState.UISuccess -> {
+                val dialog = QuickMessages
+                    .alertSuccess(requireContext(),
+                        getString(R.string.message_success_save_history),
+                        QuickMessages.AlertButton(getString(R.string.label_yes)){
+                            // TODO: clear the fileds
+                        },
+                        QuickMessages.AlertButton(getString(R.string.label_no)){
+                            navController.popBackStack()
+                        })
+                dialog.setCanceledOnTouchOutside(false)
             }
-            else {
-                Toast.makeText(requireContext(), R.string.message_history_saved, Toast.LENGTH_LONG).show()
-                navController.popBackStack()
+            is UIState.UIError -> {
+                QuickMessages.simpleAlertError(requireContext(),R.string.message_error_save_history)
             }
+            else -> {}
         }
     }
 

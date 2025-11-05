@@ -83,6 +83,9 @@ interface AccountDao {
     @Delete
     fun deleteAccount(account: Account)
 
+    @Query("DELETE FROM `accounts` WHERE `_id` IN(:ids)")
+    fun deleteMultipleAccount(ids: List<Long>)
+
     @Query("SELECT `_id`, `account_name`, `balance` FROM `accounts` WHERE `_id` IN " +
             "(SELECT `primaryAccountId` FROM `histories` WHERE `primaryAccountId` IS NOT NULL GROUP BY primaryAccountId ORDER BY Max(`date`) DESC LIMIT 3)")
     fun getLatestUsedThreeAccounts(): LiveData<List<AccountModel>>

@@ -8,17 +8,17 @@ import dreammaker.android.expensetracker.database.ExpensesDatabase
 import dreammaker.android.expensetracker.database.HistoryDao
 import dreammaker.android.expensetracker.database.HistoryModel
 import dreammaker.android.expensetracker.database.HistoryType
-import dreammaker.android.expensetracker.util.OperationResult
+import dreammaker.android.expensetracker.util.UIState
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 
 class HistoryInputViewModel(app: Application) : AndroidViewModel(app) {
-
-    private val TAG = HistoryInputViewModel::class.simpleName
 
     private val historyDao: HistoryDao
 
@@ -43,44 +43,35 @@ class HistoryInputViewModel(app: Application) : AndroidViewModel(app) {
         return historyLiveData.value
     }
 
-    private val _resultState: MutableStateFlow<OperationResult<HistoryModel>?> = MutableStateFlow(null)
-    val resultState: Flow<OperationResult<HistoryModel>?> = _resultState
-
-    fun emptyResult() {
-        viewModelScope.launch { _resultState.emit(null) }
-    }
+    private val _saveHistoryState = MutableSharedFlow<UIState>(
+        replay = 0,
+        extraBufferCapacity = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    val saveHistoryState: Flow<UIState> get() = _saveHistoryState.asSharedFlow()
 
     fun addHistory(history: HistoryModel) {
-        viewModelScope.launch {
+        _saveHistoryState.tryEmit(UIState.UILoading())
+        viewModelScope.launch(Dispatchers.IO) {
             flow {
-                try {
-                    val id = historyDao.insertHistory(history.toHistory())
-                    val copy = history.copy(id=id)
-                    emit(OperationResult(copy,null))
-                }
-                catch (ex: Throwable) {
-                    emit(OperationResult(null,ex))
-                }
+                val id = historyDao.insertHistory(history.toHistory())
+                val copy = history.copy(id=id)
+                emit(copy)
             }
-                .flowOn(Dispatchers.IO)
-                .collect { _resultState.emit(it) }
+                .catch { error -> _saveHistoryState.tryEmit(UIState.UIError(error,history)) }
+                .collect { _saveHistoryState.tryEmit(UIState.UISuccess(it)) }
         }
     }
 
     fun setHistory(history: HistoryModel) {
-        viewModelScope.launch {
+        _saveHistoryState.tryEmit(UIState.UILoading())
+        viewModelScope.launch(Dispatchers.IO) {
             flow {
-                try {
-                    val copy = history.copy()
-                    historyDao.updateHistory(history.toHistory())
-                    emit(OperationResult(copy,null))
-                }
-                catch (ex: Throwable) {
-                    emit(OperationResult(null,ex))
-                }
+                historyDao.updateHistory(history.toHistory())
+                emit(history)
             }
-                .flowOn(Dispatchers.IO)
-                .collect { _resultState.emit(it) }
+                .catch { error -> _saveHistoryState.tryEmit(UIState.UIError(error,history)) }
+                .collect { _saveHistoryState.tryEmit(UIState.UISuccess(it)) }
         }
     }
 }

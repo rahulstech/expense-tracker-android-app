@@ -1,37 +1,37 @@
 package dreammaker.android.expensetracker.ui.history.historyinput.picker.group
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.selection.ItemDetailsLookup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import dreammaker.android.expensetracker.database.GroupModel
 import dreammaker.android.expensetracker.databinding.GroupChooserListItemBinding
-import dreammaker.android.expensetracker.util.BaseSelectableItemListAdapter
+import dreammaker.android.expensetracker.util.BaseSelectableItemListAdapter2
 import dreammaker.android.expensetracker.util.ClickableViewHolder
 import dreammaker.android.expensetracker.util.getBalanceText
 
 class GroupPickerViewHolder(
     private val binding: GroupChooserListItemBinding,
-    onClick: (GroupPickerViewHolder, View)->Unit
 ) : ClickableViewHolder<GroupPickerViewHolder>(binding.root) {
-
-    init {
-        setItemClickListener(onClick)
-        attachItemClickListener()
-    }
 
     fun bind(data: GroupModel?, isSelected: Boolean) {
         if (null == data) {
             binding.name.text = null
             binding.balance.text = null
-            binding.root.isSelected = false
+            binding.root.isActivated = false
         }
         else {
             binding.name.text = data.name
             binding.balance.text = data.getBalanceText(context)
-            binding.root.isSelected = isSelected
+            binding.root.isActivated = isSelected
         }
+    }
+
+    fun getSelectedItemDetails(): ItemDetailsLookup.ItemDetails<Long?>? = object: ItemDetailsLookup.ItemDetails<Long?>() {
+        override fun getPosition(): Int = absoluteAdapterPosition
+
+        override fun getSelectionKey(): Long? = itemId
     }
 }
 
@@ -44,15 +44,19 @@ private val callback = object: DiffUtil.ItemCallback<GroupModel>() {
 
 }
 
-open class GroupPickerListAdapter: BaseSelectableItemListAdapter<GroupModel, Long, GroupPickerViewHolder>(
+open class GroupPickerListAdapter: BaseSelectableItemListAdapter2<GroupModel, Long, GroupPickerViewHolder>(
     callback
 ) {
-    private val TAG = GroupPickerListAdapter::class.simpleName
+    init {
+        setHasStableIds(true)
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GroupPickerViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val binding = GroupChooserListItemBinding.inflate(inflater, parent, false);
-        return GroupPickerViewHolder(binding, this::handleItemClick)
+        return GroupPickerViewHolder(binding).apply {
+            attachItemClickListener { vh,v -> handleItemClick(vh,v)}
+        }
     }
 
     override fun onBindViewHolder(holder: GroupPickerViewHolder, position: Int) {
@@ -62,5 +66,5 @@ open class GroupPickerListAdapter: BaseSelectableItemListAdapter<GroupModel, Lon
 
     override fun getItemId(position: Int): Long = getItem(position)?.id ?: RecyclerView.NO_ID
 
-    override fun getSelectionKey(position: Int): Long = getItemId(position)
+    override fun getSelectionKey(position: Int): Long? = getItemId(position)
 }

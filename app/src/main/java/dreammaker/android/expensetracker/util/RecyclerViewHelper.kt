@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.View
 import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
+import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -30,9 +31,9 @@ interface SelectionKeyProvider<T> {
 }
 
 enum class SelectionMode {
-    SINGLE, MULTIPLE
+    SINGLE,
+    MULTIPLE
 }
-
 
 abstract class SelectionStoreViewModel<T>: ViewModel() {
 
@@ -207,6 +208,95 @@ class SelectionStore<T>(val selectionMode: SelectionMode = SelectionMode.SINGLE,
     }
 }
 
+
+
+
+
+
+class SelectionHelper<KeyType : Any>(
+    private val adapter: ISelectableItemAdapter2<KeyType>,
+    private val selectionTrackerBuilderProvider: ()->SelectionTracker.Builder<KeyType>
+) {
+
+    private var _inSelectionMode: Boolean = false
+    val inSelectionMode: Boolean get() = _inSelectionMode
+
+    private val selectionTracker: SelectionTracker<KeyType>? get() = adapter.selectionTracker
+
+    var itemClickListener: ItemClickListener? = null
+    private val selectableItemClickListener: ItemClickListener = { adapter,itemView,position ->
+        if (inSelectionMode) {
+            toggleItemSelectionAtPosition(position)
+        }
+        else {
+            itemClickListener?.invoke(adapter,itemView,position)
+        }
+    }
+
+    init {
+        adapter.itemClickListener = selectableItemClickListener
+    }
+
+    fun startSelection(
+        predicate: SelectionTracker.SelectionPredicate<KeyType>,
+        onStart: ((SelectionTracker<KeyType>)->Unit)? = null
+    ): Boolean {
+        if (_inSelectionMode) return false
+        val builder: SelectionTracker.Builder<KeyType> = selectionTrackerBuilderProvider()
+        builder.withSelectionPredicate(predicate)
+        val selectionTracker = builder.build()
+        adapter.selectionTracker = selectionTracker
+        onStart?.invoke(selectionTracker)
+        _inSelectionMode = true
+        return true
+    }
+
+    fun getSelectionKey(position: Int): KeyType? = adapter.getSelectionKey(position)
+
+    fun selectItem(key: KeyType?) {
+        key?.let{ selectionTracker?.select(it) }
+    }
+
+    fun deselectItem(key: KeyType?) {
+        key?.let{ selectionTracker?.deselect(it) }
+    }
+
+    fun isSelected(key: KeyType): Boolean = selectionTracker?.isSelected(key) == true
+
+    fun toggleItemSelection(key: KeyType) {
+        if (isSelected(key)) {
+            deselectItem(key)
+        }
+        else {
+            selectItem(key)
+        }
+    }
+
+    fun toggleItemSelectionAtPosition(position: Int) {
+        getSelectionKey(position)?.let { toggleItemSelection(it) }
+    }
+
+    fun count(): Int = selectionTracker?.selection?.size() ?: 0
+
+    fun getSelections(): List<KeyType> {
+        return selectionTracker?.selection?.toList() ?: emptyList()
+    }
+
+    fun setSelections(keys: List<KeyType>?) {
+        if (null != keys) {
+            selectionTracker?.setItemsSelected(keys,true)
+            val positions = keys.map { key -> adapter.getKeyPosition(key) }
+            adapter.notifySelectionChanged(positions)
+        }
+    }
+
+    fun endSelection() {
+        _inSelectionMode = false
+        selectionTracker?.clearSelection()
+        adapter.selectionTracker = null
+    }
+}
+
 // ViewHolder and Adapter
 
 open class BaseViewHolder(itemView: View): ViewHolder(itemView) {
@@ -218,36 +308,41 @@ open class BaseViewHolder(itemView: View): ViewHolder(itemView) {
 
 open class ClickableViewHolder<VH : ViewHolder>(itemView: View): BaseViewHolder(itemView) {
 
-    private var clickListener: ((VH,View)->Unit)? = null
-
-    private var longClickListener: ((VH,View)->Boolean)? = null
-
-    fun setItemClickListener(listener: ((VH,View)->Unit)?) {
-        clickListener = listener
-    }
-
-    fun setLongClickListener(listener: ((VH, View) -> Boolean)?) {
-        longClickListener = listener
-    }
-
     @Suppress("UNCHECKED_CAST")
-    fun attachItemClickListener() {
+    fun attachItemClickListener(clickListener: ((VH,View)->Unit)?) {
         itemView.setOnClickListener{ clickListener?.invoke(this as VH, it)}
     }
 
-    fun detachItemClickListener() {
-        itemView.setOnClickListener(null)
+    @Suppress("UNCHECKED_CAST")
+    fun attachItemLongClickListener(longClickListener: ((VH,View)-> Boolean)?) {
+        itemView.setOnLongClickListener { longClickListener?.invoke(this as VH,it) == true }
     }
 }
 
-interface IClickableItemAdapter<T, VH : ClickableViewHolder<VH>> {
-    var itemClickListener: ((RecyclerView.Adapter<VH>, View, Int)->Unit)?
+typealias ItemClickListener = (RecyclerView.Adapter<*>,View,Int)->Unit
 
-    var itemLongClickListener: ((RecyclerView.Adapter<VH>,View,Int)->Boolean)?
+typealias ItemLongClickListener = (RecyclerView.Adapter<*>,View,Int)->Boolean
+
+interface IClickableItemAdapter<T, VH : ClickableViewHolder<VH>> {
+    var itemClickListener: ItemClickListener?
+
+    var itemLongClickListener: ItemLongClickListener?
 
     fun handleItemClick(holder: VH, view: View)
 
     fun handleItemLongClick(holder: VH, view: View): Boolean
+}
+
+interface ISelectableItemAdapter2<KeyType> {
+    var selectionTracker: SelectionTracker<KeyType>?
+
+    var itemClickListener: ItemClickListener?
+
+    fun getSelectionKey(position: Int): KeyType?
+
+    fun getKeyPosition(key: KeyType): Int
+
+    fun notifySelectionChanged(positions: List<Int>)
 }
 
 interface ISelectableItemAdapter<KeyType> : SelectionKeyProvider<KeyType> {
@@ -279,9 +374,9 @@ interface ISelectableItemAdapter<KeyType> : SelectionKeyProvider<KeyType> {
 abstract class BaseClickableItemListAdapter<T, VH : ClickableViewHolder<VH>>(callback: DiffUtil.ItemCallback<T>)
     : ListAdapter<T,VH>(callback), IClickableItemAdapter<T, VH> {
 
-    override var itemClickListener: ((RecyclerView.Adapter<VH>, View, Int)->Unit)? = null
+    override var itemClickListener: ItemClickListener? = null
 
-    override var itemLongClickListener: ((RecyclerView.Adapter<VH>, View, Int) -> Boolean)? = null
+    override var itemLongClickListener: ItemLongClickListener? = null
 
     override fun handleItemClick(holder: VH, view: View) {
         val position = holder.bindingAdapterPosition
@@ -290,7 +385,7 @@ abstract class BaseClickableItemListAdapter<T, VH : ClickableViewHolder<VH>>(cal
 
     override fun handleItemLongClick(holder: VH, view: View): Boolean {
         val position = holder.bindingAdapterPosition
-        return itemLongClickListener?.invoke(this, view, position) ?: false
+        return itemLongClickListener?.invoke(this, view, position) == true
     }
 }
 
@@ -318,5 +413,42 @@ abstract class BaseSelectableItemListAdapter<ItemType, KeyType, VH : ClickableVi
         val position = holder.bindingAdapterPosition
         toggleSelection(position)
         super.handleItemClick(holder, view)
+    }
+}
+
+abstract class BaseSelectableItemListAdapter2<ItemType, KeyType, VH: ClickableViewHolder<VH>>(callback: DiffUtil.ItemCallback<ItemType>)
+    : BaseClickableItemListAdapter<ItemType,VH>(callback), ISelectableItemAdapter2<KeyType> {
+
+    override var selectionTracker: SelectionTracker<KeyType>? = null
+
+    private var _mapKeyPosition: Map<KeyType,Int> = emptyMap()
+
+    override fun submitList(list: List<ItemType>?) = this.submitList(list, null)
+
+    override fun submitList(list: List<ItemType>?, commitCallback: Runnable?) {
+        super.submitList(list) {
+            updateKeyPositions()
+            commitCallback?.run()
+        }
+    }
+
+    protected fun updateKeyPositions() {
+        val map = mutableMapOf<KeyType,Int>()
+        currentList.forEachIndexed { pos,_ ->
+            getSelectionKey(pos)?.let { key ->
+                map[key] = pos
+            }
+        }
+        _mapKeyPosition = map
+    }
+
+    override fun getKeyPosition(key: KeyType): Int = _mapKeyPosition[key] ?: RecyclerView.NO_POSITION
+
+    fun isSelected(position: Int): Boolean {
+        return getSelectionKey(position)?.let { selectionTracker?.isSelected(it) } == true
+    }
+
+    override fun notifySelectionChanged(positions: List<Int>) {
+        positions.forEach { notifyItemChanged(it) }
     }
 }

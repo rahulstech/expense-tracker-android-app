@@ -1,17 +1,17 @@
 <resources>
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.Material3.DayNight">
-        <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorOnPrimary">@color/colorOnPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimary</item>
-        <item name="colorPrimaryContainer">@color/colorPrimaryContainer</item>
-        <item name="colorOnPrimaryContainer">@color/colorOnPrimaryContainer</item>
-        <item name="colorSecondary">@color/colorSecondary</item>
-        <item name="colorOnSecondary">@color/colorOnSecondary</item>
-        <item name="colorSecondaryContainer">@color/colorSecondaryContainer</item>
-        <item name="colorOnSecondaryContainer">@color/colorOnSecondaryContainer</item>
-    </style>
+<!--    <style name="AppTheme" parent="Theme.Material3.DayNight">-->
+<!--        &lt;!&ndash; Customize your theme here. &ndash;&gt;-->
+<!--        <item name="colorPrimary">@color/colorPrimary</item>-->
+<!--        <item name="colorOnPrimary">@color/colorOnPrimary</item>-->
+<!--        <item name="colorPrimaryDark">@color/colorPrimary</item>-->
+<!--        <item name="colorPrimaryContainer">@color/colorPrimaryContainer</item>-->
+<!--        <item name="colorOnPrimaryContainer">@color/colorOnPrimaryContainer</item>-->
+<!--        <item name="colorSecondary">@color/colorSecondary</item>-->
+<!--        <item name="colorOnSecondary">@color/colorOnSecondary</item>-->
+<!--        <item name="colorSecondaryContainer">@color/colorSecondaryContainer</item>-->
+<!--        <item name="colorOnSecondaryContainer">@color/colorOnSecondaryContainer</item>-->
+<!--    </style>-->
 
     <style name="AppTheme.Dark" parent="Theme.Material3.Dark">
         <!-- Customize your theme here. -->

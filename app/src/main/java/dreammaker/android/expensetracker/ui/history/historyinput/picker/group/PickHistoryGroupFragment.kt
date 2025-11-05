@@ -2,38 +2,52 @@ package dreammaker.android.expensetracker.ui.history.historyinput.picker.group
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.selection.ItemDetailsLookup
+import androidx.recyclerview.selection.ItemKeyProvider
+import androidx.recyclerview.selection.SelectionPredicates
+import androidx.recyclerview.selection.SelectionTracker
+import androidx.recyclerview.selection.StorageStrategy
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import dreammaker.android.expensetracker.database.GroupModel
 import dreammaker.android.expensetracker.databinding.SingleGroupPickerListWithSearchLayoutBinding
 import dreammaker.android.expensetracker.util.Constants
 import dreammaker.android.expensetracker.util.GroupModelParcel
-import dreammaker.android.expensetracker.util.SelectionMode
-import dreammaker.android.expensetracker.util.SelectionStore
-import dreammaker.android.expensetracker.util.SelectionStoreViewModel
+import dreammaker.android.expensetracker.util.SelectionHelper
 import dreammaker.android.expensetracker.util.visibilityGone
 import dreammaker.android.expensetracker.util.visible
 
+class GroupPickerSelectionKeyProvider(private val adapter: GroupPickerListAdapter): ItemKeyProvider<Long>(SCOPE_CACHED) {
+    override fun getKey(position: Int): Long? = adapter.getSelectionKey(position)
 
-class GroupSelectionViewModel: SelectionStoreViewModel<Long>()
+    override fun getPosition(key: Long): Int = adapter.getKeyPosition(key)
+}
+
+class GroupPickerDetailsLookup(private val recyclerView: RecyclerView): ItemDetailsLookup<Long>() {
+    override fun getItemDetails(e: MotionEvent): ItemDetails<Long?>? {
+        val itemView = recyclerView.findChildViewUnder(e.x,e.y)
+        return itemView?.let { child ->
+            val vh = recyclerView.getChildViewHolder(child) as GroupPickerViewHolder
+            vh.getSelectedItemDetails()
+        }
+    }
+}
 
 class PickHistoryGroupFragment : Fragment() {
 
-    private val TAG = PickHistoryGroupFragment::class.simpleName
-
     private var _binding: SingleGroupPickerListWithSearchLayoutBinding? = null
     private val binding get() = _binding!!
-
     private lateinit var adapter: GroupPickerListAdapter
-    private lateinit var selectionStore: SelectionStore<Long>
-    protected val navController: NavController by lazy { findNavController() }
-    protected val viewModel: GroupPickerViewModel by viewModels()
+    private val navController: NavController by lazy { findNavController() }
+    private val viewModel: GroupPickerViewModel by viewModels()
+    private lateinit var selectionHelper: SelectionHelper<Long>
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -45,22 +59,27 @@ class PickHistoryGroupFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        binding.optionsList.apply {
-            layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
-            adapter = GroupPickerListAdapter().also {
-                this@PickHistoryGroupFragment.adapter = it
-            }
-
-        }
         binding.btnChoose.setOnClickListener { handlePickGroup() }
-        prepareSelectionStore(adapter)
-        viewModel.getAllGroups().observe(viewLifecycleOwner, this::onGroupsLoaded)
-    }
 
-    private fun prepareSelectionStore(adapter: GroupPickerListAdapter) {
-        val selectionViewModel = ViewModelProvider(this)[GroupSelectionViewModel::class.java]
-        selectionStore = SelectionStore(SelectionMode.SINGLE, adapter, selectionViewModel).apply { setInitialKey(getInitialSelection()) }
-        adapter.selectionStore = selectionStore
+        adapter = GroupPickerListAdapter()
+        binding.optionsList.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+        binding.optionsList.adapter = adapter
+
+        viewModel.getAllGroups().observe(viewLifecycleOwner, this::onGroupsLoaded)
+
+        selectionHelper = SelectionHelper<Long>(adapter) {
+            SelectionTracker.Builder<Long>(
+                "singleAccountSelection",
+                binding.optionsList,
+                GroupPickerSelectionKeyProvider(adapter),
+                GroupPickerDetailsLookup(binding.optionsList),
+                StorageStrategy.createLongStorage()
+            )
+        }
+
+        selectionHelper.startSelection(SelectionPredicates.createSelectSingleAnything()) {
+            selectionHelper.selectItem(getInitialSelection())
+        }
     }
 
     private fun getInitialSelection(): Long? {
@@ -77,9 +96,6 @@ class PickHistoryGroupFragment : Fragment() {
         else {
             binding.emptyPlaceholder.visibilityGone()
             binding.optionsList.visible()
-            if (selectionStore.hasSelection()) {
-                binding.btnChoose.show()
-            }
         }
     }
 
@@ -92,7 +108,8 @@ class PickHistoryGroupFragment : Fragment() {
     }
 
     private fun getSelectedGroup(): GroupModel? {
-        val key = selectionStore.selectedKey ?: return null
+        if (selectionHelper.count()==0) return null
+        val key = selectionHelper.getSelections()[0]
         return viewModel.getAllGroups().value?.find { it.id == key }
     }
 

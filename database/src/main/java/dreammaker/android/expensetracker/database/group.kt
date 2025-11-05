@@ -42,6 +42,9 @@ interface GroupDao {
     @Delete
     fun deleteGroup(group: Person)
 
+    @Query("DELETE FROM `persons` WHERE `_id` IN(:ids)")
+    fun deleteMultipleGroups(ids: List<Long>)
+
     @Query("SELECT `_id`, `person_name`, `due`  FROM `persons` WHERE `_id` = :id")
     fun findGroupById(id: Long): LiveData<GroupModel?>
 

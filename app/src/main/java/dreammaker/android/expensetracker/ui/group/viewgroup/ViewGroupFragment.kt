@@ -8,7 +8,6 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
@@ -16,7 +15,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.database.GroupModel
 import dreammaker.android.expensetracker.databinding.ViewGroupLayoutBinding
@@ -24,6 +22,8 @@ import dreammaker.android.expensetracker.ui.history.historieslist.HistoryListCon
 import dreammaker.android.expensetracker.util.Constants
 import dreammaker.android.expensetracker.util.GroupModelParcel
 import dreammaker.android.expensetracker.util.OperationResult
+import dreammaker.android.expensetracker.util.QuickMessages
+import dreammaker.android.expensetracker.util.UIState
 import dreammaker.android.expensetracker.util.getBalanceLabel
 import dreammaker.android.expensetracker.util.getBalanceText
 import kotlinx.coroutines.flow.collectLatest
@@ -54,10 +54,18 @@ class ViewGroupFragment: Fragment(), MenuProvider {
         binding.btnViewHistory.setOnClickListener { handleClickViewHistory() }
         binding.addHistory.setOnClickListener { navigateToCreateHistory() }
         viewModel.findGroupById(getArgGroupId()).observe(viewLifecycleOwner, this::onGroupLoaded)
-        lifecycleScope.launch {
-            viewModel.resultState.collectLatest {
-                onGroupDeleted(it)
-                viewModel.emptyResult()
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.deleteGroupState.collectLatest { state ->
+                when(state) {
+                    is UIState.UISuccess -> {
+                        QuickMessages.toastSuccess(requireContext(),getString(R.string.message_success_delete_group))
+                        navController.popBackStack()
+                    }
+                    is UIState.UIError -> {
+                        QuickMessages.simpleAlertError(requireContext(),R.string.message_fail_delete_group)
+                    }
+                    else -> {}
+                }
             }
         }
         (requireActivity() as MenuHost).addMenuProvider(this, viewLifecycleOwner)
@@ -65,7 +73,7 @@ class ViewGroupFragment: Fragment(), MenuProvider {
 
     private fun onGroupLoaded(group: GroupModel?) {
         if (null == group) {
-            Toast.makeText(requireContext(), R.string.message_group_not_found, Toast.LENGTH_LONG).show()
+            QuickMessages.toastError(requireContext(),getString(R.string.message_group_not_found))
             navController.popBackStack()
         }
         else {
@@ -125,11 +133,12 @@ class ViewGroupFragment: Fragment(), MenuProvider {
     private fun onClickDelete() {
         val group = viewModel.getStoredGroup()
         group?.let {
-            MaterialAlertDialogBuilder(requireContext())
-                .setMessage(resources.getQuantityString(R.plurals.warning_delete_group, 1, group.name))
-                .setPositiveButton(R.string.label_no, null)
-                .setNegativeButton(R.string.label_yes) { _,_ -> viewModel.removeGroup(group) }
-                .show()
+            QuickMessages.alertWarning(requireContext(),
+                getString(R.string.message_warning_delete,group.name),
+                QuickMessages.AlertButton(getString(R.string.label_no)),
+                QuickMessages.AlertButton(getString(R.string.label_yes)){
+                    viewModel.removeGroup(group)
+                })
         }
     }
 

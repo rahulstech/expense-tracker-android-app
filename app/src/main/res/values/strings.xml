@@ -3,10 +3,6 @@
 
     <string name="app_name">Expense Tracker</string>
 	<string name="title_app_settings">Settings</string>
-<!--	<string name="work_action_service_name">WorkActionService</string>-->
-<!--	<string name="work_action_service_description">-->
-<!--		Service to handle different action in backup and restore notification-->
-<!--	</string>-->
 
 	<string name="label_accounts">Accounts</string>
 
@@ -185,19 +181,25 @@
 	<string name="error_invalid_due_input">due is not a valid number</string>
 	<string name="error_invalid_group_balance_input">balance must be a number</string>
 
-	<string name="message_fail_create_account">account not created</string>
-	<string name="message_fail_edit_account">account not saved</string>
-	<string name="message_success_create_account">account created</string>
-	<string name="message_success_edit_account">account saved</string>
+<!--	<string name="message_fail_create_account">account not created</string>-->
+<!--	<string name="message_fail_edit_account">account not saved</string>-->
+<!--	<string name="message_success_create_account">account created</string>-->
+<!--	<string name="message_success_edit_account">account saved</string>-->
+
+
 	<string name="message_account_not_found">account not found</string>
-    <string name="message_history_not_found">history not found</string>
-    <string name="message_history_saved">history saved</string>
-	<string name="message_history_not_saved">history not saved</string>
-	<string name="message_success_create_group">group created</string>
-	<string name="message_success_edit_group">group saved</string>
-	<string name="message_fail_edit_group">group not saved</string>
-	<string name="message_fail_create_group">group not created</string>
+	<string name="message_fail_save_account">Account not saved</string>
+	<string name="message_success_save_account">Account saved</string>
+
 	<string name="message_group_not_found">group not found</string>
+	<string name="message_success_save_group">Group saved</string>
+	<string name="message_fail_save_group">Group not saved</string>
+
+    <string name="message_history_not_found">history not found</string>
+    <string name="message_success_save_history">History saved</string>
+	<string name="message_success_save_history_ask_add_more">History saved. Do you want to add more history?</string>
+	<string name="message_error_save_history">history not saved</string>
+
 	<string name="label_history_list_view_daily">Daily</string>
 	<string name="label_history_list_view_monthly">Monthly</string>
     <string name="label_this_month">This Month</string>
@@ -231,14 +233,23 @@
     <string name="title_edit_transfer_history">Edit Transfer</string>
 	<string name="title_create_transfer_history">Send Money</string>
 
-	<plurals name="warning_delete_accounts">
-		<item quantity="one">%1$s will be deleted permanently. Do you want to proceed?</item>
-		<item quantity="other">You are going to DELETE some accounts PERMANENTLY. Are you sure?</item>
-	</plurals>
-	<plurals name="warning_delete_group">
-		<item quantity="one">%1$s will be deleted permanently. Do you want to proceed?</item>
-	</plurals>
-	<plurals name="warning_delete_history">
-		<item quantity="one">You are about to delete this history permanently. On successful delete the amount is reverted. Do you want to proceed?</item>
-	</plurals>
+	<string name="label_ok">OK</string>
+
+
+	<string name="message_success_delete_account">Account deleted</string>
+	<string name="message_fail_delete_account">Account not deleted</string>
+	<string name="message_success_delete_multiple_accounts">Accounts deleted</string>
+	<string name="message_fail_delete_multiple_accounts">Accounts not deleted</string>
+
+	<string name="message_success_delete_group">Group deleted</string>
+	<string name="message_fail_delete_group">Group not deleted</string>
+	<string name="message_success_delete_multiple_groups">Groups deleted</string>
+	<string name="message_fail_delete_multiple_groups">Groups not deleted</string>
+
+	<string name="message_success_delete_history">History deleted</string>
+	<string name="message_fail_delete_history">History not deleted</string>
+
+	<string name="message_warning_delete">Do you want to delete %1$s permanently?</string>
+    <string name="message_warning_delete_multiple">Do you want to delete %1$d items permanently?</string>
+
 </resources>

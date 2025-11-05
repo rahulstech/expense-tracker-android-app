@@ -25,7 +25,8 @@ import dreammaker.android.expensetracker.databinding.HistoryInputLayoutBinding
 import dreammaker.android.expensetracker.util.AccountModelParcel
 import dreammaker.android.expensetracker.util.Constants
 import dreammaker.android.expensetracker.util.GroupModelParcel
-import dreammaker.android.expensetracker.util.OperationResult
+import dreammaker.android.expensetracker.util.QuickMessages
+import dreammaker.android.expensetracker.util.UIState
 import dreammaker.android.expensetracker.util.createInputChip
 import dreammaker.android.expensetracker.util.getDate
 import dreammaker.android.expensetracker.util.getHistoryType
@@ -128,11 +129,14 @@ class HistoryInputFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding.btnSave.setOnClickListener { onClickSave() }
         binding.btnCancel.setOnClickListener { onClickCancel() }
-        lifecycleScope.launch {
-            viewModel.resultState.collectLatest {
-                    onSave(it)
-                    viewModel.emptyResult()
-                }
+        // NOTE: lifecycleScope bound to fragment lifecycle
+        //      viewLifecycleOwner.lifecycleScope bound to view which starts onCreateView and ends onDestroyView
+        // if i use lifecycleScope then on each recreate of view an launch code will be added i.e. multiple collectors will present
+        // each of the collector will get notified for each ui state change, therefore there will be multiple unnecessary ui state handle
+        // but when launch is added to viewLifecycleOwner.lifecycleScope, on each view recreate new lifecycleScope is created and lunch code
+        // is added to the newer lifecycleScope and older is disabled. so do duplicate ui state hadle
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.saveHistoryState.collectLatest { onSave(it) }
         }
         if (isActionEdit()) {
             val history = viewModel.getStoredHistory()
@@ -238,18 +242,25 @@ class HistoryInputFragment : Fragment() {
         viewModel.historyLiveData.removeObservers(viewLifecycleOwner)
     }
 
-    private fun onSave(result: OperationResult<HistoryModel>?) {
-        result?.let {
-            if (result.isFailure()) {
-                Log.e(TAG, "onSave: action=${getArgAction()}", result.error)
-                Toast.makeText(requireContext(), R.string.message_history_not_saved, Toast.LENGTH_LONG).show()
+    private fun onSave(state: UIState) {
+        Log.i(TAG,"save state changed; new state = $state")
+        when(state) {
+            is UIState.UISuccess -> {
+                val dialog = QuickMessages
+                    .alertSuccess(requireContext(),
+                        getString(R.string.message_success_save_history_ask_add_more),
+                        QuickMessages.AlertButton(getString(R.string.label_yes)){
+                            // TODO: clear the filed
+                        },
+                        QuickMessages.AlertButton(getString(R.string.label_no)){
+                            navController.popBackStack()
+                        })
+//                dialog.setCanceledOnTouchOutside(false)
             }
-            else {
-                Toast.makeText(requireContext(), R.string.message_history_saved, Toast.LENGTH_LONG).show()
-                if (isActionEdit()) {
-                    navController.popBackStack()
-                }
+            is UIState.UIError -> {
+                QuickMessages.simpleAlertError(requireContext(),R.string.message_error_save_history)
             }
+            else -> {}
         }
     }
 

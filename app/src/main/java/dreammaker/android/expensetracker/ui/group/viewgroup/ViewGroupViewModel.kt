@@ -7,12 +7,14 @@ import androidx.lifecycle.viewModelScope
 import dreammaker.android.expensetracker.database.ExpensesDatabase
 import dreammaker.android.expensetracker.database.GroupDao
 import dreammaker.android.expensetracker.database.GroupModel
-import dreammaker.android.expensetracker.util.OperationResult
+import dreammaker.android.expensetracker.util.UIState
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 
 class ViewGroupViewModel(app: Application): AndroidViewModel(app) {
@@ -40,28 +42,22 @@ class ViewGroupViewModel(app: Application): AndroidViewModel(app) {
         return groupLiveData
     }
 
-    private val _resultState = MutableStateFlow<OperationResult<GroupModel>?>(null)
-
-    val resultState: Flow<OperationResult<GroupModel>?> = _resultState
-
-    fun emptyResult() {
-        viewModelScope.launch { _resultState.emit(null) }
-    }
+    private val _deleteGroupState = MutableSharedFlow<UIState>(
+        replay = 0,
+        extraBufferCapacity = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    val deleteGroupState: Flow<UIState> get() = _deleteGroupState.asSharedFlow()
 
     fun removeGroup(group: GroupModel) {
-        viewModelScope.launch {
+        _deleteGroupState.tryEmit(UIState.UILoading())
+        viewModelScope.launch(Dispatchers.IO) {
             flow {
-                try {
-                    val copy = group.copy()
-                    groupDao.deleteGroup(group.toGroup())
-                    emit(OperationResult(copy,null))
-                }
-                catch (ex: Throwable) {
-                    emit(OperationResult(null, ex))
-                }
+                groupDao.deleteGroup(group.toGroup())
+                emit(group)
             }
-                .flowOn(Dispatchers.IO)
-                .collect { _resultState.emit(it) }
+                .catch { error -> _deleteGroupState.tryEmit(UIState.UIError(error,group)) }
+                .collect { _deleteGroupState.tryEmit(UIState.UISuccess(it)) }
         }
     }
 }

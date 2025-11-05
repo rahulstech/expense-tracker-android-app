@@ -7,12 +7,14 @@ import androidx.lifecycle.viewModelScope
 import dreammaker.android.expensetracker.database.ExpensesDatabase
 import dreammaker.android.expensetracker.database.GroupDao
 import dreammaker.android.expensetracker.database.GroupModel
-import dreammaker.android.expensetracker.util.OperationResult
+import dreammaker.android.expensetracker.util.UIState
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 
 class GroupInputViewModel(app: Application): AndroidViewModel(app) {
@@ -40,44 +42,34 @@ class GroupInputViewModel(app: Application): AndroidViewModel(app) {
         return groupsLiveData
     }
 
-    private val _resultState: MutableStateFlow<OperationResult<GroupModel>?> = MutableStateFlow(null)
-    val resultState: Flow<OperationResult<GroupModel>?> = _resultState
-
-    fun emptyState() {
-        viewModelScope.launch { _resultState.emit(null) }
-    }
+    private val _saveGroupState = MutableSharedFlow<UIState>(
+        replay = 0,
+        extraBufferCapacity = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    val saveGroupState: Flow<UIState> get() = _saveGroupState.asSharedFlow()
 
     fun addGroup(group: GroupModel) {
-        viewModelScope.launch {
+        _saveGroupState.tryEmit(UIState.UILoading())
+        viewModelScope.launch(Dispatchers.IO){
             flow {
-                try {
-                    val id = groupDao.insertGroup(group.toGroup())
-                    val copy = group.copy(id=id)
-                    emit(OperationResult(copy,null))
-                }
-                catch (ex: Throwable) {
-                    emit(OperationResult(null,ex))
-                }
+                val id = groupDao.insertGroup(group.toGroup())
+                emit(group.copy(id=id))
             }
-                .flowOn(Dispatchers.IO)
-                .collect { _resultState.emit(it) }
+                .catch { error -> _saveGroupState.tryEmit(UIState.UIError(error)) }
+                .collect { _saveGroupState.tryEmit(UIState.UISuccess(it)) }
         }
     }
 
     fun setGroup(group: GroupModel) {
-        viewModelScope.launch {
+        _saveGroupState.tryEmit(UIState.UILoading())
+        viewModelScope.launch(Dispatchers.IO){
             flow {
-                try {
-                    val copy = group.copy()
-                    groupDao.updateGroup(group.toGroup())
-                    emit(OperationResult(copy,null))
-                }
-                catch (ex: Throwable) {
-                    emit(OperationResult(null,ex))
-                }
+                groupDao.updateGroup(group.toGroup())
+                emit(group)
             }
-                .flowOn(Dispatchers.IO)
-                .collect { _resultState.emit(it) }
+                .catch { error -> _saveGroupState.tryEmit(UIState.UIError(error)) }
+                .collect { _saveGroupState.tryEmit(UIState.UISuccess(it)) }
         }
     }
 }

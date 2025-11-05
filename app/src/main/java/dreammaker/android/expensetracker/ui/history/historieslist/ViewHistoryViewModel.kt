@@ -61,7 +61,7 @@ class ViewHistoryViewModel(app: Application): AndroidViewModel(app) {
         historiesDao = db.historyDao
     }
 
-    private val _uiStateLiveData = MediatorLiveData<UIState<List<HistoryModel>>>()
+    private val _uiStateLiveData = MediatorLiveData<UIState>()
     private val _historySummaryLiveData = MediatorLiveData<HistorySummary>()
     private var _originalHistoryLiveData: LiveData<List<HistoryModel>>? = null
     private val _historyFilterDataLiveData = MutableLiveData<HistoryFilterData>(null)
@@ -70,7 +70,7 @@ class ViewHistoryViewModel(app: Application): AndroidViewModel(app) {
 
     val historySummary: LiveData<HistorySummary> get() = _historySummaryLiveData
 
-    fun getStateLiveData(): LiveData<UIState<List<HistoryModel>>> = _uiStateLiveData
+    fun getStateLiveData(): LiveData<UIState> = _uiStateLiveData
 
     fun loadHistories(params: HistoryLoadParams) {
         if (_originalHistoryLiveData == null){
@@ -90,17 +90,17 @@ class ViewHistoryViewModel(app: Application): AndroidViewModel(app) {
         val filterData = _historyFilterDataLiveData.value
 
         // change ui state to loading
-        _uiStateLiveData.postValue(UIState.UILoading())
+        _uiStateLiveData.postValue(UIState.UILoading(""))
 
         // if original histories is null or empty then send empty list
         if (histories.isNullOrEmpty()) {
-            _uiStateLiveData.postValue(UIState.UIData<List<HistoryModel>>(emptyList()))
+            _uiStateLiveData.postValue(UIState.UISuccess(emptyList<HistoryModel>()))
             return
         }
 
         // is filter data is null then set original histories
         if (null == filterData) {
-            _uiStateLiveData.postValue(UIState.UIData(histories))
+            _uiStateLiveData.postValue(UIState.UISuccess(histories))
             return
         }
 
@@ -117,7 +117,7 @@ class ViewHistoryViewModel(app: Application): AndroidViewModel(app) {
             ensureActive()
 
             // post the filtered histories
-            _uiStateLiveData.postValue(UIState.UIData(filteredHistories))
+            _uiStateLiveData.postValue(UIState.UISuccess(filteredHistories))
         }
     }
 

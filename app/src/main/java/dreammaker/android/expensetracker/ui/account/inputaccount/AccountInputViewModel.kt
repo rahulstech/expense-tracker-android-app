@@ -7,17 +7,17 @@ import androidx.lifecycle.viewModelScope
 import dreammaker.android.expensetracker.database.AccountDao
 import dreammaker.android.expensetracker.database.AccountModel
 import dreammaker.android.expensetracker.database.ExpensesDatabase
-import dreammaker.android.expensetracker.util.OperationResult
+import dreammaker.android.expensetracker.util.UIState
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 
 class AccountInputViewModel(app: Application): AndroidViewModel(app) {
-
-    private val TAG = AccountInputViewModel::class.simpleName
 
     private val accountDao: AccountDao
 
@@ -42,46 +42,36 @@ class AccountInputViewModel(app: Application): AndroidViewModel(app) {
         return accountLiveData
     }
 
-    private val _resultFlow: MutableStateFlow<OperationResult<AccountModel>?> = MutableStateFlow(null)
-    val resultFlow: Flow<OperationResult<AccountModel>?> = _resultFlow
-
-    fun emptyResult() {
-        viewModelScope.launch { _resultFlow.emit(null) }
-    }
+    private val _saveAccountState = MutableSharedFlow<UIState>(
+        replay = 0,
+        extraBufferCapacity = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    val saveAccountState: Flow<UIState?> get() = _saveAccountState.asSharedFlow()
 
     fun addAccount(account: AccountModel) {
-        viewModelScope.launch {
+        _saveAccountState.tryEmit(UIState.UILoading())
+        viewModelScope.launch(Dispatchers.IO) {
             flow {
-                try {
-                    val id = accountDao.insertAccount(account.toAccount())
-                    val copy = account.copy(id=id)
-                    emit(OperationResult(copy,null))
-                }
-                catch (ex: Throwable) {
-                    emit(OperationResult(null,ex))
-                }
+                val id = accountDao.insertAccount(account.toAccount())
+                emit(UIState.UISuccess(account.copy(id=id)))
             }
-                .flowOn(Dispatchers.IO)
+                .catch { error -> _saveAccountState.tryEmit(UIState.UIError(error,account)) }
                 .collect {
-                    _resultFlow.value = it
+                    _saveAccountState.tryEmit(UIState.UISuccess(it))
                 }
         }
     }
 
     fun setAccount(account: AccountModel) {
-        viewModelScope.launch {
+        _saveAccountState.tryEmit(UIState.UILoading())
+        viewModelScope.launch(Dispatchers.IO) {
             flow {
-                try {
-                    accountDao.updateAccount(account.toAccount())
-                    val copy = account.copy()
-                    emit(OperationResult(copy,null))
-                }
-                catch (ex: Throwable) {
-                    emit(OperationResult(null,ex))
-                }
+                accountDao.updateAccount(account.toAccount())
+                emit(account)
             }
-                .flowOn(Dispatchers.IO)
-                .collect { _resultFlow.emit(it) }
+                .catch { error -> _saveAccountState.tryEmit(UIState.UIError(error)) }
+                .collect { _saveAccountState.tryEmit(UIState.UISuccess(it)) }
         }
     }
 }

@@ -15,9 +15,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
-import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.chip.Chip
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.database.Date
 import dreammaker.android.expensetracker.database.GroupModel
@@ -27,6 +26,8 @@ import dreammaker.android.expensetracker.databinding.HistoryItemLayoutBinding
 import dreammaker.android.expensetracker.ui.history.historyinput.HistoryInputFragment
 import dreammaker.android.expensetracker.util.Constants
 import dreammaker.android.expensetracker.util.OperationResult
+import dreammaker.android.expensetracker.util.QuickMessages
+import dreammaker.android.expensetracker.util.UIState
 import dreammaker.android.expensetracker.util.createInputChip
 import dreammaker.android.expensetracker.util.getBackgroundColor
 import dreammaker.android.expensetracker.util.getColorOnBackground
@@ -51,7 +52,7 @@ class ViewHistoryItemFragment: Fragment(), MenuProvider {
     private var _binding: HistoryItemLayoutBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var navController: NavController
+    private val navController: NavController by lazy { findNavController() }
     private val viewModel: ViewHistoryItemViewModel by viewModels()
 
     private fun getArgHistoryId(): Long = requireArguments().getLong(Constants.ARG_ID)
@@ -78,14 +79,21 @@ class ViewHistoryItemFragment: Fragment(), MenuProvider {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        navController = Navigation.findNavController(view)
         val id = getArgHistoryId()
         val type = getArgHistoryType()
         viewModel.findHistory(id,type).observe(viewLifecycleOwner, this::onHistoryLoaded)
         lifecycleScope.launch {
-            viewModel.resultState.collectLatest {
-                onHistoryDeleted(it)
-                viewModel.emptyResult()
+            viewModel.removeHistoryState.collectLatest { state ->
+                when (state) {
+                    is UIState.UISuccess -> {
+                        QuickMessages.toastSuccess(requireContext(),getString(R.string.message_success_delete_history))
+                        navController.popBackStack()
+                    }
+                    is UIState.UIError -> {
+                        QuickMessages.simpleAlertError(requireContext(),R.string.message_fail_delete_history)
+                    }
+                    else -> {}
+                }
             }
         }
         (requireActivity() as MenuHost).addMenuProvider(this,viewLifecycleOwner)
@@ -252,11 +260,13 @@ class ViewHistoryItemFragment: Fragment(), MenuProvider {
 
     private fun onClickDeleteHistory(history: HistoryModel?) {
         history?.let {
-            MaterialAlertDialogBuilder(requireContext())
-                .setMessage(resources.getQuantityString(R.plurals.warning_delete_history, 1 ))
-                .setPositiveButton(R.string.label_no, null)
-                .setNegativeButton(R.string.label_yes) { _,_ -> viewModel.removeHistory(history) }
-                .show()
+            QuickMessages.alertWarning(requireContext(),
+                getString(R.string.message_warning_delete),
+                QuickMessages.AlertButton(getString(R.string.label_no)),
+                QuickMessages.AlertButton(getString(R.string.label_yes)){
+                    viewModel.removeHistory(history)
+                }
+            )
         }
     }
 

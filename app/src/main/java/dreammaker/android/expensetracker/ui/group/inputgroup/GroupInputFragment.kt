@@ -1,7 +1,6 @@
 package dreammaker.android.expensetracker.ui.group.inputgroup
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,14 +14,13 @@ import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.database.GroupModel
 import dreammaker.android.expensetracker.databinding.InputGroupBinding
 import dreammaker.android.expensetracker.util.Constants
-import dreammaker.android.expensetracker.util.OperationResult
+import dreammaker.android.expensetracker.util.QuickMessages
+import dreammaker.android.expensetracker.util.UIState
 import dreammaker.android.expensetracker.util.hasArgument
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class GroupInputFragment : Fragment() {
-
-    private val TAG = GroupInputFragment::class.simpleName
 
     private var _binding: InputGroupBinding? = null
     private val binding get() = _binding!!
@@ -58,10 +56,17 @@ class GroupInputFragment : Fragment() {
                 viewModel.findGroupById(id).observe(viewLifecycleOwner, this::onGroupLoaded)
             }
         }
-        lifecycleScope.launch {
-            viewModel.resultState.collectLatest {
-                onSave(it)
-                viewModel.emptyState()
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.saveGroupState.collectLatest { state ->
+                when(state) {
+                    is UIState.UISuccess -> {
+                        QuickMessages.toastSuccess(requireContext(),getString(R.string.message_success_save_group))
+                    }
+                    is UIState.UIError -> {
+                        QuickMessages.simpleAlertError(requireContext(),R.string.message_fail_save_group)
+                    }
+                    else -> {}
+                }
             }
         }
     }
@@ -115,33 +120,16 @@ class GroupInputFragment : Fragment() {
 
     private fun getInputGroup(): GroupModel {
         val name = binding.name.text.toString()
-        val balance = binding.balance.text.toString().toFloatOrNull()
+        val balanceText = binding.balance.text.toString()
+        var balance = 0f
+        if (balanceText.isNotBlank()) {
+            balance = balanceText.toFloat()
+        }
         return if (isActionEdit()) {
             viewModel.getStoredGroup()!!.copy(name=name, balance=balance)
         }
         else {
             GroupModel(null,name,balance)
-        }
-    }
-
-    private fun onSave(result: OperationResult<GroupModel>?) {
-        result?.let {
-            if (result.isFailure()) {
-                Log.e(TAG, "onSave: action=${getArgAction()}",result.error)
-                val message = getString(
-                    if (isActionEdit()) R.string.message_fail_edit_group
-                    else R.string.message_fail_create_group
-                )
-                Toast.makeText(requireContext(),message,Toast.LENGTH_LONG).show()
-            }
-            else {
-                val message = getString(
-                    if (isActionEdit()) R.string.message_success_edit_group
-                    else R.string.message_success_create_group
-                )
-                Toast.makeText(requireContext(),message,Toast.LENGTH_LONG).show()
-                navController.popBackStack()
-            }
         }
     }
 
