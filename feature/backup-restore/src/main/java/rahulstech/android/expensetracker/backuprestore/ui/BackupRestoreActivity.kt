@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import dreammaker.android.expensetracker.util.QuickMessages
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import rahulstech.android.expensetracker.backuprestore.Constants.BACKUP_FILE_MIME_TYPES
@@ -95,9 +96,6 @@ class BackupRestoreActivity : AppCompatActivity() {
         }
     }
 
-
-
-
     // event handlers
 
     private fun onBackupFrequencyUpdated(newFrequency: BackupFrequency) {
@@ -136,11 +134,13 @@ class BackupRestoreActivity : AppCompatActivity() {
     }
 
     private fun showPickBackupFileInstruction() {
-        MaterialAlertDialogBuilder(this)
-            .setMessage(R.string.message_pick_backup_file_instruction)
-            .setPositiveButton(R.string.label_choose) { _,_ -> openDocumentLauncher.launch(arrayOf("application/*","text/*")) }
-            .setNegativeButton(R.string.label_cancel, null)
-            .create().show()
+        QuickMessages.alertInformation(this,
+            getString(R.string.message_pick_backup_file_instruction),
+            QuickMessages.AlertButton(getString(R.string.label_choose)){
+                openDocumentLauncher.launch(arrayOf("application/*","text/*"))
+            },
+            QuickMessages.AlertButton(getString(R.string.label_cancel))
+        )
     }
 
     private fun onPickBackupFile(uri: Uri?) {

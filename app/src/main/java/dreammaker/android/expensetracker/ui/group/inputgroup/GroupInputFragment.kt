@@ -61,6 +61,7 @@ class GroupInputFragment : Fragment() {
                 when(state) {
                     is UIState.UISuccess -> {
                         QuickMessages.toastSuccess(requireContext(),getString(R.string.message_success_save_group))
+                        navController.popBackStack()
                     }
                     is UIState.UIError -> {
                         QuickMessages.simpleAlertError(requireContext(),R.string.message_fail_save_group)

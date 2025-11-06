@@ -22,6 +22,12 @@ object QuickMessages {
         val action: (()->Unit)? = null
     )
 
+    fun alertInformation(context: Context,
+                     message: String,
+                     positiveButton: AlertButton? = null,
+                     negativeButton: AlertButton? = null): Dialog
+            = alertDialog(context, MessageType.WARNING,message,positiveButton,negativeButton)
+
     fun alertWarning(context: Context,
                      message: String,
                      positiveButton: AlertButton? = null,

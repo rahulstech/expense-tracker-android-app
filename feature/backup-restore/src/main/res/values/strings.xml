@@ -21,7 +21,7 @@
     <string name="notification_title_restore">Restore</string>
     <string name="message_json_restore">Restoring</string>
     <string name="message_pick_backup_file_instruction">
-        Go to the directory ExpenseTracker > backup and choose one of the .json or .tar.gz file.
+        Go to the directory ExpenseTracker > backup and choose one of the .tar.gz file.
     </string>
 
 
