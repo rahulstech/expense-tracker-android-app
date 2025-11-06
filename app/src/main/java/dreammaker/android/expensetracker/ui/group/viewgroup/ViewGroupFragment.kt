@@ -22,7 +22,7 @@ import dreammaker.android.expensetracker.ui.history.historieslist.HistoryListCon
 import dreammaker.android.expensetracker.util.Constants
 import dreammaker.android.expensetracker.util.GroupModelParcel
 import dreammaker.android.expensetracker.util.OperationResult
-import dreammaker.android.expensetracker.util.QuickMessages
+import dreammaker.android.expensetracker.core.util.QuickMessages
 import dreammaker.android.expensetracker.util.UIState
 import dreammaker.android.expensetracker.util.getBalanceLabel
 import dreammaker.android.expensetracker.util.getBalanceText

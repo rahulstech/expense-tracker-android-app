@@ -23,11 +23,11 @@ import androidx.recyclerview.selection.StorageStrategy
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dreammaker.android.expensetracker.R
+import dreammaker.android.expensetracker.core.util.QuickMessages
 import dreammaker.android.expensetracker.database.AccountModel
 import dreammaker.android.expensetracker.databinding.AccountsListBinding
 import dreammaker.android.expensetracker.ui.main.ContextualActionBarViewModel
 import dreammaker.android.expensetracker.util.Constants
-import dreammaker.android.expensetracker.util.QuickMessages
 import dreammaker.android.expensetracker.util.SelectionHelper
 import dreammaker.android.expensetracker.util.UIState
 import dreammaker.android.expensetracker.util.visibilityGone

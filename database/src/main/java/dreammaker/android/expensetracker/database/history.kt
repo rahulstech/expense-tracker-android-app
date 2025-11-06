@@ -101,8 +101,6 @@ data class HistoryModel(
 @Dao
 abstract class HistoryDao(db: ExpensesDatabase) {
 
-    private val TAG = HistoryDao::class.simpleName
-
     private val expensesDao = db.dao
     private val expenseBackupDao = db.backupDao
 
@@ -155,6 +153,10 @@ abstract class HistoryDao(db: ExpensesDatabase) {
             val transaction = history.toTransaction()
             expensesDao.deleteTransactions(transaction)
         }
+    }
+
+    fun deleteMultipleHistories(ids: List<Long>) {
+        // TODO: implement deleteMultipleHistories
     }
 
     @Transaction

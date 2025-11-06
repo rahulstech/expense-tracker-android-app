@@ -16,7 +16,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import dreammaker.android.expensetracker.util.QuickMessages
+import dreammaker.android.expensetracker.core.util.QuickMessages
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import rahulstech.android.expensetracker.backuprestore.Constants.BACKUP_FILE_MIME_TYPES

@@ -1,4 +1,4 @@
-package dreammaker.android.expensetracker.util
+package dreammaker.android.expensetracker.core.util
 
 import android.app.Dialog
 import android.content.Context
@@ -23,9 +23,9 @@ object QuickMessages {
     )
 
     fun alertInformation(context: Context,
-                     message: String,
-                     positiveButton: AlertButton? = null,
-                     negativeButton: AlertButton? = null): Dialog
+                         message: String,
+                         positiveButton: AlertButton? = null,
+                         negativeButton: AlertButton? = null): Dialog
             = alertDialog(context, MessageType.WARNING,message,positiveButton,negativeButton)
 
     fun alertWarning(context: Context,

@@ -3,14 +3,28 @@ package dreammaker.android.expensetracker.ui.history.historieslist.daily
 import android.os.Bundle
 import android.os.Parcelable
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.selection.ItemDetailsLookup
+import androidx.recyclerview.selection.ItemKeyProvider
+import androidx.recyclerview.selection.SelectionPredicates
+import androidx.recyclerview.selection.SelectionTracker
+import androidx.recyclerview.selection.StorageStrategy
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import dreammaker.android.expensetracker.R
+import dreammaker.android.expensetracker.core.util.QuickMessages
 import dreammaker.android.expensetracker.database.HistoryModel
 import dreammaker.android.expensetracker.database.HistoryType
 import dreammaker.android.expensetracker.databinding.HistoryListBinding
@@ -19,14 +33,35 @@ import dreammaker.android.expensetracker.ui.history.historieslist.HistoryListCon
 import dreammaker.android.expensetracker.ui.history.historieslist.HistorySummary
 import dreammaker.android.expensetracker.ui.history.historieslist.ViewHistoryViewModel
 import dreammaker.android.expensetracker.ui.history.viewhistory.ViewHistoryItemFragment
+import dreammaker.android.expensetracker.ui.main.ContextualActionBarViewModel
 import dreammaker.android.expensetracker.util.AccountModelParcel
 import dreammaker.android.expensetracker.util.Constants
 import dreammaker.android.expensetracker.util.GroupModelParcel
+import dreammaker.android.expensetracker.util.SelectionHelper
 import dreammaker.android.expensetracker.util.UIState
 import dreammaker.android.expensetracker.util.getDate
 import dreammaker.android.expensetracker.util.putHistoryType
 import dreammaker.android.expensetracker.util.visibilityGone
 import dreammaker.android.expensetracker.util.visible
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+
+class DayHistoryKeyProvider(private val adapter: DayHistoryListAdapter): ItemKeyProvider<Long>(SCOPE_CACHED) {
+    override fun getKey(position: Int): Long? = adapter.getSelectionKey(position)
+
+    override fun getPosition(key: Long): Int = adapter.getKeyPosition(key)
+}
+
+class DayHistoryLookup(private val rv: RecyclerView): ItemDetailsLookup<Long>() {
+    override fun getItemDetails(e: MotionEvent): ItemDetails<Long?>? {
+        val itemView = rv.findChildViewUnder(e.x,e.y)
+        return itemView?.let { view ->
+            val vh = rv.getChildViewHolder(view) as DayViewHolder
+            vh.getSelectedItemDetails()
+        }
+    }
+}
+
 
 class ViewDayHistoryFragment : Fragment() {
 
@@ -36,11 +71,48 @@ class ViewDayHistoryFragment : Fragment() {
 
     private var _binding: HistoryListBinding? = null
     private val binding get() = _binding!!
-
     private val viewModel: ViewHistoryViewModel by viewModels()
-    private lateinit var adapter: DayHistoryListAdapter
     private val navController: NavController by lazy { findNavController() }
+
+    private lateinit var adapter: DayHistoryListAdapter
     private var isFirstVisible = true
+
+    private lateinit var selectionHelper: SelectionHelper<Long>
+    private val cabVm: ContextualActionBarViewModel by activityViewModels()
+
+    private val cabMenu = object: MenuProvider {
+        override fun onCreateMenu(
+            menu: Menu,
+            menuInflater: MenuInflater
+        ) {
+            menuInflater.inflate(R.menu.histories_list_cab_menu, menu)
+        }
+
+        override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+            return when(menuItem.itemId) {
+                R.id.delete_multiple -> {
+                    onClickDeleteMultiple()
+                    true
+                }
+                else -> false
+            }
+        }
+    }
+
+    private fun onClickDeleteMultiple() {
+        if (selectionHelper.count() > 0) {
+            QuickMessages.alertWarning(
+                requireContext(),
+                getString(R.string.message_warning_delete_multiple, selectionHelper.count()),
+                QuickMessages.AlertButton(getString(R.string.label_no)),
+                QuickMessages.AlertButton(getString(R.string.label_yes)) {
+                    val ids = selectionHelper.getSelections()
+                    viewModel.deleteHistories(ids)
+                    cabVm.endContextActionBar()
+                },
+            )
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -52,14 +124,67 @@ class ViewDayHistoryFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        binding.historyList.apply {
-            layoutManager = LinearLayoutManager(requireContext(),LinearLayoutManager.VERTICAL,false)
-            adapter = DayHistoryListAdapter().also { this@ViewDayHistoryFragment.adapter = it }
+        adapter = DayHistoryListAdapter()
+        binding.historyList.layoutManager = LinearLayoutManager(requireContext(),LinearLayoutManager.VERTICAL,false)
+        binding.historyList.adapter = adapter
+
+
+        selectionHelper = SelectionHelper<Long>(adapter) {
+            SelectionTracker.Builder<Long>(
+                "multipleDayHistorySelection",
+                binding.historyList,
+                DayHistoryKeyProvider(adapter),
+                DayHistoryLookup(binding.historyList),
+                StorageStrategy.createLongStorage()
+            )
         }
-        adapter.itemClickListener = { _,_,position -> handleItemClick(position) }
+
+        adapter.itemLongClickListener = { _,_,position ->
+            selectionHelper.startSelection(SelectionPredicates.createSelectAnything()) { tracker ->
+                cabVm.startContextualActionBar(cabMenu)
+
+                tracker.addObserver(object: SelectionTracker.SelectionObserver<Long>(){
+                    override fun onItemStateChanged(key: Long, selected: Boolean) {
+                        cabVm.updateTitle(selectionHelper.count().toString())
+                    }
+                })
+
+                selectionHelper.selectItem(adapter.getSelectionKey(position))
+            }
+        }
+
+        selectionHelper.itemClickListener = { _,_,position -> handleItemClick(position) }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            cabVm.cabStartState.collectLatest { started ->
+                if (!started) {
+                    selectionHelper.endSelection()
+                }
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.deleteHistoriesState.collectLatest { state ->
+                when (state) {
+                    is UIState.UISuccess -> {
+                        QuickMessages.toastSuccess(requireContext(),getString(R.string.message_success_delete_multiple_histories))
+                    }
+                    is UIState.UIError -> {
+                        QuickMessages.simpleAlertError(requireContext(),R.string.message_fail_delete_multiple_histories)
+                    }
+                    else -> {}
+                }
+            }
+        }
+
         binding.filterContainer.setOnCheckedStateChangeListener { _, _ -> filter() }
 
         observe()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        cabVm.endContextActionBar()
     }
 
     override fun onResume() {

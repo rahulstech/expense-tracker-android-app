@@ -248,6 +248,8 @@
 
 	<string name="message_success_delete_history">History deleted</string>
 	<string name="message_fail_delete_history">History not deleted</string>
+	<string name="message_success_delete_multiple_histories">Histories deleted</string>
+	<string name="message_fail_delete_multiple_histories">Histories not deleted</string>
 
 	<string name="message_warning_delete">Do you want to delete %1$s permanently?</string>
     <string name="message_warning_delete_multiple">Do you want to delete %1$d items permanently?</string>

@@ -16,7 +16,13 @@ import dreammaker.android.expensetracker.util.MonthYear
 import dreammaker.android.expensetracker.util.UIState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 
 class ViewHistoryViewModel(app: Application): AndroidViewModel(app) {
@@ -158,4 +164,34 @@ class ViewHistoryViewModel(app: Application): AndroidViewModel(app) {
     fun applyHistoryFilter(filterData: HistoryFilterData) {
         _historyFilterDataLiveData.value = filterData
     }
+
+
+
+
+    private val _deleteHistoriesState = MutableSharedFlow<UIState>(
+        replay = 0,
+        extraBufferCapacity = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    val deleteHistoriesState: Flow<UIState?> get() = _deleteHistoriesState.asSharedFlow()
+
+    fun deleteHistories(ids: List<Long>) {
+        _deleteHistoriesState.tryEmit(UIState.UILoading())
+        viewModelScope.launch(Dispatchers.IO) {
+            flow {
+                historiesDao.deleteMultipleHistories(ids)
+                emit(null)
+            }
+                .catch { error ->
+                    _deleteHistoriesState.tryEmit(UIState.UIError(error))
+                }
+                .collect {
+                    _deleteHistoriesState.tryEmit(UIState.UISuccess())
+                }
+        }
+    }
+
+
+
+
 }
