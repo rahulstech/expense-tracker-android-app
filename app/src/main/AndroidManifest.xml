@@ -17,5 +17,12 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".ui.history.historyinput.HistoryInputActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.main.MainActivity">
+                <meta-data android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.main.MainActivity" />
+        </activity>
+
     </application>
 </manifest>

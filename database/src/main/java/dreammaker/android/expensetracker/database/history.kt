@@ -140,7 +140,11 @@ abstract class HistoryDao(db: ExpensesDatabase) {
 
     @Query("SELECT * FROM `histories` WHERE `id` = :id AND `type` = :type")
     @Transaction
-    abstract fun findHistoryByIdAndType(id: Long, type: HistoryType): LiveData<HistoryModel?>
+    abstract fun findHistoryByIdAndType(id: Long, type: HistoryType): HistoryModel?
+
+    @Query("SELECT * FROM `histories` WHERE `id` = :id AND `type` = :type")
+    @Transaction
+    abstract fun findLiveHistoryByIdAndType(id: Long, type: HistoryType): LiveData<HistoryModel?>
 
     @Delete
     fun deleteHistory(history: History) {

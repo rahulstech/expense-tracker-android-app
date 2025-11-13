@@ -6,6 +6,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
@@ -18,8 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dreammaker.android.expensetracker.database.GroupModel
 import dreammaker.android.expensetracker.databinding.SingleGroupPickerListWithSearchLayoutBinding
-import dreammaker.android.expensetracker.util.Constants
-import dreammaker.android.expensetracker.util.GroupModelParcel
+import dreammaker.android.expensetracker.ui.history.historyinput.HistoryInputViewModel
 import dreammaker.android.expensetracker.util.SelectionHelper
 import dreammaker.android.expensetracker.util.visibilityGone
 import dreammaker.android.expensetracker.util.visible
@@ -47,6 +47,7 @@ class PickHistoryGroupFragment : Fragment() {
     private lateinit var adapter: GroupPickerListAdapter
     private val navController: NavController by lazy { findNavController() }
     private val viewModel: GroupPickerViewModel by viewModels()
+    private val historyViewModel: HistoryInputViewModel by activityViewModels()
     private lateinit var selectionHelper: SelectionHelper<Long>
 
     override fun onCreateView(
@@ -83,8 +84,7 @@ class PickHistoryGroupFragment : Fragment() {
     }
 
     private fun getInitialSelection(): Long? {
-        val accountId = arguments?.getLong(Constants.ARG_INITIAL_SELECTION)
-        return accountId
+        return historyViewModel.getGroup()?.id
     }
 
     private fun onGroupsLoaded(accounts: List<GroupModel>) {
@@ -101,9 +101,7 @@ class PickHistoryGroupFragment : Fragment() {
 
     private fun handlePickGroup() {
         val selectedGroup = getSelectedGroup()
-        val resultKey = requireArguments().getString(Constants.ARG_RESULT_KEY)!!
-        val resultValue = if (null == selectedGroup) null else GroupModelParcel(selectedGroup)
-        navController.previousBackStackEntry?.savedStateHandle?.set(resultKey,resultValue)
+        historyViewModel.setGroup(selectedGroup)
         navController.popBackStack()
     }
 

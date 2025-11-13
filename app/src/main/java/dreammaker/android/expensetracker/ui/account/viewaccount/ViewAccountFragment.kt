@@ -19,7 +19,7 @@ import dreammaker.android.expensetracker.database.AccountModel
 import dreammaker.android.expensetracker.databinding.ViewAccountLayoutBinding
 import dreammaker.android.expensetracker.ui.history.historieslist.HistoryListContainer
 import dreammaker.android.expensetracker.util.AccountModelParcel
-import dreammaker.android.expensetracker.util.Constants
+import dreammaker.android.expensetracker.Constants
 import dreammaker.android.expensetracker.core.util.QuickMessages
 import dreammaker.android.expensetracker.util.UIState
 import dreammaker.android.expensetracker.util.getBalanceText

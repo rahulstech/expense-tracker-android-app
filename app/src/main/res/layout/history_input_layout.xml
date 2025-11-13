@@ -70,6 +70,7 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="@style/TextAppearance.AppCompat.Large"
                 android:inputType="numberDecimal"
+                android:focusedByDefault="false"
                 tools:text="120.00"/>
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -130,8 +131,7 @@
                 android:layout_weight="0"
                 app:icon="@drawable/baseline_arrow_right"
                 style="@style/Widget.AppTheme.Button.PickerArrow"
-                android:visibility="gone"
-                tools:visibility="visible"/>
+                android:visibility="visible"/>
         </LinearLayout>
 
         <TextView
@@ -184,8 +184,7 @@
                 android:layout_weight="0"
                 app:icon="@drawable/baseline_arrow_right"
                 style="@style/Widget.AppTheme.Button.PickerArrow"
-                android:visibility="gone"
-                tools:visibility="visible"
+                android:visibility="visible"
                 tools:ignore="ContentDescription" />
         </LinearLayout>
 

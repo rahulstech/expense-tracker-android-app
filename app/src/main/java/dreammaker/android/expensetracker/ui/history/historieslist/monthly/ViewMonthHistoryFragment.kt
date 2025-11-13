@@ -20,7 +20,7 @@ import dreammaker.android.expensetracker.ui.history.historieslist.HistorySummary
 import dreammaker.android.expensetracker.ui.history.historieslist.ViewHistoryViewModel
 import dreammaker.android.expensetracker.ui.history.viewhistory.ViewHistoryItemFragment
 import dreammaker.android.expensetracker.util.AccountModelParcel
-import dreammaker.android.expensetracker.util.Constants
+import dreammaker.android.expensetracker.Constants
 import dreammaker.android.expensetracker.util.GroupModelParcel
 import dreammaker.android.expensetracker.util.UIState
 import dreammaker.android.expensetracker.util.getMonthYear

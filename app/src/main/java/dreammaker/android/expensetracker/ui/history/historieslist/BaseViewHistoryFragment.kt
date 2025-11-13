@@ -16,7 +16,7 @@ import androidx.viewpager2.widget.ViewPager2
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.databinding.ViewHistoryBinding
 import dreammaker.android.expensetracker.util.AccountModelParcel
-import dreammaker.android.expensetracker.util.Constants
+import dreammaker.android.expensetracker.Constants
 import dreammaker.android.expensetracker.util.GroupModelParcel
 
 abstract class ViewHistoryPageAdapter<T>(fragmentManager: FragmentManager, lifecycle: Lifecycle)

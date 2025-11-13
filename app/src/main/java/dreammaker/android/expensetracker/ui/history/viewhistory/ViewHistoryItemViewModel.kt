@@ -38,7 +38,7 @@ class ViewHistoryItemViewModel(app: Application): AndroidViewModel(app) {
 
     fun findHistory(id: Long, type: HistoryType): LiveData<HistoryModel?> {
         if (!::historyLiveData.isInitialized) {
-            historyLiveData = historyDao.findHistoryByIdAndType(id, type)
+            historyLiveData = historyDao.findLiveHistoryByIdAndType(id, type)
         }
         return historyLiveData
     }
@@ -51,9 +51,9 @@ class ViewHistoryItemViewModel(app: Application): AndroidViewModel(app) {
     val removeHistoryState: Flow<UIState> get() = _removeHistoryState.asSharedFlow()
 
     fun removeHistory(history: HistoryModel) {
-        _removeHistoryState.tryEmit(UIState.UILoading())
         viewModelScope.launch(Dispatchers.IO) {
             flow {
+                _removeHistoryState.tryEmit(UIState.UILoading())
                 historyDao.deleteHistory(history.toHistory())
                 emit(history)
             }

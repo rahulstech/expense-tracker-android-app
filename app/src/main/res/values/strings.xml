@@ -171,7 +171,7 @@
 	<string name="title_choose_destination_account">Receive In</string>
 	<string name="title_groups_list">Groups</string>
 	<string name="title_view_group">Group Details</string>
-	<string name="title_history_group_picker">Select Group</string>
+	<string name="title_history_group_picker">Choose Group</string>
 	<string name="title_view_history">History Details</string>
 
     <string name="error_invalid_balance_input">balance valid number</string>
@@ -186,6 +186,7 @@
 <!--	<string name="message_success_create_account">account created</string>-->
 <!--	<string name="message_success_edit_account">account saved</string>-->
 
+	<string name="message_error">something error occurred</string>
 
 	<string name="message_account_not_found">account not found</string>
 	<string name="message_fail_save_account">Account not saved</string>

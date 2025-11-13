@@ -6,7 +6,7 @@ import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.database.Date
 import dreammaker.android.expensetracker.ui.history.historieslist.BaseViewHistoryFragment
 import dreammaker.android.expensetracker.ui.history.historieslist.ViewHistoryPageAdapter
-import dreammaker.android.expensetracker.ui.history.historyinput.HistoryInputFragment
+import dreammaker.android.expensetracker.ui.history.historyinput.TransactionInputFragment
 import dreammaker.android.expensetracker.util.putDate
 
 class DailyViewHistoryFragment: BaseViewHistoryFragment<Date>() {
@@ -29,7 +29,7 @@ class DailyViewHistoryFragment: BaseViewHistoryFragment<Date>() {
 
     override fun onPutCreateHistoryArgument(argument: Bundle) {
         argument.apply {
-            putDate(HistoryInputFragment.ARG_HISTORY_DATE, getCurrentData())
+            putDate(TransactionInputFragment.ARG_HISTORY_DATE, getCurrentData())
         }
     }
 }

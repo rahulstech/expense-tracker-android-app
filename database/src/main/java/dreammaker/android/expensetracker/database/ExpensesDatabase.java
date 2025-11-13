@@ -9,16 +9,22 @@ import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
-@Database(entities = {Account.class, Person.class, Transaction.class,MoneyTransfer.class},
-        views = { History.class },
+import dreammaker.android.expensetracker.database.dao.AccountDao;
+import dreammaker.android.expensetracker.database.dao.GroupDao;
+import dreammaker.android.expensetracker.database.dao.HistoryDao;
+import dreammaker.android.expensetracker.database.model.AccountEntity;
+import dreammaker.android.expensetracker.database.model.GroupEntity;
+import dreammaker.android.expensetracker.database.model.HistoryEntity;
+
+@Database(entities = {AccountEntity.class, GroupEntity.class, HistoryEntity.class},
 		version = ExpensesDatabase.DB_VERSION)
 @TypeConverters({Converters.class})
-public abstract class ExpensesDatabase extends RoomDatabase
-{
+public abstract class ExpensesDatabase extends RoomDatabase implements IExpenseDatabase {
+
     private static final String TAG = "ExpensesDatabase";
 
     static final String DB_NAME = "expenses.db3";
-    static final int DB_VERSION = 7;
+    static final int DB_VERSION = 8;
     
     private static ExpensesDatabase mExpensesDB;
     private static final Object lock = new Object();
@@ -35,7 +41,8 @@ public abstract class ExpensesDatabase extends RoomDatabase
                             }
                         })
                         .addMigrations(
-                                Migrations.INSTANCE.getMIGRATION_6_7()
+                                Migrations.INSTANCE.getMIGRATION_6_7(),
+                                Migrations.INSTANCE.getMIGRATION_7_8()
                         )
                         .build();
             }
@@ -51,13 +58,9 @@ public abstract class ExpensesDatabase extends RoomDatabase
         }
     }
 
+    @Deprecated
     public abstract ExpensesDao getDao();
 
+    @Deprecated
     public abstract ExpensesBackupDao getBackupDao();
-
-    public abstract HistoryDao getHistoryDao();
-
-    public abstract AccountDao getAccountDao();
-
-    public abstract GroupDao getGroupDao();
 }

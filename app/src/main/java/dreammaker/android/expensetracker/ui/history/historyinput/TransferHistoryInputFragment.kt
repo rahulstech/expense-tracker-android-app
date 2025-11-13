@@ -6,78 +6,53 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.os.BundleCompat
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.LiveData
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.chip.Chip
+import dreammaker.android.expensetracker.Constants
 import dreammaker.android.expensetracker.R
+import dreammaker.android.expensetracker.core.util.QuickMessages
 import dreammaker.android.expensetracker.database.AccountModel
 import dreammaker.android.expensetracker.database.Date
 import dreammaker.android.expensetracker.database.HistoryModel
 import dreammaker.android.expensetracker.database.HistoryType
 import dreammaker.android.expensetracker.databinding.TransferHistoryInputLayoutBinding
 import dreammaker.android.expensetracker.util.AccountModelParcel
-import dreammaker.android.expensetracker.util.Constants
-import dreammaker.android.expensetracker.core.util.QuickMessages
 import dreammaker.android.expensetracker.util.UIState
 import dreammaker.android.expensetracker.util.createInputChip
-import dreammaker.android.expensetracker.util.getDate
-import dreammaker.android.expensetracker.util.hasArgument
+import dreammaker.android.expensetracker.util.getArgId
+import dreammaker.android.expensetracker.util.isActionEdit
 import dreammaker.android.expensetracker.util.visibilityGone
 import dreammaker.android.expensetracker.util.visible
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
 class TransferHistoryInputFragment : Fragment() {
 
     companion object {
         private val TAG = TransferHistoryInputFragment::class.simpleName
+        private const val KEY_IS_FIND_HISTORY_STARTED = "key_is_find_history_stated"
         private const val HISTORY_INPUT_DATE_FORMAT = "EEEE, dd MMMM, yyyy"
-        const val ARG_HISTORY_DATE = "arg.history_date"
-        const val ARG_SOURCE = "arg_source"
-        const val ARG_DESTINATION = "arg_destination"
     }
 
     private var _binding: TransferHistoryInputLayoutBinding? = null
     private val binding get() = _binding!!
-    private val viewModel: HistoryInputViewModel by viewModels()
+    private val viewModel: HistoryInputViewModel by activityViewModels()
     private val navController: NavController by lazy { findNavController() }
-    private lateinit var selectedDate: Date
-
+    private var isFindHistoryStarted: Boolean = false
 
     /////////////////////////////////////////////////////////////////
     ///                 Fragment Argument                        ///
     ///////////////////////////////////////////////////////////////
 
-    private fun getArgAction(): String? = arguments?.getString(Constants.ARG_ACTION)
-
-    private fun getArgId(): Long = arguments?.getLong(Constants.ARG_ID) ?: 0
-
-    private fun getArgDate(): Date? = arguments?.getDate(ARG_HISTORY_DATE)
-
-    private fun getArgAccount(): AccountModelParcel?
-            = arguments?.let { BundleCompat.getParcelable(it, Constants.ARG_ACCOUNT, AccountModelParcel::class.java) }
-
-    private fun isActionEdit(): Boolean = getArgAction() == Constants.ACTION_EDIT
-
-    /////////////////////////////////////////////////////////////////
-    ///                     Selections                           ///
-    ///////////////////////////////////////////////////////////////
-
-    private fun getSelectedAccountLiveData(key: String): LiveData<AccountModelParcel?>
-            = navController.currentBackStackEntry?.savedStateHandle!!.getLiveData(key, null)
-
-    private fun getSelectedAccount(key: String): AccountModel?
-            = navController.currentBackStackEntry?.savedStateHandle?.get<AccountModelParcel?>(key)?.toAccountModel()
-
-    private fun removeSelectedAccount(key: String) {
-        navController.currentBackStackEntry?.savedStateHandle?.set(key,null)
-    }
+    private fun getArgAccount(): AccountModel?
+            = arguments?.let { BundleCompat.getParcelable(it, Constants.ARG_ACCOUNT, AccountModelParcel::class.java)?.toAccountModel() }
 
     /////////////////////////////////////////////////////////////////
     ///                     Fragment Api                         ///
@@ -85,12 +60,7 @@ class TransferHistoryInputFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (!hasArgument(Constants.ARG_ACTION)) {
-            throw IllegalStateException("'${Constants.ARG_ACTION}' is not found in arguments")
-        }
-        if (isActionEdit() && !hasArgument(Constants.ARG_ID)) {
-            throw IllegalStateException("${Constants.ARG_ID} argument not found; ${Constants.ARG_ACTION}='${Constants.ACTION_EDIT}' requires ${Constants.ARG_ID}")
-        }
+        viewModel.setAccount(getArgAccount())
     }
 
     override fun onCreateView(
@@ -105,33 +75,39 @@ class TransferHistoryInputFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding.btnSave.setOnClickListener { onClickSave() }
         binding.btnCancel.setOnClickListener { onClickCancel() }
+
+        prepareDate()
+        preparePrimaryAccount()
+        prepareSecondaryAccount()
+
+        if (isActionEdit()) {
+            if (savedInstanceState?.getBoolean(KEY_IS_FIND_HISTORY_STARTED,false) == false) {
+                viewModel.findHistory(getArgId(), HistoryType.TRANSFER)
+                isFindHistoryStarted = true
+            }
+            viewLifecycleOwner.lifecycleScope.launch {
+                viewModel.historyState.filterNotNull().collectLatest { state ->
+                    when(state) {
+                        is UIState.UISuccess -> { onHistoryLoaded(state.asData()) }
+                        is UIState.UIError -> {
+                            Log.e(TAG,null,state.cause)
+                            QuickMessages.toastError(requireContext(),getString(R.string.message_error))
+                            popBack()
+                        }
+                        is UIState.UILoading -> {}
+                    }
+                }
+            }
+        }
+
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.saveHistoryState.collectLatest { onSave(it) }
         }
-        if (isActionEdit()) {
-            val history = viewModel.getStoredHistory()
-            if (history == null) {
-                viewModel.findHistory(getArgId(),HistoryType.TRANSFER).observe(viewLifecycleOwner, this::onHistoryLoaded)
-            }
-        }
-        else {
-            val type = HistoryType.TRANSFER
-            val argAccount = getArgAccount()
-            val history = HistoryModel(
-                getArgId(),
-                type,
-                argAccount?.id,
-                null,
-                null,
-                argAccount?.toAccountModel(),
-                null,
-                null,
-                null,
-                getArgDate(),
-                type.name
-            )
-            prepare(history)
-        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean(KEY_IS_FIND_HISTORY_STARTED,isFindHistoryStarted)
     }
 
     override fun onDestroyView() {
@@ -145,7 +121,7 @@ class TransferHistoryInputFragment : Fragment() {
 
     private fun onClickSave() {
         val history = getInputHistory()
-        Log.d(TAG, "onClickSave: input-history=$history")
+        Log.d(TAG, "save history $history")
         if (!validateInput(history)) {
             if (isActionEdit()) {
                 viewModel.setHistory(history)
@@ -177,24 +153,23 @@ class TransferHistoryInputFragment : Fragment() {
     }
 
     private fun getInputHistory(): HistoryModel {
-        val date = selectedDate
-        val amount = binding.inputAmount.text.toString().toFloatOrNull()
-        val note = binding.inputNote.text.toString()
-        return if (isActionEdit()) {
-            viewModel.getStoredHistory()!!.copy(date=date, amount=amount, note=note)
+        val id = if(isActionEdit()) viewModel.history?.id else null
+        val date = viewModel.getDate()
+        val amountText = binding.inputAmount.text.toString()
+        val amount = if (amountText.isBlank()) 0f else amountText.toFloat()
+        var note = binding.inputNote.text.toString()
+        if (note.isBlank()) {
+            note = HistoryType.TRANSFER.name
         }
-        else {
-            val srcAccountId: Long? = getSelectedAccount(ARG_SOURCE)?.id ?: getArgAccount()?.id
-            val destAccountId: Long? = getSelectedAccount(ARG_DESTINATION)?.id
-            HistoryModel(
-                null,HistoryType.TRANSFER, srcAccountId,destAccountId,null,null,null,null, amount,date,note
-            )
-        }
+
+        val srcAccount: AccountModel? = viewModel.getAccount()
+        val destAccount: AccountModel? = viewModel.getAccount(false)
+        return HistoryModel(
+            id,HistoryType.TRANSFER, srcAccount?.id,destAccount?.id,null,null,null,null, amount,date,note
+        )
     }
 
-    private fun onClickCancel() {
-        navController.popBackStack()
-    }
+    private fun onClickCancel() { popBack() }
 
     /////////////////////////////////////////////////////////////////
     ///              Background Response Handlers                ///
@@ -202,29 +177,22 @@ class TransferHistoryInputFragment : Fragment() {
 
     private fun onHistoryLoaded(history: HistoryModel?) {
         if (null == history) {
-            Toast.makeText(requireContext(), R.string.message_history_not_found, Toast.LENGTH_LONG).show()
-            navController.popBackStack()
+            QuickMessages.toastError(requireContext(),getString(R.string.message_history_not_found))
+            popBack()
             return
         }
         prepare(history)
-        viewModel.historyLiveData.removeObservers(viewLifecycleOwner)
     }
 
     private fun onSave(state: UIState) {
+        Log.i(TAG,"save state ${state.javaClass.simpleName}")
         when(state) {
             is UIState.UISuccess -> {
-                val dialog = QuickMessages
-                    .alertSuccess(requireContext(),
-                        getString(R.string.message_success_save_history),
-                        QuickMessages.AlertButton(getString(R.string.label_yes)){
-                            // TODO: clear the fileds
-                        },
-                        QuickMessages.AlertButton(getString(R.string.label_no)){
-                            navController.popBackStack()
-                        })
-                dialog.setCanceledOnTouchOutside(false)
+                QuickMessages.toastSuccess(requireContext(), getString(R.string.message_success_save_history))
+                popBack()
             }
             is UIState.UIError -> {
+                Log.e(TAG,"save error",state.cause)
                 QuickMessages.simpleAlertError(requireContext(),R.string.message_error_save_history)
             }
             else -> {}
@@ -236,19 +204,19 @@ class TransferHistoryInputFragment : Fragment() {
     ///////////////////////////////////////////////////////////////
 
     private fun prepare(history: HistoryModel) {
-        val date = history.date
-        prepareDate(date, null == date)
         prepareAmount(history.amount)
         prepareNote(history.note)
-        preparePrimaryAccount(history.primaryAccount)
-        prepareSecondaryAccount(history.secondaryAccount)
+        viewModel.setDate(history.date!!)
+        viewModel.setAccount(history.primaryAccount)
+        viewModel.setAccount(history.secondaryAccount,false)
     }
 
-    private fun prepareDate(date: Date?, enabled: Boolean = true) {
-        binding.inputDate.isEnabled = enabled
-        updateDate(date ?: Date())
-        if (enabled) {
-            binding.inputDate.setOnClickListener { onClickInputDate(selectedDate) }
+    private fun prepareDate() {
+        binding.inputDate.setOnClickListener { onClickInputDate(viewModel.dateState.value) }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.dateState.collectLatest { date ->
+                updateDate(date)
+            }
         }
     }
 
@@ -268,51 +236,25 @@ class TransferHistoryInputFragment : Fragment() {
         binding.inputNote.setText(note)
     }
 
-    private fun preparePrimaryAccount(account: AccountModel?) {
-        if (null != account) {
-            // primary account available, update the chip
-            updatePrimaryAccountChip(account, false)
-        }
-        else if (!isActionEdit()) {
-            // primary account not available and it is create action, observe primary account selection
-            binding.inputSource.visible()
-            binding.inputSource.setOnClickListener {
-                navController.navigate(R.id.action_create_history_to_account_picker,Bundle().apply {
-                    putString(Constants.ARG_RESULT_KEY, ARG_SOURCE)
-                    putLong(Constants.ARG_INITIAL_SELECTION, getSelectedAccount(ARG_SOURCE)?.id ?: 0)
-                })
+    private fun preparePrimaryAccount() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.primaryAccountState.collectLatest { account ->
+                updatePrimaryAccountChip(account)
             }
-            getSelectedAccountLiveData(ARG_SOURCE).observe(viewLifecycleOwner) { selectedPrimary ->
-                updatePrimaryAccountChip(selectedPrimary?.toAccountModel())
-            }
-        }
-        else {
-            // it is edit action but primary account not found, may be deleted, show some placeholder
-            // TODO: show a placeholder account in history input for primary account
         }
     }
 
-    private fun prepareSecondaryAccount(account: AccountModel?) {
-        if (null != account) {
-            // secondary account available, update the chip
-            updateSecondaryAccountChip(account, false)
+    private fun prepareSecondaryAccount() {
+        binding.inputDestination.setOnClickListener {
+            navController.navigate(R.id.action_input_money_transfer_to_account_picker, bundleOf(
+                Constants.KEY_IS_PRIMARY to false
+            ))
         }
-        else if (!isActionEdit()) {
-            // secondary account not available and it is create action, observe secondary account selection
-            binding.inputDestination.visible()
-            binding.inputDestination.setOnClickListener {
-                navController.navigate(R.id.action_create_history_to_account_picker,Bundle().apply {
-                    putString(Constants.ARG_RESULT_KEY, ARG_DESTINATION)
-                    putLong(Constants.ARG_INITIAL_SELECTION, getSelectedAccount(ARG_DESTINATION)?.id ?: 0)
-                })
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.secondaryAccountState.collectLatest { account ->
+                Log.i(TAG,"secondary account changed $account")
+                updateSecondaryAccountChip(account)
             }
-            getSelectedAccountLiveData(ARG_DESTINATION).observe(viewLifecycleOwner) { selectedSecondary ->
-                updateSecondaryAccountChip(selectedSecondary?.toAccountModel())
-            }
-        }
-        else {
-            // it is edit action but primary account not found, may be deleted, show some placeholder
-            // TODO: show a placeholder account in history input for primary account
         }
     }
 
@@ -322,36 +264,35 @@ class TransferHistoryInputFragment : Fragment() {
 
     private fun updateDate(date: Date) {
         binding.inputDate.text = date.format(HISTORY_INPUT_DATE_FORMAT)
-        selectedDate = date
     }
 
-    private fun updatePrimaryAccountChip(account: AccountModel?, cancelable: Boolean = true) {
+    private fun updatePrimaryAccountChip(account: AccountModel?) {
         val container = binding.selectedSourceContainer
-        createChip(container,account,{
-            createInputChip(container, it.name!!, cancelable)
-        }, cancelable, { removeSelectedAccount(ARG_SOURCE)})
+        createChip(container,account) {
+            createInputChip(container, it.name!!, false)
+        }
     }
 
-    private fun updateSecondaryAccountChip(account: AccountModel?, cancelable: Boolean = true) {
+    private fun updateSecondaryAccountChip(account: AccountModel?) {
         val container = binding.selectedDestinationContainer
-        createChip(container,account,{
-            createInputChip(container, it.name!!, cancelable)
-        }, cancelable, { removeSelectedAccount(ARG_DESTINATION)})
+        createChip(container,account) {
+            createInputChip(container, it.name!!, false)
+        }
     }
 
-    private fun <T> createChip(container: ViewGroup, data: T?, chipFactory: (T)->Chip, cancelable: Boolean = true, onRemove: (()->Unit)? = null): Chip? {
+    private fun <T> createChip(container: ViewGroup,
+                               data: T?,
+                               chipFactory: (T)->Chip): Chip? {
         container.removeAllViews()
         data?.let {
             val chip = chipFactory.invoke(it)
-            if (cancelable) {
-                chip.setOnClickListener {
-                    container.removeView(chip)
-                    onRemove?.invoke()
-                }
-            }
             container.addView(chip)
             return@createChip chip
         }
         return null
+    }
+
+    private fun popBack() {
+        requireActivity().finish()
     }
 }

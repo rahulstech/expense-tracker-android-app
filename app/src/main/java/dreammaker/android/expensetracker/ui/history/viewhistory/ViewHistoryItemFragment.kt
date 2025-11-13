@@ -23,8 +23,8 @@ import dreammaker.android.expensetracker.database.GroupModel
 import dreammaker.android.expensetracker.database.HistoryModel
 import dreammaker.android.expensetracker.database.HistoryType
 import dreammaker.android.expensetracker.databinding.HistoryItemLayoutBinding
-import dreammaker.android.expensetracker.ui.history.historyinput.HistoryInputFragment
-import dreammaker.android.expensetracker.util.Constants
+import dreammaker.android.expensetracker.ui.history.historyinput.TransactionInputFragment
+import dreammaker.android.expensetracker.Constants
 import dreammaker.android.expensetracker.util.OperationResult
 import dreammaker.android.expensetracker.core.util.QuickMessages
 import dreammaker.android.expensetracker.util.UIState
@@ -251,7 +251,7 @@ class ViewHistoryItemFragment: Fragment(), MenuProvider {
                     navController.navigate(R.id.action_view_history_to_edit_history, Bundle().apply {
                         putString(Constants.ARG_ACTION, Constants.ACTION_EDIT)
                         putLong(Constants.ARG_ID, history.id!!)
-                        putHistoryType(HistoryInputFragment.ARG_HISTORY_TYPE, history.type!!)
+                        putHistoryType(TransactionInputFragment.ARG_HISTORY_TYPE, history.type!!)
                     })
                 }
             }

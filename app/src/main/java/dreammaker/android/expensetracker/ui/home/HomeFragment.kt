@@ -19,7 +19,7 @@ import dreammaker.android.expensetracker.database.AccountModel
 import dreammaker.android.expensetracker.database.GroupModel
 import dreammaker.android.expensetracker.databinding.HomeBinding
 import dreammaker.android.expensetracker.databinding.RecentItemViewBinding
-import dreammaker.android.expensetracker.util.Constants
+import dreammaker.android.expensetracker.Constants
 import dreammaker.android.expensetracker.util.getBalanceText
 import dreammaker.android.expensetracker.util.toCurrencyString
 import dreammaker.android.expensetracker.util.visibilityGone

@@ -13,7 +13,7 @@ import androidx.navigation.fragment.findNavController
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.database.AccountModel
 import dreammaker.android.expensetracker.databinding.InputAccountBinding
-import dreammaker.android.expensetracker.util.Constants
+import dreammaker.android.expensetracker.Constants
 import dreammaker.android.expensetracker.core.util.QuickMessages
 import dreammaker.android.expensetracker.util.UIState
 import dreammaker.android.expensetracker.util.hasArgument
