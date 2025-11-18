@@ -10,6 +10,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Locale;
 
+@Deprecated
 public class Date implements Cloneable {
 
     public static final String ISO_DATE_PATTERN = "yyyy-MM-dd";

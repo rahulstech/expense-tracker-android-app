@@ -19,12 +19,12 @@ import androidx.recyclerview.selection.StorageStrategy
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dreammaker.android.expensetracker.Constants
-import dreammaker.android.expensetracker.database.AccountModel
 import dreammaker.android.expensetracker.databinding.SingleAccountPickerListWithSearchLayoutBinding
 import dreammaker.android.expensetracker.ui.history.historyinput.HistoryInputViewModel
 import dreammaker.android.expensetracker.util.SelectionHelper
 import dreammaker.android.expensetracker.util.visibilityGone
 import dreammaker.android.expensetracker.util.visible
+import rahulstech.android.expensetracker.domain.model.Account
 
 class AccountPickerSelectionKeyProvider(private val adapter: AccountPickerListAdapter): ItemKeyProvider<Long>(SCOPE_CACHED) {
     override fun getKey(position: Int): Long? = adapter.getSelectionKey(position)
@@ -94,7 +94,7 @@ class PickHistoryAccountFragment : Fragment() {
         return historyViewModel.getAccount(getArgIsPrimary())?.id
     }
 
-    private fun onAccountsLoaded(accounts: List<AccountModel>) {
+    private fun onAccountsLoaded(accounts: List<Account>) {
         adapter.submitList(accounts)
         if (accounts.isEmpty()) {
             binding.optionsList.visibilityGone()
@@ -113,7 +113,7 @@ class PickHistoryAccountFragment : Fragment() {
         navController.popBackStack()
     }
 
-    private fun getSelectedAccount(): AccountModel? {
+    private fun getSelectedAccount(): Account? {
         if (selectionHelper.count()==0) return null
         val key = selectionHelper.getSelections()[0]
         return viewModel.getAllAccounts().value?.find { it.id == key }

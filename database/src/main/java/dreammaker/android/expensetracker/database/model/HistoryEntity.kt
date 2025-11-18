@@ -3,6 +3,7 @@ package dreammaker.android.expensetracker.database.model
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import dreammaker.android.expensetracker.database.Converters
@@ -27,18 +28,29 @@ enum class HistoryType {
         ForeignKey(
             entity = AccountEntity::class,
             parentColumns = ["id"],
-            childColumns = ["primaryAccountId"]
+            childColumns = ["primaryAccountId"],
+            deferred = true,
+            onDelete = ForeignKey.SET_NULL
         ),
         ForeignKey(
             entity = AccountEntity::class,
             parentColumns = ["id"],
-            childColumns = ["secondaryAccountId"]
+            childColumns = ["secondaryAccountId"],
+            deferred = true,
+            onDelete = ForeignKey.SET_NULL
         ),
         ForeignKey(
             entity = GroupEntity::class,
             parentColumns = ["id"],
-            childColumns = ["groupId"]
+            childColumns = ["groupId"],
+            deferred = true,
+            onDelete = ForeignKey.SET_NULL
         ),
+    ],
+    indices = [
+        Index("primaryAccountId", name = "index_histories_primaryAccountId"),
+        Index("secondaryAccountId", name = "index_histories_secondaryAccountId"),
+        Index("groupId", name = "index_histories_groupId")
     ]
 )
 data class HistoryEntity (

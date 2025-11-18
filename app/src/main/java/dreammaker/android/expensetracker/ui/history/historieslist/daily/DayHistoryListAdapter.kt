@@ -5,16 +5,16 @@ import android.view.ViewGroup
 import androidx.recyclerview.selection.ItemDetailsLookup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import dreammaker.android.expensetracker.database.HistoryModel
 import dreammaker.android.expensetracker.databinding.DayHistoryListItemBinding
 import dreammaker.android.expensetracker.ui.history.historieslist.BaseHistoryViewHolder
 import dreammaker.android.expensetracker.util.BaseSelectableItemListAdapter2
+import rahulstech.android.expensetracker.domain.model.History
 
-private val callback = object: DiffUtil.ItemCallback<HistoryModel>() {
-    override fun areItemsTheSame(oldItem: HistoryModel, newItem: HistoryModel): Boolean =
+private val callback = object: DiffUtil.ItemCallback<History>() {
+    override fun areItemsTheSame(oldItem: History, newItem: History): Boolean =
         oldItem.id == newItem.id
 
-    override fun areContentsTheSame(oldItem: HistoryModel, newItem: HistoryModel): Boolean =
+    override fun areContentsTheSame(oldItem: History, newItem: History): Boolean =
         oldItem == newItem
 }
 
@@ -22,7 +22,7 @@ class DayViewHolder(
     val binding: DayHistoryListItemBinding
 ): BaseHistoryViewHolder<DayViewHolder>(binding.root) {
 
-    override fun bind(history: HistoryModel?, selected: Boolean) {
+    override fun bind(history: History?, selected: Boolean) {
         setGroup(binding.group,history)
         setType(binding.type,history)
         setAmount(binding.amount,history)
@@ -44,7 +44,7 @@ class DayViewHolder(
     }
 }
 
-class DayHistoryListAdapter: BaseSelectableItemListAdapter2<HistoryModel, Long, DayViewHolder>(callback) {
+class DayHistoryListAdapter: BaseSelectableItemListAdapter2<History, Long, DayViewHolder>(callback) {
 
     init {
         setHasStableIds(true)

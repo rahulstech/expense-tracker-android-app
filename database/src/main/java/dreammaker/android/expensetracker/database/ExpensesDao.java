@@ -14,7 +14,7 @@ import static dreammaker.android.expensetracker.database.ExpensesContract.Tables
 import static dreammaker.android.expensetracker.database.ExpensesContract.TransactionsColumns.TYPE_CREDIT;
 import static dreammaker.android.expensetracker.database.ExpensesContract.TransactionsColumns.TYPE_DEBIT;
 
-@Dao
+//@Dao
 public abstract class ExpensesDao {
 
     ////////////////////////////////////////////////////////////////////////////////////

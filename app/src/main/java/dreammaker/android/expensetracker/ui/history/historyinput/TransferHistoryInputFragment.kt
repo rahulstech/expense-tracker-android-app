@@ -17,12 +17,8 @@ import com.google.android.material.chip.Chip
 import dreammaker.android.expensetracker.Constants
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.core.util.QuickMessages
-import dreammaker.android.expensetracker.database.AccountModel
-import dreammaker.android.expensetracker.database.Date
-import dreammaker.android.expensetracker.database.HistoryModel
-import dreammaker.android.expensetracker.database.HistoryType
 import dreammaker.android.expensetracker.databinding.TransferHistoryInputLayoutBinding
-import dreammaker.android.expensetracker.util.AccountModelParcel
+import dreammaker.android.expensetracker.util.AccountParcel
 import dreammaker.android.expensetracker.util.UIState
 import dreammaker.android.expensetracker.util.createInputChip
 import dreammaker.android.expensetracker.util.getArgId
@@ -32,13 +28,17 @@ import dreammaker.android.expensetracker.util.visible
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
+import rahulstech.android.expensetracker.domain.model.Account
+import rahulstech.android.expensetracker.domain.model.History
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 class TransferHistoryInputFragment : Fragment() {
 
     companion object {
         private val TAG = TransferHistoryInputFragment::class.simpleName
         private const val KEY_IS_FIND_HISTORY_STARTED = "key_is_find_history_stated"
-        private const val HISTORY_INPUT_DATE_FORMAT = "EEEE, dd MMMM, yyyy"
+        private val HISTORY_INPUT_DATE_FORMAT = DateTimeFormatter.ofPattern("EEE, dd MMM, yyyy")
     }
 
     private var _binding: TransferHistoryInputLayoutBinding? = null
@@ -51,8 +51,8 @@ class TransferHistoryInputFragment : Fragment() {
     ///                 Fragment Argument                        ///
     ///////////////////////////////////////////////////////////////
 
-    private fun getArgAccount(): AccountModel?
-            = arguments?.let { BundleCompat.getParcelable(it, Constants.ARG_ACCOUNT, AccountModelParcel::class.java)?.toAccountModel() }
+    private fun getArgAccount(): Account?
+            = arguments?.let { BundleCompat.getParcelable(it, Constants.ARG_ACCOUNT, AccountParcel::class.java)?.toAccount() }
 
     /////////////////////////////////////////////////////////////////
     ///                     Fragment Api                         ///
@@ -82,7 +82,7 @@ class TransferHistoryInputFragment : Fragment() {
 
         if (isActionEdit()) {
             if (savedInstanceState?.getBoolean(KEY_IS_FIND_HISTORY_STARTED,false) == false) {
-                viewModel.findHistory(getArgId(), HistoryType.TRANSFER)
+                viewModel.findHistory(getArgId())
                 isFindHistoryStarted = true
             }
             viewLifecycleOwner.lifecycleScope.launch {
@@ -132,40 +132,40 @@ class TransferHistoryInputFragment : Fragment() {
         }
     }
 
-    private fun validateInput(history: HistoryModel): Boolean {
+    private fun validateInput(history: History): Boolean {
         binding.amountInputLayout.error = null
         binding.errorSource.visibilityGone()
         binding.errorDestination.visibilityGone()
         var hasError = false
-        if (null == history.amount) {
-            hasError = true
-            binding.amountInputLayout.error = getString(R.string.error_invalid_history_amount_input)
-        }
-        if (null == history.primaryAccountId) {
+        if (history.primaryAccountId==0L) {
             hasError = true
             binding.errorSource.visible()
         }
-        if (null == history.secondaryAccountId) {
+        if (history.secondaryAccountId==0L) {
             hasError = true
             binding.errorDestination.visible()
         }
         return hasError
     }
 
-    private fun getInputHistory(): HistoryModel {
-        val id = if(isActionEdit()) viewModel.history?.id else null
+    private fun getInputHistory(): History {
+        val id = when(isActionEdit()) {
+            true -> getArgId()
+            else -> 0L
+        }
         val date = viewModel.getDate()
         val amountText = binding.inputAmount.text.toString()
         val amount = if (amountText.isBlank()) 0f else amountText.toFloat()
-        var note = binding.inputNote.text.toString()
-        if (note.isBlank()) {
-            note = HistoryType.TRANSFER.name
-        }
-
-        val srcAccount: AccountModel? = viewModel.getAccount()
-        val destAccount: AccountModel? = viewModel.getAccount(false)
-        return HistoryModel(
-            id,HistoryType.TRANSFER, srcAccount?.id,destAccount?.id,null,null,null,null, amount,date,note
+        val note = binding.inputNote.text.toString()
+        val srcAccount: Account? = viewModel.getAccount()
+        val destAccount: Account? = viewModel.getAccount(false)
+        return History.TransferHistory(
+            id = id,
+            amount = amount,
+            date = date,
+            note = note,
+            primaryAccountId = srcAccount?.id ?: 0,
+            secondaryAccountId = destAccount?.id ?: 0
         )
     }
 
@@ -175,7 +175,7 @@ class TransferHistoryInputFragment : Fragment() {
     ///              Background Response Handlers                ///
     ///////////////////////////////////////////////////////////////
 
-    private fun onHistoryLoaded(history: HistoryModel?) {
+    private fun onHistoryLoaded(history: History?) {
         if (null == history) {
             QuickMessages.toastError(requireContext(),getString(R.string.message_history_not_found))
             popBack()
@@ -203,10 +203,10 @@ class TransferHistoryInputFragment : Fragment() {
     ///                     Prepare Methods                      ///
     ///////////////////////////////////////////////////////////////
 
-    private fun prepare(history: HistoryModel) {
+    private fun prepare(history: History) {
         prepareAmount(history.amount)
         prepareNote(history.note)
-        viewModel.setDate(history.date!!)
+        viewModel.setDate(history.date)
         viewModel.setAccount(history.primaryAccount)
         viewModel.setAccount(history.secondaryAccount,false)
     }
@@ -220,11 +220,11 @@ class TransferHistoryInputFragment : Fragment() {
         }
     }
 
-    private fun onClickInputDate(date: Date) {
-        val datePicker = DatePickerDialog(requireContext(), { _, year, month, day ->
-            val newDate = Date(year, month, day)
+    private fun onClickInputDate(date: LocalDate) {
+        val datePicker = DatePickerDialog(requireContext(), { _, year, month, dayOfMonth ->
+            val newDate = LocalDate.of(year, month, dayOfMonth)
             updateDate(newDate)
-        }, date.year, date.month, date.dayOfMonth)
+        }, date.year, date.monthValue, date.dayOfMonth)
         datePicker.show()
     }
 
@@ -262,18 +262,18 @@ class TransferHistoryInputFragment : Fragment() {
     ///                     Update Methods                       ///
     ///////////////////////////////////////////////////////////////
 
-    private fun updateDate(date: Date) {
+    private fun updateDate(date: LocalDate) {
         binding.inputDate.text = date.format(HISTORY_INPUT_DATE_FORMAT)
     }
 
-    private fun updatePrimaryAccountChip(account: AccountModel?) {
+    private fun updatePrimaryAccountChip(account: Account?) {
         val container = binding.selectedSourceContainer
         createChip(container,account) {
             createInputChip(container, it.name!!, false)
         }
     }
 
-    private fun updateSecondaryAccountChip(account: AccountModel?) {
+    private fun updateSecondaryAccountChip(account: Account?) {
         val container = binding.selectedDestinationContainer
         createChip(container,account) {
             createInputChip(container, it.name!!, false)

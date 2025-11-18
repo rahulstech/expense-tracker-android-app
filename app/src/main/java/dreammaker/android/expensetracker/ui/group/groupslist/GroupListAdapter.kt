@@ -5,27 +5,26 @@ import android.view.ViewGroup
 import androidx.recyclerview.selection.ItemDetailsLookup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import dreammaker.android.expensetracker.database.GroupModel
 import dreammaker.android.expensetracker.databinding.GroupListItemBinding
 import dreammaker.android.expensetracker.util.BaseSelectableItemListAdapter2
 import dreammaker.android.expensetracker.util.ClickableViewHolder
-import dreammaker.android.expensetracker.util.getBalanceLabel
-import dreammaker.android.expensetracker.util.getBalanceText
+import dreammaker.android.expensetracker.util.getDueText
 import dreammaker.android.expensetracker.util.visibilityGone
 import dreammaker.android.expensetracker.util.visible
+import rahulstech.android.expensetracker.domain.model.Group
 
 class GroupsListViewHolder(
     val binding: GroupListItemBinding,
 ): ClickableViewHolder<GroupsListViewHolder>(binding.root) {
 
-    fun bind(group: GroupModel?, selected: Boolean) {
+    fun bind(group: Group?, selected: Boolean) {
         if (null == group) {
             binding.name.text = null
-            binding.balance.text = null
+            binding.due.text = null
             binding.root.isActivated = false
         }
         else {
-            val label = group.getBalanceLabel(context)
+            val label = group.getDueText(context)
             binding.name.text = group.name
             if (label.isBlank()) {
                 binding.labelBalance.visibilityGone()
@@ -34,7 +33,7 @@ class GroupsListViewHolder(
                 binding.labelBalance.text = label
                 binding.labelBalance.visible()
             }
-            binding.balance.text = group.getBalanceText(context) // TODO: add country code and locale
+            binding.due.text = group.getDueText(context) // TODO: add country code and locale
             binding.root.isActivated = selected
         }
     }
@@ -46,15 +45,15 @@ class GroupsListViewHolder(
     }
 }
 
-private val callback = object : DiffUtil.ItemCallback<GroupModel>() {
-    override fun areItemsTheSame(oldItem: GroupModel, newItem: GroupModel): Boolean
+private val callback = object : DiffUtil.ItemCallback<Group>() {
+    override fun areItemsTheSame(oldItem: Group, newItem: Group): Boolean
     = oldItem.id == newItem.id
 
-    override fun areContentsTheSame(oldItem: GroupModel, newItem: GroupModel): Boolean
+    override fun areContentsTheSame(oldItem: Group, newItem: Group): Boolean
     = oldItem == newItem
 }
 
-class GroupsListAdapter: BaseSelectableItemListAdapter2<GroupModel, Long, GroupsListViewHolder>(callback) {
+class GroupsListAdapter: BaseSelectableItemListAdapter2<Group, Long, GroupsListViewHolder>(callback) {
 
     init {
         setHasStableIds(true)

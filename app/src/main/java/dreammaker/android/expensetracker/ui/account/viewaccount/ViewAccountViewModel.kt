@@ -1,12 +1,9 @@
 package dreammaker.android.expensetracker.ui.account.viewaccount
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dreammaker.android.expensetracker.database.AccountDao
-import dreammaker.android.expensetracker.database.AccountModel
-import dreammaker.android.expensetracker.database.ExpensesDatabase
 import dreammaker.android.expensetracker.util.UIState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
@@ -16,28 +13,27 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+import rahulstech.android.expensetracker.domain.ExpenseRepository
+import rahulstech.android.expensetracker.domain.model.Account
 
-class ViewAccountViewModel(app: Application): AndroidViewModel(app) {
+class ViewAccountViewModel(
+   app: Application
+): ViewModel() {
 
-    private val accountDao: AccountDao
+    private val accountRepo = ExpenseRepository.getInstance(app).accountRepository
 
-    init {
-        val db = ExpensesDatabase.getInstance(app)
-        accountDao = db.accountDao
-    }
+    private lateinit var account: LiveData<Account?>
 
-    private lateinit var account: LiveData<AccountModel?>
-
-    fun getStoredAccount(): AccountModel? {
+    fun getStoredAccount(): Account? {
         if (!::account.isInitialized) {
             return null
         }
         return account.value
     }
 
-    fun findAccountById(id: Long): LiveData<AccountModel?> {
+    fun findAccountById(id: Long): LiveData<Account?> {
         if (!::account.isInitialized) {
-            account = accountDao.findAccountById(id)
+            account = accountRepo.getLiveAccountById(id)
         }
         return account
     }
@@ -49,11 +45,11 @@ class ViewAccountViewModel(app: Application): AndroidViewModel(app) {
     )
     val deleteAccountState: Flow<UIState> get() = _deleteAccountState.asSharedFlow()
 
-    fun removeAccount(account: AccountModel) {
-        _deleteAccountState.tryEmit(UIState.UILoading())
+    fun removeAccount(account: Account) {
         viewModelScope.launch(Dispatchers.IO) {
             flow {
-                accountDao.deleteAccount(account.toAccount())
+                _deleteAccountState.tryEmit(UIState.UILoading())
+                accountRepo.deleteAccount(account.id)
                 emit(account)
             }
                 .catch { error -> _deleteAccountState.tryEmit(UIState.UIError(error,account)) }

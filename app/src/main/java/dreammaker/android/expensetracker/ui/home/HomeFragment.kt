@@ -14,16 +14,17 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
+import dreammaker.android.expensetracker.Constants
 import dreammaker.android.expensetracker.R
-import dreammaker.android.expensetracker.database.AccountModel
-import dreammaker.android.expensetracker.database.GroupModel
 import dreammaker.android.expensetracker.databinding.HomeBinding
 import dreammaker.android.expensetracker.databinding.RecentItemViewBinding
-import dreammaker.android.expensetracker.Constants
 import dreammaker.android.expensetracker.util.getBalanceText
+import dreammaker.android.expensetracker.util.getDueText
 import dreammaker.android.expensetracker.util.toCurrencyString
 import dreammaker.android.expensetracker.util.visibilityGone
 import dreammaker.android.expensetracker.util.visible
+import rahulstech.android.expensetracker.domain.model.Account
+import rahulstech.android.expensetracker.domain.model.Group
 
 class HomeFragment: Fragment()  {
     private val TAG = HomeFragment::class.simpleName
@@ -83,16 +84,11 @@ class HomeFragment: Fragment()  {
         })
     }
 
-    private fun onTotalBalanceLoaded(totalBalance: Double?) {
-        if (null == totalBalance) {
-            binding.totalBalance.text = 0f.toCurrencyString()
-        }
-        else {
-            binding.totalBalance.text = totalBalance.toCurrencyString()
-        }
+    private fun onTotalBalanceLoaded(totalBalance: Double) {
+        binding.totalBalance.text = totalBalance.toCurrencyString()
     }
 
-    private fun onRecentlyUsedAccountsLoaded(accounts: List<AccountModel>) {
+    private fun onRecentlyUsedAccountsLoaded(accounts: List<Account>) {
         addRecentlyUsedViews(binding.accounts, binding.emptyAccountsPlaceholder, accounts) { container, account,_ ->
             val binding = RecentItemViewBinding.inflate(layoutInflater, container, false)
             binding.apply {
@@ -101,7 +97,7 @@ class HomeFragment: Fragment()  {
                 text2.text = account.getBalanceText(requireContext()) // TODO: apply countryCode and locale
                 root.setOnClickListener {
                     navController.navigate(R.id.action_home_to_view_account, Bundle().apply {
-                        putLong(Constants.ARG_ID, account.id!!)
+                        putLong(Constants.ARG_ID, account.id)
                     })
                 }
             }
@@ -109,16 +105,16 @@ class HomeFragment: Fragment()  {
         }
     }
 
-    private fun onRecentlyUsedGroupsLoaded(groups: List<GroupModel>) {
+    private fun onRecentlyUsedGroupsLoaded(groups: List<Group>) {
         addRecentlyUsedViews(binding.groups, binding.emptyGroupsPlaceholder, groups) { container,group,_ ->
             val binding = RecentItemViewBinding.inflate(layoutInflater, container, false)
             binding.apply {
                 icon.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_group_64, requireContext().theme))
                 text1.text = group.name
-                text2.text = group.getBalanceText(requireContext()) // TODO: apply countryCode and locale
+                text2.text = group.getDueText(requireContext()) // TODO: apply countryCode and locale
                 root.setOnClickListener {
                     navController.navigate(R.id.action_home_to_view_group, Bundle().apply {
-                        putLong(Constants.ARG_ID, group.id!!)
+                        putLong(Constants.ARG_ID, group.id)
                     })
                 }
             }
@@ -140,6 +136,5 @@ class HomeFragment: Fragment()  {
             placeholder.visibilityGone()
             container.visible()
         }
-
     }
 }

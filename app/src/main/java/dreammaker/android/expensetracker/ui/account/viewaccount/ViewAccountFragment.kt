@@ -14,18 +14,18 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
+import dreammaker.android.expensetracker.Constants
 import dreammaker.android.expensetracker.R
-import dreammaker.android.expensetracker.database.AccountModel
+import dreammaker.android.expensetracker.core.util.QuickMessages
 import dreammaker.android.expensetracker.databinding.ViewAccountLayoutBinding
 import dreammaker.android.expensetracker.ui.history.historieslist.HistoryListContainer
-import dreammaker.android.expensetracker.util.AccountModelParcel
-import dreammaker.android.expensetracker.Constants
-import dreammaker.android.expensetracker.core.util.QuickMessages
+import dreammaker.android.expensetracker.util.AccountParcel
 import dreammaker.android.expensetracker.util.UIState
 import dreammaker.android.expensetracker.util.getBalanceText
 import dreammaker.android.expensetracker.util.hasArgument
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import rahulstech.android.expensetracker.domain.model.Account
 
 class ViewAccountFragment: Fragment(), MenuProvider {
 
@@ -78,7 +78,7 @@ class ViewAccountFragment: Fragment(), MenuProvider {
         viewModel.getStoredAccount()?.let {
             navController.navigate(R.id.action_view_account_to_create_history, Bundle().apply {
                 putString(Constants.ARG_ACTION, Constants.ACTION_CREATE)
-                putParcelable(Constants.ARG_ACCOUNT, AccountModelParcel(it))
+                putParcelable(Constants.ARG_ACCOUNT, AccountParcel(it))
             })
         }
     }
@@ -87,7 +87,7 @@ class ViewAccountFragment: Fragment(), MenuProvider {
         viewModel.getStoredAccount()?.let {
             navController.navigate(R.id.action_view_account_to_create_transfer_history, Bundle().apply {
                 putString(Constants.ARG_ACTION, Constants.ACTION_CREATE)
-                putParcelable(Constants.ARG_ACCOUNT, AccountModelParcel(it))
+                putParcelable(Constants.ARG_ACCOUNT, AccountParcel(it))
             })
         }
     }
@@ -96,12 +96,12 @@ class ViewAccountFragment: Fragment(), MenuProvider {
         val account = viewModel.getStoredAccount()
         account?.let {
             navController.navigate(R.id.action_view_account_to_history_list, Bundle().apply {
-                putParcelable(HistoryListContainer.ARG_SHOW_HISTORY_FOR, AccountModelParcel(it))
+                putParcelable(HistoryListContainer.ARG_SHOW_HISTORY_FOR, AccountParcel(it))
             })
         }
     }
 
-    private fun onAccountLoaded(account: AccountModel?) {
+    private fun onAccountLoaded(account: Account?) {
         if (account == null) {
             QuickMessages.toastError(requireContext(),getString(R.string.message_account_not_found))
             navController.popBackStack()

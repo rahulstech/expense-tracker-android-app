@@ -1,13 +1,9 @@
 package dreammaker.android.expensetracker.ui.history.viewhistory
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dreammaker.android.expensetracker.database.ExpensesDatabase
-import dreammaker.android.expensetracker.database.HistoryDao
-import dreammaker.android.expensetracker.database.HistoryModel
-import dreammaker.android.expensetracker.database.HistoryType
 import dreammaker.android.expensetracker.util.UIState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
@@ -17,28 +13,27 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+import rahulstech.android.expensetracker.domain.ExpenseRepository
+import rahulstech.android.expensetracker.domain.model.History
 
-class ViewHistoryItemViewModel(app: Application): AndroidViewModel(app) {
+class ViewHistoryItemViewModel(
+    app: Application
+): ViewModel() {
 
-    private val historyDao: HistoryDao
+    private val historyRepo = ExpenseRepository.getInstance(app).historyRepository
 
-    init {
-        val db = ExpensesDatabase.getInstance(app)
-        historyDao = db.historyDao
-    }
+    private lateinit var historyLiveData: LiveData<History?>
 
-    private lateinit var historyLiveData: LiveData<HistoryModel?>
-
-    fun getStoredHistory(): HistoryModel? {
+    fun getStoredHistory(): History? {
         if (!::historyLiveData.isInitialized) {
             return null
         }
         return historyLiveData.value
     }
 
-    fun findHistory(id: Long, type: HistoryType): LiveData<HistoryModel?> {
+    fun findHistory(id: Long): LiveData<History?> {
         if (!::historyLiveData.isInitialized) {
-            historyLiveData = historyDao.findLiveHistoryByIdAndType(id, type)
+            historyLiveData = historyRepo.getLiveHistoryById(id)
         }
         return historyLiveData
     }
@@ -50,11 +45,11 @@ class ViewHistoryItemViewModel(app: Application): AndroidViewModel(app) {
     )
     val removeHistoryState: Flow<UIState> get() = _removeHistoryState.asSharedFlow()
 
-    fun removeHistory(history: HistoryModel) {
+    fun removeHistory(history: History) {
         viewModelScope.launch(Dispatchers.IO) {
             flow {
                 _removeHistoryState.tryEmit(UIState.UILoading())
-                historyDao.deleteHistory(history.toHistory())
+                historyRepo.deleteHistory(history.id)
                 emit(history)
             }
                 .catch { error -> _removeHistoryState.tryEmit(UIState.UIError(error,history)) }

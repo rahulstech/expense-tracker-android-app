@@ -5,17 +5,17 @@ import android.view.ViewGroup
 import androidx.recyclerview.selection.ItemDetailsLookup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import dreammaker.android.expensetracker.database.AccountModel
 import dreammaker.android.expensetracker.databinding.AccountListItemBinding
 import dreammaker.android.expensetracker.util.BaseSelectableItemListAdapter2
 import dreammaker.android.expensetracker.util.ClickableViewHolder
 import dreammaker.android.expensetracker.util.getBalanceText
+import rahulstech.android.expensetracker.domain.model.Account
 
 class AccountViewHolder(
     val binding: AccountListItemBinding
 ): ClickableViewHolder<AccountViewHolder>(binding.root) {
 
-    fun bind(data: AccountModel?, selected: Boolean) {
+    fun bind(data: Account?, selected: Boolean) {
         if (null == data) {
             binding.name.text = null
             binding.balance.text = null
@@ -35,15 +35,15 @@ class AccountViewHolder(
     }
 }
 
-private val callback = object: DiffUtil.ItemCallback<AccountModel>() {
-    override fun areItemsTheSame(oldItem: AccountModel, newItem: AccountModel): Boolean =
+private val callback = object: DiffUtil.ItemCallback<Account>() {
+    override fun areItemsTheSame(oldItem: Account, newItem: Account): Boolean =
         oldItem.id == newItem.id
 
-    override fun areContentsTheSame(oldItem: AccountModel, newItem: AccountModel): Boolean =
+    override fun areContentsTheSame(oldItem: Account, newItem: Account): Boolean =
         oldItem == newItem
 }
 
-class AccountsAdapter: BaseSelectableItemListAdapter2<AccountModel, Long, AccountViewHolder>(callback) {
+class AccountsAdapter: BaseSelectableItemListAdapter2<Account, Long, AccountViewHolder>(callback) {
 
     init {
         setHasStableIds(true)

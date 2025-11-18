@@ -13,7 +13,7 @@ import androidx.work.workDataOf
 import com.google.gson.Gson
 import com.google.gson.stream.JsonWriter
 import dreammaker.android.expensetracker.database.ExpensesDatabase
-import dreammaker.android.expensetracker.settings.SettingsProvider
+import rahulstech.android.expensetracker.backuprestore.Constants
 import rahulstech.android.expensetracker.backuprestore.R
 import rahulstech.android.expensetracker.backuprestore.util.AccountData
 import rahulstech.android.expensetracker.backuprestore.util.AppSettingsData
@@ -23,11 +23,6 @@ import rahulstech.android.expensetracker.backuprestore.util.NotificationBuilder
 import rahulstech.android.expensetracker.backuprestore.util.NotificationConstants
 import rahulstech.android.expensetracker.backuprestore.util.createBackupNotification
 import rahulstech.android.expensetracker.backuprestore.util.newGson
-import rahulstech.android.expensetracker.backuprestore.util.toAccountData
-import rahulstech.android.expensetracker.backuprestore.util.toGroupData
-import rahulstech.android.expensetracker.backuprestore.util.toHistoryData
-import rahulstech.android.expensetracker.backuprestore.util.toSettingsData
-import rahulstech.android.expensetracker.backuprestore.Constants
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
@@ -235,27 +230,31 @@ class JsonBackupWorker(context: Context, params: WorkerParameters): Worker(conte
         private val expenseDB: ExpensesDatabase get() = _expenseDB!!
 
         override fun open() {
-            _expenseDB = ExpensesDatabase.getInstance(applicationContext)
+//            _expenseDB = ExpensesDatabase.getInstance(applicationContext)
         }
 
         override fun close() {
-            _expenseDB?.close()
+//            _expenseDB?.close()
         }
 
         override fun readAccounts(): List<AccountData> {
-            return expenseDB.accountDao.getAccounts().map { account -> account.toAccountData() }
+//            return expenseDB.accountDao.getAccounts().map { account -> account.toAccountData() }
+            return emptyList()
         }
 
         override fun readGroups(): List<GroupData> {
-            return expenseDB.groupDao.getGroups().map { group -> group.toGroupData() }
+//            return expenseDB.groupDao.getGroups().map { group -> group.toGroupData() }
+            return emptyList()
         }
 
         override fun readHistories(from: Long, size: Long): List<HistoryData> {
-            return expenseDB.historyDao.getAllHistories(from, size).map { history -> history.toHistoryData() }
+//            return expenseDB.historyDao.getAllHistories(from, size).map { history -> history.toHistoryData() }
+            return emptyList()
         }
 
         override fun readAppSettings(): AppSettingsData {
-            return SettingsProvider.get(applicationContext).backup().toSettingsData()
+//            return SettingsProvider.get(applicationContext).backup().toSettingsData()
+            return AppSettingsData()
         }
     }
 }

@@ -15,19 +15,19 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
+import dreammaker.android.expensetracker.Constants
 import dreammaker.android.expensetracker.R
-import dreammaker.android.expensetracker.database.GroupModel
+import dreammaker.android.expensetracker.core.util.QuickMessages
 import dreammaker.android.expensetracker.databinding.ViewGroupLayoutBinding
 import dreammaker.android.expensetracker.ui.history.historieslist.HistoryListContainer
-import dreammaker.android.expensetracker.Constants
-import dreammaker.android.expensetracker.util.GroupModelParcel
+import dreammaker.android.expensetracker.util.GroupParcel
 import dreammaker.android.expensetracker.util.OperationResult
-import dreammaker.android.expensetracker.core.util.QuickMessages
 import dreammaker.android.expensetracker.util.UIState
-import dreammaker.android.expensetracker.util.getBalanceLabel
-import dreammaker.android.expensetracker.util.getBalanceText
+import dreammaker.android.expensetracker.util.getDueLabel
+import dreammaker.android.expensetracker.util.getDueText
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import rahulstech.android.expensetracker.domain.model.Group
 
 class ViewGroupFragment: Fragment(), MenuProvider {
 
@@ -71,15 +71,15 @@ class ViewGroupFragment: Fragment(), MenuProvider {
         (requireActivity() as MenuHost).addMenuProvider(this, viewLifecycleOwner)
     }
 
-    private fun onGroupLoaded(group: GroupModel?) {
+    private fun onGroupLoaded(group: Group?) {
         if (null == group) {
             QuickMessages.toastError(requireContext(),getString(R.string.message_group_not_found))
             navController.popBackStack()
         }
         else {
             binding.name.text = group.name
-            binding.balance.text = group.getBalanceText(requireContext())
-            binding.balanceLabel.text = group.getBalanceLabel(requireContext())
+            binding.due.text = group.getDueText(requireContext())
+            binding.balanceLabel.text = group.getDueLabel(requireContext())
             requireActivity().invalidateOptionsMenu()
         }
     }
@@ -88,7 +88,7 @@ class ViewGroupFragment: Fragment(), MenuProvider {
         val group = viewModel.getStoredGroup()
         group?.let {
             navController.navigate(R.id.action_view_group_to_history_list, Bundle().apply {
-                putParcelable(HistoryListContainer.ARG_SHOW_HISTORY_FOR, GroupModelParcel(group))
+                putParcelable(HistoryListContainer.ARG_SHOW_HISTORY_FOR, GroupParcel(group))
             })
         }
     }
@@ -98,7 +98,7 @@ class ViewGroupFragment: Fragment(), MenuProvider {
         group?.let {
             navController.navigate(R.id.action_view_group_to_add_history,Bundle().apply {
                 putString(Constants.ARG_ACTION, Constants.ACTION_CREATE)
-                putParcelable(Constants.ARG_GROUP, GroupModelParcel(group))
+                putParcelable(Constants.ARG_GROUP, GroupParcel(group))
             })
         }
     }
@@ -142,7 +142,7 @@ class ViewGroupFragment: Fragment(), MenuProvider {
         }
     }
 
-    private fun onGroupDeleted(result: OperationResult<GroupModel>?) {
+    private fun onGroupDeleted(result: OperationResult<Group>?) {
         result?.let {
             if (result.isFailure()) {
                 Log.e(TAG,"onGroupDeleted: delete filed groupId=${getArgGroupId()}",result.error)

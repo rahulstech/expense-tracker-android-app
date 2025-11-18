@@ -2,15 +2,8 @@ package dreammaker.android.expensetracker.ui.history.historyinput
 
 import android.app.Application
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dreammaker.android.expensetracker.database.AccountModel
-import dreammaker.android.expensetracker.database.Date
-import dreammaker.android.expensetracker.database.ExpensesDatabase
-import dreammaker.android.expensetracker.database.GroupModel
-import dreammaker.android.expensetracker.database.HistoryDao
-import dreammaker.android.expensetracker.database.HistoryModel
-import dreammaker.android.expensetracker.database.HistoryType
 import dreammaker.android.expensetracker.util.UIState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
@@ -23,21 +16,24 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+import rahulstech.android.expensetracker.domain.ExpenseRepository
+import rahulstech.android.expensetracker.domain.HistoryRepository
+import rahulstech.android.expensetracker.domain.model.Account
+import rahulstech.android.expensetracker.domain.model.Group
+import rahulstech.android.expensetracker.domain.model.History
+import java.time.LocalDate
 
-class HistoryInputViewModel(app: Application) : AndroidViewModel(app) {
+class HistoryInputViewModel (
+    app: Application
+) : ViewModel() {
+
+    private val historyRepo = ExpenseRepository.getInstance(app).historyRepository
 
     private val TAG = HistoryInputViewModel::class.simpleName
 
-    private val historyDao: HistoryDao
-
-    init {
-        val db = ExpensesDatabase.getInstance(app)
-        historyDao = db.historyDao
-    }
-
     private val _historyState = MutableStateFlow<UIState?>(null)
     val historyState: Flow<UIState?> get() = _historyState
-    val history: HistoryModel?
+    val history: History?
         get() {
             val state = _historyState.value
             return when(state) {
@@ -46,11 +42,11 @@ class HistoryInputViewModel(app: Application) : AndroidViewModel(app) {
             }
         }
 
-    fun findHistory(id: Long, type: HistoryType) {
+    fun findHistory(id: Long) {
         viewModelScope.launch(Dispatchers.IO) {
             _historyState.tryEmit(UIState.UILoading())
             flow {
-                val history = historyDao.findHistoryByIdAndType(id,type)
+                val history = historyRepo.findHistoryById(id)
                 emit(history)
             }
                 .catch { error -> _historyState.tryEmit(UIState.UIError(error)) }
@@ -65,24 +61,23 @@ class HistoryInputViewModel(app: Application) : AndroidViewModel(app) {
     )
     val saveHistoryState: Flow<UIState> get() = _saveHistoryState.asSharedFlow()
 
-    fun addHistory(history: HistoryModel) {
+    fun addHistory(history: History) {
         viewModelScope.launch(Dispatchers.IO) {
             flow {
                 _saveHistoryState.tryEmit(UIState.UILoading())
-                val id = historyDao.insertHistory(history.toHistory())
-                val copy = history.copy(id=id)
-                emit(copy)
+                val savedHistory = historyRepo.insertHistory(history)
+                emit(savedHistory)
             }
                 .catch { error -> _saveHistoryState.tryEmit(UIState.UIError(error,history)) }
                 .collect { _saveHistoryState.tryEmit(UIState.UISuccess(it)) }
         }
     }
 
-    fun setHistory(history: HistoryModel) {
+    fun setHistory(history: History) {
         viewModelScope.launch(Dispatchers.IO) {
             flow {
                 _saveHistoryState.tryEmit(UIState.UILoading())
-                historyDao.updateHistory(history.toHistory())
+                historyRepo.updateHistory(history)
                 emit(history)
             }
                 .catch { error -> _saveHistoryState.tryEmit(UIState.UIError(error,history)) }
@@ -90,25 +85,25 @@ class HistoryInputViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    private val _dateState = MutableStateFlow<Date>(Date())
-    val dateState: StateFlow<Date> = _dateState
+    private val _dateState = MutableStateFlow<LocalDate>(LocalDate.now())
+    val dateState: StateFlow<LocalDate> = _dateState
 
-    private val _primaryAccountState = MutableStateFlow<AccountModel?>(null)
-    val primaryAccountState: StateFlow<AccountModel?> = _primaryAccountState
+    private val _primaryAccountState = MutableStateFlow<Account?>(null)
+    val primaryAccountState: StateFlow<Account?> = _primaryAccountState
 
-    private val _secondaryAccountState = MutableStateFlow<AccountModel?>(null)
-    val secondaryAccountState: StateFlow<AccountModel?> = _secondaryAccountState
+    private val _secondaryAccountState = MutableStateFlow<Account?>(null)
+    val secondaryAccountState: StateFlow<Account?> = _secondaryAccountState
 
-    private val _groupState = MutableStateFlow<GroupModel?>(null)
-    val groupState: StateFlow<GroupModel?> = _groupState
+    private val _groupState = MutableStateFlow<Group?>(null)
+    val groupState: StateFlow<Group?> = _groupState
 
-    fun setDate(date: Date) {
+    fun setDate(date: LocalDate) {
         _dateState.tryEmit(date)
     }
 
-    fun getDate(): Date = _dateState.value
+    fun getDate(): LocalDate = _dateState.value
 
-    fun setAccount(account: AccountModel?, primary: Boolean = true) {
+    fun setAccount(account: Account?, primary: Boolean = true) {
         Log.i(TAG,"set account $account primary $primary")
         if (primary) {
             _primaryAccountState.tryEmit(account)
@@ -118,7 +113,7 @@ class HistoryInputViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    fun getAccount(primary: Boolean = true): AccountModel? {
+    fun getAccount(primary: Boolean = true): Account? {
         return if (primary) {
             _primaryAccountState.value
         }
@@ -127,11 +122,11 @@ class HistoryInputViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    fun setGroup(group: GroupModel?) {
+    fun setGroup(group: Group?) {
         _groupState.tryEmit(group)
     }
 
-    fun getGroup(): GroupModel? {
+    fun getGroup(): Group? {
         return _groupState.value
     }
 }

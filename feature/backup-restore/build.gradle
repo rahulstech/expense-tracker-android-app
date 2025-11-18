@@ -1,11 +1,12 @@
 plugins {
-    id 'com.android.library'
-    id 'org.jetbrains.kotlin.android'
+    alias(libs.plugins.library)
+    alias(libs.plugins.kotlin)
 }
 
 android {
     namespace 'rahulstech.android.expensetracker.backuprestore'
-    compileSdk 34
+    //noinspection GradleDependency
+    compileSdk 35
 
     defaultConfig {
         minSdk 26
@@ -25,42 +26,44 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '17'
     }
 }
 
 dependencies {
 
-    implementation project(':core')
-
-    implementation 'androidx.core:core-ktx:1.13.0'
-    implementation 'androidx.appcompat:appcompat:1.7.0'
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.0"
-    implementation 'com.google.android.material:material:1.12.0'
-    implementation 'androidx.activity:activity:1.9.0'
-
-    // test
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
-    androidTestImplementation "androidx.test:runner:1.6.2"
-    androidTestImplementation "androidx.test:rules:1.6.1"
-
     // modules
+    implementation project(':core')
     implementation project(":database")
     implementation project(':app-settings')
 
+    // architecture
+    implementation libs.core.ktx
+    implementation libs.appcompat
+    implementation libs.viewmodel
+    implementation libs.activity
+
     // work manager
-    def vWork = '2.9.1'
-    implementation "androidx.work:work-runtime-ktx:$vWork"
-    androidTestImplementation "androidx.work:work-testing:$vWork"
+    implementation libs.workmanager.runtime
+    implementation libs.documentfile
+    androidTestImplementation libs.workmanager.test
+
+    // ui
+    implementation libs.material
 
     // gson
-    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation libs.gson
 
     // gzip
-    implementation 'org.apache.commons:commons-compress:1.27.1'
+    implementation libs.apachec.compress
+
+    // test
+    testImplementation libs.junit
+    androidTestImplementation libs.junit.android
+    androidTestImplementation libs.android.runnner
+    androidTestImplementation libs.android.rules
 }

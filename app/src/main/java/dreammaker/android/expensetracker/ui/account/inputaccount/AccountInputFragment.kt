@@ -10,15 +10,16 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
-import dreammaker.android.expensetracker.R
-import dreammaker.android.expensetracker.database.AccountModel
-import dreammaker.android.expensetracker.databinding.InputAccountBinding
 import dreammaker.android.expensetracker.Constants
+import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.core.util.QuickMessages
+import dreammaker.android.expensetracker.databinding.InputAccountBinding
 import dreammaker.android.expensetracker.util.UIState
+import dreammaker.android.expensetracker.util.getArgId
 import dreammaker.android.expensetracker.util.hasArgument
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import rahulstech.android.expensetracker.domain.model.Account
 
 class AccountInputFragment : Fragment() {
 
@@ -76,14 +77,14 @@ class AccountInputFragment : Fragment() {
         }
     }
 
-    private fun onAccountLoaded(account: AccountModel?) {
+    private fun onAccountLoaded(account: Account?) {
         if (null == account) {
             Toast.makeText(requireContext(), R.string.message_account_not_found, Toast.LENGTH_LONG).show()
             navController.popBackStack()
         }
         else {
             binding.name.setText(account.name)
-            binding.balance.setText(account.balance!!.toString())
+            binding.balance.setText(account.balance.toString())
             viewModel.accountLiveData.removeObservers(viewLifecycleOwner)
         }
     }
@@ -104,34 +105,33 @@ class AccountInputFragment : Fragment() {
         navController.popBackStack()
     }
 
-    private fun validateInput(account: AccountModel): Boolean {
+    private fun validateInput(account: Account): Boolean {
         var hasError = false
         binding.nameInputLayout.error = null
         binding.balanceInputLayout.error = null
-        if (account.name.isNullOrBlank()) {
+        if (account.name.isBlank()) {
             binding.nameInputLayout.error = getString(R.string.error_empty_account_name_input)
             hasError = true
         }
-        if (null == account.balance){
-            binding.balanceInputLayout.error = getString(R.string.error_invalid_balance_input)
-            hasError = true
-        }
+//        if (null == account.balance){
+//            binding.balanceInputLayout.error = getString(R.string.error_invalid_balance_input)
+//            hasError = true
+//        }
         return hasError
     }
 
-    private fun getInputAccount(): AccountModel {
+    private fun getInputAccount(): Account {
         val name = binding.name.text.toString()
         val balanceText = binding.balance.text.toString()
-        var balance = 0f
-        if (balanceText.isNotBlank()) {
-            balance = balanceText.toFloat()
+        val balance = when (balanceText.isNotBlank()) {
+            true -> balanceText.toFloat()
+            else -> 0f
         }
-        return if (isActionEdit()) {
-            viewModel.getStoredAccount()!!.copy(name=name, balance=balance)
+        val id = when(isActionEdit()) {
+            true -> getArgId()
+            else -> 0L
         }
-        else {
-            AccountModel(null,name, balance)
-        }
+        return Account(name,balance,id)
     }
 
     override fun onDestroyView() {

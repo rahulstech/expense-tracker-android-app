@@ -1,12 +1,9 @@
 package dreammaker.android.expensetracker.ui.group.viewgroup
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dreammaker.android.expensetracker.database.ExpensesDatabase
-import dreammaker.android.expensetracker.database.GroupDao
-import dreammaker.android.expensetracker.database.GroupModel
 import dreammaker.android.expensetracker.util.UIState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
@@ -16,28 +13,27 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+import rahulstech.android.expensetracker.domain.ExpenseRepository
+import rahulstech.android.expensetracker.domain.model.Group
 
-class ViewGroupViewModel(app: Application): AndroidViewModel(app) {
+class ViewGroupViewModel (
+    app: Application
+): ViewModel() {
 
-    private val groupDao: GroupDao
+    private val groupRepo = ExpenseRepository.getInstance(app).groupRepository
 
-    init {
-        val db = ExpensesDatabase.getInstance(app)
-        groupDao = db.groupDao
-    }
+    private lateinit var groupLiveData: LiveData<Group?>
 
-    private lateinit var groupLiveData: LiveData<GroupModel?>
-
-    fun getStoredGroup(): GroupModel? {
+    fun getStoredGroup(): Group? {
         if (!::groupLiveData.isInitialized) {
             return null
         }
         return groupLiveData.value
     }
 
-    fun findGroupById(id: Long): LiveData<GroupModel?> {
+    fun findGroupById(id: Long): LiveData<Group?> {
         if (!::groupLiveData.isInitialized) {
-            groupLiveData = groupDao.findGroupById(id)
+            groupLiveData = groupRepo.getLiveGroupById(id)
         }
         return groupLiveData
     }
@@ -49,11 +45,12 @@ class ViewGroupViewModel(app: Application): AndroidViewModel(app) {
     )
     val deleteGroupState: Flow<UIState> get() = _deleteGroupState.asSharedFlow()
 
-    fun removeGroup(group: GroupModel) {
-        _deleteGroupState.tryEmit(UIState.UILoading())
+    fun removeGroup(group: Group) {
+
         viewModelScope.launch(Dispatchers.IO) {
             flow {
-                groupDao.deleteGroup(group.toGroup())
+                _deleteGroupState.tryEmit(UIState.UILoading())
+                groupRepo.deleteGroup(group.id)
                 emit(group)
             }
                 .catch { error -> _deleteGroupState.tryEmit(UIState.UIError(error,group)) }

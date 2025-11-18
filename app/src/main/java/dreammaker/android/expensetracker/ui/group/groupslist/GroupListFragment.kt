@@ -23,12 +23,11 @@ import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.selection.StorageStrategy
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import dreammaker.android.expensetracker.Constants
 import dreammaker.android.expensetracker.R
-import dreammaker.android.expensetracker.database.GroupModel
+import dreammaker.android.expensetracker.core.util.QuickMessages
 import dreammaker.android.expensetracker.databinding.GroupsListBinding
 import dreammaker.android.expensetracker.ui.main.ContextualActionBarViewModel
-import dreammaker.android.expensetracker.Constants
-import dreammaker.android.expensetracker.core.util.QuickMessages
 import dreammaker.android.expensetracker.util.SelectionHelper
 import dreammaker.android.expensetracker.util.UIState
 import dreammaker.android.expensetracker.util.visibilityGone
@@ -36,6 +35,8 @@ import dreammaker.android.expensetracker.util.visible
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
+import rahulstech.android.expensetracker.domain.model.Group
+
 
 class GroupSelectionKeyProvider(private val adapter: GroupsListAdapter): ItemKeyProvider<Long>(SCOPE_CACHED) {
     override fun getKey(position: Int): Long? = adapter.getSelectionKey(position)
@@ -168,7 +169,7 @@ class GroupListFragment : Fragment() {
         ))
     }
 
-    private fun onGroupsLoaded(groups: List<GroupModel>) {
+    private fun onGroupsLoaded(groups: List<Group>) {
         adapter.submitList(groups)
         if (groups.isEmpty()) {
             binding.list.visibilityGone()
@@ -180,9 +181,9 @@ class GroupListFragment : Fragment() {
         }
     }
 
-    private fun handleClickGroup(group: GroupModel) {
+    private fun handleClickGroup(group: Group) {
         navController.navigate(R.id.action_groups_list_to_view_group, Bundle().apply {
-            putLong(Constants.ARG_ID,group.id!!)
+            putLong(Constants.ARG_ID,group.id)
         })
     }
 

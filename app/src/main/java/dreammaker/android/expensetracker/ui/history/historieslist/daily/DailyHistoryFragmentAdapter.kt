@@ -4,29 +4,32 @@ import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
-import dreammaker.android.expensetracker.database.Date
 import dreammaker.android.expensetracker.ui.history.historieslist.ViewHistoryPageAdapter
 import dreammaker.android.expensetracker.util.putDate
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 
 class DailyHistoryFragmentAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle)
-    : ViewHistoryPageAdapter<Date>(fragmentManager,lifecycle) {
+    : ViewHistoryPageAdapter<LocalDate>(fragmentManager,lifecycle) {
 
     companion object {
         private val TAG = DailyHistoryFragmentAdapter::class.simpleName
-        private const val DATE_FORMAT = "EEE, dd-MMM-yyyy"
+        private val DATE_FORMAT = DateTimeFormatter.ofPattern("EEE, dd-MMM-yyyy")
     }
 
     override fun getItemCount(): Int = 10000
 
-    override fun getPresentData(): Date = Date()
+    override fun getPresentData(): LocalDate = LocalDate.now()
 
-    override fun plusDelta(data: Date, delta: Int): Date = data.plusDays(delta)
+    override fun plusDelta(data: LocalDate, delta: Int): LocalDate = data.plusDays(delta.toLong())
 
-    override fun calculateDifference(from: Date, to: Date): Int = Date.durationDays(from, to)
+    override fun calculateDifference(from: LocalDate, to: LocalDate): Int =
+        ChronoUnit.DAYS.between(from,to.plusDays(1)).toInt()
 
-    override fun getDataLabel(data: Date): CharSequence = data.format(DATE_FORMAT)
+    override fun getDataLabel(data: LocalDate): CharSequence = data.format(DATE_FORMAT)
 
-    override fun onCreateFragment(position: Int, data: Date, arguments: Bundle?): Fragment {
+    override fun onCreateFragment(position: Int, data: LocalDate, arguments: Bundle?): Fragment {
         val fragment = ViewDayHistoryFragment()
         fragment.arguments = Bundle().apply {
             putDate(ViewDayHistoryFragment.ARG_DATE, data)

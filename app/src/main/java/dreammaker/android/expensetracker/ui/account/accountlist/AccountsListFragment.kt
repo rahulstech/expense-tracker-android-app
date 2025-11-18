@@ -22,12 +22,11 @@ import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.selection.StorageStrategy
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import dreammaker.android.expensetracker.Constants
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.core.util.QuickMessages
-import dreammaker.android.expensetracker.database.AccountModel
 import dreammaker.android.expensetracker.databinding.AccountsListBinding
 import dreammaker.android.expensetracker.ui.main.ContextualActionBarViewModel
-import dreammaker.android.expensetracker.Constants
 import dreammaker.android.expensetracker.util.SelectionHelper
 import dreammaker.android.expensetracker.util.UIState
 import dreammaker.android.expensetracker.util.visibilityGone
@@ -35,7 +34,7 @@ import dreammaker.android.expensetracker.util.visible
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
-
+import rahulstech.android.expensetracker.domain.model.Account
 
 class AccountSelectionKeyProvider(val adapter: AccountsAdapter): ItemKeyProvider<Long>(SCOPE_CACHED) {
     override fun getKey(position: Int): Long? = adapter.getSelectionKey(position)
@@ -123,7 +122,7 @@ class AccountsListFragment : Fragment() {
         viewModel.getAllAccounts().observe(viewLifecycleOwner, this::onAccountsLoaded)
 
         selectionHelper = SelectionHelper(adapter) {
-            SelectionTracker.Builder<Long>(
+            SelectionTracker.Builder(
                 "multipleAccountSelection",
                 binding.list,
                 AccountSelectionKeyProvider(adapter),
@@ -131,6 +130,12 @@ class AccountsListFragment : Fragment() {
                 StorageStrategy.createLongStorage()
             )
         }
+
+//        selectionHelper.apply {
+//            bindViewModelStore(this@AccountsListFragment)
+//            bindLifecycle(viewLifecycleOwner)
+//            prepareContextualActionBar(requireActivity(), cabMenuProvider)
+//        }
 
         adapter.itemLongClickListener = { _,_,position ->
             selectionHelper.startSelection(SelectionPredicates.createSelectAnything()) { tracker ->
@@ -180,7 +185,7 @@ class AccountsListFragment : Fragment() {
         cabVm.endContextActionBar()
     }
 
-    private fun onAccountsLoaded(accounts: List<AccountModel>) {
+    private fun onAccountsLoaded(accounts: List<Account>) {
         adapter.submitList(accounts)
         if (accounts.isEmpty()) {
             binding.list.visibilityGone()
@@ -192,9 +197,9 @@ class AccountsListFragment : Fragment() {
         }
     }
 
-    private fun handleAccountClick(account: AccountModel) {
+    private fun handleAccountClick(account: Account) {
         val args = Bundle().apply {
-            putLong(Constants.ARG_ID, account.id!!)
+            putLong(Constants.ARG_ID, account.id)
         }
         navController.navigate(R.id.action_account_list_to_view_account, args)
     }

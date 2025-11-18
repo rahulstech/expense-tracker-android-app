@@ -13,11 +13,11 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import dreammaker.android.expensetracker.Constants
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.databinding.ViewHistoryBinding
-import dreammaker.android.expensetracker.util.AccountModelParcel
-import dreammaker.android.expensetracker.Constants
-import dreammaker.android.expensetracker.util.GroupModelParcel
+import dreammaker.android.expensetracker.util.AccountParcel
+import dreammaker.android.expensetracker.util.GroupParcel
 
 abstract class ViewHistoryPageAdapter<T>(fragmentManager: FragmentManager, lifecycle: Lifecycle)
     : FragmentStateAdapter(fragmentManager, lifecycle) {
@@ -135,8 +135,8 @@ abstract class BaseViewHistoryFragment<T>: Fragment() {
         val args = Bundle().apply {
             putString(Constants.ARG_ACTION, Constants.ACTION_CREATE)
             when (entity) {
-                is AccountModelParcel -> putParcelable(Constants.ARG_ACCOUNT, entity)
-                is GroupModelParcel -> putParcelable(Constants.ARG_GROUP, entity)
+                is AccountParcel -> putParcelable(Constants.ARG_ACCOUNT, entity)
+                is GroupParcel -> putParcelable(Constants.ARG_GROUP, entity)
             }
         }
         onPutCreateHistoryArgument(args)

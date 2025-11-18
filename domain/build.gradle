@@ -1,11 +1,12 @@
 plugins {
-    id 'com.android.library'
-    id 'org.jetbrains.kotlin.android'
+    alias(libs.plugins.library)
+    alias(libs.plugins.kotlin)
 }
 
 android {
     namespace 'rahulstech.android.expensetracker.domain'
-    compileSdk 34
+    //noinspection GradleDependency
+    compileSdk 35
 
     defaultConfig {
         minSdk 26
@@ -21,22 +22,28 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = '11'
+        jvmTarget = '17'
     }
 }
 
 dependencies {
 
+    // modules
     implementation project(':database')
-    implementation 'androidx.core:core-ktx:1.17.0'
-    implementation 'androidx.appcompat:appcompat:1.7.1'
 
-    implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.9.0"
+    // architecture
+    implementation libs.core.ktx
+    implementation libs.appcompat
+    compileOnly libs.livedata
 
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.3.0'
+    // room
+    compileOnly libs.room.runtime
+
+    testImplementation libs.junit
+    androidTestImplementation libs.junit.android
+    androidTestImplementation libs.android.runnner
 }

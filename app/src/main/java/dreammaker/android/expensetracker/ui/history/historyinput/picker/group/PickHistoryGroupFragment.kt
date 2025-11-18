@@ -17,12 +17,12 @@ import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.selection.StorageStrategy
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import dreammaker.android.expensetracker.database.GroupModel
 import dreammaker.android.expensetracker.databinding.SingleGroupPickerListWithSearchLayoutBinding
 import dreammaker.android.expensetracker.ui.history.historyinput.HistoryInputViewModel
 import dreammaker.android.expensetracker.util.SelectionHelper
 import dreammaker.android.expensetracker.util.visibilityGone
 import dreammaker.android.expensetracker.util.visible
+import rahulstech.android.expensetracker.domain.model.Group
 
 class GroupPickerSelectionKeyProvider(private val adapter: GroupPickerListAdapter): ItemKeyProvider<Long>(SCOPE_CACHED) {
     override fun getKey(position: Int): Long? = adapter.getSelectionKey(position)
@@ -87,7 +87,7 @@ class PickHistoryGroupFragment : Fragment() {
         return historyViewModel.getGroup()?.id
     }
 
-    private fun onGroupsLoaded(accounts: List<GroupModel>) {
+    private fun onGroupsLoaded(accounts: List<Group>) {
         adapter.submitList(accounts)
         if (accounts.isEmpty()) {
             binding.emptyPlaceholder.visibilityGone()
@@ -105,7 +105,7 @@ class PickHistoryGroupFragment : Fragment() {
         navController.popBackStack()
     }
 
-    private fun getSelectedGroup(): GroupModel? {
+    private fun getSelectedGroup(): Group? {
         if (selectionHelper.count()==0) return null
         val key = selectionHelper.getSelections()[0]
         return viewModel.getAllGroups().value?.find { it.id == key }

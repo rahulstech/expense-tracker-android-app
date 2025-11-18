@@ -254,36 +254,36 @@ class JsonRestoreWorker(context: Context, parameters: WorkerParameters): Worker(
 
         override fun open() {
             // open expense db connection
-            _expenseDB = ExpensesDatabase.getInstance(applicationContext)
+//            _expenseDB = ExpensesDatabase.getInstance(applicationContext)
         }
 
         override fun close() {
             // close expense db connection
-            _expenseDB?.close()
-            _expenseDB = null
+//            _expenseDB?.close()
+//            _expenseDB = null
         }
 
         override fun writeAccounts(accounts: List<AccountData>) {
-            val dao = expenseDB.accountDao
-            val dbAccounts = accounts.map { account -> account.toAccountModel().toAccount() }
-            dao.insertAccounts(dbAccounts)
+//            val dao = expenseDB.accountDao
+//            val dbAccounts = accounts.map { account -> account.toAccountModel().toAccount() }
+//            dao.insertAccounts(dbAccounts)
         }
 
         override fun writeGroups(groups: List<GroupData>) {
-            val dao = expenseDB.groupDao
-            val dbGroups = groups.map { group -> group.toGroupModel().toGroup() }
-            dao.insertGroups(dbGroups)
+//            val dao = expenseDB.groupDao
+//            val dbGroups = groups.map { group -> group.toGroupModel().toGroup() }
+//            dao.insertGroups(dbGroups)
         }
 
         override fun writeHistories(histories: List<HistoryData>) {
-            val dao = expenseDB.historyDao
-            val dbHistories = histories.map { history -> history.toHistoryModel().toHistory() }
-            dao.insertHistories(dbHistories)
+//            val dao = expenseDB.historyDao
+//            val dbHistories = histories.map { history -> history.toHistoryModel().toHistory() }
+//            dao.insertHistories(dbHistories)
         }
 
         override fun writeAppSettings(settings: AppSettingsData) {
-            val model = settings.toSettingsModel()
-            SettingsProvider.get(applicationContext).restore(model)
+//            val model = settings.toSettingsModel()
+//            SettingsProvider.get(applicationContext).restore(model)
         }
     }
 }

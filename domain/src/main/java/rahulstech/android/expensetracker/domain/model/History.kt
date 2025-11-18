@@ -6,7 +6,7 @@ import dreammaker.android.expensetracker.database.model.HistoryType
 import java.time.LocalDate
 
 sealed class History(
-    open val id: Long,
+    open var id: Long,
     open val date: LocalDate,
     open val type: HistoryType,
     open val amount: Float,
@@ -22,7 +22,7 @@ sealed class History(
         HistoryEntity(id,type,primaryAccountId,secondaryAccountId,groupId,amount,date,note)
 
     data class CreditHistory(
-        override val id: Long,
+        override var id: Long,
         override val date: LocalDate,
         override val amount: Float,
         override val primaryAccountId: Long,
@@ -33,7 +33,7 @@ sealed class History(
     ): History(id,date,HistoryType.CREDIT,amount,primaryAccountId,null,groupId,note,primaryAccount,null,group)
 
     data class DebitHistory(
-        override val id: Long,
+        override var id: Long,
         override val date: LocalDate,
         override val amount: Float,
         override val primaryAccountId: Long,
@@ -44,7 +44,7 @@ sealed class History(
     ): History(id,date,HistoryType.DEBIT,amount,primaryAccountId,null,groupId,note,primaryAccount,null,group)
 
     data class TransferHistory(
-        override val id: Long,
+        override var id: Long,
         override val date: LocalDate,
         override val amount: Float,
         override val primaryAccountId: Long,
@@ -54,6 +54,19 @@ sealed class History(
         override val secondaryAccount: Account? = null,
     ): History(id,date,HistoryType.DEBIT,amount,primaryAccountId,secondaryAccountId,null,note,primaryAccount,secondaryAccount,null)
 }
+
+fun HistoryEntity.toHistory(): History =
+    when(type) {
+        HistoryType.CREDIT -> {
+            History.CreditHistory(id,date, amount,primaryAccountId!!,groupId,note)
+        }
+        HistoryType.DEBIT -> {
+            History.DebitHistory(id,date,amount,primaryAccountId!!,groupId,note)
+        }
+        HistoryType.TRANSFER -> {
+            History.TransferHistory(id,date,amount,primaryAccountId!!,secondaryAccountId!!,note)
+        }
+    }
 
 fun HistoryDetails.toHistory(): History =
     when(history.type) {

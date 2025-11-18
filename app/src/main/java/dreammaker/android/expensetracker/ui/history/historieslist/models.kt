@@ -7,45 +7,43 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.text.buildSpannedString
 import androidx.core.text.color
 import dreammaker.android.expensetracker.R
-import dreammaker.android.expensetracker.database.HistoryModel
-import dreammaker.android.expensetracker.database.HistoryType
 import dreammaker.android.expensetracker.util.toCurrencyString
 import java.util.Locale
 
 class HistoryFilterData {
 
-    private var _types: Array<HistoryType>? = null
-
-    fun setTypes(types: Array<HistoryType>) {
-        _types = types
-    }
-
-    fun match(history: HistoryModel): Boolean {
-        val hasType = _types?.let { types -> history.type in types } ?: true
-        return hasType
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as HistoryFilterData
-
-        if (_types != null) {
-            if (other._types == null) return false
-            if (!_types.contentEquals(other._types)) return false
-        } else if (other._types != null) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        return _types?.contentHashCode() ?: 0
-    }
-
-    override fun toString(): String {
-        return "HistoryFilterData(_types=${_types?.contentToString()})"
-    }
+//    private var _types: Array<HistoryType>? = null
+//
+//    fun setTypes(types: Array<HistoryType>) {
+//        _types = types
+//    }
+//
+//    fun match(history: HistoryModel): Boolean {
+//        val hasType = _types?.let { types -> history.type in types } ?: true
+//        return hasType
+//    }
+//
+//    override fun equals(other: Any?): Boolean {
+//        if (this === other) return true
+//        if (javaClass != other?.javaClass) return false
+//
+//        other as HistoryFilterData
+//
+//        if (_types != null) {
+//            if (other._types == null) return false
+//            if (!_types.contentEquals(other._types)) return false
+//        } else if (other._types != null) return false
+//
+//        return true
+//    }
+//
+//    override fun hashCode(): Int {
+//        return _types?.contentHashCode() ?: 0
+//    }
+//
+//    override fun toString(): String {
+//        return "HistoryFilterData(_types=${_types?.contentToString()})"
+//    }
 }
 
 data class HistorySummary(

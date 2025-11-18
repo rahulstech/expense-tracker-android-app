@@ -1,27 +1,22 @@
 package dreammaker.android.expensetracker.ui.history.historyinput.picker.group
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import dreammaker.android.expensetracker.database.ExpensesDatabase
-import dreammaker.android.expensetracker.database.GroupDao
-import dreammaker.android.expensetracker.database.GroupModel
+import androidx.lifecycle.ViewModel
+import rahulstech.android.expensetracker.domain.ExpenseRepository
+import rahulstech.android.expensetracker.domain.model.Group
 
+class GroupPickerViewModel(
+    app: Application
+): ViewModel() {
 
-class GroupPickerViewModel(app: Application): AndroidViewModel(app) {
+    private val groupRepo = ExpenseRepository.getInstance(app).groupRepository
 
-    private val groupDao: GroupDao
+    private lateinit var allGroups: LiveData<List<Group>>
 
-    init {
-        val db = ExpensesDatabase.getInstance(app)
-        groupDao = db.groupDao
-    }
-
-    private lateinit var allGroups: LiveData<List<GroupModel>>
-
-    fun getAllGroups(): LiveData<List<GroupModel>> {
+    fun getAllGroups(): LiveData<List<Group>> {
         if (!::allGroups.isInitialized) {
-            allGroups = groupDao.getAllGroups()
+            allGroups = groupRepo.getLiveAllGroups()
         }
         return allGroups
     }

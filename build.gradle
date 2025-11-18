@@ -6,22 +6,16 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.6.1'
+        classpath 'com.android.tools.build:gradle:8.9.2'
         // compileSdk required android gradle plugin 8.1.0 or above with gradle 8.0 or above
-        classpath 'androidx.navigation:navigation-safe-args-gradle-plugin:2.8.9'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.24"
-        // navigation safe arg gradle plugin 2.5.3 is
+        // classpath 'androidx.navigation:navigation-safe-args-gradle-plugin:2.8.9'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.0"
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
 }
 
 allprojects {
-    repositories {
-        google()
-        mavenCentral()
-        maven { url 'https://jitpack.io' }
-    }
 }
 
 tasks.register('clean', Delete) {

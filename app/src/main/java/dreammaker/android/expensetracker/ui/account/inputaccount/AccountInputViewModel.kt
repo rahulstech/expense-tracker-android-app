@@ -1,12 +1,9 @@
 package dreammaker.android.expensetracker.ui.account.inputaccount
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dreammaker.android.expensetracker.database.AccountDao
-import dreammaker.android.expensetracker.database.AccountModel
-import dreammaker.android.expensetracker.database.ExpensesDatabase
 import dreammaker.android.expensetracker.util.UIState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
@@ -16,28 +13,27 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+import rahulstech.android.expensetracker.domain.ExpenseRepository
+import rahulstech.android.expensetracker.domain.model.Account
 
-class AccountInputViewModel(app: Application): AndroidViewModel(app) {
+class AccountInputViewModel(
+    app: Application
+): ViewModel() {
 
-    private val accountDao: AccountDao
+    private val accountRepo = ExpenseRepository.getInstance(app).accountRepository
 
-    init {
-        val db = ExpensesDatabase.getInstance(app)
-        accountDao = db.accountDao
-    }
+    lateinit var accountLiveData: LiveData<Account?>
 
-    lateinit var accountLiveData: LiveData<AccountModel?>
-
-    fun getStoredAccount(): AccountModel? {
+    fun getStoredAccount(): Account? {
         if (!::accountLiveData.isInitialized) {
             return null
         }
         return accountLiveData.value
     }
 
-    fun findAccountById(id: Long): LiveData<AccountModel?> {
+    fun findAccountById(id: Long): LiveData<Account?> {
         if (!::accountLiveData.isInitialized) {
-            accountLiveData = accountDao.findAccountById(id)
+            accountLiveData = accountRepo.getLiveAccountById(id)
         }
         return accountLiveData
     }
@@ -49,12 +45,12 @@ class AccountInputViewModel(app: Application): AndroidViewModel(app) {
     )
     val saveAccountState: Flow<UIState?> get() = _saveAccountState.asSharedFlow()
 
-    fun addAccount(account: AccountModel) {
-        _saveAccountState.tryEmit(UIState.UILoading())
+    fun addAccount(account: Account) {
         viewModelScope.launch(Dispatchers.IO) {
             flow {
-                val id = accountDao.insertAccount(account.toAccount())
-                emit(UIState.UISuccess(account.copy(id=id)))
+                _saveAccountState.tryEmit(UIState.UILoading())
+                val savedAccount = accountRepo.insertAccount(account)
+                emit(UIState.UISuccess(savedAccount))
             }
                 .catch { error -> _saveAccountState.tryEmit(UIState.UIError(error,account)) }
                 .collect {
@@ -63,11 +59,11 @@ class AccountInputViewModel(app: Application): AndroidViewModel(app) {
         }
     }
 
-    fun setAccount(account: AccountModel) {
+    fun setAccount(account: Account) {
         _saveAccountState.tryEmit(UIState.UILoading())
         viewModelScope.launch(Dispatchers.IO) {
             flow {
-                accountDao.updateAccount(account.toAccount())
+                accountRepo.updateAccount(account)
                 emit(account)
             }
                 .catch { error -> _saveAccountState.tryEmit(UIState.UIError(error)) }

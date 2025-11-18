@@ -10,15 +10,16 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
-import dreammaker.android.expensetracker.R
-import dreammaker.android.expensetracker.database.GroupModel
-import dreammaker.android.expensetracker.databinding.InputGroupBinding
 import dreammaker.android.expensetracker.Constants
+import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.core.util.QuickMessages
+import dreammaker.android.expensetracker.databinding.InputGroupBinding
 import dreammaker.android.expensetracker.util.UIState
+import dreammaker.android.expensetracker.util.getArgId
 import dreammaker.android.expensetracker.util.hasArgument
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import rahulstech.android.expensetracker.domain.model.Group
 
 class GroupInputFragment : Fragment() {
 
@@ -72,14 +73,14 @@ class GroupInputFragment : Fragment() {
         }
     }
 
-    private fun onGroupLoaded(group: GroupModel?) {
+    private fun onGroupLoaded(group: Group?) {
         if (null == group) {
             Toast.makeText(requireContext(), R.string.message_group_not_found, Toast.LENGTH_LONG).show()
             navController.popBackStack()
         }
         else {
             binding.name.setText(group.name)
-            binding.balance.setText(group.balance.toString())
+            binding.due.setText(group.due.toString())
             viewModel.groupsLiveData.removeObservers(viewLifecycleOwner)
         }
     }
@@ -104,34 +105,29 @@ class GroupInputFragment : Fragment() {
         navController.popBackStack()
     }
 
-    private fun validateInput(group: GroupModel): Boolean {
+    private fun validateInput(group: Group): Boolean {
         binding.nameInput.error = null
         binding.balanceInput.error = null
         var hasError = false
-        if (group.name.isNullOrBlank()) {
+        if (group.name.isBlank()) {
             hasError = true
             binding.nameInput.error = getString(R.string.error_empty_group_name)
-        }
-        if (null == group.balance) {
-            hasError = true
-            binding.balanceInput.error = getString(R.string.error_invalid_group_balance_input)
         }
         return hasError
     }
 
-    private fun getInputGroup(): GroupModel {
+    private fun getInputGroup(): Group {
+        val id = when(isActionEdit()) {
+            true -> getArgId()
+            else -> 0L
+        }
         val name = binding.name.text.toString()
-        val balanceText = binding.balance.text.toString()
-        var balance = 0f
-        if (balanceText.isNotBlank()) {
-            balance = balanceText.toFloat()
+        val balanceText = binding.due.text.toString()
+        val balance = when(balanceText.isNotBlank()) {
+            true -> balanceText.toFloat()
+            else -> 0f
         }
-        return if (isActionEdit()) {
-            viewModel.getStoredGroup()!!.copy(name=name, balance=balance)
-        }
-        else {
-            GroupModel(null,name,balance)
-        }
+        return Group(name,balance,id)
     }
 
     override fun onDestroyView() {

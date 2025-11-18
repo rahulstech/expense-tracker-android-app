@@ -1,27 +1,22 @@
 package dreammaker.android.expensetracker.ui.history.historyinput.picker.account
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import dreammaker.android.expensetracker.database.AccountDao
-import dreammaker.android.expensetracker.database.AccountModel
-import dreammaker.android.expensetracker.database.ExpensesDatabase
+import androidx.lifecycle.ViewModel
+import rahulstech.android.expensetracker.domain.ExpenseRepository
+import rahulstech.android.expensetracker.domain.model.Account
 
+class AccountPickerViewModel(
+    app: Application
+): ViewModel() {
 
-class AccountPickerViewModel(app: Application): AndroidViewModel(app) {
+    private val accountRepo = ExpenseRepository.getInstance(app).accountRepository
 
-    private val accountDao: AccountDao
+    private lateinit var allAccount: LiveData<List<Account>>
 
-    init {
-        val db = ExpensesDatabase.getInstance(app)
-        accountDao = db.accountDao
-    }
-
-    private lateinit var allAccount: LiveData<List<AccountModel>>
-
-    fun getAllAccounts(): LiveData<List<AccountModel>> {
+    fun getAllAccounts(): LiveData<List<Account>> {
         if (!::allAccount.isInitialized) {
-            allAccount = accountDao.getAllAccounts()
+            allAccount = accountRepo.getLiveAllAccounts()
         }
         return allAccount
     }

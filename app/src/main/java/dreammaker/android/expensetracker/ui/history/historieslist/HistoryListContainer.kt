@@ -21,8 +21,8 @@ import dreammaker.android.expensetracker.settings.SettingsProvider
 import dreammaker.android.expensetracker.settings.ViewHistory
 import dreammaker.android.expensetracker.ui.history.historieslist.daily.DailyViewHistoryFragment
 import dreammaker.android.expensetracker.ui.history.historieslist.monthly.MonthlyViewHistoryFragment
-import dreammaker.android.expensetracker.util.AccountModelParcel
-import dreammaker.android.expensetracker.util.GroupModelParcel
+import dreammaker.android.expensetracker.util.AccountParcel
+import dreammaker.android.expensetracker.util.GroupParcel
 import dreammaker.android.expensetracker.util.setActivitySubTitle
 
 class HistoryListContainer: Fragment(), MenuProvider {
@@ -96,8 +96,8 @@ class HistoryListContainer: Fragment(), MenuProvider {
         super.onResume()
         showHistoryFor?.let { entity ->
             when(entity) {
-                is AccountModelParcel -> setActivitySubTitle(entity.name)
-                is GroupModelParcel -> setActivitySubTitle(entity.name)
+                is AccountParcel -> setActivitySubTitle(entity.name)
+                is GroupParcel -> setActivitySubTitle(entity.name)
             }
         }
     }

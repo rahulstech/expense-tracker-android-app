@@ -1,12 +1,9 @@
 package dreammaker.android.expensetracker.ui.group.groupslist
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dreammaker.android.expensetracker.database.ExpensesDatabase
-import dreammaker.android.expensetracker.database.GroupDao
-import dreammaker.android.expensetracker.database.GroupModel
 import dreammaker.android.expensetracker.util.UIState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
@@ -16,21 +13,20 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+import rahulstech.android.expensetracker.domain.ExpenseRepository
+import rahulstech.android.expensetracker.domain.model.Group
 
-class GroupListViewModel(app: Application): AndroidViewModel(app) {
+class GroupListViewModel(
+    app: Application
+): ViewModel() {
 
-    private val groupDao: GroupDao
+    private val groupRepo = ExpenseRepository.getInstance(app).groupRepository
 
-    init {
-        val db = ExpensesDatabase.getInstance(app)
-        groupDao = db.groupDao
-    }
+    private lateinit var groups: LiveData<List<Group>>
 
-    private lateinit var groups: LiveData<List<GroupModel>>
-
-    fun getAllGroups(): LiveData<List<GroupModel>> {
+    fun getAllGroups(): LiveData<List<Group>> {
         if (!::groups.isInitialized) {
-            groups = groupDao.getAllGroups()
+            groups = groupRepo.getLiveAllGroups()
         }
         return groups
     }
@@ -44,10 +40,10 @@ class GroupListViewModel(app: Application): AndroidViewModel(app) {
 
 
     fun deleteGroups(ids: List<Long>) {
-        _deleteGroupsState.tryEmit(UIState.UILoading())
         viewModelScope.launch(Dispatchers.IO) {
             flow {
-                groupDao.deleteMultipleGroups(ids)
+                _deleteGroupsState.tryEmit(UIState.UILoading())
+                groupRepo.deleteMultipleGroups(ids)
                 emit(null)
             }
                 .catch { error -> _deleteGroupsState.tryEmit(UIState.UIError(error)) }

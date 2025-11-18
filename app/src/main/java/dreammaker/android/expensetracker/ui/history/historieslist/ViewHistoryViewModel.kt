@@ -2,17 +2,13 @@ package dreammaker.android.expensetracker.ui.history.historieslist
 
 import android.app.Application
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dreammaker.android.expensetracker.database.Date
-import dreammaker.android.expensetracker.database.ExpensesDatabase
-import dreammaker.android.expensetracker.database.HistoryDao
-import dreammaker.android.expensetracker.database.HistoryModel
-import dreammaker.android.expensetracker.database.HistoryType
-import dreammaker.android.expensetracker.util.MonthYear
+import dreammaker.android.expensetracker.core.util.toFirstDate
+import dreammaker.android.expensetracker.core.util.toLastDate
 import dreammaker.android.expensetracker.util.UIState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -24,20 +20,30 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+import rahulstech.android.expensetracker.domain.ExpenseRepository
+import rahulstech.android.expensetracker.domain.HistoryRepository
+import rahulstech.android.expensetracker.domain.model.History
+import java.time.LocalDate
+import java.time.YearMonth
 
-class ViewHistoryViewModel(app: Application): AndroidViewModel(app) {
-    private val TAG = ViewHistoryViewModel::class.simpleName
+class ViewHistoryViewModel(
+    app: Application
+): ViewModel() {
 
-    class HistoryLoadParams private constructor(val start: Date, val end: Date){
+    companion object {
+        private val TAG = ViewHistoryViewModel::class.simpleName
+    }
+
+    class HistoryLoadParams private constructor(val start: LocalDate, val end: LocalDate){
 
         private var accountId: Long? = null
 
         private var groupId: Long? = null
 
         companion object {
-            fun forMonthYear(monthYear: MonthYear) = HistoryLoadParams(monthYear.toFirstDate(), monthYear.toLastDate())
+            fun forMonthYear(monthYear: YearMonth) = HistoryLoadParams(monthYear.toFirstDate(), monthYear.toLastDate())
 
-            fun forDate(date: Date) = HistoryLoadParams(date, date)
+            fun forDate(date: LocalDate) = HistoryLoadParams(date, date)
         }
 
         fun ofAccount(id: Long): HistoryLoadParams {
@@ -50,26 +56,24 @@ class ViewHistoryViewModel(app: Application): AndroidViewModel(app) {
             return this
         }
 
-        fun createLiveData(dao: HistoryDao): LiveData<List<HistoryModel>> {
-            return if (null != accountId) {
-                dao.getHistoriesBetweenDatesOnlyForAccount(start,end, accountId!!)
-            } else if (null != groupId) {
-                dao.getHistoriesBetweenDatesOnlyForGroup(start,end, groupId!!)
-            } else {
-                dao.getHistoriesBetweenDates(start,end)
-            }
-        }
+//        fun createLiveData(dao: HistoryDao): LiveData<List<HistoryModel>> {
+//            return if (null != accountId) {
+//                dao.getHistoriesBetweenDatesOnlyForAccount(start,end, accountId!!)
+//            } else if (null != groupId) {
+//                dao.getHistoriesBetweenDatesOnlyForGroup(start,end, groupId!!)
+//            } else {
+//                dao.getHistoriesBetweenDates(start,end)
+//            }
+//        }
+
+        fun createLiveDate(repo: HistoryRepository): LiveData<List<History>> = MutableLiveData(emptyList())
     }
 
-    private val historiesDao: HistoryDao
-    init {
-        val db = ExpensesDatabase.getInstance(app)
-        historiesDao = db.historyDao
-    }
+    private val historyRepo = ExpenseRepository.getInstance(app).historyRepository
 
     private val _uiStateLiveData = MediatorLiveData<UIState>()
     private val _historySummaryLiveData = MediatorLiveData<HistorySummary>()
-    private var _originalHistoryLiveData: LiveData<List<HistoryModel>>? = null
+    private var _originalHistoryLiveData: LiveData<List<History>>? = null
     private val _historyFilterDataLiveData = MutableLiveData<HistoryFilterData>(null)
     private var filterJob: Job? = null
     private var summaryJob: Job? = null
@@ -80,7 +84,7 @@ class ViewHistoryViewModel(app: Application): AndroidViewModel(app) {
 
     fun loadHistories(params: HistoryLoadParams) {
         if (_originalHistoryLiveData == null){
-            val source = params.createLiveData(historiesDao)
+            val source = params.createLiveDate(historyRepo)
             _uiStateLiveData.addSource(source) { handleHistoryLiveDataSourceChanged() }
             _uiStateLiveData.addSource(_historyFilterDataLiveData) { handleHistoryLiveDataSourceChanged() }
             _historySummaryLiveData.addSource(source) { handleHistorySummaryLiveDataSourceChanged() }
@@ -100,7 +104,7 @@ class ViewHistoryViewModel(app: Application): AndroidViewModel(app) {
 
         // if original histories is null or empty then send empty list
         if (histories.isNullOrEmpty()) {
-            _uiStateLiveData.postValue(UIState.UISuccess(emptyList<HistoryModel>()))
+            _uiStateLiveData.postValue(UIState.UISuccess(emptyList<History>()))
             return
         }
 
@@ -117,7 +121,7 @@ class ViewHistoryViewModel(app: Application): AndroidViewModel(app) {
             Log.d(TAG, "filtering histories by filterData $filterData")
 
             // perform actual filter
-            val filteredHistories = filterData.let {  histories.filter{ history -> filterData.match(history) } }
+            val filteredHistories = histories // filterData.let {  histories.filter{ history -> filterData.match(history) } }
 
             // before returning result ensure coroutine is active to avoid posting unuseful histories
             ensureActive()
@@ -143,16 +147,18 @@ class ViewHistoryViewModel(app: Application): AndroidViewModel(app) {
             var totalCredit = 0f
             var totalDebit = 0f
             histories.forEach { history ->
-                val amount = history.amount ?: return@forEach
-                when(history.type) {
-                    HistoryType.CREDIT -> {
+                val amount = history.amount
+
+                when(history) {
+                    is History.CreditHistory -> {
                         totalCredit += amount
                     }
-                    HistoryType.DEBIT -> {
+                    is History.DebitHistory -> {
                         totalDebit += amount
                     }
                     else -> {}
                 }
+
             }
             val summary = HistorySummary(totalCredit,totalDebit)
             _historySummaryLiveData.postValue(summary)
@@ -165,8 +171,7 @@ class ViewHistoryViewModel(app: Application): AndroidViewModel(app) {
         _historyFilterDataLiveData.value = filterData
     }
 
-
-
+    // delete histories
 
     private val _deleteHistoriesState = MutableSharedFlow<UIState>(
         replay = 0,
@@ -176,10 +181,10 @@ class ViewHistoryViewModel(app: Application): AndroidViewModel(app) {
     val deleteHistoriesState: Flow<UIState?> get() = _deleteHistoriesState.asSharedFlow()
 
     fun deleteHistories(ids: List<Long>) {
-        _deleteHistoriesState.tryEmit(UIState.UILoading())
         viewModelScope.launch(Dispatchers.IO) {
             flow {
-                historiesDao.deleteMultipleHistories(ids)
+                _deleteHistoriesState.tryEmit(UIState.UILoading())
+                historyRepo.deleteMultipleHistories(ids)
                 emit(null)
             }
                 .catch { error ->
@@ -190,8 +195,4 @@ class ViewHistoryViewModel(app: Application): AndroidViewModel(app) {
                 }
         }
     }
-
-
-
-
 }

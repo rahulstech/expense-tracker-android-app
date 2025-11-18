@@ -3,45 +3,42 @@ package dreammaker.android.expensetracker.ui.home
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import dreammaker.android.expensetracker.database.AccountDao
-import dreammaker.android.expensetracker.database.AccountModel
-import dreammaker.android.expensetracker.database.ExpensesDatabase
-import dreammaker.android.expensetracker.database.GroupDao
-import dreammaker.android.expensetracker.database.GroupModel
+import rahulstech.android.expensetracker.domain.ExpenseRepository
+import rahulstech.android.expensetracker.domain.model.Account
+import rahulstech.android.expensetracker.domain.model.Group
 
-class HomeViewModel(app: Application): AndroidViewModel(app) {
+class HomeViewModel (
+    app: Application
+): AndroidViewModel(app) {
 
-    private val accountDao: AccountDao
-    private val groupDao: GroupDao
+    private val repos = ExpenseRepository.getInstance(app)
+    private val accountRepo = repos.accountRepository
+    private val groupRepo = repos.groupRepository
 
-    init {
-        val db = ExpensesDatabase.getInstance(app)
-        accountDao = db.accountDao
-        groupDao = db.groupDao
+    private var liveRecentlyUsedAccounts: LiveData<List<Account>>? = null
+
+    fun getRecentlyUsedThreeAccounts(): LiveData<List<Account>> {
+        if (null==liveRecentlyUsedGroups) {
+            liveRecentlyUsedAccounts = accountRepo.getLiveRecentlyUsedAccounts(3)
+        }
+        return liveRecentlyUsedAccounts!!
     }
 
-    private lateinit var recentlyUsedAccountsLiveData: LiveData<List<AccountModel>>
-    private lateinit var recentlyUsedGroupsLiveData: LiveData<List<GroupModel>>
-    private lateinit var totalBalance: LiveData<Double?>
+    private var liveRecentlyUsedGroups: LiveData<List<Group>>? = null
 
-    fun getRecentlyUsedThreeAccounts(): LiveData<List<AccountModel>> {
-        if (!::recentlyUsedAccountsLiveData.isInitialized) {
-            recentlyUsedAccountsLiveData = accountDao.getLatestUsedThreeAccounts()
+    fun getRecentlyUsedThreeGroups(): LiveData<List<Group>> {
+        if (null==liveRecentlyUsedGroups) {
+            liveRecentlyUsedGroups = groupRepo.getLiveRecentlyUsedGroups(3)
         }
-        return recentlyUsedAccountsLiveData
+        return liveRecentlyUsedGroups!!
     }
 
-    fun getRecentlyUsedThreeGroups(): LiveData<List<GroupModel>> {
-        if (!::recentlyUsedGroupsLiveData.isInitialized) {
-            recentlyUsedGroupsLiveData = groupDao.getLatestUsedThreeGroups()
-        }
-        return recentlyUsedGroupsLiveData
-    }
+    private var liveTotalBalance: LiveData<Double>? = null
 
-    fun getTotalBalance(): LiveData<Double?> {
-        if (!::totalBalance.isInitialized) {
-            totalBalance = accountDao.getTotalBalance()
+    fun getTotalBalance(): LiveData<Double> {
+        if (null == liveTotalBalance) {
+            liveTotalBalance = accountRepo.getLiveTotalBalance()
         }
-        return totalBalance
+        return liveTotalBalance!!
     }
 }

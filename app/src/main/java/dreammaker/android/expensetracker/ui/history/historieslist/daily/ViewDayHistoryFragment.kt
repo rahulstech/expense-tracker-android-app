@@ -2,6 +2,7 @@ package dreammaker.android.expensetracker.ui.history.historieslist.daily
 
 import android.os.Bundle
 import android.os.Parcelable
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
@@ -23,28 +24,25 @@ import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.selection.StorageStrategy
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import dreammaker.android.expensetracker.Constants
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.core.util.QuickMessages
-import dreammaker.android.expensetracker.database.HistoryModel
-import dreammaker.android.expensetracker.database.HistoryType
 import dreammaker.android.expensetracker.databinding.HistoryListBinding
 import dreammaker.android.expensetracker.ui.history.historieslist.HistoryFilterData
 import dreammaker.android.expensetracker.ui.history.historieslist.HistoryListContainer
 import dreammaker.android.expensetracker.ui.history.historieslist.HistorySummary
 import dreammaker.android.expensetracker.ui.history.historieslist.ViewHistoryViewModel
-import dreammaker.android.expensetracker.ui.history.viewhistory.ViewHistoryItemFragment
 import dreammaker.android.expensetracker.ui.main.ContextualActionBarViewModel
-import dreammaker.android.expensetracker.util.AccountModelParcel
-import dreammaker.android.expensetracker.Constants
-import dreammaker.android.expensetracker.util.GroupModelParcel
+import dreammaker.android.expensetracker.util.AccountParcel
+import dreammaker.android.expensetracker.util.GroupParcel
 import dreammaker.android.expensetracker.util.SelectionHelper
 import dreammaker.android.expensetracker.util.UIState
 import dreammaker.android.expensetracker.util.getDate
-import dreammaker.android.expensetracker.util.putHistoryType
 import dreammaker.android.expensetracker.util.visibilityGone
 import dreammaker.android.expensetracker.util.visible
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import rahulstech.android.expensetracker.domain.model.History
 
 class DayHistoryKeyProvider(private val adapter: DayHistoryListAdapter): ItemKeyProvider<Long>(SCOPE_CACHED) {
     override fun getKey(position: Int): Long? = adapter.getSelectionKey(position)
@@ -62,10 +60,10 @@ class DayHistoryLookup(private val rv: RecyclerView): ItemDetailsLookup<Long>() 
     }
 }
 
-
 class ViewDayHistoryFragment : Fragment() {
 
     companion object {
+        private val TAG = ViewDayHistoryFragment::class.simpleName
         const val ARG_DATE = "arg.date"
     }
 
@@ -205,12 +203,13 @@ class ViewDayHistoryFragment : Fragment() {
                     binding.shimmerContainer.visible()
                 }
                 is UIState.UISuccess -> {
-                    onHistoryPrepared(state.data as List<HistoryModel>)
+                    onHistoryPrepared(state.data as List<History>)
                     binding.shimmerContainer.visibilityGone()
                     binding.mainContainer.visible()
                     binding.shimmerContainer.stopShimmer()
                 }
                 is UIState.UIError -> {
+                    Log.e(TAG,"", state.cause)
                     // TODO: handle ui state error
                 }
             }
@@ -223,14 +222,14 @@ class ViewDayHistoryFragment : Fragment() {
         val entity = savedStateHandle?.get<Parcelable>(HistoryListContainer.ARG_SHOW_HISTORY_FOR)
         val params = ViewHistoryViewModel.HistoryLoadParams.forDate(date).apply {
             when(entity) {
-                is AccountModelParcel -> ofAccount(entity.id)
-                is GroupModelParcel -> ofGroup(entity.id)
+                is AccountParcel -> ofAccount(entity.id)
+                is GroupParcel -> ofGroup(entity.id)
             }
         }
         viewModel.loadHistories(params)
     }
 
-    private fun onHistoryPrepared(histories: List<HistoryModel>) {
+    private fun onHistoryPrepared(histories: List<History>) {
         adapter.submitList(histories)
         if (histories.isEmpty()) {
             binding.historyList.visibilityGone()
@@ -253,29 +252,29 @@ class ViewDayHistoryFragment : Fragment() {
     private fun handleItemClick(position: Int) {
         val history = this.adapter.currentList[position]
         navController.navigate(R.id.action_history_list_to_view_history, Bundle().apply {
-            putLong(Constants.ARG_ID, history.id!!)
-            putHistoryType(ViewHistoryItemFragment.ARG_HISTORY_TYPE, history.type!!)
+            putLong(Constants.ARG_ID, history.id)
         })
     }
 
     private fun filter() {
         val filterData = HistoryFilterData().apply {
-            setTypes(getCheckedHistoryTypes())
+            // TODO: handle filter
+//            setTypes(getCheckedHistoryTypes())
         }
         viewModel.applyHistoryFilter(filterData)
     }
 
-    private fun getCheckedHistoryTypes(): Array<HistoryType> {
-        val types = arrayListOf<HistoryType>()
-        if (binding.filterCredit.isChecked) {
-            types.add(HistoryType.CREDIT)
-        }
-        if (binding.filterDebit.isChecked) {
-            types.add(HistoryType.DEBIT)
-        }
-        if (binding.filterTransfer.isChecked) {
-            types.add(HistoryType.TRANSFER)
-        }
-        return types.toTypedArray()
-    }
+//    private fun getCheckedHistoryTypes(): Array<HistoryType> {
+//        val types = arrayListOf<HistoryType>()
+//        if (binding.filterCredit.isChecked) {
+//            types.add(HistoryType.CREDIT)
+//        }
+//        if (binding.filterDebit.isChecked) {
+//            types.add(HistoryType.DEBIT)
+//        }
+//        if (binding.filterTransfer.isChecked) {
+//            types.add(HistoryType.TRANSFER)
+//        }
+//        return types.toTypedArray()
+//    }
 }

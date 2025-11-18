@@ -17,33 +17,31 @@ import com.google.android.material.chip.Chip
 import dreammaker.android.expensetracker.Constants
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.core.util.QuickMessages
-import dreammaker.android.expensetracker.database.AccountModel
-import dreammaker.android.expensetracker.database.Date
-import dreammaker.android.expensetracker.database.GroupModel
-import dreammaker.android.expensetracker.database.HistoryModel
-import dreammaker.android.expensetracker.database.HistoryType
 import dreammaker.android.expensetracker.databinding.HistoryInputLayoutBinding
-import dreammaker.android.expensetracker.util.AccountModelParcel
-import dreammaker.android.expensetracker.util.GroupModelParcel
+import dreammaker.android.expensetracker.util.AccountParcel
+import dreammaker.android.expensetracker.util.GroupParcel
 import dreammaker.android.expensetracker.util.UIState
 import dreammaker.android.expensetracker.util.createInputChip
 import dreammaker.android.expensetracker.util.getArgId
 import dreammaker.android.expensetracker.util.getDate
-import dreammaker.android.expensetracker.util.getHistoryType
 import dreammaker.android.expensetracker.util.isActionEdit
 import dreammaker.android.expensetracker.util.visibilityGone
 import dreammaker.android.expensetracker.util.visible
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
+import rahulstech.android.expensetracker.domain.model.Account
+import rahulstech.android.expensetracker.domain.model.Group
+import rahulstech.android.expensetracker.domain.model.History
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 class TransactionInputFragment : Fragment() {
 
     companion object {
         private val TAG = TransactionInputFragment::class.simpleName
         private const val KEY_IS_FIND_HISTORY_STARTED = "key_is_find_history_started"
-        private const val HISTORY_INPUT_DATE_FORMAT = "EEEE, dd MMMM, yyyy"
-        const val ARG_HISTORY_TYPE = "arg.history_type"
+        private val HISTORY_INPUT_DATE_FORMAT = DateTimeFormatter.ofPattern("EEE, dd MMM, yyyy")
         const val ARG_HISTORY_DATE = "arg.history_date"
     }
 
@@ -58,22 +56,13 @@ class TransactionInputFragment : Fragment() {
     ///                 Fragment Argument                        ///
     ///////////////////////////////////////////////////////////////
 
-    private fun getArgDate(): Date = arguments?.getDate(ARG_HISTORY_DATE) ?: Date()
+    private fun getArgDate(): LocalDate = arguments?.getDate(ARG_HISTORY_DATE) ?: LocalDate.now()
 
-    private fun getArgType(): HistoryType {
-        val type = arguments?.getHistoryType(ARG_HISTORY_TYPE)
-        if (type==null) {
-            Log.w(TAG,"ARG_HISTORY_TYPE missing")
-            return HistoryType.DEBIT
-        }
-        return type
-    }
+    private fun getArgAccount(): Account?
+            = arguments?.let { BundleCompat.getParcelable(it, Constants.ARG_ACCOUNT, AccountParcel::class.java)?.toAccount() }
 
-    private fun getArgAccount(): AccountModel?
-            = arguments?.let { BundleCompat.getParcelable(it, Constants.ARG_ACCOUNT, AccountModelParcel::class.java)?.toAccountModel() }
-
-    private fun getArgGroup(): GroupModel?
-            = arguments?.let { BundleCompat.getParcelable(it, Constants.ARG_GROUP, GroupModelParcel::class.java)?.toGroupModel() }
+    private fun getArgGroup(): Group?
+            = arguments?.let { BundleCompat.getParcelable(it, Constants.ARG_GROUP, GroupParcel::class.java)?.toGroup() }
 
     /////////////////////////////////////////////////////////////////
     ///                     Selections                           ///
@@ -106,14 +95,13 @@ class TransactionInputFragment : Fragment() {
         binding.btnCancel.setOnClickListener { onClickCancel() }
 
         prepareDate()
-        selectHistoryType(getArgType())
         preparePrimaryAccount()
         prepareGroup()
 
         if (isActionEdit()) {
             if (savedInstanceState?.getBoolean(KEY_IS_FIND_HISTORY_STARTED, false) ?: true) {
                 Log.i(TAG,"loading history for id ${getArgId()}")
-                viewModel.findHistory(getArgId(), getArgType())
+                viewModel.findHistory(getArgId())
                 isFindHistoryStarted = true
             }
 
@@ -173,37 +161,46 @@ class TransactionInputFragment : Fragment() {
         }
     }
 
-    private fun validateInput(history: HistoryModel): Boolean {
-        val type = history.type!!
+    private fun validateInput(history: History): Boolean {
         binding.amountInputLayout.error = null
         binding.errorSource.visibilityGone()
         var hasError = false
-        if (null == history.amount) {
-            hasError = true
-            binding.amountInputLayout.error = getString(R.string.error_invalid_history_amount_input)
-        }
-        if ((type.needsSourceAccount() && null == history.primaryAccountId)) {
+        if (history.primaryAccountId == 0L) {
             hasError = true
             binding.errorSource.visible()
         }
         return hasError
     }
 
-    private fun getInputHistory(): HistoryModel {
-        val id = if (isActionEdit()) viewModel.history?.id else null
-        val type = getSelectedHistoryType()
+    private fun getInputHistory(): History {
+        val id = when(isActionEdit()) {
+            true -> getArgId()
+            else -> 0L
+        }
         val date = viewModel.getDate()
         val amountText = binding.inputAmount.text.toString()
         val amount = if (amountText.isBlank()) 0f else amountText.toFloat()
-        var note = binding.inputNote.text.toString()
-        if (note.isBlank()) {
-            note = type.name
+        val note = binding.inputNote.text.toString()
+        val account: Account? = viewModel.getAccount()
+        val group: Group? = viewModel.getGroup()
+        return when(isCreditHistory()) {
+            true -> History.CreditHistory(
+                id = id,
+                amount = amount,
+                date = date,
+                note = note,
+                primaryAccountId = account?.id ?: 0,
+                groupId = group?.id
+            )
+            else -> History.DebitHistory(
+                id = id,
+                amount = amount,
+                date = date,
+                note = note,
+                primaryAccountId = account?.id ?: 0,
+                groupId = group?.id
+            )
         }
-        val account: AccountModel? = viewModel.getAccount()
-        val group: GroupModel? = viewModel.getGroup()
-        return HistoryModel(
-            id,type, account?.id,null,group?.id,account,null,group, amount,date,note
-        )
     }
 
     private fun onClickCancel() { popBack() }
@@ -212,7 +209,7 @@ class TransactionInputFragment : Fragment() {
     ///              Background Response Handlers                ///
     ///////////////////////////////////////////////////////////////
 
-    private fun onHistoryLoaded(history: HistoryModel?) {
+    private fun onHistoryLoaded(history: History?) {
         Log.i(TAG,"loaded history $history")
         if (null == history) {
             QuickMessages.toastError(requireContext(), getString(R.string.message_history_not_found))
@@ -255,11 +252,11 @@ class TransactionInputFragment : Fragment() {
     ///                     Prepare Methods                      ///
     ///////////////////////////////////////////////////////////////
 
-    private fun prepare(history: HistoryModel) {
-        selectHistoryType(history.type!!)
+    private fun prepare(history: History) {
+        selectHistoryType(history)
         prepareAmount(history.amount)
         prepareNote(history.note)
-        viewModel.setDate(history.date!!)
+        viewModel.setDate(history.date)
         viewModel.setAccount(history.primaryAccount)
         viewModel.setGroup(history.group)
     }
@@ -274,31 +271,25 @@ class TransactionInputFragment : Fragment() {
         viewModel.setDate(getArgDate())
     }
 
-    private fun onClickInputDate(date: Date) {
-        val datePicker = DatePickerDialog(requireContext(), { _, year, month, day ->
-            val newDate = Date(year, month, day)
+    private fun onClickInputDate(date: LocalDate) {
+        val datePicker = DatePickerDialog(requireContext(), { _, year, month, dayOfMonth ->
+            val newDate = LocalDate.of(year,month,dayOfMonth)
             viewModel.setDate(newDate)
-        }, date.year, date.month, date.dayOfMonth)
+        }, date.year, date.monthValue, date.dayOfMonth)
         datePicker.show()
     }
 
-    private fun getSelectedHistoryType(): HistoryType {
-        val checkedId = binding.containerTypes.checkedChipId
-        return if (checkedId == R.id.type_credit) {
-            HistoryType.CREDIT
-        }
-        else {
-            HistoryType.DEBIT
+    private fun isCreditHistory(): Boolean = binding.containerTypes.checkedChipId == R.id.type_credit
+
+    private fun selectHistoryType(history: History) {
+        when(history) {
+            is History.CreditHistory -> binding.containerTypes.check(R.id.type_credit)
+            else -> binding.containerTypes.check(R.id.type_debit)
         }
     }
 
-    private fun selectHistoryType(type: HistoryType) {
-        if (type == HistoryType.CREDIT) {
-            binding.containerTypes.check(R.id.type_credit)
-        }
-        else {
-            binding.containerTypes.check(R.id.type_debit)
-        }
+    private fun selectDefaultHistoryType() {
+        binding.containerTypes.check(R.id.type_debit)
     }
 
     private fun prepareAmount(amount: Float?) {
@@ -337,17 +328,17 @@ class TransactionInputFragment : Fragment() {
     ///                    utility Methods                       ///
     ///////////////////////////////////////////////////////////////
 
-    private fun updatePrimaryAccountChip(account: AccountModel?, cancelable: Boolean = true) {
+    private fun updatePrimaryAccountChip(account: Account?, cancelable: Boolean = true) {
         val container = binding.selectedSourceContainer
         createChip(container,account,{
-            createInputChip(container, it.name!!, cancelable)
+            createInputChip(container, it.name, cancelable)
         }, cancelable /*, { removeSelectedAccount() }*/)
     }
 
-    private fun updateGroupChip(group: GroupModel?, cancelable: Boolean = true) {
+    private fun updateGroupChip(group: Group?, cancelable: Boolean = true) {
         val container = binding.selectedGroupContainer
         createChip(container, group, {
-            createInputChip(container, it.name!!, cancelable)
+            createInputChip(container, it.name, cancelable)
         }, cancelable, { removeSelectedGroup() })
     }
 
@@ -375,7 +366,7 @@ class TransactionInputFragment : Fragment() {
     }
 
     private fun reset() {
-        selectHistoryType(getArgType())
+        selectDefaultHistoryType()
         binding.inputAmount.text = null
         binding.inputNote.text = null
         viewModel.setDate(getArgDate())

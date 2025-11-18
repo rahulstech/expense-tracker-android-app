@@ -11,7 +11,7 @@ import androidx.core.view.children
 import androidx.core.view.get
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.databinding.MonthYearPickerLayoutBinding
-import dreammaker.android.expensetracker.util.MonthYear
+import java.time.YearMonth
 import java.util.Locale
 import kotlin.math.max
 import kotlin.math.min
@@ -63,12 +63,12 @@ class MonthPickerDialog(context: Context) : AlertDialog(context), DialogInterfac
     private val binding = MonthYearPickerLayoutBinding.inflate(LayoutInflater.from(context))
     private val adapter = YearAdapter(context)
 
-    private var monthYear = MonthYear.now()
+    private var monthYear = YearMonth.now()
 
-    var minMonthYear: MonthYear = MonthYear.now().plusYears(-10)
+    var minMonthYear: YearMonth = YearMonth.now().plusYears(-10)
         set(value) { if (!isShowing) field = value }
 
-    var maxMonthYear: MonthYear = MonthYear.now().plusYears(10)
+    var maxMonthYear: YearMonth = YearMonth.now().plusYears(10)
         set(value) { if (!isShowing) field = value }
 
     var monthChangeListener: MonthChangeListener? = null
@@ -113,23 +113,23 @@ class MonthPickerDialog(context: Context) : AlertDialog(context), DialogInterfac
 
     private fun handleYearChange(year: Int) {
         val old = monthYear
-        monthYear = MonthYear(monthYear.month, year)
+        monthYear = YearMonth.of(year, monthYear.month)
         binding.btnYearDecrease.visibility = if (year > minMonthYear.year) View.VISIBLE else View.GONE
         binding.btnYearIncrease.visibility = if (year < maxMonthYear.year) View.VISIBLE else View.GONE
         binding.monthsLayout.apply {
             children.forEachIndexed { index, child ->
                 child.isEnabled = when (year) {
-                    minMonthYear.year -> index >= minMonthYear.month
-                    maxMonthYear.year -> index <= maxMonthYear.month
+                    minMonthYear.year -> index >= minMonthYear.month.value
+                    maxMonthYear.year -> index <= maxMonthYear.month.value
                     else -> true
                 }
             }
 
-            val selectedMonthChip = this[old.month]
+            val selectedMonthChip = this[old.month.value]
             if (!selectedMonthChip.isEnabled) {
                 when (year) {
-                    minMonthYear.year -> check(this[minMonthYear.month].id)
-                    maxMonthYear.year -> check(this[maxMonthYear.month].id)
+                    minMonthYear.year -> check(this[minMonthYear.month.value].id)
+                    maxMonthYear.year -> check(this[maxMonthYear.month.value].id)
                 }
             }
         }
@@ -144,24 +144,24 @@ class MonthPickerDialog(context: Context) : AlertDialog(context), DialogInterfac
     private fun handleMonthChange(checkedId: Int) {
         val month = chipIdToMonth[checkedId]
             ?: throw IllegalArgumentException("Unknown month chip id: $checkedId") // this exception must never be thrown
-        monthYear = MonthYear(month, monthYear.year)
+        monthYear = YearMonth.of(monthYear.year,month)
     }
 
     override fun onClick(dialog: DialogInterface?, which: Int) {
         when (which) {
-            BUTTON_POSITIVE -> monthChangeListener?.invoke(this, monthYear.month, monthYear.year)
+            BUTTON_POSITIVE -> monthChangeListener?.invoke(this, monthYear.month.value, monthYear.year)
             BUTTON_NEGATIVE -> cancel()
         }
     }
 
-    private fun showMonthPickerView(monthYear: MonthYear) {
+    private fun showMonthPickerView(monthYear: YearMonth) {
         val year = monthYear.year
-        val month = monthYear.month
+        val month = monthYear.month.value
         val delta = year-minMonthYear.year
         changeYear(delta)
         val chipIndex = when(year) {
-            minMonthYear.year -> max(month,minMonthYear.month)
-            maxMonthYear.year -> min(month, maxMonthYear.month)
+            minMonthYear.year -> max(month,minMonthYear.month.value)
+            maxMonthYear.year -> min(month, maxMonthYear.month.value)
             else -> month
         }
         val chip = binding.monthsLayout[chipIndex]
@@ -171,10 +171,10 @@ class MonthPickerDialog(context: Context) : AlertDialog(context), DialogInterfac
      * month is 0 (zero) bases 0 = January 11 = December
      */
     fun updateMonthYear(month: Int, year: Int) {
-        updateMonthYear(MonthYear(month,year))
+        updateMonthYear(YearMonth.of(year,month))
     }
 
-    fun updateMonthYear(monthYear: MonthYear) {
+    fun updateMonthYear(monthYear: YearMonth) {
         this.monthYear = monthYear
         if (isShowing) {
             showMonthPickerView(monthYear)

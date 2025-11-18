@@ -5,12 +5,16 @@ import android.text.TextUtils;
 import androidx.room.TypeConverter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class Converters {
 
     private static final DateTimeFormatter DATE_PATTERN = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
+    private static final DateTimeFormatter DATETIME_PATTERN = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    @Deprecated
     @TypeConverter
     public static String dateToString(Date date){
         if (null != date) {
@@ -19,6 +23,7 @@ public class Converters {
         return null;
     }
 
+    @Deprecated
     @TypeConverter
     public static Date stringToDate(String dateString){
         if (!TextUtils.isEmpty(dateString)){
@@ -57,5 +62,21 @@ public class Converters {
             return null;
         }
         return date.format(DATE_PATTERN);
+    }
+
+    @TypeConverter
+    public static LocalDateTime stringToLocalDateTime(String datetime) {
+        if (null == datetime || datetime.isEmpty()) {
+            return null;
+        }
+        return LocalDateTime.parse(datetime, DATETIME_PATTERN);
+    }
+
+    @TypeConverter
+    public static String localDateTimeToStringTime(LocalDateTime datetime) {
+        if (null == datetime) {
+            return null;
+        }
+        return datetime.format(DATETIME_PATTERN);
     }
 }

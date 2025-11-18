@@ -1,8 +1,10 @@
 package dreammaker.android.expensetracker.database.model
 
+import androidx.room.Embedded
 import androidx.room.Relation
 
 data class HistoryDetails(
+    @Embedded
     val history: HistoryEntity,
 
     @Relation(
@@ -11,20 +13,21 @@ data class HistoryDetails(
         parentColumn = "primaryAccountId",
         projection = ["id","name"]
     )
-    val primaryAccount: AccountEntity?,
+    val primaryAccount: AccountIdName?,
 
     @Relation(
         entity = AccountEntity::class,
         entityColumn = "id",
-        parentColumn = "primaryAccountId",
+        parentColumn = "secondaryAccountId",
         projection = ["id","name"]
     )
-    val secondaryAccount: AccountEntity?,
+    val secondaryAccount: AccountIdName?,
 
     @Relation(
         entity = GroupEntity::class,
         entityColumn = "id",
         parentColumn = "groupId",
+        projection = ["id","name"]
     )
-    val group: GroupEntity?
+    val group: GroupIdName?
 )

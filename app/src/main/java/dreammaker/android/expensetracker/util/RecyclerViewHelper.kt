@@ -4,12 +4,20 @@ import android.content.Context
 import android.util.Log
 import android.view.View
 import androidx.annotation.StringRes
+import androidx.core.view.MenuProvider
+import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
+import dreammaker.android.expensetracker.ui.main.ContextualActionBarViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -212,15 +220,28 @@ class SelectionStore<T>(val selectionMode: SelectionMode = SelectionMode.SINGLE,
 
 
 
+class SelectionViewModel: ViewModel() {
 
-class SelectionHelper<KeyType : Any>(
+    private var keys: List<Any> = emptyList()
+    var inSelectionMode: Boolean = false
+    var cabMode: Boolean = false
+
+    @Suppress("UNCHECKED_CAST")
+    fun <T> getSelectionKeys(): List<T> = keys as List<T>
+
+    @Suppress("UNCHECKED_CAST")
+    fun <T> setSelectionKeys(keys: List<T>) {
+        this.keys = keys as List<Any>
+    }
+}
+
+class SelectionHelper<KeyType>(
     private val adapter: ISelectableItemAdapter2<KeyType>,
     private val selectionTrackerBuilderProvider: ()->SelectionTracker.Builder<KeyType>
 ) {
-
     private var _inSelectionMode: Boolean = false
     val inSelectionMode: Boolean get() = _inSelectionMode
-
+    private var cabMode: Boolean = false
     private val selectionTracker: SelectionTracker<KeyType>? get() = adapter.selectionTracker
 
     var itemClickListener: ItemClickListener? = null
@@ -233,21 +254,108 @@ class SelectionHelper<KeyType : Any>(
         }
     }
 
-    init {
-        adapter.itemClickListener = selectableItemClickListener
+    // SelectionViewModel
+
+    private var selectionVM: SelectionViewModel? = null
+
+    fun bindViewModelStore(owner: ViewModelStoreOwner) {
+        selectionVM = ViewModelProvider(owner)[SelectionViewModel::class]
     }
+
+    // Lifecycle
+
+    private val lifecycleObserver: LifecycleObserver = object: DefaultLifecycleObserver {
+
+        override fun onResume(owner: LifecycleOwner) { onLifecycleResume() }
+
+        override fun onPause(owner: LifecycleOwner) { onLifecyclePause() }
+    }
+
+    fun bindLifecycle(owner: LifecycleOwner) {
+        owner.lifecycle.addObserver(lifecycleObserver)
+    }
+
+    private fun onLifecycleResume() {
+        setSelections(selectionVM?.getSelectionKeys() ?: emptyList())
+        selectionVM?.let { vm ->
+            _inSelectionMode = vm.inSelectionMode
+            cabMode = vm.cabMode
+            if (_inSelectionMode) {
+                setSelections(vm.getSelectionKeys())
+                showContextualActionBar()
+            }
+        }
+    }
+
+    private fun onLifecyclePause() {
+        selectionVM?.let { vm ->
+            vm.inSelectionMode = _inSelectionMode
+            vm.cabMode = cabMode
+            if (_inSelectionMode) {
+                vm.setSelectionKeys(getSelections())
+                hideContextualActionBar()
+            }
+        }
+    }
+
+    // ContextualActionBar
+
+    private var cabVM: ContextualActionBarViewModel? = null
+    private var cabMenuProvider: MenuProvider? = null
+
+    fun prepareContextualActionBar(activity: FragmentActivity, menuProvider: MenuProvider? = null) {
+        cabVM = ViewModelProvider(activity)[ContextualActionBarViewModel::class]
+        cabMenuProvider = menuProvider
+    }
+
+    private fun startContextualActionBar() {
+        if (inSelectionMode) {
+            cabVM?.let { vm ->
+                vm.startContextualActionBar(cabMenuProvider)
+                cabMode = true
+            }
+        }
+    }
+
+    private fun showContextualActionBar() {
+        if (inSelectionMode && cabMode) {
+            cabVM?.showContextActionBar()
+        }
+    }
+
+    private fun hideContextualActionBar() {
+        if (cabMode) {
+            cabVM?.hideContextActionBar()
+        }
+    }
+
+    private fun endContextualActionBar() {
+        if (cabMode) {
+            cabVM?.endContextActionBar()
+        }
+    }
+
+    // Selection
 
     fun startSelection(
         predicate: SelectionTracker.SelectionPredicate<KeyType>,
+        contextualActionBar: Boolean = false,
         onStart: ((SelectionTracker<KeyType>)->Unit)? = null
     ): Boolean {
-        if (_inSelectionMode) return false
-        val builder: SelectionTracker.Builder<KeyType> = selectionTrackerBuilderProvider()
-        builder.withSelectionPredicate(predicate)
-        val selectionTracker = builder.build()
+        if (inSelectionMode) return false
+
+        val selectionTracker: SelectionTracker<KeyType> = selectionTrackerBuilderProvider().apply {
+            withSelectionPredicate(predicate)
+        }
+            .build()
         adapter.selectionTracker = selectionTracker
-        onStart?.invoke(selectionTracker)
+        adapter.itemClickListener = selectableItemClickListener
         _inSelectionMode = true
+        if (contextualActionBar) {
+            startContextualActionBar()
+            showContextualActionBar()
+        }
+        onStart?.invoke(selectionTracker)
         return true
     }
 
@@ -257,7 +365,12 @@ class SelectionHelper<KeyType : Any>(
         key?.let{ selectionTracker?.select(it) }
     }
 
+    @Deprecated(message = "use unselectItem(key)", replaceWith = ReplaceWith("unselectItem(key)"))
     fun deselectItem(key: KeyType?) {
+        unselectItem(key)
+    }
+
+    fun unselectItem(key: KeyType?) {
         key?.let{ selectionTracker?.deselect(it) }
     }
 
@@ -265,7 +378,7 @@ class SelectionHelper<KeyType : Any>(
 
     fun toggleItemSelection(key: KeyType) {
         if (isSelected(key)) {
-            deselectItem(key)
+            unselectItem(key)
         }
         else {
             selectItem(key)
@@ -282,8 +395,8 @@ class SelectionHelper<KeyType : Any>(
         return selectionTracker?.selection?.toList() ?: emptyList()
     }
 
-    fun setSelections(keys: List<KeyType>?) {
-        if (null != keys) {
+    fun setSelections(selectedKeys: List<KeyType>?) {
+        selectedKeys?.let { keys ->
             selectionTracker?.setItemsSelected(keys,true)
             val positions = keys.map { key -> adapter.getKeyPosition(key) }
             adapter.notifySelectionChanged(positions)
@@ -291,8 +404,11 @@ class SelectionHelper<KeyType : Any>(
     }
 
     fun endSelection() {
+        hideContextualActionBar()
+        endContextualActionBar()
         _inSelectionMode = false
         selectionTracker?.clearSelection()
+        adapter.itemClickListener = itemClickListener
         adapter.selectionTracker = null
     }
 }

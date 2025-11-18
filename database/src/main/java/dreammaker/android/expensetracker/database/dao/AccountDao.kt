@@ -18,8 +18,11 @@ interface AccountDao {
     @Transaction
     fun insertAccounts(accounts: List<AccountEntity>)
 
-    @Query("SELECT `id`, `name`, `balance` FROM `accounts` ORDER BY `name` ASC")
-    fun getLiveAccounts(): LiveData<List<AccountEntity>>
+    @Query("SELECT * FROM `accounts` ORDER BY `name` ASC")
+    fun getLiveAllAccounts(): LiveData<List<AccountEntity>>
+
+    @Query("SELECT * FROM `accounts`")
+    fun getAllAccounts(): List<AccountEntity>
 
     @Query("SELECT * FROM `accounts` WHERE `id` = :id")
     fun findAccountById(id: Long): AccountEntity?
@@ -28,14 +31,10 @@ interface AccountDao {
     fun getLiveAccountById(id: Long): LiveData<AccountEntity?>
 
     @Query("SELECT SUM(`balance`) AS `total_balance` FROM `accounts`")
-    fun getTotalBalance(): LiveData<Double?>
+    fun getLiveTotalBalance(): LiveData<Double?>
 
-//    @Query("SELECT `_id`, `account_name`, `balance` FROM `accounts` WHERE `_id` IN " +
-//            "(SELECT `primaryAccountId` FROM `histories` WHERE `primaryAccountId` IS NOT NULL GROUP BY primaryAccountId ORDER BY Max(`date`) DESC LIMIT 3)")
-//    fun getLatestUsedThreeAccounts(): LiveData<List<Account>>
-
-    @Query("SELECT * FROM `accounts`")
-    fun getAccounts(): List<AccountEntity>
+    @Query("SELECT * FROM `accounts` WHERE `lastUsed` IS NOT NULL ORDER BY `lastUsed` DESC LIMIT :count")
+    fun getLiveRecentlyUsedAccounts(count: Int = 3): LiveData<List<AccountEntity>>
 
     @Update
     fun updateAccount(account: AccountEntity): Int
@@ -43,6 +42,6 @@ interface AccountDao {
     @Query("DELETE FROM `accounts` WHERE `id` = :id")
     fun deleteAccount(id: Long): Int
 
-    @Query("DELETE FROM `accounts` WHERE `id` IN(:ids)")
-    fun deleteMultipleAccount(ids: List<Long>): Int
+    @Query("DELETE FROM `accounts` WHERE `id` IN (:ids)")
+    fun deleteMultipleAccounts(ids: List<Long>): Int
 }

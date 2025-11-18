@@ -5,22 +5,23 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import dreammaker.android.expensetracker.database.Date
-import dreammaker.android.expensetracker.database.HistoryModel
 import dreammaker.android.expensetracker.databinding.MonthHistoryListItemBinding
 import dreammaker.android.expensetracker.ui.history.historieslist.BaseHistoryViewHolder
 import dreammaker.android.expensetracker.util.BaseSelectableItemListAdapter
 import dreammaker.android.expensetracker.util.invisible
 import dreammaker.android.expensetracker.util.visibilityGone
 import dreammaker.android.expensetracker.util.visible
+import rahulstech.android.expensetracker.domain.model.History
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
-private val DATE_FORMAT = "MMMM dd, yyyy"
+private val DATE_FORMAT = DateTimeFormatter.ofPattern("MMMM dd, yyyy")
 
-private val callback = object: DiffUtil.ItemCallback<HistoryModel>() {
-    override fun areItemsTheSame(oldItem: HistoryModel, newItem: HistoryModel): Boolean =
+private val callback = object: DiffUtil.ItemCallback<History>() {
+    override fun areItemsTheSame(oldItem: History, newItem: History): Boolean =
         oldItem.id == newItem.id
 
-    override fun areContentsTheSame(oldItem: HistoryModel, newItem: HistoryModel): Boolean =
+    override fun areContentsTheSame(oldItem: History, newItem: History): Boolean =
         oldItem == newItem
 }
 
@@ -33,7 +34,7 @@ class MonthHistoryViewHolder(
         binding.main.setOnClickListener { onClick(this, it) }
     }
 
-    fun bind(history: HistoryModel?, selected: Boolean, isFirstInSection: Boolean, isLastInSection: Boolean) {
+    fun bind(history: History?, selected: Boolean, isFirstInSection: Boolean, isLastInSection: Boolean) {
         bind(history, selected)
         bindHeader(history?.date, isFirstInSection)
         if (isLastInSection) {
@@ -44,7 +45,7 @@ class MonthHistoryViewHolder(
         }
     }
 
-    override fun bind(history: HistoryModel?, selected: Boolean) {
+    override fun bind(history: History?, selected: Boolean) {
         setGroup(binding.group,history)
         setType(binding.type,history)
         setAmount(binding.amount,history)
@@ -54,7 +55,7 @@ class MonthHistoryViewHolder(
         binding.main.isSelected = null != history && selected
     }
 
-    private fun bindHeader(data: Date?, isFirstInSection: Boolean) {
+    private fun bindHeader(data: LocalDate?, isFirstInSection: Boolean) {
         if (null == data || !isFirstInSection) {
             binding.date.visibilityGone()
             binding.date.text = null
@@ -67,7 +68,7 @@ class MonthHistoryViewHolder(
 }
 
 class MonthHistoryListAdapter
-    : BaseSelectableItemListAdapter<HistoryModel, Long, MonthHistoryViewHolder>(callback) {
+    : BaseSelectableItemListAdapter<History, Long, MonthHistoryViewHolder>(callback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MonthHistoryViewHolder {
         val inflater = LayoutInflater.from(parent.context)
@@ -84,7 +85,7 @@ class MonthHistoryListAdapter
 
     override fun getSelectionKey(position: Int): Long = getItemId(position)
 
-    fun getSection(position: Int): Date? = getItem(position)?.date
+    fun getSection(position: Int): LocalDate? = getItem(position)?.date
 
     fun isFirstInSection(position: Int): Boolean {
         val v = position == 0 || getSection(position-1) != getSection(position)

@@ -5,25 +5,25 @@ import android.view.ViewGroup
 import androidx.recyclerview.selection.ItemDetailsLookup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import dreammaker.android.expensetracker.database.GroupModel
 import dreammaker.android.expensetracker.databinding.GroupChooserListItemBinding
 import dreammaker.android.expensetracker.util.BaseSelectableItemListAdapter2
 import dreammaker.android.expensetracker.util.ClickableViewHolder
-import dreammaker.android.expensetracker.util.getBalanceText
+import dreammaker.android.expensetracker.util.getDueText
+import rahulstech.android.expensetracker.domain.model.Group
 
 class GroupPickerViewHolder(
     private val binding: GroupChooserListItemBinding,
 ) : ClickableViewHolder<GroupPickerViewHolder>(binding.root) {
 
-    fun bind(data: GroupModel?, isSelected: Boolean) {
+    fun bind(data: Group?, isSelected: Boolean) {
         if (null == data) {
             binding.name.text = null
-            binding.balance.text = null
+            binding.due.text = null
             binding.root.isActivated = false
         }
         else {
             binding.name.text = data.name
-            binding.balance.text = data.getBalanceText(context)
+            binding.due.text = data.getDueText(context)
             binding.root.isActivated = isSelected
         }
     }
@@ -35,18 +35,16 @@ class GroupPickerViewHolder(
     }
 }
 
-private val callback = object: DiffUtil.ItemCallback<GroupModel>() {
-    override fun areItemsTheSame(oldItem: GroupModel, newItem: GroupModel): Boolean
+private val callback = object: DiffUtil.ItemCallback<Group>() {
+    override fun areItemsTheSame(oldItem: Group, newItem: Group): Boolean
     = oldItem.id == newItem.id
 
-    override fun areContentsTheSame(oldItem: GroupModel, newItem: GroupModel): Boolean
+    override fun areContentsTheSame(oldItem: Group, newItem: Group): Boolean
     = oldItem == newItem
 
 }
 
-open class GroupPickerListAdapter: BaseSelectableItemListAdapter2<GroupModel, Long, GroupPickerViewHolder>(
-    callback
-) {
+open class GroupPickerListAdapter: BaseSelectableItemListAdapter2<Group, Long, GroupPickerViewHolder>(callback) {
     init {
         setHasStableIds(true)
     }
