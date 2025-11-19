@@ -2,7 +2,7 @@ package dreammaker.android.expensetracker.ui.history.historyinput
 
 import android.app.Application
 import android.util.Log
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import dreammaker.android.expensetracker.util.UIState
 import kotlinx.coroutines.Dispatchers
@@ -17,7 +17,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import rahulstech.android.expensetracker.domain.ExpenseRepository
-import rahulstech.android.expensetracker.domain.HistoryRepository
 import rahulstech.android.expensetracker.domain.model.Account
 import rahulstech.android.expensetracker.domain.model.Group
 import rahulstech.android.expensetracker.domain.model.History
@@ -25,13 +24,13 @@ import java.time.LocalDate
 
 class HistoryInputViewModel (
     app: Application
-) : ViewModel() {
+) : AndroidViewModel(app) {
 
     private val historyRepo = ExpenseRepository.getInstance(app).historyRepository
 
     private val TAG = HistoryInputViewModel::class.simpleName
 
-    private val _historyState = MutableStateFlow<UIState?>(null)
+    private val _historyState = MutableStateFlow<UIState>(UIState.UILoading())
     val historyState: Flow<UIState?> get() = _historyState
     val history: History?
         get() {
@@ -44,7 +43,6 @@ class HistoryInputViewModel (
 
     fun findHistory(id: Long) {
         viewModelScope.launch(Dispatchers.IO) {
-            _historyState.tryEmit(UIState.UILoading())
             flow {
                 val history = historyRepo.findHistoryById(id)
                 emit(history)
@@ -121,6 +119,12 @@ class HistoryInputViewModel (
             _secondaryAccountState.value
         }
     }
+
+//    var group: Group?
+//        get() = _groupState.value
+//        set(value) {
+//            _groupState.value = value
+//        }
 
     fun setGroup(group: Group?) {
         _groupState.tryEmit(group)

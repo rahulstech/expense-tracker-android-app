@@ -8,39 +8,25 @@ import java.lang.ref.WeakReference
 
 class ContextualActionBarViewModel: ViewModel() {
 
-    private val _cabStartState = MutableStateFlow<Boolean>(false)
+    private val _cabStartState = MutableStateFlow(false)
     val cabStartState: StateFlow<Boolean> get() = _cabStartState
 
-    private val _cabShowState = MutableStateFlow<Boolean>(false)
-    val cabShowState: StateFlow<Boolean> get() = _cabShowState
-
-    private val _cabTitle = MutableStateFlow<String>("")
-    val cabTitle: StateFlow<String> get() = _cabTitle
+    private val _cabTitleState = MutableStateFlow("")
+    val cabTitleState: StateFlow<String> = _cabTitleState
+    var cabTitle: String
+        get() = _cabTitleState.value
+        set(value) { _cabTitleState.value = value }
 
     private var _cabMenuRef: WeakReference<MenuProvider?> = WeakReference(null)
     val cabMenu: MenuProvider? get() = _cabMenuRef.get()
 
     fun startContextualActionBar(menu: MenuProvider? = null) {
         _cabMenuRef = WeakReference(menu)
-        _cabShowState.value = true
         _cabStartState.value = true
     }
 
-    fun showContextActionBar() {
-        _cabShowState.value = true
-    }
-
-    fun hideContextActionBar() {
-        _cabShowState.value = false
-    }
-
     fun endContextActionBar() {
-        _cabShowState.value = false
         _cabMenuRef = WeakReference(null)
         _cabStartState.value = false
-    }
-
-    fun updateTitle(title: String) {
-        _cabTitle.value = title
     }
 }

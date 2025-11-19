@@ -5,32 +5,31 @@ import com.google.gson.GsonBuilder
 import com.google.gson.TypeAdapter
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
-import dreammaker.android.expensetracker.database.Date
 
-class DateType: TypeAdapter<Date>() {
-    override fun write(writer: JsonWriter?, value: Date?) {
-        writer?.let { w ->
-            if (null == value) {
-                if (w.serializeNulls) {
-                    w.nullValue()
-                }
-                return
-            }
-            w.value(value.toString())
-        }
-    }
-
-    override fun read(reader: JsonReader?): Date? {
-        return reader?.let {
-            val value = it.nextString()
-            Date.valueOf(value)
-        }
-    }
-}
+//class DateType: TypeAdapter<Date>() {
+//    override fun write(writer: JsonWriter?, value: Date?) {
+//        writer?.let { w ->
+//            if (null == value) {
+//                if (w.serializeNulls) {
+//                    w.nullValue()
+//                }
+//                return
+//            }
+//            w.value(value.toString())
+//        }
+//    }
+//
+//    override fun read(reader: JsonReader?): Date? {
+//        return reader?.let {
+//            val value = it.nextString()
+//            Date.valueOf(value)
+//        }
+//    }
+//}
 
 fun newGson(): Gson {
     return GsonBuilder()
         .setLenient()
-        .registerTypeAdapter(Date::class.java, DateType())
+//        .registerTypeAdapter(Date::class.java, DateType())
         .create()
 }

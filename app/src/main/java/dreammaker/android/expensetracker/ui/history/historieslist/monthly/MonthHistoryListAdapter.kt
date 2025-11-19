@@ -1,21 +1,18 @@
 package dreammaker.android.expensetracker.ui.history.historieslist.monthly
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import dreammaker.android.expensetracker.FULL_DATE_FORMAT
 import dreammaker.android.expensetracker.databinding.MonthHistoryListItemBinding
 import dreammaker.android.expensetracker.ui.history.historieslist.BaseHistoryViewHolder
-import dreammaker.android.expensetracker.util.BaseSelectableItemListAdapter
+import dreammaker.android.expensetracker.util.BaseSelectableItemListAdapter2
 import dreammaker.android.expensetracker.util.invisible
 import dreammaker.android.expensetracker.util.visibilityGone
 import dreammaker.android.expensetracker.util.visible
 import rahulstech.android.expensetracker.domain.model.History
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-
-private val DATE_FORMAT = DateTimeFormatter.ofPattern("MMMM dd, yyyy")
 
 private val callback = object: DiffUtil.ItemCallback<History>() {
     override fun areItemsTheSame(oldItem: History, newItem: History): Boolean =
@@ -26,13 +23,8 @@ private val callback = object: DiffUtil.ItemCallback<History>() {
 }
 
 class MonthHistoryViewHolder(
-    private val binding: MonthHistoryListItemBinding,
-    onClick: (MonthHistoryViewHolder, View)->Unit
-) :  BaseHistoryViewHolder<MonthHistoryViewHolder>(binding.root) {
-
-    init {
-        binding.main.setOnClickListener { onClick(this, it) }
-    }
+    private val binding: MonthHistoryListItemBinding
+):  BaseHistoryViewHolder<MonthHistoryViewHolder>(binding.root) {
 
     fun bind(history: History?, selected: Boolean, isFirstInSection: Boolean, isLastInSection: Boolean) {
         bind(history, selected)
@@ -61,19 +53,25 @@ class MonthHistoryViewHolder(
             binding.date.text = null
         }
         else {
-            binding.date.text = data.format(DATE_FORMAT)
+            binding.date.text = data.format(FULL_DATE_FORMAT)
             binding.date.visible()
         }
     }
 }
 
-class MonthHistoryListAdapter
-    : BaseSelectableItemListAdapter<History, Long, MonthHistoryViewHolder>(callback) {
+class MonthHistoryListAdapter : BaseSelectableItemListAdapter2<History, Long, MonthHistoryViewHolder>(callback) {
+
+    init {
+        setHasStableIds(true)
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MonthHistoryViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val binding = MonthHistoryListItemBinding.inflate(inflater,parent,false)
-        return MonthHistoryViewHolder(binding, this::handleItemClick)
+        return MonthHistoryViewHolder(binding).apply {
+            attachItemClickListener { vh,v -> handleItemClick(vh,v) }
+            attachItemLongClickListener { vh,v -> handleItemLongClick(vh,v) }
+        }
     }
 
     override fun onBindViewHolder(holder: MonthHistoryViewHolder, position: Int) {

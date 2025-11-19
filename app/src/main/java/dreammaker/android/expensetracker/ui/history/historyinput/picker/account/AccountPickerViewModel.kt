@@ -1,14 +1,14 @@
 package dreammaker.android.expensetracker.ui.history.historyinput.picker.account
 
 import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModel
 import rahulstech.android.expensetracker.domain.ExpenseRepository
 import rahulstech.android.expensetracker.domain.model.Account
 
 class AccountPickerViewModel(
     app: Application
-): ViewModel() {
+): AndroidViewModel(app) {
 
     private val accountRepo = ExpenseRepository.getInstance(app).accountRepository
 

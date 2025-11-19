@@ -8,6 +8,8 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 import androidx.sqlite.db.SupportSQLiteDatabase;
+
+import dreammaker.android.expensetracker.database.migration.Migration7To8;
 import dreammaker.android.expensetracker.database.model.AccountEntity;
 import dreammaker.android.expensetracker.database.model.GroupEntity;
 import dreammaker.android.expensetracker.database.model.HistoryEntity;
@@ -19,8 +21,8 @@ public abstract class ExpensesDatabase extends RoomDatabase implements IExpenseD
 
     private static final String TAG = "ExpensesDatabase";
 
-    static final String DB_NAME = "expenses.db3";
-    static final int DB_VERSION = 8;
+    public static final String DB_NAME = "expenses.db3";
+    public static final int DB_VERSION = 8;
     
     private static ExpensesDatabase mExpensesDB;
     private static final Object lock = new Object();
@@ -38,7 +40,7 @@ public abstract class ExpensesDatabase extends RoomDatabase implements IExpenseD
                         })
                         .addMigrations(
                                 Migrations.INSTANCE.getMIGRATION_6_7(),
-                                Migrations.INSTANCE.getMIGRATION_7_8()
+                                new Migration7To8()
                         )
                         .build();
             }
@@ -53,10 +55,4 @@ public abstract class ExpensesDatabase extends RoomDatabase implements IExpenseD
             mExpensesDB = null;
         }
     }
-
-    @Deprecated
-    public ExpensesDao getDao() { return null; }
-
-    @Deprecated
-    public ExpensesBackupDao getBackupDao() { return null; }
 }

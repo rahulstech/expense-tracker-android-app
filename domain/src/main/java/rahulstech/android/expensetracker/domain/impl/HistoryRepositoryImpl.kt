@@ -112,11 +112,7 @@ internal class HistoryRepositoryImpl(
                         accountRepository.creditBalance(id,history.amount)
                     }
                 }
-                HistoryType.DEBIT -> {
-                    history.primaryAccountId?.let{ id ->
-                        accountRepository.debitBalance(id,history.amount)
-                    }
-                }
+                HistoryType.DEBIT,
                 HistoryType.TRANSFER -> {
                     history.primaryAccountId?.let{ id ->
                         accountRepository.debitBalance(id,history.amount)
@@ -144,14 +140,10 @@ internal class HistoryRepositoryImpl(
                         accountRepository.debitBalance(id,history.amount)
                     }
                 }
-                HistoryType.DEBIT -> {
-                    history.primaryAccountId?.let{ id ->
-                        accountRepository.debitBalance(id,history.amount)
-                    }
-                }
+                HistoryType.DEBIT,
                 HistoryType.TRANSFER -> {
                     history.primaryAccountId?.let{ id ->
-                        accountRepository.debitBalance(id,history.amount)
+                        accountRepository.creditBalance(id,history.amount)
                     }
                 }
             }

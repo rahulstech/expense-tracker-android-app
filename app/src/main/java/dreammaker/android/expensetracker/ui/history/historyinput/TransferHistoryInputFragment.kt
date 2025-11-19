@@ -81,6 +81,7 @@ class TransferHistoryInputFragment : Fragment() {
         prepareSecondaryAccount()
 
         if (isActionEdit()) {
+            // TODO: improve the history loading on edit history
             if (savedInstanceState?.getBoolean(KEY_IS_FIND_HISTORY_STARTED,false) == false) {
                 viewModel.findHistory(getArgId())
                 isFindHistoryStarted = true
@@ -228,8 +229,8 @@ class TransferHistoryInputFragment : Fragment() {
         datePicker.show()
     }
 
-    private fun prepareAmount(amount: Float?) {
-        binding.inputAmount.setText(amount?.toString() ?: "")
+    private fun prepareAmount(amount: Number) {
+        binding.inputAmount.setText(amount.toString())
     }
 
     private fun prepareNote(note: String?) {
@@ -269,14 +270,14 @@ class TransferHistoryInputFragment : Fragment() {
     private fun updatePrimaryAccountChip(account: Account?) {
         val container = binding.selectedSourceContainer
         createChip(container,account) {
-            createInputChip(container, it.name!!, false)
+            createInputChip(container, it.name, false)
         }
     }
 
     private fun updateSecondaryAccountChip(account: Account?) {
         val container = binding.selectedDestinationContainer
         createChip(container,account) {
-            createInputChip(container, it.name!!, false)
+            createInputChip(container, it.name, false)
         }
     }
 

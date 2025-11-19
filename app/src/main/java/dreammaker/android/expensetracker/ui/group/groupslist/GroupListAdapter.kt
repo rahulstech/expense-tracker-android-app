@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import dreammaker.android.expensetracker.databinding.GroupListItemBinding
 import dreammaker.android.expensetracker.util.BaseSelectableItemListAdapter2
 import dreammaker.android.expensetracker.util.ClickableViewHolder
+import dreammaker.android.expensetracker.util.getDueLabel
 import dreammaker.android.expensetracker.util.getDueText
 import dreammaker.android.expensetracker.util.visibilityGone
 import dreammaker.android.expensetracker.util.visible
@@ -24,7 +25,7 @@ class GroupsListViewHolder(
             binding.root.isActivated = false
         }
         else {
-            val label = group.getDueText(context)
+            val label = group.getDueLabel(context)
             binding.name.text = group.name
             if (label.isBlank()) {
                 binding.labelBalance.visibilityGone()

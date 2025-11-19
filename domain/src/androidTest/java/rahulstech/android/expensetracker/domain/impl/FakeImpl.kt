@@ -10,7 +10,12 @@ import dreammaker.android.expensetracker.database.model.AccountEntity
 import dreammaker.android.expensetracker.database.model.GroupEntity
 import dreammaker.android.expensetracker.database.model.HistoryDetails
 import dreammaker.android.expensetracker.database.model.HistoryEntity
+import dreammaker.android.expensetracker.database.model.HistoryType
+import rahulstech.android.expensetracker.domain.AccountRepository
+import rahulstech.android.expensetracker.domain.GroupRepository
 import rahulstech.android.expensetracker.domain.LocalCache
+import rahulstech.android.expensetracker.domain.model.Account
+import rahulstech.android.expensetracker.domain.model.Group
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.concurrent.Callable
@@ -63,9 +68,9 @@ class FakeExpenseDatabase: IExpenseDatabase {
     }
 }
 
-class FakeAccountDao : AccountDao {
+class FakeAccountDao: AccountDao {
 
-    val accounts = mutableMapOf<Long, AccountEntity>(
+    val accounts = mutableMapOf(
         1L to AccountEntity(1L,"Account 1", 100f, LocalDateTime.of(2025,6,11,14,20,19),1),
         2L to AccountEntity(2L,"Account 2", 2000f, LocalDateTime.of(2025,5,12,16,23,19),3)
     )
@@ -121,7 +126,7 @@ class FakeAccountDao : AccountDao {
 
 class FakeGroupDao: GroupDao {
 
-    val groups = mutableMapOf<Long, GroupEntity>(
+    val groups = mutableMapOf(
         1L to GroupEntity(1L,"Group 1", 100f, LocalDateTime.of(2025,6,11,14,20,19),1),
         2L to GroupEntity(2L,"Group 2", 2000f, LocalDateTime.of(2025,5,12,16,23,19),3)
     )
@@ -175,8 +180,20 @@ class FakeGroupDao: GroupDao {
 
 class FakeHistoryDao: HistoryDao {
 
-    override fun insertHistory(history: HistoryEntity): Long = 0
+    val histories = mutableMapOf(
+        1L to HistoryEntity(
+            id=1L,
+            date=LocalDate.of(2025,8,15),
+            amount=100f,
+            note="Debit",
+            type= HistoryType.DEBIT,
+            primaryAccountId=1L,
+            secondaryAccountId=null,
+            groupId=2L
+        )
+    )
 
+    override fun insertHistory(history: HistoryEntity): Long = 1
 
     override fun insertHistories(histories: List<HistoryEntity>) {}
 
@@ -192,7 +209,7 @@ class FakeHistoryDao: HistoryDao {
         end: LocalDate
     ): LiveData<List<HistoryDetails>> = MutableLiveData()
 
-    override fun findHistoryById(id: Long): HistoryEntity? = null
+    override fun findHistoryById(id: Long): HistoryEntity? = histories[id]
 
     override fun getLiveHistoryById(id: Long): LiveData<HistoryDetails?> = MutableLiveData()
 
@@ -201,10 +218,84 @@ class FakeHistoryDao: HistoryDao {
         size: Long
     ): List<HistoryEntity> = emptyList()
 
-    override fun updateHistory(history: HistoryEntity): Int = 0
+    override fun updateHistory(history: HistoryEntity): Int = 1
 
     override fun deleteHistory(id: Long): Int = 0
 
     override fun deleteMultipleHistories(ids: List<Long>): Int = 0
+}
+
+class FakeAccountRepository: AccountRepository {
+
+    val accounts = mutableMapOf(
+        1L to Account("Account 1", 100f, 1L, LocalDateTime.of(2025,6,11,14,20,19),1),
+        2L to Account("Account 2", 2000f, 2L,LocalDateTime.of(2025,5,12,16,23,19),3)
+    )
+
+    override fun insertAccount(account: Account): Account = account
+
+    override fun getLiveAccountById(id: Long): LiveData<Account?> = MutableLiveData()
+
+    override fun findAccountById(id: Long): Account? = null
+
+    override fun getLiveAllAccounts(): LiveData<List<Account>> = MutableLiveData()
+
+    override fun getLiveRecentlyUsedAccounts(count: Int): LiveData<List<Account>> = MutableLiveData()
+
+    override fun getLiveTotalBalance(): LiveData<Double> = MutableLiveData()
+
+    override fun updateAccount(account: Account): Boolean = true
+
+    override fun creditBalance(id: Long, amount: Number) {
+        accounts[id]?.let { account ->
+            accounts[id] = account.copy(balance = account.balance.toFloat() + amount.toFloat())
+        }
+    }
+
+    override fun debitBalance(id: Long, amount: Number) {
+        accounts[id]?.let { account ->
+            accounts[id] = account.copy(balance = account.balance - amount.toFloat())
+        }
+    }
+
+    override fun deleteAccount(id: Long) {}
+
+    override fun deleteMultipleAccounts(ids: List<Long>) {}
+}
+
+class FakeGroupRepository: GroupRepository {
+
+    val groups = mutableMapOf(
+        1L to Group("Group 1", 100f, 1L,LocalDateTime.of(2025,6,11,14,20,19),1),
+        2L to Group("Group 2", 2000f, 2L,LocalDateTime.of(2025,5,12,16,23,19),3)
+    )
+
+    override fun insertGroup(group: Group): Group = group
+
+    override fun findGroupById(id: Long): Group? = null
+
+    override fun getLiveGroupById(id: Long): LiveData<Group?> = MutableLiveData()
+
+    override fun getLiveAllGroups(): LiveData<List<Group>> = MutableLiveData()
+
+    override fun getLiveRecentlyUsedGroups(count: Int): LiveData<List<Group>> = MutableLiveData()
+
+    override fun updateGroup(group: Group): Boolean = true
+
+    override fun creditDue(id: Long, amount: Number) {
+        groups[id]?.let { group ->
+            groups[id] = group.copy(due = group.due.toFloat() + amount.toFloat())
+        }
+    }
+
+    override fun debitDue(id: Long, amount: Number) {
+        groups[id]?.let { group ->
+            groups[id] = group.copy(due = group.due.toFloat() - amount.toFloat())
+        }
+    }
+
+    override fun deleteGroup(id: Long) {}
+
+    override fun deleteMultipleGroups(ids: List<Long>) {}
 
 }

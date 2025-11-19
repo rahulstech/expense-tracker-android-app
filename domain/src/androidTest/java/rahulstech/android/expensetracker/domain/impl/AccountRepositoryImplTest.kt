@@ -30,7 +30,7 @@ class AccountRepositoryImplTest {
 
     @Test
     fun insertAccount() {
-        val account = Account("Test Account 1", 120)
+        val account = Account("Test Account 1", 120f)
         val actual = accountRepo.insertAccount(account)
         assertEquals(3,actual.id)
         assertEquals(actual.lastUsed, accountDao.lastInsertedAccount.lastUsed)

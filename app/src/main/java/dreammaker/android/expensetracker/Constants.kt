@@ -1,5 +1,7 @@
 package dreammaker.android.expensetracker
 
+import java.time.format.DateTimeFormatter
+
 object Constants {
     const val ARG_INITIAL_SELECTION = "arg_initial_selection"
     const val ARG_RESULT_KEY = "arg_tag"
@@ -16,3 +18,6 @@ object Constants {
 
     const val KEY_IS_PRIMARY = "key_is_primary"
 }
+
+val FULL_DATE_FORMAT = DateTimeFormatter.ofPattern("MMMM dd, yyyy")
+val DATE_WITH_WEAKDAY_FORMAT = DateTimeFormatter.ofPattern("EEE, MMM dd, yyyy")

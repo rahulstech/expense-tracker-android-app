@@ -89,7 +89,7 @@ val UNKNOWN_GROUP = Group("Unknown Group")
 //    }
 //}
 
-class AccountParcel(val id: Long, val name: String, val balance: Number): Parcelable {
+class AccountParcel(val id: Long, val name: String, val balance: Float): Parcelable {
 
     constructor(account: Account): this(
         account.id,account.name,account.balance

@@ -12,7 +12,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
@@ -32,7 +31,6 @@ import dreammaker.android.expensetracker.ui.history.historieslist.HistoryFilterD
 import dreammaker.android.expensetracker.ui.history.historieslist.HistoryListContainer
 import dreammaker.android.expensetracker.ui.history.historieslist.HistorySummary
 import dreammaker.android.expensetracker.ui.history.historieslist.ViewHistoryViewModel
-import dreammaker.android.expensetracker.ui.main.ContextualActionBarViewModel
 import dreammaker.android.expensetracker.util.AccountParcel
 import dreammaker.android.expensetracker.util.GroupParcel
 import dreammaker.android.expensetracker.util.SelectionHelper
@@ -76,8 +74,6 @@ class ViewDayHistoryFragment : Fragment() {
     private var isFirstVisible = true
 
     private lateinit var selectionHelper: SelectionHelper<Long>
-    private val cabVm: ContextualActionBarViewModel by activityViewModels()
-
     private val cabMenu = object: MenuProvider {
         override fun onCreateMenu(
             menu: Menu,
@@ -104,9 +100,8 @@ class ViewDayHistoryFragment : Fragment() {
                 getString(R.string.message_warning_delete_multiple, selectionHelper.count()),
                 QuickMessages.AlertButton(getString(R.string.label_no)),
                 QuickMessages.AlertButton(getString(R.string.label_yes)) {
-                    val ids = selectionHelper.getSelections()
-                    viewModel.deleteHistories(ids)
-                    cabVm.endContextActionBar()
+                    viewModel.deleteHistories(selectionHelper.getSelections())
+                    selectionHelper.endSelection()
                 },
             )
         }
@@ -126,40 +121,7 @@ class ViewDayHistoryFragment : Fragment() {
         binding.historyList.layoutManager = LinearLayoutManager(requireContext(),LinearLayoutManager.VERTICAL,false)
         binding.historyList.adapter = adapter
 
-
-        selectionHelper = SelectionHelper<Long>(adapter) {
-            SelectionTracker.Builder<Long>(
-                "multipleDayHistorySelection",
-                binding.historyList,
-                DayHistoryKeyProvider(adapter),
-                DayHistoryLookup(binding.historyList),
-                StorageStrategy.createLongStorage()
-            )
-        }
-
-        adapter.itemLongClickListener = { _,_,position ->
-            selectionHelper.startSelection(SelectionPredicates.createSelectAnything()) { tracker ->
-                cabVm.startContextualActionBar(cabMenu)
-
-                tracker.addObserver(object: SelectionTracker.SelectionObserver<Long>(){
-                    override fun onItemStateChanged(key: Long, selected: Boolean) {
-                        cabVm.updateTitle(selectionHelper.count().toString())
-                    }
-                })
-
-                selectionHelper.selectItem(adapter.getSelectionKey(position))
-            }
-        }
-
-        selectionHelper.itemClickListener = { _,_,position -> handleItemClick(position) }
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            cabVm.cabStartState.collectLatest { started ->
-                if (!started) {
-                    selectionHelper.endSelection()
-                }
-            }
-        }
+        prepareItemSelection()
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.deleteHistoriesState.collectLatest { state ->
@@ -180,9 +142,31 @@ class ViewDayHistoryFragment : Fragment() {
         observe()
     }
 
-    override fun onPause() {
-        super.onPause()
-        cabVm.endContextActionBar()
+    private fun prepareItemSelection() {
+        selectionHelper = SelectionHelper(adapter,this,viewLifecycleOwner) {
+            SelectionTracker.Builder(
+                "multipleDayHistorySelection",
+                binding.historyList,
+                DayHistoryKeyProvider(adapter),
+                DayHistoryLookup(binding.historyList),
+                StorageStrategy.createLongStorage()
+            ).withSelectionPredicate(
+                SelectionPredicates.createSelectAnything()
+            )
+        }
+
+        adapter.itemLongClickListener = { _,_,position ->
+            if (selectionHelper.startSelection(true)) {
+                selectionHelper.selectItem(adapter.getSelectionKey(position))
+            }
+            true
+        }
+
+        selectionHelper.itemClickListener = { _,_,position -> handleItemClick(position) }
+
+        selectionHelper.itemSelectionChangeCallback = { _,_,_,_ ->
+            selectionHelper.cabViewModel?.cabTitle = selectionHelper.count().toString()
+        }
     }
 
     override fun onResume() {

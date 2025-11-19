@@ -1,6 +1,7 @@
 package dreammaker.android.expensetracker.ui.account.accountlist
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
@@ -10,7 +11,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
@@ -26,7 +26,6 @@ import dreammaker.android.expensetracker.Constants
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.core.util.QuickMessages
 import dreammaker.android.expensetracker.databinding.AccountsListBinding
-import dreammaker.android.expensetracker.ui.main.ContextualActionBarViewModel
 import dreammaker.android.expensetracker.util.SelectionHelper
 import dreammaker.android.expensetracker.util.UIState
 import dreammaker.android.expensetracker.util.visibilityGone
@@ -54,6 +53,8 @@ class AccountDetailsLookup(val rv: RecyclerView): ItemDetailsLookup<Long>() {
 
 class AccountsListFragment : Fragment() {
 
+    private val TAG = AccountsListFragment::class.simpleName
+
     private var _binding: AccountsListBinding? = null
     private val binding get() = _binding!!
 
@@ -63,7 +64,7 @@ class AccountsListFragment : Fragment() {
 
     private lateinit var selectionHelper: SelectionHelper<Long>
 
-    private val cabVm: ContextualActionBarViewModel by activityViewModels()
+//    private val cabVm: ContextualActionBarViewModel by activityViewModels()
     private val cabMenuProvider = object: MenuProvider {
 
         override fun onCreateMenu(
@@ -93,7 +94,7 @@ class AccountsListFragment : Fragment() {
                 QuickMessages.AlertButton(getString(R.string.label_yes)) {
                     val ids = selectionHelper.getSelections()
                     viewModel.deleteAccounts(ids)
-                    cabVm.endContextActionBar()
+//                    cabVm.endContextActionBar()
                 },
             )
         }
@@ -119,50 +120,9 @@ class AccountsListFragment : Fragment() {
         binding.list.layoutManager = LinearLayoutManager(requireContext(),LinearLayoutManager.VERTICAL,false)
         binding.list.adapter = adapter
 
+        prepareItemSelection()
+
         viewModel.getAllAccounts().observe(viewLifecycleOwner, this::onAccountsLoaded)
-
-        selectionHelper = SelectionHelper(adapter) {
-            SelectionTracker.Builder(
-                "multipleAccountSelection",
-                binding.list,
-                AccountSelectionKeyProvider(adapter),
-                AccountDetailsLookup(binding.list),
-                StorageStrategy.createLongStorage()
-            )
-        }
-
-//        selectionHelper.apply {
-//            bindViewModelStore(this@AccountsListFragment)
-//            bindLifecycle(viewLifecycleOwner)
-//            prepareContextualActionBar(requireActivity(), cabMenuProvider)
-//        }
-
-        adapter.itemLongClickListener = { _,_,position ->
-            selectionHelper.startSelection(SelectionPredicates.createSelectAnything()) { tracker ->
-
-                cabVm.startContextualActionBar(cabMenuProvider)
-
-                tracker.addObserver(object: SelectionTracker.SelectionObserver<Long>() {
-                    override fun onItemStateChanged(key: Long, selected: Boolean) {
-                        cabVm.updateTitle(selectionHelper.count().toString())
-                    }
-                })
-
-                selectionHelper.selectItem(adapter.getSelectionKey(position)!!)
-            }
-        }
-
-        selectionHelper.itemClickListener = { _,_,position ->
-            handleAccountClick(adapter.currentList[position])
-        }
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            cabVm.cabStartState.collectLatest { started ->
-                if (!started) {
-                    selectionHelper.endSelection()
-                }
-            }
-        }
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.deleteAccountsState.filterNotNull()
@@ -180,9 +140,34 @@ class AccountsListFragment : Fragment() {
         }
     }
 
-    override fun onPause() {
-        super.onPause()
-        cabVm.endContextActionBar()
+    private fun prepareItemSelection() {
+        selectionHelper = SelectionHelper(adapter,this,viewLifecycleOwner) {
+            SelectionTracker.Builder(
+                "multipleAccountSelection",
+                binding.list,
+                AccountSelectionKeyProvider(adapter),
+                AccountDetailsLookup(binding.list),
+                StorageStrategy.createLongStorage()
+            ).withSelectionPredicate(SelectionPredicates.createSelectAnything())
+
+        }.apply {
+            prepareContextualActionBar(requireActivity(),cabMenuProvider)
+        }
+
+        adapter.itemLongClickListener = { _,_,position ->
+            if (selectionHelper.startSelection(true)) {
+                selectionHelper.selectItem(adapter.getSelectionKey(position))
+            }
+            true
+        }
+
+        selectionHelper.itemClickListener = { _,_,position ->
+            handleAccountClick(adapter.currentList[position])
+        }
+
+        selectionHelper.itemSelectionChangeCallback = { _,_,_,_ ->
+            selectionHelper.cabViewModel?.cabTitle = selectionHelper.count().toString()
+        }
     }
 
     private fun onAccountsLoaded(accounts: List<Account>) {
@@ -194,6 +179,7 @@ class AccountsListFragment : Fragment() {
         else {
             binding.emptyView.visibilityGone()
             binding.list.visible()
+            Log.i(TAG,"selections count ${selectionHelper.getSelections().size}")
         }
     }
 

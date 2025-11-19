@@ -1,8 +1,8 @@
 package dreammaker.android.expensetracker.ui.account.viewaccount
 
 import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dreammaker.android.expensetracker.util.UIState
 import kotlinx.coroutines.Dispatchers
@@ -18,7 +18,7 @@ import rahulstech.android.expensetracker.domain.model.Account
 
 class ViewAccountViewModel(
    app: Application
-): ViewModel() {
+): AndroidViewModel(app) {
 
     private val accountRepo = ExpenseRepository.getInstance(app).accountRepository
 

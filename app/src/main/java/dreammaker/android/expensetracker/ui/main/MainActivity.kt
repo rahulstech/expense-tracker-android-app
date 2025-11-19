@@ -86,7 +86,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun prepareContextualToolbar() {
         lifecycleScope.launch {
-            cabVm.cabShowState.collectLatest { started ->
+            cabVm.cabStartState.collectLatest { started ->
                 if (started) {
                     binding.toolbar.visibilityGone()
                     binding.contextualToolbar.apply {
@@ -109,7 +109,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         lifecycleScope.launch {
-            cabVm.cabTitle.collectLatest { title ->
+            cabVm.cabTitleState.collectLatest { title ->
                 binding.contextualToolbar.title = title
             }
         }

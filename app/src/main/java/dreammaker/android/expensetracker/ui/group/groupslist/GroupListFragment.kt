@@ -11,7 +11,6 @@ import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
@@ -27,7 +26,6 @@ import dreammaker.android.expensetracker.Constants
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.core.util.QuickMessages
 import dreammaker.android.expensetracker.databinding.GroupsListBinding
-import dreammaker.android.expensetracker.ui.main.ContextualActionBarViewModel
 import dreammaker.android.expensetracker.util.SelectionHelper
 import dreammaker.android.expensetracker.util.UIState
 import dreammaker.android.expensetracker.util.visibilityGone
@@ -62,7 +60,6 @@ class GroupListFragment : Fragment() {
     private lateinit var adapter: GroupsListAdapter
     private val navController: NavController by lazy { findNavController() }
     private lateinit var selectionHelper: SelectionHelper<Long>
-    private val cabVm: ContextualActionBarViewModel by activityViewModels()
     private val cabMenuProvider: MenuProvider = object: MenuProvider {
         override fun onCreateMenu(
             menu: Menu,
@@ -87,9 +84,8 @@ class GroupListFragment : Fragment() {
                 getString(R.string.message_warning_delete_multiple, selectionHelper.count()),
                 QuickMessages.AlertButton(getString(R.string.label_no)),
                 QuickMessages.AlertButton(getString(R.string.label_yes)) {
-                    val ids = selectionHelper.getSelections()
-                    viewModel.deleteGroups(ids)
-                    cabVm.endContextActionBar()
+                    viewModel.deleteGroups(selectionHelper.getSelections())
+                    selectionHelper.endSelection()
                 },
             )
         }
@@ -111,41 +107,9 @@ class GroupListFragment : Fragment() {
         binding.list.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
         binding.list.adapter = adapter
 
+        prepareItemSelection()
+
         viewModel.getAllGroups().observe(viewLifecycleOwner, this::onGroupsLoaded)
-
-        selectionHelper = SelectionHelper<Long>(adapter) {
-            SelectionTracker.Builder<Long>(
-                "multipleGroupsSelection",
-                binding.list,
-                GroupSelectionKeyProvider(adapter),
-                GroupDetailsLookup(binding.list),
-                StorageStrategy.createLongStorage()
-            )
-        }
-
-        adapter.itemLongClickListener = { _,_,position ->
-            selectionHelper.startSelection(SelectionPredicates.createSelectAnything()) { tracker ->
-                cabVm.startContextualActionBar(cabMenuProvider)
-
-                tracker.addObserver(object: SelectionTracker.SelectionObserver<Long>(){
-                    override fun onItemStateChanged(key: Long, selected: Boolean) {
-                        cabVm.updateTitle(selectionHelper.count().toString())
-                    }
-                })
-
-                selectionHelper.selectItem(adapter.getSelectionKey(position)!!)
-            }
-        }
-
-        selectionHelper.itemClickListener = { _,_,position -> handleClickGroup(adapter.currentList[position]) }
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            cabVm.cabShowState.collectLatest { showing ->
-                if (!showing) {
-                    selectionHelper.endSelection()
-                }
-            }
-        }
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.deleteGroupsState.filterNotNull()
@@ -160,6 +124,35 @@ class GroupListFragment : Fragment() {
                         else -> {}
                     }
                 }
+        }
+    }
+
+    private fun prepareItemSelection() {
+        selectionHelper = SelectionHelper(adapter,this,viewLifecycleOwner) {
+            SelectionTracker.Builder(
+                "multipleGroupsSelection",
+                binding.list,
+                GroupSelectionKeyProvider(adapter),
+                GroupDetailsLookup(binding.list),
+                StorageStrategy.createLongStorage()
+            ).withSelectionPredicate(
+                SelectionPredicates.createSelectAnything<Long>()
+            )
+        }.apply {
+            prepareContextualActionBar(requireActivity(),cabMenuProvider)
+        }
+
+        adapter.itemLongClickListener = { _,_,position ->
+            if (selectionHelper.startSelection(true)) {
+                selectionHelper.selectItem(adapter.getSelectionKey(position)!!)
+            }
+            true
+        }
+
+        selectionHelper.itemClickListener = { _,_,position -> handleClickGroup(adapter.currentList[position]) }
+
+        selectionHelper.itemSelectionChangeCallback = { _,_,_,_ ->
+            selectionHelper.cabViewModel?.cabTitle = selectionHelper.count().toString()
         }
     }
 

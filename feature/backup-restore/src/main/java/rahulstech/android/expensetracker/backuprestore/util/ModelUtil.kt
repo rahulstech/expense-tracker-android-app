@@ -1,14 +1,9 @@
 package rahulstech.android.expensetracker.backuprestore.util
 
 import com.google.gson.annotations.SerializedName
-import dreammaker.android.expensetracker.database.Account
-import dreammaker.android.expensetracker.database.AccountModel
-import dreammaker.android.expensetracker.database.Date
-import dreammaker.android.expensetracker.database.Group
-import dreammaker.android.expensetracker.database.GroupModel
-import dreammaker.android.expensetracker.database.History
-import dreammaker.android.expensetracker.database.HistoryModel
-import dreammaker.android.expensetracker.database.HistoryType
+import dreammaker.android.expensetracker.database.model.AccountEntity
+import dreammaker.android.expensetracker.database.model.GroupEntity
+import dreammaker.android.expensetracker.database.model.HistoryEntity
 import dreammaker.android.expensetracker.settings.SettingsModel
 
 data class AccountData(
@@ -18,7 +13,7 @@ data class AccountData(
     val name: String,
     val balance: Float
 ) {
-    fun toAccountModel(): AccountModel = AccountModel(id,name,balance)
+//    fun toAccountModel(): AccountModel = AccountModel(id,name,balance)
 }
 
 data class GroupData(
@@ -29,34 +24,34 @@ data class GroupData(
     @SerializedName("balance", alternate = ["due"])
     val balance: Float
 ) {
-    fun toGroupModel(): GroupModel = GroupModel(id,name,balance)
+//    fun toGroupModel(): GroupModel = GroupModel(id,name,balance)
 }
 
 data class HistoryData(
     val id: Long,
-    val type: HistoryType,
+    val type: Any,
     val primaryAccountId: Long?,
     val secondaryAccountId: Long?,
     val groupId: Long?,
     val amount: Float,
-    val date: Date,
+    val date: Any,
     val note: String?,
 
     @Transient
     val deleted: Boolean = false
 ) {
 
-    fun toHistoryModel(): HistoryModel
-    = HistoryModel(id, type,
-        primaryAccountId, secondaryAccountId, groupId, null, null, null,
-        amount, date, note)
+//    fun toHistoryModel(): HistoryModel
+//    = HistoryModel(id, type,
+//        primaryAccountId, secondaryAccountId, groupId, null, null, null,
+//        amount, date, note)
 }
 
 data class MoneyTransferData(
     val id: Long,
     val amount: Float,
     @SerializedName("when")
-    val date: Date,
+    val date: Any,
     @SerializedName("payer_account_id")
     val primaryAccountId: Long,
     @SerializedName("payee_account_id")
@@ -65,14 +60,14 @@ data class MoneyTransferData(
     val note: String?
 ) {
     fun toHistoryData(): HistoryData
-    = HistoryData(id, HistoryType.TRANSFER, primaryAccountId, secondaryAccountId, null, amount, date, note)
+    = HistoryData(id, Any(), primaryAccountId, secondaryAccountId, null, amount, date, note)
 }
 
 data class TransactionData(
     @SerializedName("_id")
     val id: Long,
     val amount: Float,
-    val date: Date,
+    val date: Any,
     @SerializedName("account_id")
     val primaryAccountId: Long,
     @SerializedName("person_id")
@@ -82,7 +77,7 @@ data class TransactionData(
     val type: Int,
     val deleted: Boolean
 ) {
-    private fun getHistoryType(): HistoryType = if (type == 0) HistoryType.DEBIT else HistoryType.CREDIT
+    private fun getHistoryType(): Any = Any()
 
     fun toHistoryData(): HistoryData {
         return HistoryData(id,getHistoryType(), primaryAccountId, null, groupId, amount, date, note, deleted)
@@ -104,15 +99,15 @@ class AppSettingsData {
     }
 }
 
-fun Account.toAccountData(): AccountData {
-    return AccountData(accountId,accountName,balance)
+fun AccountEntity.toAccountData(): AccountData {
+    return AccountData(id,name,balance)
 }
 
-fun Group.toGroupData(): GroupData {
-    return GroupData(id,name,balance)
+fun GroupEntity.toGroupData(): GroupData {
+    return GroupData(id,name,due)
 }
 
-fun History.toHistoryData(): HistoryData {
+fun HistoryEntity.toHistoryData(): HistoryData {
     return HistoryData(id,type,primaryAccountId,secondaryAccountId,groupId,amount,date,note)
 }
 

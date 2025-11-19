@@ -2,10 +2,10 @@ package dreammaker.android.expensetracker.ui.history.historieslist
 
 import android.app.Application
 import android.util.Log
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dreammaker.android.expensetracker.core.util.toFirstDate
 import dreammaker.android.expensetracker.core.util.toLastDate
@@ -28,10 +28,11 @@ import java.time.YearMonth
 
 class ViewHistoryViewModel(
     app: Application
-): ViewModel() {
+): AndroidViewModel(app) {
 
     companion object {
         private val TAG = ViewHistoryViewModel::class.simpleName
+        private val EMPTY_HISTORY_LIVEDATA = MutableLiveData(emptyList<History>())
     }
 
     class HistoryLoadParams private constructor(val start: LocalDate, val end: LocalDate){
@@ -56,17 +57,15 @@ class ViewHistoryViewModel(
             return this
         }
 
-//        fun createLiveData(dao: HistoryDao): LiveData<List<HistoryModel>> {
-//            return if (null != accountId) {
-//                dao.getHistoriesBetweenDatesOnlyForAccount(start,end, accountId!!)
-//            } else if (null != groupId) {
-//                dao.getHistoriesBetweenDatesOnlyForGroup(start,end, groupId!!)
-//            } else {
-//                dao.getHistoriesBetweenDates(start,end)
-//            }
-//        }
-
-        fun createLiveDate(repo: HistoryRepository): LiveData<List<History>> = MutableLiveData(emptyList())
+        fun createLiveDate(repo: HistoryRepository): LiveData<List<History>> {
+            return if (null != accountId) {
+                repo.getLiveHistoriesForAccountBetweenDates(accountId!!,start,end)
+            } else if (null != groupId) {
+                repo.getLiveHistoriesForGroupBetweenDates(groupId!!,start,end)
+            } else {
+                EMPTY_HISTORY_LIVEDATA
+            }
+        }
     }
 
     private val historyRepo = ExpenseRepository.getInstance(app).historyRepository

@@ -44,7 +44,7 @@
 		app:lastItemDecorated="false"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintTop_toBottomOf="@id/due" />
+		app:layout_constraintTop_toBottomOf="@id/balance" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 

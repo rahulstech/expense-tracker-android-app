@@ -19,7 +19,7 @@ sealed class History(
     open val group: Group?,
 ) {
     fun toHistoryEntity(): HistoryEntity =
-        HistoryEntity(id,type,primaryAccountId,secondaryAccountId,groupId,amount,date,note)
+        HistoryEntity(id,type,primaryAccountId,secondaryAccountId,groupId,amount.toFloat(),date,note)
 
     data class CreditHistory(
         override var id: Long,

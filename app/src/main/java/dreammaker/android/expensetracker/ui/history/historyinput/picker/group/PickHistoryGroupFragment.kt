@@ -66,19 +66,25 @@ class PickHistoryGroupFragment : Fragment() {
         binding.optionsList.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
         binding.optionsList.adapter = adapter
 
-        viewModel.getAllGroups().observe(viewLifecycleOwner, this::onGroupsLoaded)
+        prepareItemSelection()
 
-        selectionHelper = SelectionHelper<Long>(adapter) {
+        viewModel.getAllGroups().observe(viewLifecycleOwner, this::onGroupsLoaded)
+    }
+
+    private fun prepareItemSelection() {
+        selectionHelper = SelectionHelper<Long>(adapter,this,viewLifecycleOwner) {
             SelectionTracker.Builder<Long>(
                 "singleAccountSelection",
                 binding.optionsList,
                 GroupPickerSelectionKeyProvider(adapter),
                 GroupPickerDetailsLookup(binding.optionsList),
                 StorageStrategy.createLongStorage()
+            ).withSelectionPredicate(
+                SelectionPredicates.createSelectSingleAnything()
             )
         }
 
-        selectionHelper.startSelection(SelectionPredicates.createSelectSingleAnything()) {
+        selectionHelper.startSelection() {
             selectionHelper.selectItem(getInitialSelection())
         }
     }

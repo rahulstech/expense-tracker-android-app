@@ -73,19 +73,25 @@ class PickHistoryAccountFragment : Fragment() {
         binding.optionsList.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
         binding.optionsList.adapter = adapter
 
-        viewModel.getAllAccounts().observe(viewLifecycleOwner, this::onAccountsLoaded)
+        prepareItemSelection()
 
-        selectionHelper = SelectionHelper<Long>(adapter) {
+        viewModel.getAllAccounts().observe(viewLifecycleOwner, this::onAccountsLoaded)
+    }
+
+    private fun prepareItemSelection() {
+        selectionHelper = SelectionHelper<Long>(adapter,this,viewLifecycleOwner) {
             SelectionTracker.Builder<Long>(
                 "singleAccountSelection",
                 binding.optionsList,
                 AccountPickerSelectionKeyProvider(adapter),
                 AccountPickerDetailsLookup(binding.optionsList),
                 StorageStrategy.createLongStorage()
+            ).withSelectionPredicate(
+                SelectionPredicates.createSelectSingleAnything()
             )
         }
 
-        selectionHelper.startSelection(SelectionPredicates.createSelectSingleAnything()) {
+        selectionHelper.startSelection() {
             selectionHelper.selectItem(getInitialSelection())
         }
     }

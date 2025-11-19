@@ -6,7 +6,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.work.testing.TestListenableWorkerBuilder
 import androidx.work.workDataOf
 import com.google.gson.stream.JsonReader
-import dreammaker.android.expensetracker.database.Date
 import dreammaker.android.expensetracker.database.HistoryType
 import junit.framework.TestCase.assertEquals
 import org.junit.After

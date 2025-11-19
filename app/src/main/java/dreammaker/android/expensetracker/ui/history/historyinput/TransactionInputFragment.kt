@@ -292,8 +292,8 @@ class TransactionInputFragment : Fragment() {
         binding.containerTypes.check(R.id.type_debit)
     }
 
-    private fun prepareAmount(amount: Float?) {
-        binding.inputAmount.setText(amount?.toString())
+    private fun prepareAmount(amount: Number) {
+        binding.inputAmount.setText(amount.toString())
     }
 
     private fun prepareNote(note: String? = null) {
@@ -308,7 +308,7 @@ class TransactionInputFragment : Fragment() {
         }
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.primaryAccountState.collectLatest { account ->
-                updatePrimaryAccountChip(account,false)
+                updatePrimaryAccountChip(account)
             }
         }
     }
@@ -319,7 +319,7 @@ class TransactionInputFragment : Fragment() {
         }
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.groupState.collectLatest { group ->
-                updateGroupChip(group,true)
+                updateGroupChip(group)
             }
         }
     }
@@ -328,18 +328,18 @@ class TransactionInputFragment : Fragment() {
     ///                    utility Methods                       ///
     ///////////////////////////////////////////////////////////////
 
-    private fun updatePrimaryAccountChip(account: Account?, cancelable: Boolean = true) {
+    private fun updatePrimaryAccountChip(account: Account?) {
         val container = binding.selectedSourceContainer
         createChip(container,account,{
-            createInputChip(container, it.name, cancelable)
-        }, cancelable /*, { removeSelectedAccount() }*/)
+            createInputChip(container, it.name, false)
+        }, false)
     }
 
-    private fun updateGroupChip(group: Group?, cancelable: Boolean = true) {
+    private fun updateGroupChip(group: Group?) {
         val container = binding.selectedGroupContainer
         createChip(container, group, {
-            createInputChip(container, it.name, cancelable)
-        }, cancelable, { removeSelectedGroup() })
+            createInputChip(container, it.name, true)
+        }, true, { removeSelectedGroup() })
     }
 
     private fun <T> createChip(container: ViewGroup, data: T?,
