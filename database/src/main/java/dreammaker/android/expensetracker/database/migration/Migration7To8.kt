@@ -11,7 +11,7 @@ class Migration7To8: Migration(7,8) {
         db.execSQL("CREATE TABLE IF NOT EXISTS `groups` (`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `due` REAL NOT NULL, `lastUsed` TEXT, `totalUsed` INTEGER)")
 
         // insert all persons
-        db.execSQL("INSERT INTO `groups` (`id`,`name`,`due`) SELECT `_id` AS `id`, `person_name` AS `name`, `due` FROM `persons`")
+        db.execSQL("INSERT INTO `groups` (`id`,`name`,`balance`) SELECT `_id` AS `id`, `person_name` AS `name`, `due` AS `balance` FROM `persons`")
 
         // drop persons table
         db.execSQL("DROP TABLE IF EXISTS `persons`")

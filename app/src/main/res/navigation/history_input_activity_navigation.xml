@@ -7,11 +7,10 @@
     <fragment
         android:id="@+id/input_transaction"
         android:name="dreammaker.android.expensetracker.ui.history.historyinput.TransactionInputFragment"
-        android:label="@string/title_input_history_create"
         tools:layout="@layout/history_input_layout">
 
         <action android:id="@+id/action_input_transaction_to_account_picker"
-            app:destination="@id/pick_history_account"
+            app:destination="@id/pick_primary_account"
             app:enterAnim="@anim/slide_in_left"
             app:exitAnim="@anim/slide_out_right"
             app:popEnterAnim="@anim/slide_in_right"
@@ -29,11 +28,10 @@
     <fragment
         android:id="@+id/input_money_transfer"
         android:name="dreammaker.android.expensetracker.ui.history.historyinput.TransferHistoryInputFragment"
-        android:label="@string/title_create_transfer_history"
         tools:layout="@layout/history_input_layout">
 
         <action android:id="@+id/action_input_money_transfer_to_account_picker"
-            app:destination="@id/pick_history_account"
+            app:destination="@id/pick_primary_account"
             app:enterAnim="@anim/slide_in_left"
             app:exitAnim="@anim/slide_out_right"
             app:popEnterAnim="@anim/slide_in_right"
@@ -42,7 +40,7 @@
     </fragment>
 
     <fragment
-        android:id="@+id/pick_history_account"
+        android:id="@+id/pick_primary_account"
         android:name="dreammaker.android.expensetracker.ui.history.historyinput.picker.account.PickHistoryAccountFragment"
         android:label="@string/title_account_chooser"
         tools:layout="@layout/single_account_picker_list_with_search_layout"/>

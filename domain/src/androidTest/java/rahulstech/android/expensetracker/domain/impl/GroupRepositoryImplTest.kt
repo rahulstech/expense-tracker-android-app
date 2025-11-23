@@ -65,14 +65,14 @@ class GroupRepositoryImplTest {
     fun creditBalance() {
         val id = 2L
         groupRepo.creditDue(id, 200f)
-        assertEquals(2200f,groupDao.groups[id]!!.due)
+        assertEquals(2200f,groupDao.groups[id]!!.balance)
     }
 
     @Test
     fun debitDue() {
         val id = 2L
         groupRepo.debitDue(id, 200f)
-        assertEquals(1800f,groupDao.groups[id]!!.due)
+        assertEquals(1800f,groupDao.groups[id]!!.balance)
     }
 
     @Test

@@ -2,16 +2,17 @@ package rahulstech.android.expensetracker.domain.impl
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
+import androidx.paging.PagingData
 import dreammaker.android.expensetracker.database.IExpenseDatabase
 import dreammaker.android.expensetracker.database.dao.HistoryDao
 import dreammaker.android.expensetracker.database.model.HistoryEntity
 import dreammaker.android.expensetracker.database.model.HistoryType
 import rahulstech.android.expensetracker.domain.AccountRepository
 import rahulstech.android.expensetracker.domain.GroupRepository
+import rahulstech.android.expensetracker.domain.HistoryFilterParameters
 import rahulstech.android.expensetracker.domain.HistoryRepository
 import rahulstech.android.expensetracker.domain.model.History
 import rahulstech.android.expensetracker.domain.model.toHistory
-import java.time.LocalDate
 
 internal class HistoryRepositoryImpl(
     private val db: IExpenseDatabase,
@@ -42,15 +43,12 @@ internal class HistoryRepositoryImpl(
     override fun getLiveHistoryById(id: Long): LiveData<History?> =
         historyDao.getLiveHistoryById(id).map { it?.toHistory() }
 
-    override fun getLiveHistoriesForAccountBetweenDates(accountId: Long, start: LocalDate, end: LocalDate): LiveData<List<History>> =
-        historyDao.getLiveHistoriesForAccountBetweenDates(accountId,start,end).map { entities -> entities.map { it.toHistory() } }
-
-    override fun getLiveHistoriesForGroupBetweenDates(groupId: Long, start: LocalDate, end: LocalDate): LiveData<List<History>> =
-        historyDao.getLiveHistoriesForGroupBetweenDates(groupId,start,end).map { entities -> entities.map { it.toHistory() } }
+    override fun getPagedHistories(params: HistoryFilterParameters): LiveData<PagingData<History>> =
+        params.getPagedHistories(historyDao)
 
     override fun updateHistory(history: History): Boolean =
         db.runInTransaction<Boolean> {
-            val oldEntity = historyDao.findHistoryById(history.id)
+            val oldEntity = historyDao.findHistoryById(history.id)?.history
             if (null == oldEntity) {
                 return@runInTransaction false
             }
@@ -75,7 +73,7 @@ internal class HistoryRepositoryImpl(
     override fun deleteHistory(id: Long, reset: Boolean) {
         db.runInTransaction {
             if (reset) {
-                val entity = historyDao.findHistoryById(id)
+                val entity = historyDao.findHistoryById(id)?.history
                 if (null == entity) {
                     return@runInTransaction
                 }

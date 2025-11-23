@@ -44,7 +44,10 @@ class AccountPickerDetailsLookup(private val rv: RecyclerView): ItemDetailsLooku
 
 class PickHistoryAccountFragment : Fragment() {
 
-    private val TAG = PickHistoryAccountFragment::class.simpleName
+    companion object {
+        private val TAG = PickHistoryAccountFragment::class.simpleName
+        const val ARG_DISABLED_ACCOUNT = "arg_disabled_account"
+    }
 
     private var _binding: SingleAccountPickerListWithSearchLayoutBinding? = null
     private val binding get() = _binding!!
@@ -54,8 +57,11 @@ class PickHistoryAccountFragment : Fragment() {
     private lateinit var adapter: AccountPickerListAdapter
     private lateinit var selectionHelper: SelectionHelper<Long>
 
-    private fun getArgIsPrimary(): Boolean =
-        arguments?.getBoolean(Constants.KEY_IS_PRIMARY,true) ?: true
+    private val argIsPrimary: Boolean
+        get() = arguments?.getBoolean(Constants.KEY_IS_PRIMARY,true) ?: true
+
+    private val argDisabledAccountId: Long?
+        get() = arguments?.getLong(ARG_DISABLED_ACCOUNT)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -79,8 +85,8 @@ class PickHistoryAccountFragment : Fragment() {
     }
 
     private fun prepareItemSelection() {
-        selectionHelper = SelectionHelper<Long>(adapter,this,viewLifecycleOwner) {
-            SelectionTracker.Builder<Long>(
+        selectionHelper = SelectionHelper(adapter,this,viewLifecycleOwner) {
+            SelectionTracker.Builder(
                 "singleAccountSelection",
                 binding.optionsList,
                 AccountPickerSelectionKeyProvider(adapter),
@@ -97,7 +103,7 @@ class PickHistoryAccountFragment : Fragment() {
     }
 
     private fun getInitialSelection(): Long? {
-        return historyViewModel.getAccount(getArgIsPrimary())?.id
+        return historyViewModel.getAccount(argIsPrimary)?.id
     }
 
     private fun onAccountsLoaded(accounts: List<Account>) {
@@ -114,8 +120,11 @@ class PickHistoryAccountFragment : Fragment() {
 
     private fun handlePickAccount() {
         val selectedAccount = getSelectedAccount()
-        Log.i(TAG, "selected account $selectedAccount is_primary = ${getArgIsPrimary()}")
-        historyViewModel.setAccount(selectedAccount, getArgIsPrimary())
+        Log.d(TAG, "selected account $selectedAccount is_primary = $argIsPrimary")
+        historyViewModel.setAccount(selectedAccount, argIsPrimary)
+
+        // TODO: check and ask to default account
+
         navController.popBackStack()
     }
 

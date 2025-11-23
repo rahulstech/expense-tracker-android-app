@@ -6,14 +6,14 @@ import androidx.recyclerview.selection.ItemDetailsLookup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import dreammaker.android.expensetracker.databinding.GroupChooserListItemBinding
-import dreammaker.android.expensetracker.util.BaseSelectableItemListAdapter2
-import dreammaker.android.expensetracker.util.ClickableViewHolder
+import dreammaker.android.expensetracker.util.BaseSelectableItemListAdapter
+import dreammaker.android.expensetracker.util.SelectableViewHolder
 import dreammaker.android.expensetracker.util.getDueText
 import rahulstech.android.expensetracker.domain.model.Group
 
 class GroupPickerViewHolder(
     private val binding: GroupChooserListItemBinding,
-) : ClickableViewHolder<GroupPickerViewHolder>(binding.root) {
+) : SelectableViewHolder<Long>(binding.root) {
 
     fun bind(data: Group?, isSelected: Boolean) {
         if (null == data) {
@@ -28,7 +28,7 @@ class GroupPickerViewHolder(
         }
     }
 
-    fun getSelectedItemDetails(): ItemDetailsLookup.ItemDetails<Long?>? = object: ItemDetailsLookup.ItemDetails<Long?>() {
+    override fun getSelectedItemDetails(): ItemDetailsLookup.ItemDetails<Long?>? = object: ItemDetailsLookup.ItemDetails<Long?>() {
         override fun getPosition(): Int = absoluteAdapterPosition
 
         override fun getSelectionKey(): Long? = itemId
@@ -44,7 +44,7 @@ private val callback = object: DiffUtil.ItemCallback<Group>() {
 
 }
 
-open class GroupPickerListAdapter: BaseSelectableItemListAdapter2<Group, Long, GroupPickerViewHolder>(callback) {
+open class GroupPickerListAdapter: BaseSelectableItemListAdapter<Group, Long, GroupPickerViewHolder>(callback) {
     init {
         setHasStableIds(true)
     }
@@ -53,7 +53,7 @@ open class GroupPickerListAdapter: BaseSelectableItemListAdapter2<Group, Long, G
         val inflater = LayoutInflater.from(parent.context)
         val binding = GroupChooserListItemBinding.inflate(inflater, parent, false);
         return GroupPickerViewHolder(binding).apply {
-            attachItemClickListener { vh,v -> handleItemClick(vh,v)}
+            attachItemClickListener { vh,v -> handleItemClick(vh as GroupPickerViewHolder,v)}
         }
     }
 

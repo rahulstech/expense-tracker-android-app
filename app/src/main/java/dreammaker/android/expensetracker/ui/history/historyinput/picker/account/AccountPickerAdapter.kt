@@ -6,14 +6,14 @@ import androidx.recyclerview.selection.ItemDetailsLookup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import dreammaker.android.expensetracker.databinding.AccountChooserListItemBinding
-import dreammaker.android.expensetracker.util.BaseSelectableItemListAdapter2
-import dreammaker.android.expensetracker.util.ClickableViewHolder
+import dreammaker.android.expensetracker.util.BaseSelectableItemListAdapter
+import dreammaker.android.expensetracker.util.SelectableViewHolder
 import dreammaker.android.expensetracker.util.getBalanceText
 import rahulstech.android.expensetracker.domain.model.Account
 
 class AccountPickerViewHolder(
     private val binding: AccountChooserListItemBinding
-) : ClickableViewHolder<AccountPickerViewHolder>(binding.root) {
+) : SelectableViewHolder<Long>(binding.root) {
 
     fun bind(data: Account?, isSelected: Boolean) {
         if (null == data) {
@@ -28,7 +28,7 @@ class AccountPickerViewHolder(
         }
     }
 
-    fun getSelectedItemDetails(): ItemDetailsLookup.ItemDetails<Long?>? = object: ItemDetailsLookup.ItemDetails<Long?>() {
+    override fun getSelectedItemDetails(): ItemDetailsLookup.ItemDetails<Long?>? = object: ItemDetailsLookup.ItemDetails<Long?>() {
         override fun getPosition(): Int = absoluteAdapterPosition
 
         override fun getSelectionKey(): Long? = itemId
@@ -44,7 +44,7 @@ private val callback = object: DiffUtil.ItemCallback<Account>() {
 
 }
 
-open class AccountPickerListAdapter: BaseSelectableItemListAdapter2<Account, Long, AccountPickerViewHolder>(callback) {
+open class AccountPickerListAdapter: BaseSelectableItemListAdapter<Account, Long, AccountPickerViewHolder>(callback) {
 
     init {
         setHasStableIds(true)
@@ -54,7 +54,7 @@ open class AccountPickerListAdapter: BaseSelectableItemListAdapter2<Account, Lon
         val inflater = LayoutInflater.from(parent.context)
         val binding = AccountChooserListItemBinding.inflate(inflater, parent, false);
         return AccountPickerViewHolder(binding).apply {
-            attachItemClickListener { vh,view -> handleItemClick(vh,view) }
+            attachItemClickListener { vh,view -> handleItemClick(vh as AccountPickerViewHolder,view) }
         }
     }
 

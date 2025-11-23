@@ -42,6 +42,9 @@ dependencies {
 
     // room
     compileOnly libs.room.runtime
+    compileOnly libs.room.paging
+
+    compileOnly libs.paging.runtime
 
     testImplementation libs.junit
     androidTestImplementation libs.junit.android

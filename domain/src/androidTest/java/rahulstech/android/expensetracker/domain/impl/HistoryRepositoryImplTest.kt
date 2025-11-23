@@ -30,7 +30,7 @@ class HistoryRepositoryImplTest {
     fun insertHistory() {
         val history = History.CreditHistory(
             id=0,
-            amount=120,
+            amount=120f,
             date = LocalDate.of(2025,10,10),
             note = "Credit",
             primaryAccountId = 2L,
@@ -40,14 +40,14 @@ class HistoryRepositoryImplTest {
         historyRepo.insertHistory(history)
 
         assertEquals("update balance",2120f, accountRepo.accounts[2L]!!.balance)
-        assertEquals("update due",-20f, groupRepo.groups[1L]!!.due)
+        assertEquals("update due",-20f, groupRepo.groups[1L]!!.balance)
     }
 
     @Test
     fun updateHistory() {
         val history = History.CreditHistory(
             id=1,
-            amount=50,
+            amount=50f,
             date = LocalDate.of(2025,10,10),
             note = "Credit",
             primaryAccountId = 2L,
@@ -59,9 +59,9 @@ class HistoryRepositoryImplTest {
         assertTrue(updated)
 
         assertEquals("reset balance", 200f, accountRepo.accounts[1L]!!.balance)
-        assertEquals("reset due", 1900f, groupRepo.groups[2L]!!.due)
+        assertEquals("reset due", 1900f, groupRepo.groups[2L]!!.balance)
 
         assertEquals("update balance",2050f, accountRepo.accounts[2L]!!.balance)
-        assertEquals("update due", 50f, groupRepo.groups[1L]!!.due)
+        assertEquals("update due", 50f, groupRepo.groups[1L]!!.balance)
     }
 }

@@ -284,13 +284,13 @@ class FakeGroupRepository: GroupRepository {
 
     override fun creditDue(id: Long, amount: Number) {
         groups[id]?.let { group ->
-            groups[id] = group.copy(due = group.due.toFloat() + amount.toFloat())
+            groups[id] = group.copy(balance = group.balance.toFloat() + amount.toFloat())
         }
     }
 
     override fun debitDue(id: Long, amount: Number) {
         groups[id]?.let { group ->
-            groups[id] = group.copy(due = group.due.toFloat() - amount.toFloat())
+            groups[id] = group.copy(balance = group.balance.toFloat() - amount.toFloat())
         }
     }
 

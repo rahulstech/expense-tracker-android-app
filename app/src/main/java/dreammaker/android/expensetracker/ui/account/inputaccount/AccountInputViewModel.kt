@@ -3,14 +3,12 @@ package dreammaker.android.expensetracker.ui.account.inputaccount
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dreammaker.android.expensetracker.util.UIState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
@@ -39,19 +37,19 @@ class AccountInputViewModel(
         return accountLiveData
     }
 
-    private val _saveAccountState = MutableSharedFlow<UIState>(
+    private val _saveAccountState = MutableSharedFlow<UIState<Account>>(
         replay = 0,
         extraBufferCapacity = 1,
         onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
-    val saveAccountState: Flow<UIState?> get() = _saveAccountState.asSharedFlow()
+    val saveAccountState: Flow<UIState<Account>?> get() = _saveAccountState
 
     fun addAccount(account: Account) {
         viewModelScope.launch(Dispatchers.IO) {
             flow {
                 _saveAccountState.tryEmit(UIState.UILoading())
                 val savedAccount = accountRepo.insertAccount(account)
-                emit(UIState.UISuccess(savedAccount))
+                emit(savedAccount)
             }
                 .catch { error -> _saveAccountState.tryEmit(UIState.UIError(error,account)) }
                 .collect {

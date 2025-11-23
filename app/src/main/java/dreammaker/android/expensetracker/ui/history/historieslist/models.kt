@@ -8,7 +8,24 @@ import androidx.core.text.buildSpannedString
 import androidx.core.text.color
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.util.toCurrencyString
+import rahulstech.android.expensetracker.domain.model.History
+import java.time.LocalDate
 import java.util.Locale
+
+sealed class HistoryListItem {
+
+    data class Header(
+        val date: LocalDate
+    ): HistoryListItem()
+
+    data class Item(
+        val history: History,
+        var selected: Boolean = false
+    ): HistoryListItem()
+
+    class Placeholder(): HistoryListItem()
+}
+
 
 class HistoryFilterData {
 
@@ -47,8 +64,8 @@ class HistoryFilterData {
 }
 
 data class HistorySummary(
-    val totalCredit: Float = 0f,
-    val totalDebit: Float = 0f
+    val totalCredit: Double = 0.0,
+    val totalDebit: Double = 0.0
 ) {
 
     fun getTotalCreditText(
@@ -84,7 +101,7 @@ data class HistorySummary(
     private fun buildLabeledColoredAmountText(
         context: Context,
         @StringRes labelResId: Int,
-        amount: Float,
+        amount: Double,
         @ColorRes colorRes: Int,
         currencyCode: String,
         locale: Locale

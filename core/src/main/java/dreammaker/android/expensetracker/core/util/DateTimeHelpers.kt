@@ -16,12 +16,7 @@ fun LocalDate.getMillisInDayEnd(zoneId: ZoneId = ZoneId.systemDefault()): Long =
         .toInstant(ZoneOffset.of(zoneId.id))
         .toEpochMilli()
 
-fun YearMonth.toFirstDate(): LocalDate = LocalDate.of(year,month,1)
-
-fun YearMonth.toLastDate(): LocalDate = when {
-    isLeapYear -> LocalDate.of(year,month,month.maxLength())
-    else -> LocalDate.of(year,month,month.minLength())
-}
+fun YearMonth.atStartOfMonth(): LocalDate = LocalDate.of(year,month,1)
 
 fun YearMonth.durationMonthsTill(toInclusive: YearMonth): Long =
-    ChronoUnit.MONTHS.between(this,toInclusive.plusMonths(1))
+    ChronoUnit.MONTHS.between(this,toInclusive)

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 8,
-    "identityHash": "f68382f8a23c04fdf0ac038624e2dec4",
+    "identityHash": "b9da793f6ea144c964b5665b233447b2",
     "entities": [
       {
         "tableName": "accounts",
@@ -29,28 +29,24 @@
           {
             "fieldPath": "lastUsed",
             "columnName": "lastUsed",
-            "affinity": "TEXT",
-            "notNull": false
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "totalUsed",
             "columnName": "totalUsed",
-            "affinity": "INTEGER",
-            "notNull": false
+            "affinity": "INTEGER"
           }
         ],
         "primaryKey": {
+          "autoGenerate": true,
           "columnNames": [
             "id"
-          ],
-          "autoGenerate": true
-        },
-        "indices": [],
-        "foreignKeys": []
+          ]
+        }
       },
       {
         "tableName": "groups",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `due` REAL NOT NULL, `lastUsed` TEXT, `totalUsed` INTEGER)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `balance` REAL NOT NULL, `lastUsed` TEXT, `totalUsed` INTEGER)",
         "fields": [
           {
             "fieldPath": "id",
@@ -65,32 +61,28 @@
             "notNull": true
           },
           {
-            "fieldPath": "due",
-            "columnName": "due",
+            "fieldPath": "balance",
+            "columnName": "balance",
             "affinity": "REAL",
             "notNull": true
           },
           {
             "fieldPath": "lastUsed",
             "columnName": "lastUsed",
-            "affinity": "TEXT",
-            "notNull": false
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "totalUsed",
             "columnName": "totalUsed",
-            "affinity": "INTEGER",
-            "notNull": false
+            "affinity": "INTEGER"
           }
         ],
         "primaryKey": {
+          "autoGenerate": true,
           "columnNames": [
             "id"
-          ],
-          "autoGenerate": true
-        },
-        "indices": [],
-        "foreignKeys": []
+          ]
+        }
       },
       {
         "tableName": "histories",
@@ -111,20 +103,17 @@
           {
             "fieldPath": "primaryAccountId",
             "columnName": "primaryAccountId",
-            "affinity": "INTEGER",
-            "notNull": false
+            "affinity": "INTEGER"
           },
           {
             "fieldPath": "secondaryAccountId",
             "columnName": "secondaryAccountId",
-            "affinity": "INTEGER",
-            "notNull": false
+            "affinity": "INTEGER"
           },
           {
             "fieldPath": "groupId",
             "columnName": "groupId",
-            "affinity": "INTEGER",
-            "notNull": false
+            "affinity": "INTEGER"
           },
           {
             "fieldPath": "amount",
@@ -141,15 +130,14 @@
           {
             "fieldPath": "note",
             "columnName": "note",
-            "affinity": "TEXT",
-            "notNull": false
+            "affinity": "TEXT"
           }
         ],
         "primaryKey": {
+          "autoGenerate": true,
           "columnNames": [
             "id"
-          ],
-          "autoGenerate": true
+          ]
         },
         "indices": [
           {
@@ -158,6 +146,7 @@
             "columnNames": [
               "primaryAccountId"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_histories_primaryAccountId` ON `${TABLE_NAME}` (`primaryAccountId`)"
           },
           {
@@ -166,6 +155,7 @@
             "columnNames": [
               "secondaryAccountId"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_histories_secondaryAccountId` ON `${TABLE_NAME}` (`secondaryAccountId`)"
           },
           {
@@ -174,6 +164,7 @@
             "columnNames": [
               "groupId"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_histories_groupId` ON `${TABLE_NAME}` (`groupId`)"
           }
         ],
@@ -214,10 +205,9 @@
         ]
       }
     ],
-    "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f68382f8a23c04fdf0ac038624e2dec4')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b9da793f6ea144c964b5665b233447b2')"
     ]
   }
 }

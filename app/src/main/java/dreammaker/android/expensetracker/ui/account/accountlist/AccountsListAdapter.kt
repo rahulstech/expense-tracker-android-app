@@ -6,14 +6,14 @@ import androidx.recyclerview.selection.ItemDetailsLookup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import dreammaker.android.expensetracker.databinding.AccountListItemBinding
-import dreammaker.android.expensetracker.util.BaseSelectableItemListAdapter2
-import dreammaker.android.expensetracker.util.ClickableViewHolder
+import dreammaker.android.expensetracker.util.BaseSelectableItemListAdapter
+import dreammaker.android.expensetracker.util.SelectableViewHolder
 import dreammaker.android.expensetracker.util.getBalanceText
 import rahulstech.android.expensetracker.domain.model.Account
 
 class AccountViewHolder(
     val binding: AccountListItemBinding
-): ClickableViewHolder<AccountViewHolder>(binding.root) {
+): SelectableViewHolder<Long>(binding.root) {
 
     fun bind(data: Account?, selected: Boolean) {
         if (null == data) {
@@ -28,7 +28,7 @@ class AccountViewHolder(
         }
     }
 
-    fun getSelectedItemDetails(): ItemDetailsLookup.ItemDetails<Long?> = object : ItemDetailsLookup.ItemDetails<Long?>() {
+    override fun getSelectedItemDetails(): ItemDetailsLookup.ItemDetails<Long?> = object : ItemDetailsLookup.ItemDetails<Long?>() {
         override fun getPosition(): Int = absoluteAdapterPosition
 
         override fun getSelectionKey(): Long? = itemId
@@ -43,7 +43,7 @@ private val callback = object: DiffUtil.ItemCallback<Account>() {
         oldItem == newItem
 }
 
-class AccountsAdapter: BaseSelectableItemListAdapter2<Account, Long, AccountViewHolder>(callback) {
+class AccountsAdapter: BaseSelectableItemListAdapter<Account, Long, AccountViewHolder>(callback) {
 
     init {
         setHasStableIds(true)
@@ -58,8 +58,8 @@ class AccountsAdapter: BaseSelectableItemListAdapter2<Account, Long, AccountView
         val inflate = LayoutInflater.from(parent.context)
         val binding = AccountListItemBinding.inflate(inflate, parent, false)
         return AccountViewHolder(binding).apply {
-            attachItemClickListener {  vh, v -> handleItemClick(vh,v) }
-            attachItemLongClickListener { vh, v -> handleItemLongClick(vh,v) }
+            attachItemClickListener {  vh, v -> handleItemClick(vh as AccountViewHolder,v) }
+            attachItemLongClickListener { vh, v -> handleItemLongClick(vh as AccountViewHolder,v) }
         }
     }
 

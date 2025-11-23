@@ -172,9 +172,9 @@
     <!-- History -->
 
     <fragment android:id="@+id/history_list"
-        android:name="dreammaker.android.expensetracker.ui.history.historieslist.HistoryListContainer"
+        android:name="dreammaker.android.expensetracker.ui.history.historieslist.HistoryListFragment"
         android:label="@string/title_history_list"
-        tools:layout="@layout/history_list">
+        tools:layout="@layout/fragment_history_list">
 
         <action android:id="@+id/action_history_list_to_create_history"
             app:destination="@id/create_history"
@@ -194,7 +194,7 @@
     <fragment android:id="@+id/view_history"
         android:name="dreammaker.android.expensetracker.ui.history.viewhistory.ViewHistoryItemFragment"
         android:label="@string/title_view_history"
-        tools:layout="@layout/history_item_layout">
+        tools:layout="@layout/view_history_layout">
 
         <action android:id="@+id/action_view_history_to_view_account"
             app:destination="@id/view_account"

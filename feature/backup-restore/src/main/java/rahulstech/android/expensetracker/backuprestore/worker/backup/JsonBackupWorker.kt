@@ -85,6 +85,7 @@ class JsonBackupWorker(context: Context, params: WorkerParameters): Worker(conte
 
     @VisibleForTesting
     fun backup(readHelper: ReadHelper, writer: JsonWriter, gson: Gson) {
+
         try {
             readHelper.open()
 
@@ -116,8 +117,8 @@ class JsonBackupWorker(context: Context, params: WorkerParameters): Worker(conte
             // backup settings
             throwIfStopped()
             updateProgress(4)
-            val appSettings = readHelper.readAppSettings()
-            backupAppSettings(appSettings, writer, gson)
+//            val appSettings = readHelper.readAppSettings()
+//            backupAppSettings(appSettings, writer, gson)
 
             writer.endObject()
             writer.flush()
@@ -219,8 +220,6 @@ class JsonBackupWorker(context: Context, params: WorkerParameters): Worker(conte
         fun readGroups(): List<GroupData>
 
         fun readHistories(from: Long, size: Long): List<HistoryData>
-
-        fun readAppSettings(): AppSettingsData
     }
 
     private class ReadHelperImpl(context: Context): ReadHelper {
@@ -250,11 +249,6 @@ class JsonBackupWorker(context: Context, params: WorkerParameters): Worker(conte
         override fun readHistories(from: Long, size: Long): List<HistoryData> {
 //            return expenseDB.historyDao.getAllHistories(from, size).map { history -> history.toHistoryData() }
             return emptyList()
-        }
-
-        override fun readAppSettings(): AppSettingsData {
-//            return SettingsProvider.get(applicationContext).backup().toSettingsData()
-            return AppSettingsData()
         }
     }
 }

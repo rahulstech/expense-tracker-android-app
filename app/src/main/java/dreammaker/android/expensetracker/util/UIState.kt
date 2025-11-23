@@ -1,13 +1,9 @@
 package dreammaker.android.expensetracker.util
 
-sealed class UIState {
-    data class UILoading(val data: Any? = null): UIState()
+sealed class UIState<out T> {
+    data class UILoading(val data: Any? = null): UIState<Nothing>()
     
-    data class UISuccess(val data: Any? = null): UIState() {
-
-        @Suppress("UNCHECKED_CAST")
-        fun <T> asData(): T? = data as T?
-    }
+    data class UISuccess<out T>(val data: T? = null): UIState<T>()
     
-    data class UIError(val cause: Throwable? = null, val data: Any? = null): UIState()
+    data class UIError(val cause: Throwable? = null, val data: Any? = null): UIState<Nothing>()
 }

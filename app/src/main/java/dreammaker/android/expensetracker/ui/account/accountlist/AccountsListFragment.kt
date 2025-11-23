@@ -63,8 +63,6 @@ class AccountsListFragment : Fragment() {
     private val navController: NavController by lazy { findNavController() }
 
     private lateinit var selectionHelper: SelectionHelper<Long>
-
-//    private val cabVm: ContextualActionBarViewModel by activityViewModels()
     private val cabMenuProvider = object: MenuProvider {
 
         override fun onCreateMenu(
@@ -92,9 +90,8 @@ class AccountsListFragment : Fragment() {
                 getString(R.string.message_warning_delete_multiple, selectionHelper.count()),
                 QuickMessages.AlertButton(getString(R.string.label_no)),
                 QuickMessages.AlertButton(getString(R.string.label_yes)) {
-                    val ids = selectionHelper.getSelections()
-                    viewModel.deleteAccounts(ids)
-//                    cabVm.endContextActionBar()
+                    viewModel.deleteAccounts(selectionHelper.getSelections())
+                    selectionHelper.endSelection()
                 },
             )
         }

@@ -4,6 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import dreammaker.android.expensetracker.database.IExpenseDatabase
 import dreammaker.android.expensetracker.database.dao.GroupDao
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import rahulstech.android.expensetracker.domain.GroupRepository
 import rahulstech.android.expensetracker.domain.LocalCache
 import rahulstech.android.expensetracker.domain.model.Group
@@ -36,6 +38,20 @@ internal class GroupRepositoryImpl(
     override fun getLiveRecentlyUsedGroups(count: Int): LiveData<List<Group>> =
         groupDao.getLiveRecentlyUsedGroups(count).map { entities -> entities.map { it.toGroup() } }
 
+    override fun getDefaultGroup(): Flow<Group?> = flow {
+        cache.getDefaultGroup()?.let { id ->
+            val group = findGroupById(id)
+            // if default group delete from database then also remove from cache
+            if (null == group) {
+                cache.removeDefaultGroup()
+                emit(null)
+            }
+            else {
+                emit(group)
+            }
+        }
+    }
+
     override fun updateGroup(group: Group): Boolean {
         val cachedTotalUsed = cache.getGroupTotalCount(group.id)
         val _group = group.copy(lastUsed = LocalDateTime.now(), totalUsed = cachedTotalUsed+1)
@@ -51,7 +67,7 @@ internal class GroupRepositoryImpl(
         val entity = groupDao.findGroupById(id)
         entity?.let {
             val group = it.toGroup()
-            val updatedGroup = group.copy(due = group.due.toFloat() + amount.toFloat())
+            val updatedGroup = group.copy(balance = group.balance.toFloat() + amount.toFloat())
             updateGroup(updatedGroup)
         }
     }
@@ -60,8 +76,17 @@ internal class GroupRepositoryImpl(
         val entity = groupDao.findGroupById(id)
         entity?.let {
             val group = it.toGroup()
-            val updatedGroup = group.copy(due = group.due.toFloat() - amount.toFloat())
+            val updatedGroup = group.copy(balance = group.balance.toFloat() - amount.toFloat())
             updateGroup(updatedGroup)
+        }
+    }
+
+    override fun changeDefaultGroup(group: Group?) {
+        if (null == group) {
+            cache.removeDefaultGroup()
+        }
+        else {
+            cache.setDefaultGroup(group.id)
         }
     }
 

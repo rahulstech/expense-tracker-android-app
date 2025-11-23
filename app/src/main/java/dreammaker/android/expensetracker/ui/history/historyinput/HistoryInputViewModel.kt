@@ -10,11 +10,12 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import rahulstech.android.expensetracker.domain.ExpenseRepository
 import rahulstech.android.expensetracker.domain.model.Account
@@ -26,24 +27,28 @@ class HistoryInputViewModel (
     app: Application
 ) : AndroidViewModel(app) {
 
-    private val historyRepo = ExpenseRepository.getInstance(app).historyRepository
+    private val repos = ExpenseRepository.getInstance(app)
+    private val historyRepo = repos.historyRepository
+    private val accountRepo = repos.accountRepository
+    private val groupRepo = repos.groupRepository
 
     private val TAG = HistoryInputViewModel::class.simpleName
 
-    private val _historyState = MutableStateFlow<UIState>(UIState.UILoading())
-    val historyState: Flow<UIState?> get() = _historyState
-    val history: History?
-        get() {
-            val state = _historyState.value
-            return when(state) {
-                is UIState.UISuccess -> state.asData()
-                else -> null
-            }
-        }
+    private val _historyState = MutableSharedFlow<UIState<History>>(
+        replay = 0,
+        extraBufferCapacity = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    val historyState: Flow<UIState<History>?> = _historyState
+    val history: History? = null
 
     fun findHistory(id: Long) {
+        // history found, no need to find again
+        if (history?.id == id) return
+
         viewModelScope.launch(Dispatchers.IO) {
             flow {
+                _historyState.tryEmit(UIState.UILoading())
                 val history = historyRepo.findHistoryById(id)
                 emit(history)
             }
@@ -52,12 +57,12 @@ class HistoryInputViewModel (
         }
     }
 
-    private val _saveHistoryState = MutableSharedFlow<UIState>(
+    private val _saveHistoryState = MutableSharedFlow<UIState<History>>(
         replay = 0,
         extraBufferCapacity = 1,
         onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
-    val saveHistoryState: Flow<UIState> get() = _saveHistoryState.asSharedFlow()
+    val saveHistoryState: Flow<UIState<History>> get() = _saveHistoryState
 
     fun addHistory(history: History) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -82,6 +87,26 @@ class HistoryInputViewModel (
                 .collect { _saveHistoryState.tryEmit(UIState.UISuccess(it)) }
         }
     }
+
+    private val _defaultAccount: StateFlow<Account?> by lazy {
+        accountRepo.getDefaultAccount()
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.Lazily,
+                initialValue = null
+            )
+    }
+    val defaultAccount: Flow<Account?> = _defaultAccount
+
+    private val _defaultGroup: StateFlow<Group?> by lazy {
+        groupRepo.getDefaultGroup()
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.Lazily,
+                initialValue = null
+            )
+    }
+    val defaultGroup: Flow<Group?> = _defaultGroup
 
     private val _dateState = MutableStateFlow<LocalDate>(LocalDate.now())
     val dateState: StateFlow<LocalDate> = _dateState
@@ -119,12 +144,6 @@ class HistoryInputViewModel (
             _secondaryAccountState.value
         }
     }
-
-//    var group: Group?
-//        get() = _groupState.value
-//        set(value) {
-//            _groupState.value = value
-//        }
 
     fun setGroup(group: Group?) {
         _groupState.tryEmit(group)

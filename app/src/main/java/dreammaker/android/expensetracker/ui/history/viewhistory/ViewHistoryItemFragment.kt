@@ -7,7 +7,6 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
@@ -17,11 +16,16 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.chip.Chip
 import dreammaker.android.expensetracker.Constants
+import dreammaker.android.expensetracker.DATE_WITH_WEAKDAY_FORMAT
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.core.util.QuickMessages
 import dreammaker.android.expensetracker.databinding.HistoryItemLayoutBinding
+import dreammaker.android.expensetracker.databinding.ViewHistoryLayoutBinding
 import dreammaker.android.expensetracker.util.UIState
+import dreammaker.android.expensetracker.util.UNKNOWN_ACCOUNT
+import dreammaker.android.expensetracker.util.UNKNOWN_GROUP
 import dreammaker.android.expensetracker.util.createInputChip
+import dreammaker.android.expensetracker.util.getArgId
 import dreammaker.android.expensetracker.util.getTypeBackgroundColor
 import dreammaker.android.expensetracker.util.getTypeColorOnBackground
 import dreammaker.android.expensetracker.util.getTypeLabel
@@ -31,37 +35,26 @@ import dreammaker.android.expensetracker.util.visibilityGone
 import dreammaker.android.expensetracker.util.visible
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import rahulstech.android.expensetracker.domain.model.Group
 import rahulstech.android.expensetracker.domain.model.History
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 class ViewHistoryItemFragment: Fragment(), MenuProvider {
 
     companion object {
         private val TAG = ViewHistoryItemFragment::class.simpleName
-        private val DATE_FORMAT = DateTimeFormatter.ofPattern("EEEE, dd MMMM, yyyy")
-//        const val ARG_HISTORY_TYPE = "arg.history_type"
     }
 
-    private var _binding: HistoryItemLayoutBinding? = null
+    private var _binding: ViewHistoryLayoutBinding? = null
     private val binding get() = _binding!!
 
     private val navController: NavController by lazy { findNavController() }
     private val viewModel: ViewHistoryItemViewModel by viewModels()
-
-    private fun getArgHistoryId(): Long = requireArguments().getLong(Constants.ARG_ID)
-
-//    private fun getArgHistoryType(): HistoryType = requireArguments().getHistoryType(ARG_HISTORY_TYPE)!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (!hasArgument(Constants.ARG_ID)) {
             throw IllegalArgumentException("'${Constants.ARG_ID}' argument is required")
         }
-//        if (!hasArgument(ARG_HISTORY_TYPE)) {
-//            throw IllegalArgumentException("'$ARG_HISTORY_TYPE' argument is required")
-//        }
     }
 
     override fun onCreateView(
@@ -69,12 +62,12 @@ class ViewHistoryItemFragment: Fragment(), MenuProvider {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = HistoryItemLayoutBinding.inflate(inflater, container, false)
+        _binding = ViewHistoryLayoutBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val id = getArgHistoryId()
+        val id = getArgId()
         viewModel.findHistory(id).observe(viewLifecycleOwner, this::onHistoryLoaded)
         lifecycleScope.launch {
             viewModel.removeHistoryState.collectLatest { state ->
@@ -95,7 +88,7 @@ class ViewHistoryItemFragment: Fragment(), MenuProvider {
 
     private fun onHistoryLoaded(history: History?) {
         if (null == history){
-            Toast.makeText(requireContext(), R.string.message_history_not_found, Toast.LENGTH_LONG).show()
+            QuickMessages.toastError(requireContext(), getString(R.string.message_history_not_found))
             navController.popBackStack()
             return
         }
@@ -106,12 +99,12 @@ class ViewHistoryItemFragment: Fragment(), MenuProvider {
         prepareNote(history.note)
         prepareSource(history)
         prepareDestination(history)
-        prepareGroup(history.group)
+        prepareGroup(history)
         requireActivity().invalidateOptionsMenu()
     }
 
     private fun prepareDate(date: LocalDate) {
-        binding.date.text = date.format(DATE_FORMAT)
+        binding.date.text = date.format(DATE_WITH_WEAKDAY_FORMAT)
     }
 
     private fun prepareType(history: History) {
@@ -142,8 +135,9 @@ class ViewHistoryItemFragment: Fragment(), MenuProvider {
         when(history) {
             is History.DebitHistory,
             is History.TransferHistory -> {
+                val account = history.primaryAccount ?: UNKNOWN_ACCOUNT
                 binding.sourceLabel.text = getString(R.string.label_history_item_source_account)
-                binding.source.text = history.primaryAccount?.name
+                binding.source.text = account.name
                 binding.sourceGroup.visible()
             }
             else -> {
@@ -154,9 +148,9 @@ class ViewHistoryItemFragment: Fragment(), MenuProvider {
     }
 
     private fun onClickViewSource(history: History) {
-        if (history is History.CreditHistory) {
+        history.primaryAccountId?.let { id ->
             navController.navigate(R.id.action_view_history_to_view_account, Bundle().apply {
-                putLong(Constants.ARG_ID, history.primaryAccountId)
+                putLong(Constants.ARG_ID, id)
             })
         }
     }
@@ -165,8 +159,9 @@ class ViewHistoryItemFragment: Fragment(), MenuProvider {
         when(history) {
             is History.CreditHistory,
             is History.TransferHistory -> {
+                val account = history.primaryAccount ?: UNKNOWN_ACCOUNT
                 binding.destinationLabel.text = getString(R.string.label_history_item_destination_account)
-                binding.destination.text = history.primaryAccount?.name
+                binding.destination.text = account.name
                 binding.destinationGroup.visible()
             }
             else -> {
@@ -176,29 +171,27 @@ class ViewHistoryItemFragment: Fragment(), MenuProvider {
         binding.viewDestination.setOnClickListener { onClickViewDestination(history) }
     }
 
-    private fun prepareGroup(group: Group?) {
-        // TODO: handle null group
-        group?.let {
-            val chip = createChip(binding.containerGroupAndTags, group.name)
-            chip.setOnClickListener {
-                navController.navigate(R.id.action_view_history_to_view_group, Bundle().apply {
-                    putLong(Constants.ARG_ID, group.id)
-                })
-            }
-            binding.containerGroupAndTags.addView(chip)
+    private fun onClickViewDestination(history: History) {
+        history.secondaryAccountId?.let { id ->
+            navController.navigate(R.id.action_view_history_to_view_account, Bundle().apply {
+                putLong(Constants.ARG_ID, id)
+            })
         }
+    }
+
+    private fun prepareGroup(history: History) {
+        val group = history.group ?: UNKNOWN_GROUP
+        val chip = createChip(binding.containerGroupAndTags, group.name)
+        chip.setOnClickListener {
+            navController.navigate(R.id.action_view_history_to_view_group, Bundle().apply {
+                putLong(Constants.ARG_ID, group.id)
+            })
+        }
+        binding.containerGroupAndTags.addView(chip)
     }
 
     private fun createChip(container: ViewGroup, text: String): Chip {
         return createInputChip(container, text, false)
-    }
-
-    private fun onClickViewDestination(history: History) {
-        if (history is History.DebitHistory) {
-            navController.navigate(R.id.action_view_history_to_view_account, Bundle().apply {
-                putLong(Constants.ARG_ID, history.primaryAccountId)
-            })
-        }
     }
 
     override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {

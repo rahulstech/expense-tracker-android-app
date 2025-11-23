@@ -6,8 +6,8 @@ import androidx.recyclerview.selection.ItemDetailsLookup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import dreammaker.android.expensetracker.databinding.GroupListItemBinding
-import dreammaker.android.expensetracker.util.BaseSelectableItemListAdapter2
-import dreammaker.android.expensetracker.util.ClickableViewHolder
+import dreammaker.android.expensetracker.util.BaseSelectableItemListAdapter
+import dreammaker.android.expensetracker.util.SelectableViewHolder
 import dreammaker.android.expensetracker.util.getDueLabel
 import dreammaker.android.expensetracker.util.getDueText
 import dreammaker.android.expensetracker.util.visibilityGone
@@ -16,7 +16,7 @@ import rahulstech.android.expensetracker.domain.model.Group
 
 class GroupsListViewHolder(
     val binding: GroupListItemBinding,
-): ClickableViewHolder<GroupsListViewHolder>(binding.root) {
+): SelectableViewHolder<Long>(binding.root) {
 
     fun bind(group: Group?, selected: Boolean) {
         if (null == group) {
@@ -39,7 +39,7 @@ class GroupsListViewHolder(
         }
     }
 
-    fun getSelectedItemDetails(): ItemDetailsLookup.ItemDetails<Long?>? = object: ItemDetailsLookup.ItemDetails<Long?>() {
+    override fun getSelectedItemDetails(): ItemDetailsLookup.ItemDetails<Long?>? = object: ItemDetailsLookup.ItemDetails<Long?>() {
         override fun getPosition(): Int = absoluteAdapterPosition
 
         override fun getSelectionKey(): Long? = itemId
@@ -54,7 +54,7 @@ private val callback = object : DiffUtil.ItemCallback<Group>() {
     = oldItem == newItem
 }
 
-class GroupsListAdapter: BaseSelectableItemListAdapter2<Group, Long, GroupsListViewHolder>(callback) {
+class GroupsListAdapter: BaseSelectableItemListAdapter<Group, Long, GroupsListViewHolder>(callback) {
 
     init {
         setHasStableIds(true)
@@ -64,8 +64,8 @@ class GroupsListAdapter: BaseSelectableItemListAdapter2<Group, Long, GroupsListV
         val inflater = LayoutInflater.from(parent.context)
         val binding = GroupListItemBinding.inflate(inflater,parent,false)
         return GroupsListViewHolder(binding).apply {
-            attachItemClickListener { holder,view-> handleItemClick(holder,view) }
-            attachItemLongClickListener { holder,view -> handleItemLongClick(holder,view) }
+            attachItemClickListener { holder,view-> handleItemClick(holder as GroupsListViewHolder,view) }
+            attachItemLongClickListener { holder,view -> handleItemLongClick(holder as GroupsListViewHolder,view) }
         }
     }
 

@@ -3,12 +3,12 @@ package dreammaker.android.expensetracker
 import java.time.format.DateTimeFormatter
 
 object Constants {
-    const val ARG_INITIAL_SELECTION = "arg_initial_selection"
-    const val ARG_RESULT_KEY = "arg_tag"
     const val ARG_ACTION = "arg_action"
     const val ARG_ID = "arg_id"
     const val ARG_ACCOUNT = "arg_account"
     const val ARG_GROUP = "arg_group"
+    const val ARG_DATE = "arg_date"
+    const val ARG_MONTH_YEAR = "arg_month_year"
     const val ACTION_CREATE = "action_create"
     const val ACTION_EDIT = "action_edit"
 
@@ -16,8 +16,11 @@ object Constants {
     const val HISTORY_INPUT_TYPE_TRANSACTION = "history_input_type_transaction"
     const val HISTORY_INPUT_TYPE_MONEY_TRANSFER = "history_input_type_money_transfer"
 
+    const val ARG_HISTORIES_OF = "arg_show_histories_of"
+
     const val KEY_IS_PRIMARY = "key_is_primary"
 }
 
 val FULL_DATE_FORMAT = DateTimeFormatter.ofPattern("MMMM dd, yyyy")
 val DATE_WITH_WEAKDAY_FORMAT = DateTimeFormatter.ofPattern("EEE, MMM dd, yyyy")
+val FULL_MONTH_FORM = DateTimeFormatter.ofPattern("MMMM yyyy")

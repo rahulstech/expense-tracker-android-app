@@ -14,7 +14,7 @@ data class GroupEntity (
 
     val name: String,
 
-    val due: Float,
+    val balance: Float,
 
     @TypeConverters(Converters::class)
     @ColumnInfo(typeAffinity = ColumnInfo.TEXT)

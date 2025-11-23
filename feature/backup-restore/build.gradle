@@ -55,7 +55,7 @@ dependencies {
     // ui
     implementation libs.material
 
-    // gson
+    // json
     implementation libs.gson
 
     // gzip

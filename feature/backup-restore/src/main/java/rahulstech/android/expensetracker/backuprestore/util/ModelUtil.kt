@@ -104,7 +104,7 @@ fun AccountEntity.toAccountData(): AccountData {
 }
 
 fun GroupEntity.toGroupData(): GroupData {
-    return GroupData(id,name,due)
+    return GroupData(id,name,balance)
 }
 
 fun HistoryEntity.toHistoryData(): HistoryData {

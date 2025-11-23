@@ -1,6 +1,7 @@
 package dreammaker.android.expensetracker.database.dao
 
 import androidx.lifecycle.LiveData
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
@@ -20,20 +21,9 @@ interface HistoryDao {
     @Transaction
     fun insertHistories(histories: List<HistoryEntity>)
 
-    @Query("SELECT * FROM `histories` " +
-            "WHERE :start <= `date` AND :end >= `date` AND (`primaryAccountId` = :accountId OR `secondaryAccountId` = :accountId) " +
-            "ORDER BY `date` ASC")
-    @Transaction
-    fun getLiveHistoriesForAccountBetweenDates( accountId: Long, start: LocalDate, end: LocalDate): LiveData<List<HistoryDetails>>
-
-    @Query("SELECT * FROM `histories` " +
-            "WHERE :start <= `date` AND :end >= `date` AND `groupId` = :groupId " +
-            "ORDER BY `date` ASC")
-    @Transaction
-    fun getLiveHistoriesForGroupBetweenDates(groupId: Long, start: LocalDate, end: LocalDate): LiveData<List<HistoryDetails>>
-
     @Query("SELECT * FROM `histories` WHERE `id` = :id")
-    fun findHistoryById(id: Long): HistoryEntity?
+    @Transaction
+    fun findHistoryById(id: Long): HistoryDetails?
 
     @Query("SELECT * FROM `histories` WHERE `id` = :id")
     @Transaction
@@ -41,6 +31,15 @@ interface HistoryDao {
 
     @Query("SELECT * FROM `histories` LIMIT :size OFFSET :from")
     fun getHistories(from: Long, size: Long): List<HistoryEntity>
+
+    @Query("SELECT * FROM `histories` WHERE `date` BETWEEN :start AND :end " +
+            "AND (`primaryAccountId`= :accountId OR `secondaryAccountId` = :accountId)")
+    @Transaction
+    fun getPagedHistoriesOfAccountBetweenDates(accountId: Long, start: LocalDate, end: LocalDate): PagingSource<Int, HistoryDetails>
+
+    @Query("SELECT * FROM `histories` WHERE `date` BETWEEN :start AND :end AND `groupId` = :groupId")
+    @Transaction
+    fun getPagedHistoriesOfGroupBetweenDates(groupId: Long, start: LocalDate, end: LocalDate): PagingSource<Int, HistoryDetails>
 
     @Update
     fun updateHistory(history: HistoryEntity): Int

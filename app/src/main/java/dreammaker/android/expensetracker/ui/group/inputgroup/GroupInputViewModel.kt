@@ -3,14 +3,12 @@ package dreammaker.android.expensetracker.ui.group.inputgroup
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dreammaker.android.expensetracker.util.UIState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
@@ -39,12 +37,12 @@ class GroupInputViewModel(
         return groupsLiveData
     }
 
-    private val _saveGroupState = MutableSharedFlow<UIState>(
+    private val _saveGroupState = MutableSharedFlow<UIState<Group>>(
         replay = 0,
         extraBufferCapacity = 1,
         onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
-    val saveGroupState: Flow<UIState> get() = _saveGroupState.asSharedFlow()
+    val saveGroupState: Flow<UIState<Group>> get() = _saveGroupState
 
     fun addGroup(group: Group) {
         viewModelScope.launch(Dispatchers.IO){

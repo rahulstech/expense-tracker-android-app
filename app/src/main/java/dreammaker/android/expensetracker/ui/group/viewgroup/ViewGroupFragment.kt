@@ -19,8 +19,7 @@ import dreammaker.android.expensetracker.Constants
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.core.util.QuickMessages
 import dreammaker.android.expensetracker.databinding.ViewGroupLayoutBinding
-import dreammaker.android.expensetracker.ui.history.historieslist.HistoryListContainer
-import dreammaker.android.expensetracker.util.GroupParcel
+import dreammaker.android.expensetracker.util.GroupParcelable
 import dreammaker.android.expensetracker.util.OperationResult
 import dreammaker.android.expensetracker.util.UIState
 import dreammaker.android.expensetracker.util.getDueLabel
@@ -88,7 +87,7 @@ class ViewGroupFragment: Fragment(), MenuProvider {
         val group = viewModel.getStoredGroup()
         group?.let {
             navController.navigate(R.id.action_view_group_to_history_list, Bundle().apply {
-                putParcelable(HistoryListContainer.ARG_SHOW_HISTORY_FOR, GroupParcel(group))
+                putParcelable(Constants.ARG_HISTORIES_OF, GroupParcelable(group))
             })
         }
     }
@@ -98,7 +97,7 @@ class ViewGroupFragment: Fragment(), MenuProvider {
         group?.let {
             navController.navigate(R.id.action_view_group_to_add_history,Bundle().apply {
                 putString(Constants.ARG_ACTION, Constants.ACTION_CREATE)
-                putParcelable(Constants.ARG_GROUP, GroupParcel(group))
+                putParcelable(Constants.ARG_GROUP, GroupParcelable(group))
             })
         }
     }

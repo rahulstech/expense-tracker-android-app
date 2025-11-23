@@ -29,12 +29,12 @@ class AccountsListViewModel (app: Application): AndroidViewModel(app) {
         return accounts!!
     }
 
-    private val _deleteAccountsState = MutableSharedFlow<UIState>(
+    private val _deleteAccountsState = MutableSharedFlow<UIState<Nothing>>(
         replay = 0, // from newest to oldest how many most recent value to keep, new collectors can collect these value even if some other already consumes
         extraBufferCapacity = 1, // how many unconsumed new values to store
         onBufferOverflow = BufferOverflow.DROP_OLDEST // if replay+extraBufferCapacity exceeds what to do, here drop the oldest values
     )
-    val deleteAccountsState: Flow<UIState?> get() = _deleteAccountsState.asSharedFlow()
+    val deleteAccountsState: Flow<UIState<Nothing>?> get() = _deleteAccountsState.asSharedFlow()
 
     fun deleteAccounts(ids: List<Long>) {
 
@@ -48,7 +48,7 @@ class AccountsListViewModel (app: Application): AndroidViewModel(app) {
                     _deleteAccountsState.tryEmit(UIState.UIError(error))
                 }
                 .collect {
-                    _deleteAccountsState.tryEmit(UIState.UISuccess())
+                    _deleteAccountsState.tryEmit(UIState.UISuccess<Nothing>())
                 }
         }
     }

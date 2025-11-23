@@ -1,6 +1,7 @@
 package rahulstech.android.expensetracker.domain
 
 import androidx.lifecycle.LiveData
+import kotlinx.coroutines.flow.Flow
 import rahulstech.android.expensetracker.domain.model.Account
 
 interface AccountRepository{
@@ -17,11 +18,17 @@ interface AccountRepository{
 
     fun getLiveTotalBalance(): LiveData<Double>
 
+    fun getDefaultAccount(): Flow<Account?>
+
+    fun hasDefaultAccount(): Boolean
+
     fun updateAccount(account: Account): Boolean
 
     fun creditBalance(id: Long, amount: Number)
 
     fun debitBalance(id: Long, amount: Number)
+
+    fun changeDefaultAccount(account: Account?)
 
     fun deleteAccount(id: Long)
 

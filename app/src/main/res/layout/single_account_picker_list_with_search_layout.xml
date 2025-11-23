@@ -22,10 +22,10 @@
         android:padding="16dp"
         android:drawablePadding="8dp"
         app:drawableTopCompat="@drawable/ic_account_black_36"
-        app:drawableTint="?android:attr/textColorSecondary"
+        app:drawableTint="?attr/colorOnBackground"
         android:text="@string/no_account"
         android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
-        android:textColor="?android:attr/textColorSecondary"/>
+        android:textColor="?attr/colorOnBackground"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btnChoose"

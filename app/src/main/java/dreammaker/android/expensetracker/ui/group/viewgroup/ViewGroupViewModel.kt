@@ -3,7 +3,6 @@ package dreammaker.android.expensetracker.ui.group.viewgroup
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dreammaker.android.expensetracker.util.UIState
 import kotlinx.coroutines.Dispatchers
@@ -39,12 +38,12 @@ class ViewGroupViewModel (
         return groupLiveData
     }
 
-    private val _deleteGroupState = MutableSharedFlow<UIState>(
+    private val _deleteGroupState = MutableSharedFlow<UIState<Nothing>>(
         replay = 0,
         extraBufferCapacity = 1,
         onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
-    val deleteGroupState: Flow<UIState> get() = _deleteGroupState.asSharedFlow()
+    val deleteGroupState: Flow<UIState<Nothing>> get() = _deleteGroupState.asSharedFlow()
 
     fun removeGroup(group: Group) {
 
@@ -52,10 +51,10 @@ class ViewGroupViewModel (
             flow {
                 _deleteGroupState.tryEmit(UIState.UILoading())
                 groupRepo.deleteGroup(group.id)
-                emit(group)
+                emit(null)
             }
                 .catch { error -> _deleteGroupState.tryEmit(UIState.UIError(error,group)) }
-                .collect { _deleteGroupState.tryEmit(UIState.UISuccess(it)) }
+                .collect { _deleteGroupState.tryEmit(UIState.UISuccess()) }
         }
     }
 }

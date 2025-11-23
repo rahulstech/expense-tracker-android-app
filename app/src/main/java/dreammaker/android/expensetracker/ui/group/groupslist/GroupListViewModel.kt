@@ -3,14 +3,12 @@ package dreammaker.android.expensetracker.ui.group.groupslist
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dreammaker.android.expensetracker.util.UIState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
@@ -32,12 +30,12 @@ class GroupListViewModel(
         return groups
     }
 
-    private val _deleteGroupsState = MutableSharedFlow<UIState>(
+    private val _deleteGroupsState = MutableSharedFlow<UIState<Nothing>>(
         replay = 0,
         extraBufferCapacity = 1,
         onBufferOverflow = BufferOverflow.DROP_LATEST
     )
-    val deleteGroupsState: Flow<UIState?> get() = _deleteGroupsState.asSharedFlow()
+    val deleteGroupsState: Flow<UIState<Nothing>?> get() = _deleteGroupsState
 
 
     fun deleteGroups(ids: List<Long>) {

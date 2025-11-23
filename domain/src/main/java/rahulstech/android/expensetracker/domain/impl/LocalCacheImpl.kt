@@ -4,7 +4,10 @@ package rahulstech.android.expensetracker.domain.impl
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
+import org.json.JSONObject
 import rahulstech.android.expensetracker.domain.LocalCache
+import rahulstech.android.expensetracker.domain.model.Account
+import rahulstech.android.expensetracker.domain.model.Group
 import java.time.LocalDateTime
 
 internal class LocalCacheImpl(
@@ -15,6 +18,8 @@ internal class LocalCacheImpl(
         private const val PREFIX_ACCOUNT = "account"
         private const val PREFIX_GROUP = "group"
         private const val KEY_TOTAL_USED = "total_used"
+        private const val KEY_DEFAULT_ACCOUNT = "default_account"
+        private const val KEY_DEFAULT_GROUP = "default_group"
     }
 
     private val sp: SharedPreferences = context.applicationContext.getSharedPreferences(SP_NAME,Context.MODE_PRIVATE)
@@ -47,12 +52,62 @@ internal class LocalCacheImpl(
         }
     }
 
-    private fun getAccountKey(id: Long, suffix: String): String = "$PREFIX_ACCOUNT:$id:$suffix"
+    override fun setDefaultAccount(id: Long) {
+        edit {
+            putLong(KEY_DEFAULT_ACCOUNT,id)
+        }
+    }
 
-    private fun getGroupKey(id: Long, suffix: String): String = "$PREFIX_GROUP:$id:$suffix"
+    override fun getDefaultAccount(): Long? =
+        sp.getLong(KEY_DEFAULT_ACCOUNT, 0L).takeIf { id -> id > 0 }
+
+    override fun removeDefaultAccount() {
+        edit {
+            remove(KEY_DEFAULT_ACCOUNT)
+        }
+    }
+
+    override fun setDefaultGroup(id: Long) {
+        edit {
+            putLong(KEY_DEFAULT_GROUP,id)
+        }
+    }
+
+    override fun getDefaultGroup(): Long? =
+        sp.getLong(KEY_DEFAULT_GROUP,0L).takeIf { id -> id > 0 }
+
+    override fun removeDefaultGroup() {
+        edit {
+            remove(KEY_DEFAULT_GROUP)
+        }
+    }
+
+    private fun getAccountKey(id: Long, suffix: String): String = buildString {
+        append(PREFIX_ACCOUNT)
+        append(":")
+        append(id)
+        append(":")
+        append(suffix)
+    }
+
+    private fun getGroupKey(id: Long, suffix: String): String = buildString {
+            append(PREFIX_GROUP)
+            append(":")
+            append(id)
+            append(":")
+            append(suffix)
+        }
 
     private fun edit(action: SharedPreferences.Editor.() -> Unit) {
         sp.edit(true,action)
+    }
+}
+
+internal fun generateKey(vararg parts: Any): String = buildString {
+    append(parts[0])
+    parts.forEach { part ->
+        append(":")
+        append(part)
     }
 }
 
@@ -62,6 +117,42 @@ internal fun SharedPreferences.Editor.putLocalDateTime(key: String, value: Local
 
 internal fun SharedPreferences.getLocalDateTime(key: String, defaultValue: LocalDateTime): LocalDateTime {
     return getString(key,null)?.let { dateTimeText ->
-        return LocalDateTime.parse(dateTimeText)
+        LocalDateTime.parse(dateTimeText)
     } ?: defaultValue
+}
+
+internal fun SharedPreferences.Editor.putAccount(key: String, account: Account) {
+    val obj = JSONObject().apply {
+        put("id", account.id)
+        put("name", account.name)
+        put("balance", account.balance)
+    }
+    val json = obj.toString()
+    putString(key,json)
+}
+
+internal fun SharedPreferences.getAccount(key: String): Account? = getString(key,null)?.let { json ->
+        val obj = JSONObject(json)
+        val id = obj.getLong("id")
+        val name = obj.getString("name")
+        val balance = obj.getDouble("balance").toFloat()
+        Account(name,balance,id)
+    }
+
+internal fun SharedPreferences.Editor.putGroup(key: String, group: Group) {
+    val obj = JSONObject().apply {
+        put("id", group.id)
+        put("name", group.name)
+        put("due", group.balance)
+    }
+    val json = obj.toString()
+    putString(key,json)
+}
+
+internal fun SharedPreferences.getGroup(key: String): Group? = getString(key,null)?.let { json ->
+    val obj = JSONObject(json)
+    val id = obj.getLong("id")
+    val name = obj.getString("name")
+    val due = obj.getDouble("due").toFloat()
+    Group(name,due,id)
 }

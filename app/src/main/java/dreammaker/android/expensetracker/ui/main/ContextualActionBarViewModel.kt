@@ -26,7 +26,6 @@ class ContextualActionBarViewModel: ViewModel() {
     }
 
     fun endContextActionBar() {
-        _cabMenuRef = WeakReference(null)
         _cabStartState.value = false
     }
 }

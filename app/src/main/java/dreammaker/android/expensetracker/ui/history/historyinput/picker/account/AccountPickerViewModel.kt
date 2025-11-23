@@ -20,4 +20,10 @@ class AccountPickerViewModel(
         }
         return allAccount
     }
+
+    val hasDefaultAccount: Boolean get() = accountRepo.hasDefaultAccount()
+
+    fun setDefaultAccount(account: Account) {
+        accountRepo.changeDefaultAccount(account)
+    }
 }

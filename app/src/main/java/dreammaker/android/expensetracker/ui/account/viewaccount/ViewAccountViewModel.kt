@@ -9,7 +9,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
@@ -38,12 +37,12 @@ class ViewAccountViewModel(
         return account
     }
 
-    private val _deleteAccountState = MutableSharedFlow<UIState>(
+    private val _deleteAccountState = MutableSharedFlow<UIState<Account>>(
         replay = 0,
         extraBufferCapacity = 1,
         onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
-    val deleteAccountState: Flow<UIState> get() = _deleteAccountState.asSharedFlow()
+    val deleteAccountState: Flow<UIState<Account>> get() = _deleteAccountState
 
     fun removeAccount(account: Account) {
         viewModelScope.launch(Dispatchers.IO) {

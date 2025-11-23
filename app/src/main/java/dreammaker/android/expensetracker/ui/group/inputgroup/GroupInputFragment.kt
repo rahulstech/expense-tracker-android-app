@@ -80,7 +80,7 @@ class GroupInputFragment : Fragment() {
         }
         else {
             binding.name.setText(group.name)
-            binding.due.setText(group.due.toString())
+            binding.due.setText(group.balance.toString())
             viewModel.groupsLiveData.removeObservers(viewLifecycleOwner)
         }
     }
