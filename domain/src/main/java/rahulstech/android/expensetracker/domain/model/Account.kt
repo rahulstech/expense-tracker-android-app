@@ -12,6 +12,8 @@ data class Account(
     val totalUsed: Long = 0,
 ) {
     fun toAccountEntity(): AccountEntity = AccountEntity(id,name, balance,lastUsed,totalUsed)
+
+    fun isUsedAfterCreate(): Boolean = totalUsed > 1
 }
 
 fun AccountEntity.toAccount(): Account = Account(name,balance,id,lastUsed,totalUsed ?: 0)

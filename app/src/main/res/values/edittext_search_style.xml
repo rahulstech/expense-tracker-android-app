@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="edittext_search_width">330dp</dimen>
+    <dimen name="edittext_search_height">56dp</dimen>
+    <dimen name="edittext_search_background_corner_radius">28dp</dimen>
+    <dimen name="edittext_search_padding_">12dp</dimen>
+    <dimen name="edittext_search_padding_horizontal">12dp</dimen>
+    <dimen name="edittext_search_padding_vertical">8dp</dimen>
+    <dimen name="edittext_search_gutter_size">12dp</dimen>
+
+    <!-- NOTE: can not use reference in color tag -->
+<!--    <color name="edittext_search_icon_color">?android:attr/textColorHint</color>-->
+<!--    <color name="edittext_search_background_color">?attr/colorSurfaceContainerHigh</color>-->
+
+    <style name="Widget.AppTheme.EditTextSearch" parent="Widget.AppCompat.EditText">
+        <item name="android:maxWidth">@dimen/edittext_search_width</item>
+        <item name="android:maxHeight">@dimen/edittext_search_height</item>
+        <item name="android:inputType">text</item>
+        <item name="android:paddingTop">@dimen/edittext_search_padding_vertical</item>
+        <item name="android:paddingBottom">@dimen/edittext_search_padding_vertical</item>
+        <item name="android:paddingStart">@dimen/edittext_search_padding_horizontal</item>
+        <item name="android:paddingEnd">@dimen/edittext_search_padding_horizontal</item>
+        <item name="android:background">@drawable/edittext_search_background</item>
+
+        <!-- search icon -->
+        <item name="drawableStartCompat">@drawable/baseline_search</item>
+        <item name="android:drawablePadding">@dimen/edittext_search_gutter_size</item>
+        <item name="drawableTint">?android:attr/textColorHint</item>
+    </style>
+
+</resources>

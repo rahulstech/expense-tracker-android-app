@@ -29,6 +29,7 @@ import dreammaker.android.expensetracker.core.util.QuickMessages
 import dreammaker.android.expensetracker.databinding.FragmentHistoryListBinding
 import dreammaker.android.expensetracker.settings.SettingsProvider
 import dreammaker.android.expensetracker.settings.ViewHistory
+import dreammaker.android.expensetracker.ui.HistoryListItem
 import dreammaker.android.expensetracker.util.AccountParcelable
 import dreammaker.android.expensetracker.util.GroupParcelable
 import dreammaker.android.expensetracker.util.SelectionHelper

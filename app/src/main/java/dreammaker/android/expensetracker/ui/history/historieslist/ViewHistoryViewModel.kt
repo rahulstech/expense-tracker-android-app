@@ -12,6 +12,7 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.insertSeparators
 import androidx.paging.map
+import dreammaker.android.expensetracker.ui.HistoryListItem
 import dreammaker.android.expensetracker.util.UIState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -113,7 +114,7 @@ class ViewHistoryViewModel(
     }
 
     fun loadHistories(params: LoadHistoryParameters?) {
-        Log.d(TAG, "loadHistories params = ${params?.filterParams}")
+        Log.d(TAG, "loadHistories: params = ${params?.filterParams}")
         loadHistoryParametersLiveData.value = params
     }
 

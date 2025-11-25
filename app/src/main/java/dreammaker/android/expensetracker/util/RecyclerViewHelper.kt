@@ -159,8 +159,12 @@ class SelectionHelper<KeyType>(
         initialSelection: KeyType? = null,
         onStart: ((SelectionTracker<KeyType>)->Unit)? = null
     ): Boolean {
-        if (inSelectionMode) return false
+        if (inSelectionMode) {
+            Log.d(TAG, "startSelection: already in selection mode")
+            return false
+        }
 
+        Log.d(TAG, "startSelection: contextualActionBar=$contextualActionBar initialSelection=$initialSelection")
         val tracker = selectionTrackerBuilderFactory().build()
         tracker.addObserver(selectionTrackerObserver)
         selectionTracker = tracker
@@ -176,7 +180,11 @@ class SelectionHelper<KeyType>(
     fun getSelectionKey(position: Int): KeyType? = adapter.getSelectionKey(position)
 
     fun selectItem(key: KeyType?) {
-        key?.let{ selectionTracker?.select(it) }
+        key?.let{
+            if (adapter.canSelectionKey(key)) {
+                selectionTracker?.select(it)
+            }
+        }
     }
 
     fun deselectItem(key: KeyType?) {
@@ -207,6 +215,8 @@ class SelectionHelper<KeyType>(
             true -> selectionTracker?.selection?.toList() ?: emptyList()
             else -> emptyList()
         }
+
+    fun getFirstSelection(): KeyType? = if (hasSelection()) getSelections()[0] else null
 
     fun setSelections(keys: List<KeyType>) {
         selectionTracker?.setItemsSelected(keys,true)
@@ -274,6 +284,10 @@ interface ISelectableItemAdapter<KeyType> {
     fun getKeyPosition(key: KeyType): Int
 
     fun notifySelectionChanged(positions: List<Int>)
+
+    fun canSelectionKey(key: KeyType): Boolean = canSelectionPosition(getKeyPosition(key))
+
+    fun canSelectionPosition(position: Int): Boolean = true
 }
 
 abstract class BaseClickableItemListAdapter<T, VH : ClickableViewHolder>(callback: DiffUtil.ItemCallback<T>)

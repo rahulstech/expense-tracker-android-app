@@ -12,6 +12,8 @@ data class Group(
     val totalUsed: Long = 0
 ) {
     fun toGroupEntity(): GroupEntity = GroupEntity(id,name,balance,lastUsed,totalUsed)
+
+    fun isUsedAfterCreate(): Boolean = totalUsed > 1
 }
 
 fun GroupEntity.toGroup(): Group = Group(name,balance,id,lastUsed,totalUsed ?: 0)

@@ -19,6 +19,8 @@ object Constants {
     const val ARG_HISTORIES_OF = "arg_show_histories_of"
 
     const val KEY_IS_PRIMARY = "key_is_primary"
+
+    const val DEFAULT_MAX_FREQUENTLY_USED_ITEM = 3
 }
 
 val FULL_DATE_FORMAT = DateTimeFormatter.ofPattern("MMMM dd, yyyy")

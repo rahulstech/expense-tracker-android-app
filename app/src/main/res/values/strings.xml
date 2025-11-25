@@ -255,5 +255,9 @@
 	<string name="message_warning_delete">Do you want to delete %1$s permanently?</string>
     <string name="message_warning_delete_multiple">Do you want to delete %1$d items permanently?</string>
     <string name="title_send_to">Send To</string>
+    <string name="label_header_frequently_used">Frequently Used</string>
+	<string name="label_header_others">Others</string>
+    <string name="label_search_account_name">Search Account Name</string>
+    <string name="label_search_group_name">Search Group Name</string>
 
 </resources>

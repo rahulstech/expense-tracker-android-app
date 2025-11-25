@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -17,7 +18,9 @@ import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.selection.StorageStrategy
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.databinding.SingleGroupPickerListWithSearchLayoutBinding
+import dreammaker.android.expensetracker.ui.GroupListItem
 import dreammaker.android.expensetracker.ui.history.historyinput.HistoryInputViewModel
 import dreammaker.android.expensetracker.util.SelectionHelper
 import dreammaker.android.expensetracker.util.visibilityGone
@@ -42,8 +45,7 @@ class GroupPickerDetailsLookup(private val recyclerView: RecyclerView): ItemDeta
 
 class PickHistoryGroupFragment : Fragment() {
 
-    private var _binding: SingleGroupPickerListWithSearchLayoutBinding? = null
-    private val binding get() = _binding!!
+    private lateinit var binding: SingleGroupPickerListWithSearchLayoutBinding
     private lateinit var adapter: GroupPickerListAdapter
     private val navController: NavController by lazy { findNavController() }
     private val viewModel: GroupPickerViewModel by viewModels()
@@ -55,11 +57,17 @@ class PickHistoryGroupFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = SingleGroupPickerListWithSearchLayoutBinding.inflate(inflater, container, false)
+        binding = SingleGroupPickerListWithSearchLayoutBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        binding.searchBar.searchInput.apply {
+            hint = getString(R.string.label_search_group_name)
+            addTextChangedListener { editable ->
+                viewModel.searchText = editable.toString()
+            }
+        }
         binding.btnChoose.setOnClickListener { handlePickGroup() }
 
         adapter = GroupPickerListAdapter()
@@ -72,8 +80,8 @@ class PickHistoryGroupFragment : Fragment() {
     }
 
     private fun prepareItemSelection() {
-        selectionHelper = SelectionHelper<Long>(adapter,this,viewLifecycleOwner) {
-            SelectionTracker.Builder<Long>(
+        selectionHelper = SelectionHelper(adapter,this,viewLifecycleOwner) {
+            SelectionTracker.Builder(
                 "singleAccountSelection",
                 binding.optionsList,
                 GroupPickerSelectionKeyProvider(adapter),
@@ -93,9 +101,9 @@ class PickHistoryGroupFragment : Fragment() {
         return historyViewModel.getGroup()?.id
     }
 
-    private fun onGroupsLoaded(accounts: List<Group>) {
-        adapter.submitList(accounts)
-        if (accounts.isEmpty()) {
+    private fun onGroupsLoaded(groups: List<GroupListItem>) {
+        adapter.submitList(groups)
+        if (groups.isEmpty()) {
             binding.emptyPlaceholder.visibilityGone()
             binding.emptyPlaceholder.visible()
         }
@@ -112,13 +120,10 @@ class PickHistoryGroupFragment : Fragment() {
     }
 
     private fun getSelectedGroup(): Group? {
-        if (selectionHelper.count()==0) return null
-        val key = selectionHelper.getSelections()[0]
-        return viewModel.getAllGroups().value?.find { it.id == key }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+        val key = selectionHelper.getFirstSelection() ?: return null
+        val item = viewModel.groupListItems.find { item ->
+            item is GroupListItem.Item && item.data.id == key
+        }
+        return (item as? GroupListItem.Item)?.data
     }
 }

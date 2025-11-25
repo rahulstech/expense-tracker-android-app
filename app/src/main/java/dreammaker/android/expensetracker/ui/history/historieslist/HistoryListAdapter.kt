@@ -10,11 +10,11 @@ import androidx.core.text.buildSpannedString
 import androidx.core.view.ViewCompat
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.RecyclerView
 import dreammaker.android.expensetracker.FULL_DATE_FORMAT
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.databinding.HistoryHeaderLayoutBinding
 import dreammaker.android.expensetracker.databinding.HistoryItemLayoutBinding
+import dreammaker.android.expensetracker.ui.HistoryListItem
 import dreammaker.android.expensetracker.util.IClickableItemAdapter
 import dreammaker.android.expensetracker.util.ISelectableItemAdapter
 import dreammaker.android.expensetracker.util.ItemClickListener
@@ -169,12 +169,11 @@ class HistoryListAdapter:
         itemLongClickListener?.invoke(this,view,holder.absoluteAdapterPosition) ?: false
 
 
-    fun getHistoryItemId(position: Int): Long {
-        // TODO: peek() or getItem() choose correct one
-        val item = peek(position)
+    fun getHistoryItemId(position: Int): Long? {
+        val item = getItem(position)
         return when (item) {
             is HistoryListItem.Item -> item.history.id
-            else -> RecyclerView.NO_ID
+            else -> null
         }
     }
 
@@ -215,7 +214,7 @@ class HistoryListAdapter:
     }
 
     override fun getKeyPosition(key: Long): Int =
-        snapshot().indexOfFirst { item ->
+        snapshot().items.indexOfFirst { item ->
             item is HistoryListItem.Item && item.history.id == key
         }
 

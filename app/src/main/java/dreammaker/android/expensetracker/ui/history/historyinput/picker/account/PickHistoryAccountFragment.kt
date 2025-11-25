@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -13,13 +14,14 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.selection.ItemDetailsLookup
 import androidx.recyclerview.selection.ItemKeyProvider
-import androidx.recyclerview.selection.SelectionPredicates
 import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.selection.StorageStrategy
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dreammaker.android.expensetracker.Constants
+import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.databinding.SingleAccountPickerListWithSearchLayoutBinding
+import dreammaker.android.expensetracker.ui.AccountListItem
 import dreammaker.android.expensetracker.ui.history.historyinput.HistoryInputViewModel
 import dreammaker.android.expensetracker.util.SelectionHelper
 import dreammaker.android.expensetracker.util.visibilityGone
@@ -42,6 +44,20 @@ class AccountPickerDetailsLookup(private val rv: RecyclerView): ItemDetailsLooku
     }
 }
 
+class AccountPickerPredicate(val adapter: AccountPickerListAdapter): SelectionTracker.SelectionPredicate<Long>() {
+    override fun canSetStateForKey(key: Long, nextState: Boolean): Boolean {
+        val position = adapter.getKeyPosition(key)
+        return adapter.getItemViewType(position) == AccountPickerListAdapter.TYPE_ITEM
+    }
+
+    override fun canSetStateAtPosition(
+        position: Int,
+        nextState: Boolean
+    ): Boolean = adapter.getItemViewType(position) == AccountPickerListAdapter.TYPE_ITEM
+
+    override fun canSelectMultiple(): Boolean = false
+}
+
 class PickHistoryAccountFragment : Fragment() {
 
     companion object {
@@ -49,8 +65,7 @@ class PickHistoryAccountFragment : Fragment() {
         const val ARG_DISABLED_ACCOUNT = "arg_disabled_account"
     }
 
-    private var _binding: SingleAccountPickerListWithSearchLayoutBinding? = null
-    private val binding get() = _binding!!
+    private lateinit var binding: SingleAccountPickerListWithSearchLayoutBinding
     private val navController: NavController by lazy { findNavController() }
     private val viewModel: AccountPickerViewModel by viewModels()
     private val historyViewModel: HistoryInputViewModel by activityViewModels()
@@ -68,11 +83,17 @@ class PickHistoryAccountFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = SingleAccountPickerListWithSearchLayoutBinding.inflate(inflater, container, false)
+        binding = SingleAccountPickerListWithSearchLayoutBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        binding.searchBar.searchInput.apply {
+            hint = getString(R.string.label_search_account_name)
+            addTextChangedListener { editable ->
+                viewModel.searchText = editable.toString()
+            }
+        }
         binding.btnChoose.setOnClickListener { handlePickAccount() }
 
         adapter = AccountPickerListAdapter()
@@ -92,21 +113,17 @@ class PickHistoryAccountFragment : Fragment() {
                 AccountPickerSelectionKeyProvider(adapter),
                 AccountPickerDetailsLookup(binding.optionsList),
                 StorageStrategy.createLongStorage()
-            ).withSelectionPredicate(
-                SelectionPredicates.createSelectSingleAnything()
-            )
+            ).withSelectionPredicate(AccountPickerPredicate(adapter))
         }
 
-        selectionHelper.startSelection() {
-            selectionHelper.selectItem(getInitialSelection())
-        }
+        selectionHelper.startSelection(initialSelection = getInitialSelection())
     }
 
     private fun getInitialSelection(): Long? {
         return historyViewModel.getAccount(argIsPrimary)?.id
     }
 
-    private fun onAccountsLoaded(accounts: List<Account>) {
+    private fun onAccountsLoaded(accounts: List<AccountListItem>) {
         adapter.submitList(accounts)
         if (accounts.isEmpty()) {
             binding.optionsList.visibilityGone()
@@ -122,20 +139,14 @@ class PickHistoryAccountFragment : Fragment() {
         val selectedAccount = getSelectedAccount()
         Log.d(TAG, "selected account $selectedAccount is_primary = $argIsPrimary")
         historyViewModel.setAccount(selectedAccount, argIsPrimary)
-
-        // TODO: check and ask to default account
-
         navController.popBackStack()
     }
 
     private fun getSelectedAccount(): Account? {
-        if (selectionHelper.count()==0) return null
-        val key = selectionHelper.getSelections()[0]
-        return viewModel.getAllAccounts().value?.find { it.id == key }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+        val key = selectionHelper.getFirstSelection() ?: return null
+        val item = viewModel.accountListItems.find { item ->
+            item is AccountListItem.Item && item.data.id == key
+        }
+        return (item as? AccountListItem.Item)?.data
     }
 }

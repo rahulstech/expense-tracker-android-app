@@ -8,24 +8,7 @@ import androidx.core.text.buildSpannedString
 import androidx.core.text.color
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.util.toCurrencyString
-import rahulstech.android.expensetracker.domain.model.History
-import java.time.LocalDate
 import java.util.Locale
-
-sealed class HistoryListItem {
-
-    data class Header(
-        val date: LocalDate
-    ): HistoryListItem()
-
-    data class Item(
-        val history: History,
-        var selected: Boolean = false
-    ): HistoryListItem()
-
-    class Placeholder(): HistoryListItem()
-}
-
 
 class HistoryFilterData {
 

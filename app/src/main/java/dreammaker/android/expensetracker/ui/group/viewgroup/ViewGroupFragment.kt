@@ -1,7 +1,6 @@
 package dreammaker.android.expensetracker.ui.group.viewgroup
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
@@ -20,7 +19,6 @@ import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.core.util.QuickMessages
 import dreammaker.android.expensetracker.databinding.ViewGroupLayoutBinding
 import dreammaker.android.expensetracker.util.GroupParcelable
-import dreammaker.android.expensetracker.util.OperationResult
 import dreammaker.android.expensetracker.util.UIState
 import dreammaker.android.expensetracker.util.getDueLabel
 import dreammaker.android.expensetracker.util.getDueText
@@ -138,17 +136,6 @@ class ViewGroupFragment: Fragment(), MenuProvider {
                 QuickMessages.AlertButton(getString(R.string.label_yes)){
                     viewModel.removeGroup(group)
                 })
-        }
-    }
-
-    private fun onGroupDeleted(result: OperationResult<Group>?) {
-        result?.let {
-            if (result.isFailure()) {
-                Log.e(TAG,"onGroupDeleted: delete filed groupId=${getArgGroupId()}",result.error)
-            }
-            else {
-                navController.popBackStack()
-            }
         }
     }
 

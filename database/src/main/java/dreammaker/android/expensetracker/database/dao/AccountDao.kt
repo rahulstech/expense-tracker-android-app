@@ -18,7 +18,7 @@ interface AccountDao {
     @Transaction
     fun insertAccounts(accounts: List<AccountEntity>)
 
-    @Query("SELECT * FROM `accounts` ORDER BY `name` ASC")
+    @Query("SELECT * FROM `accounts`")
     fun getLiveAllAccounts(): LiveData<List<AccountEntity>>
 
     @Query("SELECT * FROM `accounts`")
