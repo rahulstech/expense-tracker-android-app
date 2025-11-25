@@ -2,13 +2,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_height="match_parent"
-    android:layout_width="match_parent">
+    android:layout_width="match_parent"
+    android:paddingTop="16dp">
+
+    <include android:id="@+id/search_bar"
+        layout="@layout/edittext_search_bar_layout" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/list"
         android:layout_height="match_parent"
         android:layout_width="match_parent"
-        android:layout_marginBottom="72dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
         android:visibility="gone"
         tools:listitem="@layout/group_list_item"
         tools:itemCount="20"
@@ -31,8 +35,9 @@
         android:id="@+id/add"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        app:layout_behavior="@string/hide_bottom_view_on_scroll_behavior"
         android:layout_gravity="bottom|center_horizontal"
-        android:layout_margin="12dp"
+        android:layout_margin="16dp"
         app:icon="@drawable/ic_add"
         android:text="@string/label_add_group"
         tools:ignore="ContentDescription" />

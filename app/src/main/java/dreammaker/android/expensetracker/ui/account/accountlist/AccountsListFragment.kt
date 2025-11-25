@@ -10,6 +10,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.MenuProvider
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -53,11 +54,11 @@ class AccountDetailsLookup(val rv: RecyclerView): ItemDetailsLookup<Long>() {
 
 class AccountsListFragment : Fragment() {
 
-    private val TAG = AccountsListFragment::class.simpleName
+    companion object {
+        private val TAG = AccountsListFragment::class.simpleName
+    }
 
-    private var _binding: AccountsListBinding? = null
-    private val binding get() = _binding!!
-
+    private lateinit var binding: AccountsListBinding
     private lateinit var adapter: AccountsAdapter
     private val viewModel: AccountsListViewModel by viewModels()
     private val navController: NavController by lazy { findNavController() }
@@ -102,11 +103,18 @@ class AccountsListFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = AccountsListBinding.inflate(inflater, container, false)
+        binding = AccountsListBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        binding.searchBar.searchInput.apply {
+            hint = getString(R.string.label_search_account_name)
+            setText(viewModel.searchText)
+            addTextChangedListener { editable ->
+                viewModel.searchText = editable.toString()
+            }
+        }
         binding.add.setOnClickListener {
             navController.navigate(R.id.action_account_list_to_create_account, Bundle().apply {
                 putString(Constants.ARG_ACTION, Constants.ACTION_CREATE)
@@ -185,10 +193,5 @@ class AccountsListFragment : Fragment() {
             putLong(Constants.ARG_ID, account.id)
         }
         navController.navigate(R.id.action_account_list_to_view_account, args)
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 }

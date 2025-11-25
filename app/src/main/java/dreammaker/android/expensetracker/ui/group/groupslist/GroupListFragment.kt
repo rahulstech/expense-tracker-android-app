@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.core.view.MenuProvider
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -54,8 +55,7 @@ class GroupDetailsLookup(private val recyclerView: RecyclerView): ItemDetailsLoo
 
 class GroupListFragment : Fragment() {
 
-    private var _binding:GroupsListBinding? = null
-    private val binding get() = _binding!!
+    private lateinit var binding:GroupsListBinding
     private val viewModel: GroupListViewModel by viewModels()
     private lateinit var adapter: GroupsListAdapter
     private val navController: NavController by lazy { findNavController() }
@@ -96,11 +96,18 @@ class GroupListFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = GroupsListBinding.inflate(inflater,container,false)
+        binding = GroupsListBinding.inflate(inflater,container,false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        binding.searchBar.searchInput.apply {
+            hint = getString(R.string.label_search_group_name)
+            setText(viewModel.searchText)
+            addTextChangedListener { editable ->
+                viewModel.searchText = editable.toString()
+            }
+        }
         binding.add.setOnClickListener { handleClickAddAccount() }
 
         adapter = GroupsListAdapter()
@@ -178,10 +185,5 @@ class GroupListFragment : Fragment() {
         navController.navigate(R.id.action_groups_list_to_view_group, Bundle().apply {
             putLong(Constants.ARG_ID,group.id)
         })
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 }

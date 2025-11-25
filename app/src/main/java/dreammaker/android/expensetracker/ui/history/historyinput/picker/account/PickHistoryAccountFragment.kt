@@ -90,6 +90,7 @@ class PickHistoryAccountFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding.searchBar.searchInput.apply {
             hint = getString(R.string.label_search_account_name)
+            setText(viewModel.searchText)
             addTextChangedListener { editable ->
                 viewModel.searchText = editable.toString()
             }
