@@ -30,6 +30,7 @@ import dreammaker.android.expensetracker.databinding.FragmentHistoryListBinding
 import dreammaker.android.expensetracker.settings.SettingsProvider
 import dreammaker.android.expensetracker.settings.ViewHistory
 import dreammaker.android.expensetracker.ui.HistoryListItem
+import dreammaker.android.expensetracker.ui.HistoryType
 import dreammaker.android.expensetracker.util.AccountParcelable
 import dreammaker.android.expensetracker.util.GroupParcelable
 import dreammaker.android.expensetracker.util.SelectionHelper
@@ -157,6 +158,8 @@ class HistoryListFragment: Fragment(), MenuProvider {
             navigateCreateHistory()
         }
 
+        binding.filterGroup.setOnCheckedStateChangeListener { _,_ -> loadHistories() }
+
         adapter = HistoryListAdapter()
         binding.historyList.adapter = adapter
 
@@ -238,21 +241,7 @@ class HistoryListFragment: Fragment(), MenuProvider {
     }
 
     private fun loadHistories() {
-        val otherThanDailyView = settings.getViewHistory() != ViewHistory.DAILY
-        val dateRange = picker.getSelection()
-        val entity = getArgHistoriesOf()
-        val params = when(entity) {
-            is AccountParcelable -> LoadHistoryParameters.ofAccount(entity.id)
-            is GroupParcelable -> LoadHistoryParameters.ofGroup(entity.id)
-            else -> {
-                return
-            }
-        }
-        params.apply {
-            betweenDates(dateRange.first, dateRange.second)
-            withHeaders(otherThanDailyView)
-        }
-        viewModel.loadHistories(params)
+        viewModel.loadHistories(getLoadHistoryParameters())
     }
 
     private fun observeLoadingState() {
@@ -362,5 +351,34 @@ class HistoryListFragment: Fragment(), MenuProvider {
                 Constants.ARG_ID to item.history.id
             ))
         }
+    }
+
+    private fun getLoadHistoryParameters(): LoadHistoryParameters? {
+        val otherThanDailyView = settings.getViewHistory() != ViewHistory.DAILY
+        val dateRange = picker.getSelection()
+        val entity = getArgHistoriesOf()
+        val params = when(entity) {
+            is AccountParcelable -> LoadHistoryParameters.ofAccount(entity.id)
+            is GroupParcelable -> LoadHistoryParameters.ofGroup(entity.id)
+            else -> {
+                return null
+            }
+        }
+        params.apply {
+            betweenDates(dateRange.first, dateRange.second)
+            withHeaders(otherThanDailyView)
+            withTypes(getCheckedTypes())
+        }
+        return params
+    }
+
+    private fun getCheckedTypes(): List<HistoryType> {
+        val types = mutableListOf<HistoryType>()
+        binding.apply {
+            if (filterCredit.isChecked) types.add(HistoryType.CREDIT)
+            if (filterDebit.isChecked) types.add(HistoryType.DEBIT)
+            if (filterTransfer.isChecked) types.add(HistoryType.TRANSFER)
+        }
+        return types
     }
 }

@@ -7,6 +7,7 @@ import dreammaker.android.expensetracker.database.IExpenseDatabase
 import dreammaker.android.expensetracker.database.dao.HistoryDao
 import dreammaker.android.expensetracker.database.model.HistoryEntity
 import dreammaker.android.expensetracker.database.model.HistoryType
+import kotlinx.coroutines.flow.Flow
 import rahulstech.android.expensetracker.domain.AccountRepository
 import rahulstech.android.expensetracker.domain.GroupRepository
 import rahulstech.android.expensetracker.domain.HistoryFilterParameters
@@ -43,7 +44,7 @@ internal class HistoryRepositoryImpl(
     override fun getLiveHistoryById(id: Long): LiveData<History?> =
         historyDao.getLiveHistoryById(id).map { it?.toHistory() }
 
-    override fun getPagedHistories(params: HistoryFilterParameters): LiveData<PagingData<History>> =
+    override fun getPagedHistories(params: HistoryFilterParameters): Flow<PagingData<History>> =
         params.getPagedHistories(historyDao)
 
     override fun updateHistory(history: History): Boolean =

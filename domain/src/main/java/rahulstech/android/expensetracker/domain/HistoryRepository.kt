@@ -1,13 +1,13 @@
 package rahulstech.android.expensetracker.domain
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.map
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import androidx.paging.liveData
 import androidx.paging.map
 import dreammaker.android.expensetracker.database.dao.HistoryDao
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import rahulstech.android.expensetracker.domain.model.History
 import rahulstech.android.expensetracker.domain.model.toHistory
 import java.time.LocalDate
@@ -28,7 +28,7 @@ sealed class HistoryFilterParameters {
 
     class GroupHistories(override val groupId: Long): HistoryFilterParameters()
 
-    internal fun getPagedHistories(dao: HistoryDao): LiveData<PagingData<History>> {
+    internal fun getPagedHistories(dao: HistoryDao): Flow<PagingData<History>> {
         return Pager(
             config = PagingConfig(
                 pageSize = 30
@@ -45,7 +45,7 @@ sealed class HistoryFilterParameters {
                     }
                 }
             }
-        ).liveData.map { pagingData ->
+        ).flow.map { pagingData ->
             pagingData.map { it.toHistory() }
         }
     }
@@ -63,7 +63,7 @@ interface HistoryRepository {
 
     fun getLiveHistoryById(id: Long): LiveData<History?>
 
-    fun getPagedHistories(params: HistoryFilterParameters): LiveData<PagingData<History>>
+    fun getPagedHistories(params: HistoryFilterParameters): Flow<PagingData<History>>
 
     fun updateHistory(history: History): Boolean
 
