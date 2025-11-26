@@ -1,6 +1,5 @@
 package dreammaker.android.expensetracker.ui.history.historieslist
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -52,8 +51,6 @@ sealed class HistoryViewHolder(itemView: View): SelectableViewHolder<Long>(itemV
         override fun bind(data: HistoryListItem) {
             val item = data as HistoryListItem.Item
             val history = item.history
-            // TODO: implement ItemViewHolder bind
-
             binding.apply {
                 note.text = history.note
                 amount.text = history.amount.toCurrencyString()
@@ -206,7 +203,6 @@ class HistoryListAdapter:
 
     override fun onBindViewHolder(holder: HistoryViewHolder, position: Int) {
         val item = getItem(position) ?: HistoryListItem.Placeholder()
-        Log.d(TAG,"binding position = $position viewType = ${getItemViewType(position)} item = $item")
         if (item is HistoryListItem.Item) {
             item.selected = selectionHelper?.isSelected(item.history.id) ?: false
         }

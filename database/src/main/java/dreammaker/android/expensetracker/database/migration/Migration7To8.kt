@@ -8,7 +8,7 @@ class Migration7To8: Migration(7,8) {
     override fun migrate(db: SupportSQLiteDatabase) {
 
         // create groups tables
-        db.execSQL("CREATE TABLE IF NOT EXISTS `groups` (`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `due` REAL NOT NULL, `lastUsed` TEXT, `totalUsed` INTEGER)")
+        db.execSQL("CREATE TABLE IF NOT EXISTS `groups` (`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `balance` REAL NOT NULL, `lastUsed` TEXT, `totalUsed` INTEGER)")
 
         // insert all persons
         db.execSQL("INSERT INTO `groups` (`id`,`name`,`balance`) SELECT `_id` AS `id`, `person_name` AS `name`, `due` AS `balance` FROM `persons`")
@@ -37,9 +37,9 @@ class Migration7To8: Migration(7,8) {
                 "`type` TEXT NOT NULL," +
                 "`amount` REAL NOT NULL, "+
                 "`date` TEXT NOT NULL, " +
-                "`primaryAccountId` INTEGER REFERENCES `accounts`(`id`) ON DELETE SET NULL ON UPDATE NO ACTION, " +
-                "`secondaryAccountId` INTEGER REFERENCES `accounts`(`id`) ON DELETE SET NULL ON UPDATE NO ACTION, " +
-                "`groupId` INTEGER REFERENCES `groups`(`id`) ON DELETE SET NULL ON UPDATE NO ACTION, " +
+                "`primaryAccountId` INTEGER REFERENCES `accounts`(`id`) ON DELETE CASCADE ON UPDATE NO ACTION, " +
+                "`secondaryAccountId` INTEGER REFERENCES `accounts`(`id`) ON DELETE CASCADE ON UPDATE NO ACTION, " +
+                "`groupId` INTEGER REFERENCES `groups`(`id`) ON DELETE CASCADE ON UPDATE NO ACTION, " +
                 "`note` TEXT" +
                 ")")
 

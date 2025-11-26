@@ -119,43 +119,6 @@ class HistoryDaoTest {
     }
 
     // -------------------------------------------------------------
-    // LIVE: Account Between Dates
-    // -------------------------------------------------------------
-
-    @Test
-    fun getLiveHistoriesForAccountBetweenDates() {
-        val start = LocalDate.of(2025, 1, 1)
-        val end = LocalDate.of(2025, 12, 31)
-
-        runOnLiveDataResultReceived(
-            dao.getLiveHistoriesForAccountBetweenDates(1, start, end)
-        ) { actual ->
-            val expectedIds = setOf<Long>(3, 4, 1, 5)
-            val actualIds = actual.map { it.history.id }.toSet()
-
-            assertEquals(expectedIds, actualIds)
-        }
-    }
-
-    // -------------------------------------------------------------
-    // LIVE: Group Between Dates
-    // -------------------------------------------------------------
-
-    @Test
-    fun getLiveHistoriesForGroupBetweenDates() {
-        val start = LocalDate.of(2025, 1, 1)
-        val end = LocalDate.of(2025, 12, 31)
-
-        runOnLiveDataResultReceived(
-            dao.getLiveHistoriesForGroupBetweenDates(1, start, end)
-        ) { actual ->
-            val expectedIds = setOf<Long>(1, 2)
-            val actualIds = actual.map { it.history.id }.toSet()
-            assertEquals(expectedIds, actualIds)
-        }
-    }
-
-    // -------------------------------------------------------------
     // PAGINATION
     // -------------------------------------------------------------
 

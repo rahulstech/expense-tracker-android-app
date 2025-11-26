@@ -5,10 +5,12 @@ import dreammaker.android.expensetracker.database.model.HistoryEntity
 import dreammaker.android.expensetracker.database.model.HistoryType
 import java.time.LocalDate
 
+internal fun List<History.Type>.toHistoryTypesList(): List<HistoryType> = map { it.toHistoryType() }
+
 sealed class History(
     open var id: Long,
     open val date: LocalDate,
-    open val type: HistoryType,
+    open val type: Type,
     open val amount: Float,
     open val primaryAccountId: Long?,
     open val secondaryAccountId: Long?,
@@ -18,8 +20,22 @@ sealed class History(
     open val secondaryAccount: Account?,
     open val group: Group?,
 ) {
+
+    enum class Type {
+        CREDIT,
+        DEBIT,
+        TRANSFER,
+        ;
+
+        internal fun toHistoryType(): HistoryType = when(this) {
+            CREDIT -> HistoryType.CREDIT
+            DEBIT -> HistoryType.DEBIT
+            TRANSFER -> HistoryType.TRANSFER
+        }
+    }
+
     fun toHistoryEntity(): HistoryEntity =
-        HistoryEntity(id,type,primaryAccountId,secondaryAccountId,groupId,amount.toFloat(),date,note)
+        HistoryEntity(id,type.toHistoryType(),primaryAccountId,secondaryAccountId,groupId, amount,date,note)
 
     data class CreditHistory(
         override var id: Long,
@@ -30,7 +46,7 @@ sealed class History(
         override val note: String? = null,
         override val primaryAccount: Account? = null,
         override val group: Group? = null,
-    ): History(id,date,HistoryType.CREDIT,amount,primaryAccountId,null,groupId,note,primaryAccount,null,group)
+    ): History(id,date,Type.CREDIT,amount,primaryAccountId,null,groupId,note,primaryAccount,null,group)
 
     data class DebitHistory(
         override var id: Long,
@@ -41,7 +57,7 @@ sealed class History(
         override val note: String? = null,
         override val primaryAccount: Account? = null,
         override val group: Group? = null,
-    ): History(id,date,HistoryType.DEBIT,amount,primaryAccountId,null,groupId,note,primaryAccount,null,group)
+    ): History(id,date,Type.DEBIT,amount,primaryAccountId,null,groupId,note,primaryAccount,null,group)
 
     data class TransferHistory(
         override var id: Long,
@@ -52,7 +68,7 @@ sealed class History(
         override val note: String? = null,
         override val primaryAccount: Account? = null,
         override val secondaryAccount: Account? = null,
-    ): History(id,date,HistoryType.DEBIT,amount,primaryAccountId,secondaryAccountId,null,note,primaryAccount,secondaryAccount,null)
+    ): History(id,date,Type.DEBIT,amount,primaryAccountId,secondaryAccountId,null,note,primaryAccount,secondaryAccount,null)
 }
 
 fun HistoryEntity.toHistory(): History =

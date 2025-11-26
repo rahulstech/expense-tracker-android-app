@@ -30,13 +30,13 @@ import dreammaker.android.expensetracker.databinding.FragmentHistoryListBinding
 import dreammaker.android.expensetracker.settings.SettingsProvider
 import dreammaker.android.expensetracker.settings.ViewHistory
 import dreammaker.android.expensetracker.ui.HistoryListItem
-import dreammaker.android.expensetracker.ui.HistoryType
 import dreammaker.android.expensetracker.util.AccountParcelable
 import dreammaker.android.expensetracker.util.GroupParcelable
 import dreammaker.android.expensetracker.util.SelectionHelper
 import dreammaker.android.expensetracker.util.setActivitySubTitle
 import dreammaker.android.expensetracker.util.visibilityGone
 import dreammaker.android.expensetracker.util.visible
+import rahulstech.android.expensetracker.domain.model.History
 
 class HistoryKeyProvider(private val adapter: HistoryListAdapter): ItemKeyProvider<Long>(SCOPE_CACHED) {
     override fun getKey(position: Int): Long? = adapter.getSelectionKey(position)
@@ -357,12 +357,11 @@ class HistoryListFragment: Fragment(), MenuProvider {
         val otherThanDailyView = settings.getViewHistory() != ViewHistory.DAILY
         val dateRange = picker.getSelection()
         val entity = getArgHistoriesOf()
-        val params = when(entity) {
-            is AccountParcelable -> LoadHistoryParameters.ofAccount(entity.id)
-            is GroupParcelable -> LoadHistoryParameters.ofGroup(entity.id)
-            else -> {
-                return null
-            }
+
+        val params = LoadHistoryParameters()
+        when(entity) {
+            is AccountParcelable -> params.withAccountId(entity.id)
+            is GroupParcelable -> params.withGroupId(entity.id)
         }
         params.apply {
             betweenDates(dateRange.first, dateRange.second)
@@ -372,12 +371,12 @@ class HistoryListFragment: Fragment(), MenuProvider {
         return params
     }
 
-    private fun getCheckedTypes(): List<HistoryType> {
-        val types = mutableListOf<HistoryType>()
+    private fun getCheckedTypes(): List<History.Type> {
+        val types = mutableListOf<History.Type>()
         binding.apply {
-            if (filterCredit.isChecked) types.add(HistoryType.CREDIT)
-            if (filterDebit.isChecked) types.add(HistoryType.DEBIT)
-            if (filterTransfer.isChecked) types.add(HistoryType.TRANSFER)
+            if (filterCredit.isChecked) types.add(History.Type.CREDIT)
+            if (filterDebit.isChecked) types.add(History.Type.DEBIT)
+            if (filterTransfer.isChecked) types.add(History.Type.TRANSFER)
         }
         return types
     }

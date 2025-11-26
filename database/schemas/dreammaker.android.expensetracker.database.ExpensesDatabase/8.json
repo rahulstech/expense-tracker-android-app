@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 8,
-    "identityHash": "b9da793f6ea144c964b5665b233447b2",
+    "identityHash": "cb04875d12a1f29d1c0f223817d6bc69",
     "entities": [
       {
         "tableName": "accounts",
@@ -86,7 +86,7 @@
       },
       {
         "tableName": "histories",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `type` TEXT NOT NULL, `primaryAccountId` INTEGER, `secondaryAccountId` INTEGER, `groupId` INTEGER, `amount` REAL NOT NULL, `date` TEXT NOT NULL, `note` TEXT, FOREIGN KEY(`primaryAccountId`) REFERENCES `accounts`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL DEFERRABLE INITIALLY DEFERRED, FOREIGN KEY(`secondaryAccountId`) REFERENCES `accounts`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL DEFERRABLE INITIALLY DEFERRED, FOREIGN KEY(`groupId`) REFERENCES `groups`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL DEFERRABLE INITIALLY DEFERRED)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `type` TEXT NOT NULL, `primaryAccountId` INTEGER, `secondaryAccountId` INTEGER, `groupId` INTEGER, `amount` REAL NOT NULL, `date` TEXT NOT NULL, `note` TEXT, FOREIGN KEY(`primaryAccountId`) REFERENCES `accounts`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED, FOREIGN KEY(`secondaryAccountId`) REFERENCES `accounts`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED, FOREIGN KEY(`groupId`) REFERENCES `groups`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)",
         "fields": [
           {
             "fieldPath": "id",
@@ -171,7 +171,7 @@
         "foreignKeys": [
           {
             "table": "accounts",
-            "onDelete": "SET NULL",
+            "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
               "primaryAccountId"
@@ -182,7 +182,7 @@
           },
           {
             "table": "accounts",
-            "onDelete": "SET NULL",
+            "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
               "secondaryAccountId"
@@ -193,7 +193,7 @@
           },
           {
             "table": "groups",
-            "onDelete": "SET NULL",
+            "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
               "groupId"
@@ -207,7 +207,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b9da793f6ea144c964b5665b233447b2')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'cb04875d12a1f29d1c0f223817d6bc69')"
     ]
   }
 }

@@ -14,13 +14,9 @@ enum class HistoryType {
     DEBIT,
     TRANSFER,
     ;
-
-    fun needsSourceAccount() = true
-
-    fun needsDestinationAccount() = this == TRANSFER
-
-    fun needsGroup() = this == CREDIT || this == DEBIT
 }
+
+fun List<HistoryType>.toNamesList(): List<String> = map{ it.name }
 
 @Entity(
     tableName = "histories",
@@ -30,21 +26,21 @@ enum class HistoryType {
             parentColumns = ["id"],
             childColumns = ["primaryAccountId"],
             deferred = true,
-            onDelete = ForeignKey.SET_NULL
+            onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
             entity = AccountEntity::class,
             parentColumns = ["id"],
             childColumns = ["secondaryAccountId"],
             deferred = true,
-            onDelete = ForeignKey.SET_NULL
+            onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
             entity = GroupEntity::class,
             parentColumns = ["id"],
             childColumns = ["groupId"],
             deferred = true,
-            onDelete = ForeignKey.SET_NULL
+            onDelete = ForeignKey.CASCADE
         ),
     ],
     indices = [

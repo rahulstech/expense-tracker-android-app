@@ -40,10 +40,3 @@ sealed class GroupListItem {
         var selected: Boolean = false,
     ): GroupListItem()
 }
-
-enum class HistoryType {
-    CREDIT,
-    DEBIT,
-    TRANSFER,
-    ;
-}

@@ -8,13 +8,10 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import androidx.paging.filter
 import androidx.paging.insertSeparators
 import androidx.paging.map
 import dreammaker.android.expensetracker.ui.HistoryListItem
-import dreammaker.android.expensetracker.ui.HistoryType
 import dreammaker.android.expensetracker.util.UIState
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
@@ -27,7 +24,6 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
 import rahulstech.android.expensetracker.domain.ExpenseRepository
 import rahulstech.android.expensetracker.domain.HistoryFilterParameters
@@ -36,58 +32,49 @@ import rahulstech.android.expensetracker.domain.model.History
 import java.time.LocalDate
 import java.util.Objects
 
-fun History.getTypeEnum(): HistoryType = when(this) {
-        is History.CreditHistory -> HistoryType.CREDIT
-        is History.DebitHistory -> HistoryType.DEBIT
-        is History.TransferHistory -> HistoryType.TRANSFER
-    }
+class LoadHistoryParameters {
 
-class LoadHistoryParameters private constructor(
-    val filterParams: HistoryFilterParameters,
-) {
-    companion object {
-
-        fun ofAccount(id: Long): LoadHistoryParameters =
-            LoadHistoryParameters(HistoryFilterParameters.AccountHistories(id))
-
-        fun ofGroup(id: Long): LoadHistoryParameters =
-            LoadHistoryParameters(HistoryFilterParameters.GroupHistories(id))
-    }
-
-    private var types: List<HistoryType> = emptyList()
+    private val filterParams = HistoryFilterParameters()
     private var showHeaders: Boolean = false
 
     fun betweenDates(startInclusive: LocalDate, endInclusive: LocalDate) {
-        filterParams.setDateRange(startInclusive,endInclusive)
+        filterParams.dateStart = startInclusive
+        filterParams.dateEnd = endInclusive
     }
 
-    fun withHeaders(showHeaders: Boolean) {
-        this.showHeaders = showHeaders
+    fun withHeaders(showHeaders: Boolean) { this.showHeaders = showHeaders }
+
+    fun withTypes(types: List<History.Type>) {
+        filterParams.types = types
     }
 
-    fun withTypes(types: List<HistoryType>) {
-        this.types = types
+    fun withAccountId(id: Long) {
+        filterParams.accountIds = listOf(id)
+    }
+
+    fun withGroupId(id: Long) {
+        filterParams.groupIds = listOf(id)
     }
 
     override fun equals(other: Any?): Boolean {
+        if (this===other) return true
         if (other is LoadHistoryParameters) {
             return filterParams == other.filterParams
                     && showHeaders == other.showHeaders
-                    && types == other.types
         }
         return false
     }
 
-    override fun hashCode(): Int = Objects.hash(filterParams, showHeaders, types)
+    override fun hashCode(): Int = Objects.hash(filterParams, showHeaders)
 
     override fun toString(): String {
-        return "LoadHistoryParameters[filterParams=$filterParams, showHeaders=$showHeaders, types=$types]"
+        return "LoadHistoryParameters[filterParams=$filterParams, showHeaders=$showHeaders]"
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun getPagedHistoryListItems(repo: HistoryRepository, scope: CoroutineScope): Flow<PagingData<HistoryListItem>> =
-        repo.getPagedHistories(filterParams)
-            .transformLatest { emit(applyFilter(it)) }
+    fun getPagedHistoryListItems(repo: HistoryRepository): Flow<PagingData<HistoryListItem>> {
+        Log.d("LoadHistoryParameters", "getPagedHistoryListItems: filterParams=$filterParams")
+        return repo.getPagedHistories(filterParams)
             .map { data ->
                 var items: PagingData<HistoryListItem> = data.map { HistoryListItem.Item(it) }
                 if (showHeaders) {
@@ -111,15 +98,6 @@ class LoadHistoryParameters private constructor(
                 }
                 items
             }
-
-    private fun applyFilter(source: PagingData<History>): PagingData<History> {
-        return if (types.isEmpty()) {
-            source
-        } else {
-            source.filter { history ->
-                types.contains(history.getTypeEnum())
-            }
-        }
     }
 }
 
@@ -138,7 +116,7 @@ class ViewHistoryViewModel(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val histories : LiveData<PagingData<HistoryListItem>> = loadHistoryParamsState.flatMapLatest {
-        it?.getPagedHistoryListItems(historyRepo,viewModelScope) ?: flowOf(PagingData.empty())
+        it?.getPagedHistoryListItems(historyRepo) ?: flowOf(PagingData.empty())
     }
         .asLiveData()
         .cachedIn(viewModelScope)
@@ -148,8 +126,7 @@ class ViewHistoryViewModel(
 //    }
 
     fun loadHistories(params: LoadHistoryParameters?) {
-        Log.d(TAG, "loadHistories: params = $params")
-
+        Log.d(TAG,"loadHistories: params=$params")
         // if filterParams change load history -> apply filter
         loadHistoryParamsState.value = params
     }
