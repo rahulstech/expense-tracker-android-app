@@ -13,6 +13,7 @@ sealed class AccountListItem {
         val data: Account,
         var rank: Int = 0,
         var selected: Boolean = false,
+        var enabled: Boolean = true,
     ): AccountListItem()
 }
 

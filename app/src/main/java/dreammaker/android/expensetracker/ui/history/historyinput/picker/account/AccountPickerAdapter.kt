@@ -48,12 +48,13 @@ sealed class AccountPickerViewHolder(itemView: View): SelectableViewHolder<Long>
 
         override fun getSelectionKey(): Long? = stableItemId
 
-         fun bind(value: AccountListItem.Item) {
-            val account = value.data
+         fun bind(item: AccountListItem.Item) {
+             val account = item.data
              stableItemId = account.id
-            binding.accountName.text = account.name
-            binding.accountBalance.text = account.getBalanceText(context)
-            binding.root.isActivated = value.selected
+             binding.accountName.text = account.name
+             binding.accountBalance.text = account.getBalanceText(context)
+             binding.root.isActivated = item.selected
+             binding.root.isEnabled = item.enabled
         }
     }
 }
@@ -80,6 +81,8 @@ open class AccountPickerListAdapter: BaseSelectableItemListAdapter<AccountListIt
         const val TYPE_ITEM = 2
     }
 
+    var disabledId: Long? = null
+
     override fun getItemViewType(position: Int): Int =
         when(getItem(position)) {
             is AccountListItem.Header -> TYPE_HEADER
@@ -101,11 +104,13 @@ open class AccountPickerListAdapter: BaseSelectableItemListAdapter<AccountListIt
     }
 
     override fun onBindViewHolder(holder: AccountPickerViewHolder, position: Int) {
-        val data = getItem(position)
-        if (data is AccountListItem.Item) {
-            data.selected = isSelected(data.data.id)
+        val item = getItem(position)
+        if (item is AccountListItem.Item) {
+            val id = item.data.id
+            item.selected = isSelected(id)
+            item.enabled = id != disabledId
         }
-        holder.bind(data)
+        holder.bind(item)
     }
 
     override fun getItemId(position: Int): Long {
@@ -121,4 +126,6 @@ open class AccountPickerListAdapter: BaseSelectableItemListAdapter<AccountListIt
         if (id == RecyclerView.NO_ID) return null
         return id
     }
+
+    override fun canSelectKey(key: Long?): Boolean = null != key && key != disabledId
 }

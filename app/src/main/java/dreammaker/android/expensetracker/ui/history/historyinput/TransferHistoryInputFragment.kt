@@ -133,7 +133,8 @@ class TransferHistoryInputFragment : BaseHistoryInputFragment() {
     private fun prepareSecondaryAccount() {
         binding.inputDestination.setOnClickListener {
             navController.navigate(R.id.action_input_money_transfer_to_account_picker, bundleOf(
-                Constants.KEY_IS_PRIMARY to false
+                Constants.KEY_IS_PRIMARY to false,
+                Constants.ARG_DISABLED_ID to getArgAccount()?.id
             ))
         }
         viewLifecycleOwner.lifecycleScope.launch {

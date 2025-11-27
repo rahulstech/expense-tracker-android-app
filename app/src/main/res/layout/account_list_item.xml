@@ -13,7 +13,7 @@
 		android:paddingLeft="16dp"
 		android:paddingRight="16dp"
 		android:singleLine="true"
-		android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+		android:textAppearance="@style/TextAppearance.AppTheme.BodyLarge"
 		android:textStyle="bold"
 		app:layout_constraintTop_toTopOf="parent"
 		app:layout_constraintStart_toStartOf="parent"

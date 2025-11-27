@@ -17,7 +17,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:singleLine="true"
-        android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+        android:textAppearance="@style/TextAppearance.AppTheme.BodyLarge"
         android:textStyle="bold"
         tools:text="Wallet"/>
 

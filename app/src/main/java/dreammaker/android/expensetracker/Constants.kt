@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter
 object Constants {
     const val ARG_ACTION = "arg_action"
     const val ARG_ID = "arg_id"
+    const val ARG_DISABLED_ID = "arg_disabled_id"
     const val ARG_ACCOUNT = "arg_account"
     const val ARG_GROUP = "arg_group"
     const val ARG_DATE = "arg_date"

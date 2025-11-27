@@ -313,8 +313,12 @@ abstract class SelectableViewHolder<KeyType>(itemView: View): ClickableViewHolde
     }
 }
 
+// second parameter View is the itemView of clicked item
+// third parameter is the absoluteAdapter position of the item
 typealias ItemClickListener = (RecyclerView.Adapter<*>,View,Int)->Unit
 
+// second parameter View is the itemView of clicked item
+// third parameter is the absoluteAdapter position of the item
 typealias ItemLongClickListener = (RecyclerView.Adapter<*>,View,Int)->Boolean
 
 interface IClickableItemAdapter<VH : ClickableViewHolder> {

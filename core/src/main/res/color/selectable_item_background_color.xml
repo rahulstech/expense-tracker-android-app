@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Disabled -->
+    <item android:state_enabled="false" android:color="?attr/colorOnSurface" android:alpha="0.12" />
+
+    <!-- Selected / Active -->
+    <item android:state_activated="true" android:color="?attr/colorPrimary" android:alpha="0.12"/>
+
+    <!-- Pressed -->
+    <item android:state_pressed="true" android:color="?attr/colorOnSurface" android:alpha="0.08" />
+
+    <!-- Focused -->
+    <item android:state_focused="true" android:color="?attr/colorOnSurface" android:alpha="0.12" />
+
+    <!-- Hovered (for TV / mouse) -->
+    <item android:state_hovered="true" android:color="?attr/colorOnSurface" android:alpha="0.04" />
+
+    <!-- Default -->
+    <item android:color="?attr/colorSurface" />
+
+</selector>

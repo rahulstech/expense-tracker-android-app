@@ -16,7 +16,7 @@
         android:ellipsize="end"
         android:singleLine="true"
         android:layout_marginEnd="16dp"
-        android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+        android:textAppearance="@style/TextAppearance.AppTheme.BodyLarge"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -66,16 +66,17 @@
     <TextView
         android:id="@+id/type"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="32dp"
         android:singleLine="true"
-        android:background="@drawable/history_list_item_history_type_background"
+
         android:layout_marginTop="8dp"
+        app:layout_goneMarginTop="8dp"
         android:padding="8dp"
         android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
         android:textStyle="normal"
         app:layout_constraintTop_toBottomOf="@id/destination"
         app:layout_constraintStart_toStartOf="parent"
-        tools:backgroundTint="@color/colorCredit"
+        tools:background="@drawable/history_type_credit_background"
         tools:textColor="@color/colorOnCredit"
         tools:text="Credit" />
 

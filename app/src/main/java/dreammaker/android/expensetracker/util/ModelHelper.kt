@@ -2,6 +2,7 @@ package dreammaker.android.expensetracker.util
 
 import android.content.Context
 import android.content.res.ColorStateList
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
@@ -184,6 +185,15 @@ fun History.getTypeBackgroundColor(context: Context): ColorStateList {
         is History.TransferHistory -> R.color.colorTransfer
     }
     return ResourcesCompat.getColorStateList(context.resources, resId, context.theme)!!
+}
+
+fun History.getTypeBackground(context: Context): Drawable {
+    val resId = when(this) {
+        is History.CreditHistory -> R.drawable.history_type_credit_background
+        is History.DebitHistory -> R.drawable.history_type_dedit_background
+        is History.TransferHistory -> R.drawable.history_type_transfer_background
+    }
+    return ResourcesCompat.getDrawable(context.resources, resId, context.theme)!!
 }
 
 fun History.getTypeColorOnBackground(context: Context): ColorStateList {

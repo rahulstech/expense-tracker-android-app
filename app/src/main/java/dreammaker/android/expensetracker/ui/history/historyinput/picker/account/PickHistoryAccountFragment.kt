@@ -26,7 +26,6 @@ class PickHistoryAccountFragment : Fragment() {
 
     companion object {
         private val TAG = PickHistoryAccountFragment::class.simpleName
-        const val ARG_DISABLED_ACCOUNT = "arg_disabled_account"
     }
 
     private lateinit var binding: SingleAccountPickerListWithSearchLayoutBinding
@@ -40,7 +39,7 @@ class PickHistoryAccountFragment : Fragment() {
         get() = arguments?.getBoolean(Constants.KEY_IS_PRIMARY,true) ?: true
 
     private val argDisabledAccountId: Long?
-        get() = arguments?.getLong(ARG_DISABLED_ACCOUNT)
+        get() = arguments?.getLong(Constants.ARG_DISABLED_ID)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -64,6 +63,7 @@ class PickHistoryAccountFragment : Fragment() {
         adapter = AccountPickerListAdapter()
         binding.optionsList.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
         binding.optionsList.adapter = adapter
+        adapter.disabledId = argDisabledAccountId
 
         prepareItemSelection()
 

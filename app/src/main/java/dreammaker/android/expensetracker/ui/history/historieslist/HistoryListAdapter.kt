@@ -6,7 +6,6 @@ import android.view.ViewGroup
 import androidx.annotation.StringRes
 import androidx.core.text.bold
 import androidx.core.text.buildSpannedString
-import androidx.core.view.ViewCompat
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import dreammaker.android.expensetracker.FULL_DATE_FORMAT
@@ -21,7 +20,7 @@ import dreammaker.android.expensetracker.util.ItemLongClickListener
 import dreammaker.android.expensetracker.util.SelectableViewHolder
 import dreammaker.android.expensetracker.util.SelectionHelper
 import dreammaker.android.expensetracker.util.UNKNOWN_ACCOUNT
-import dreammaker.android.expensetracker.util.getTypeBackgroundColor
+import dreammaker.android.expensetracker.util.getTypeBackground
 import dreammaker.android.expensetracker.util.getTypeColorOnBackground
 import dreammaker.android.expensetracker.util.getTypeLabel
 import dreammaker.android.expensetracker.util.toCurrencyString
@@ -81,10 +80,11 @@ sealed class HistoryViewHolder(itemView: View): SelectableViewHolder<Long>(itemV
                     destination.text = null
                 }
 
-                type.text = history.getTypeLabel(context)
-                ViewCompat.setBackgroundTintList(type, history.getTypeBackgroundColor(context))
-                type.setTextColor(history.getTypeColorOnBackground(context))
-                type.visible()
+                type.apply {
+                    text = history.getTypeLabel(context)
+                    background = history.getTypeBackground(context)
+                    setTextColor(history.getTypeColorOnBackground(context))
+                }
 
                  if (null != historyGroup) {
                     group.text = historyGroup.name
