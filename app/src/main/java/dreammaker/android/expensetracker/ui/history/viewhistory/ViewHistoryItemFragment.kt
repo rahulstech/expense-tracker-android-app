@@ -21,7 +21,7 @@ import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.core.util.QuickMessages
 import dreammaker.android.expensetracker.databinding.HistoryItemLayoutBinding
 import dreammaker.android.expensetracker.databinding.ViewHistoryLayoutBinding
-import dreammaker.android.expensetracker.util.UIState
+import dreammaker.android.expensetracker.ui.UIState
 import dreammaker.android.expensetracker.util.UNKNOWN_ACCOUNT
 import dreammaker.android.expensetracker.util.UNKNOWN_GROUP
 import dreammaker.android.expensetracker.util.createInputChip

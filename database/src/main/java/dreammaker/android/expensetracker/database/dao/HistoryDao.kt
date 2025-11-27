@@ -52,6 +52,21 @@ class HistoryQueryBuilder {
         return query
     }
 
+//    fun buildSummary(): SupportSQLiteQuery {
+//        val queryBuilder = SupportSQLiteQueryBuilder.builder("`histories`")
+//
+//        val columns = arrayOf(
+//            "SUM(CASE `type` WHEN 'CREDIT' THEN `amount` ELSE 0 END) AS `totalCredit`",
+//            "SUM(CASE `type` WHEN 'DEBIT' THEN `amount` ELSE 0 END) AS `totalDebit`",
+//        )
+//        queryBuilder.columns(columns)
+//
+//        where(queryBuilder)
+//        queryBuilder.groupBy("")
+//
+//        return queryBuilder.create()
+//    }
+
     private fun where(builder: SupportSQLiteQueryBuilder) {
         val selection = StringBuilder("1 = 1")
         val selectionArgs = mutableListOf<Any?>()

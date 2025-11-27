@@ -144,8 +144,8 @@ fun Account.getBalanceText(context: Context, currencyCode: String = "USD", local
  * Group Model Extension Methods
  */
 
-fun Group.getDueText(context: Context, currencyCode: String = "USD", locale: Locale = Locale.ENGLISH): CharSequence {
-    val balance = this.balance.toFloat()
+fun Group.getBalanceText(context: Context, currencyCode: String = "USD", locale: Locale = Locale.ENGLISH): CharSequence {
+    val balance = this.balance
     val balanceText = balance.absoluteValue.toCurrencyString(currencyCode,locale)
     return if (balance > 0) {
         buildSpannedString {

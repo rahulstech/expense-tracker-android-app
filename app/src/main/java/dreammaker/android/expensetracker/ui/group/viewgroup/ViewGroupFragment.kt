@@ -19,9 +19,9 @@ import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.core.util.QuickMessages
 import dreammaker.android.expensetracker.databinding.ViewGroupLayoutBinding
 import dreammaker.android.expensetracker.util.GroupParcelable
-import dreammaker.android.expensetracker.util.UIState
+import dreammaker.android.expensetracker.ui.UIState
 import dreammaker.android.expensetracker.util.getDueLabel
-import dreammaker.android.expensetracker.util.getDueText
+import dreammaker.android.expensetracker.util.getBalanceText
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import rahulstech.android.expensetracker.domain.model.Group
@@ -75,7 +75,7 @@ class ViewGroupFragment: Fragment(), MenuProvider {
         }
         else {
             binding.name.text = group.name
-            binding.due.text = group.getDueText(requireContext())
+            binding.due.text = group.getBalanceText(requireContext())
             binding.balanceLabel.text = group.getDueLabel(requireContext())
             requireActivity().invalidateOptionsMenu()
         }

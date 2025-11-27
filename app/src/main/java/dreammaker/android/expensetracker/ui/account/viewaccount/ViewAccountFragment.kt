@@ -21,7 +21,7 @@ import dreammaker.android.expensetracker.core.util.QuickMessages
 import dreammaker.android.expensetracker.databinding.ViewAccountLayoutBinding
 //import dreammaker.android.expensetracker.ui.history.historieslist.HistoryListContainer
 import dreammaker.android.expensetracker.util.AccountParcelable
-import dreammaker.android.expensetracker.util.UIState
+import dreammaker.android.expensetracker.ui.UIState
 import dreammaker.android.expensetracker.util.getBalanceText
 import dreammaker.android.expensetracker.util.hasArgument
 import kotlinx.coroutines.flow.collectLatest

@@ -20,7 +20,7 @@ import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.core.util.QuickMessages
 import dreammaker.android.expensetracker.ui.history.historyinput.TransactionInputFragment.Companion.ARG_HISTORY_DATE
 import dreammaker.android.expensetracker.util.AccountParcelable
-import dreammaker.android.expensetracker.util.UIState
+import dreammaker.android.expensetracker.ui.UIState
 import dreammaker.android.expensetracker.util.getArgId
 import dreammaker.android.expensetracker.util.getDate
 import dreammaker.android.expensetracker.util.isActionEdit

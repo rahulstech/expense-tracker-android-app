@@ -32,15 +32,21 @@ import kotlinx.coroutines.Dispatchers
 
 sealed class HistoryViewHolder(itemView: View): SelectableViewHolder<Long>(itemView) {
 
-    open fun bind(data: HistoryListItem) {}
+    fun bind(data: HistoryListItem) {
+        when {
+            this is HeaderViewHolder && data is HistoryListItem.Header -> bind(data)
+            this is ItemViewHolder && data is HistoryListItem.Item -> bind(data)
+            else -> {}
+        }
+    }
 
     class HeaderViewHolder(
         private val binding: HistoryHeaderLayoutBinding
     ): HistoryViewHolder(binding.root) {
 
-        override fun bind(data: HistoryListItem) {
-            val header = data as HistoryListItem.Header
-            binding.headerText.text = header.date.format(FULL_DATE_FORMAT)
+        fun bind(item: HistoryListItem.Header) {
+            val date = item.data
+            binding.headerText.text = date.format(FULL_DATE_FORMAT)
         }
     }
 
@@ -48,9 +54,13 @@ sealed class HistoryViewHolder(itemView: View): SelectableViewHolder<Long>(itemV
         private val binding: HistoryItemLayoutBinding
     ): HistoryViewHolder(binding.root) {
 
-        override fun bind(data: HistoryListItem) {
-            val item = data as HistoryListItem.Item
-            val history = item.history
+        private var stableItemId: Long? = null
+
+        override fun getSelectionKey(): Long? = stableItemId
+
+        fun bind(item: HistoryListItem.Item) {
+            val history = item.data
+            stableItemId = history.id
             binding.apply {
                 note.text = history.note
                 amount.text = history.amount.toCurrencyString()
@@ -116,15 +126,11 @@ internal val DIFF_CALLBACK = object: DiffUtil.ItemCallback<HistoryListItem>() {
         return when {
             oldItem is HistoryListItem.Header &&
                     newItem is HistoryListItem.Header ->
-                oldItem.date == newItem.date
+                oldItem.data == newItem.data
 
             oldItem is HistoryListItem.Item &&
                     newItem is HistoryListItem.Item ->
-                oldItem.history.id == newItem.history.id
-
-            oldItem is HistoryListItem.Placeholder &&
-                    newItem is HistoryListItem.Placeholder ->
-                false   // treat placeholders as unique
+                oldItem.data.id == newItem.data.id
 
             else ->
                 false
@@ -166,14 +172,6 @@ class HistoryListAdapter:
         itemLongClickListener?.invoke(this,view,holder.absoluteAdapterPosition) ?: false
 
 
-    fun getHistoryItemId(position: Int): Long? {
-        val item = getItem(position)
-        return when (item) {
-            is HistoryListItem.Item -> item.history.id
-            else -> null
-        }
-    }
-
     override fun getItemViewType(position: Int): Int =
         when(getItem(position)) {
             is HistoryListItem.Header -> TYPE_HEADER
@@ -204,20 +202,21 @@ class HistoryListAdapter:
     override fun onBindViewHolder(holder: HistoryViewHolder, position: Int) {
         val item = getItem(position) ?: HistoryListItem.Placeholder()
         if (item is HistoryListItem.Item) {
-            item.selected = selectionHelper?.isSelected(item.history.id) ?: false
+            item.selected = isSelected(item.data.id)
         }
         holder.bind(item)
     }
 
-    override fun getKeyPosition(key: Long): Int =
-        snapshot().items.indexOfFirst { item ->
-            item is HistoryListItem.Item && item.history.id == key
+    fun getHistoryId(position: Int): Long? {
+        val item = getItem(position)
+        return when(item) {
+            is HistoryListItem.Item -> item.data.id
+            else -> null
         }
-
-    override fun getSelectionKey(position: Int): Long? = getHistoryItemId(position)
-
-    override fun notifySelectionChanged(positions: List<Int>) {
-        positions.forEach { notifyItemChanged(it) }
     }
+
+    override fun canSelectKey(key: Long?): Boolean = null != key
+
+    override fun getSelectionKeyAtPosition(position: Int): Long? = getHistoryId(position)
 }
 

@@ -19,11 +19,11 @@ sealed class AccountListItem {
 sealed class HistoryListItem {
 
     data class Header(
-        val date: LocalDate
+        val data: LocalDate
     ): HistoryListItem()
 
     data class Item(
-        val history: History,
+        val data: History,
         var selected: Boolean = false
     ): HistoryListItem()
 

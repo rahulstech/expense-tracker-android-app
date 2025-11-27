@@ -2,14 +2,13 @@ package dreammaker.android.expensetracker.ui.group.groupslist
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.recyclerview.selection.ItemDetailsLookup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import dreammaker.android.expensetracker.databinding.GroupListItemBinding
 import dreammaker.android.expensetracker.util.BaseSelectableItemListAdapter
 import dreammaker.android.expensetracker.util.SelectableViewHolder
 import dreammaker.android.expensetracker.util.getDueLabel
-import dreammaker.android.expensetracker.util.getDueText
+import dreammaker.android.expensetracker.util.getBalanceText
 import dreammaker.android.expensetracker.util.visibilityGone
 import dreammaker.android.expensetracker.util.visible
 import rahulstech.android.expensetracker.domain.model.Group
@@ -18,7 +17,12 @@ class GroupsListViewHolder(
     val binding: GroupListItemBinding,
 ): SelectableViewHolder<Long>(binding.root) {
 
+    private var stableItemId: Long? = null
+
+    override fun getSelectionKey(): Long? = stableItemId
+
     fun bind(group: Group?, selected: Boolean) {
+        stableItemId = group?.id
         if (null == group) {
             binding.name.text = null
             binding.due.text = null
@@ -34,15 +38,9 @@ class GroupsListViewHolder(
                 binding.labelBalance.text = label
                 binding.labelBalance.visible()
             }
-            binding.due.text = group.getDueText(context) // TODO: add country code and locale
+            binding.due.text = group.getBalanceText(context) // TODO: add country code and locale
             binding.root.isActivated = selected
         }
-    }
-
-    override fun getSelectedItemDetails(): ItemDetailsLookup.ItemDetails<Long?>? = object: ItemDetailsLookup.ItemDetails<Long?>() {
-        override fun getPosition(): Int = absoluteAdapterPosition
-
-        override fun getSelectionKey(): Long? = itemId
     }
 }
 
@@ -70,14 +68,15 @@ class GroupsListAdapter: BaseSelectableItemListAdapter<Group, Long, GroupsListVi
     }
 
     override fun onBindViewHolder(holder: GroupsListViewHolder, position: Int) {
-        val person = getItem(position)
-        holder.bind(person,isSelected(position))
+        val group = getItem(position)
+        holder.bind(group,isSelected(group.id))
     }
 
     override fun getItemId(position: Int): Long = getItem(position)?.id ?: RecyclerView.NO_ID
 
-    override fun getSelectionKey(position: Int): Long? {
+    override fun getSelectionKeyAtPosition(position: Int): Long? {
         val id = getItemId(position)
-        return if (id == RecyclerView.NO_ID) null else id
+        if (id == RecyclerView.NO_ID) return null
+        return id
     }
 }

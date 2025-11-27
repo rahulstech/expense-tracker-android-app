@@ -4,8 +4,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.recyclerview.selection.ItemDetailsLookup
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.RecyclerView
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.databinding.AccountChooserListItemBinding
 import dreammaker.android.expensetracker.ui.AccountListItem
@@ -28,10 +28,11 @@ sealed class AccountPickerViewHolder(itemView: View): SelectableViewHolder<Long>
         }
     }
 
-    class HeaderViewHolder(inflater: LayoutInflater, parent: ViewGroup): AccountPickerViewHolder(
+    class HeaderViewHolder(inflater: LayoutInflater, parent: ViewGroup):
+        AccountPickerViewHolder(
             inflater.inflate(R.layout.account_header_item,parent,false)
-    ) {
-
+        )
+    {
         private val headerLabel = itemView.findViewById<TextView>(R.id.header_label)
 
          fun bind(value: AccountListItem.Header) {
@@ -43,17 +44,16 @@ sealed class AccountPickerViewHolder(itemView: View): SelectableViewHolder<Long>
         private val binding: AccountChooserListItemBinding
     ): AccountPickerViewHolder(binding.root) {
 
+        private var stableItemId: Long? = null
+
+        override fun getSelectionKey(): Long? = stableItemId
+
          fun bind(value: AccountListItem.Item) {
             val account = value.data
+             stableItemId = account.id
             binding.accountName.text = account.name
             binding.accountBalance.text = account.getBalanceText(context)
             binding.root.isActivated = value.selected
-        }
-
-        override fun getSelectedItemDetails(): ItemDetailsLookup.ItemDetails<Long?>? = object: ItemDetailsLookup.ItemDetails<Long?>() {
-            override fun getPosition(): Int = absoluteAdapterPosition
-
-            override fun getSelectionKey(): Long? = itemId
         }
     }
 }
@@ -80,10 +80,6 @@ open class AccountPickerListAdapter: BaseSelectableItemListAdapter<AccountListIt
         const val TYPE_ITEM = 2
     }
 
-    init {
-        setHasStableIds(true)
-    }
-
     override fun getItemViewType(position: Int): Int =
         when(getItem(position)) {
             is AccountListItem.Header -> TYPE_HEADER
@@ -107,7 +103,7 @@ open class AccountPickerListAdapter: BaseSelectableItemListAdapter<AccountListIt
     override fun onBindViewHolder(holder: AccountPickerViewHolder, position: Int) {
         val data = getItem(position)
         if (data is AccountListItem.Item) {
-            data.selected = isSelected(position)
+            data.selected = isSelected(data.data.id)
         }
         holder.bind(data)
     }
@@ -116,11 +112,13 @@ open class AccountPickerListAdapter: BaseSelectableItemListAdapter<AccountListIt
         val item = getItem(position)
         return when(item) {
             is AccountListItem.Item -> item.data.id
-            else -> item.hashCode().toLong()
+            else -> RecyclerView.NO_ID
         }
     }
 
-    override fun getSelectionKey(position: Int): Long = getItemId(position)
-
-    override fun canSelectionPosition(position: Int): Boolean = getItemViewType(position) == TYPE_ITEM
+    override fun getSelectionKeyAtPosition(position: Int): Long? {
+        val id = getItemId(position)
+        if (id == RecyclerView.NO_ID) return null
+        return id
+    }
 }

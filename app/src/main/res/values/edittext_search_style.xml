@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <dimen name="edittext_search_width">330dp</dimen>
     <dimen name="edittext_search_height">56dp</dimen>
+    <!-- corner_radius = height / 2 -->
     <dimen name="edittext_search_background_corner_radius">28dp</dimen>
-    <dimen name="edittext_search_padding_">12dp</dimen>
     <dimen name="edittext_search_padding_horizontal">12dp</dimen>
     <dimen name="edittext_search_padding_vertical">8dp</dimen>
     <dimen name="edittext_search_gutter_size">12dp</dimen>
@@ -22,11 +22,12 @@
         <item name="android:paddingStart">@dimen/edittext_search_padding_horizontal</item>
         <item name="android:paddingEnd">@dimen/edittext_search_padding_horizontal</item>
         <item name="android:background">@drawable/edittext_search_background</item>
+        <item name="android:textColorHint">?attr/colorOnSurface</item>
 
         <!-- search icon -->
         <item name="drawableStartCompat">@drawable/baseline_search</item>
         <item name="android:drawablePadding">@dimen/edittext_search_gutter_size</item>
-        <item name="drawableTint">?android:attr/textColorHint</item>
+        <item name="drawableTint">?attr/colorOnSurface</item>
     </style>
 
 </resources>

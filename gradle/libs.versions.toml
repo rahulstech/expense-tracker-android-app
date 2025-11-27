@@ -17,7 +17,6 @@ material="1.12.0" # 1.12.0
 constraintlayout="2.2.1" # 2.2.1
 viewpager2="1.1.0" # 1.1.0
 recyclerview="1.3.0" # 1.3.0
-recycleview-selection="1.2.0"
 cardview="1.0.0"
 shimmereffect="1.0.0"
 
@@ -50,7 +49,6 @@ material={ module='com.google.android.material:material', version.ref='material'
 constraintlayout={ module='androidx.constraintlayout:constraintlayout', version.ref='constraintlayout' }
 viewpager2={ module='androidx.viewpager2:viewpager2', version.ref='viewpager2' }
 recyclerview={ module='androidx.recyclerview:recyclerview', version.ref='recyclerview' }
-recyclerview-selection={ module='androidx.recyclerview:recyclerview-selection', version.ref='recycleview-selection' }
 cardview={ module='androidx.cardview:cardview', version.ref='cardview' }
 shimmereffect={ module='com.github.rahulstech:shimmer-android', version.ref='shimmereffect' }
 

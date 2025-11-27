@@ -3,8 +3,10 @@ package dreammaker.android.expensetracker.util
 import android.content.Context
 import android.util.Log
 import android.view.View
+import android.widget.Checkable
 import androidx.annotation.StringRes
 import androidx.core.view.MenuProvider
+import androidx.core.view.children
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -12,8 +14,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.selection.ItemDetailsLookup
-import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -26,37 +26,43 @@ import kotlinx.coroutines.launch
 
 class SelectionViewModel: ViewModel() {
 
-    private var keys: List<Any> = emptyList()
+    private var keys: Set<Any> = emptySet()
     var inSelectionMode: Boolean = false
     var inCabMode: Boolean = false
+    var canSelectMultiple: Boolean = true
 
     @Suppress("UNCHECKED_CAST")
-    fun <T> getSelectionKeys(): List<T> = keys as List<T>
+    fun <T> getSelectionKeys(): Set<T> = keys as Set<T>
 
     @Suppress("UNCHECKED_CAST")
-    fun <T> setSelectionKeys(keys: List<T>) {
-        this.keys = keys as List<Any>
+    fun <T> setSelectionKeys(keys: Set<T>) {
+        this.keys = keys as Set<Any>
     }
 }
 
-typealias ItemSelectionChangeCallback<KeyType> = (helper: SelectionHelper<KeyType>, key: KeyType, position: Int, selected: Boolean)->Unit
+typealias ItemSelectionChangeCallback<KeyType> = (helper: SelectionHelper<KeyType>, key: KeyType, selected: Boolean)->Unit
 
 class SelectionHelper<KeyType>(
+    private val recyclerView: RecyclerView,
     private val adapter: ISelectableItemAdapter<KeyType>,
-    vmsOwner: ViewModelStoreOwner,
+    private val vmsOwner: ViewModelStoreOwner,
     private val lcOwner: LifecycleOwner,
-    private val selectionTrackerBuilderFactory: ()->SelectionTracker.Builder<KeyType>
 ) {
-    private val TAG = SelectionHelper::class.simpleName
+
+    companion object {
+        private val TAG = SelectionHelper::class.simpleName
+        private const val DEFAULT_SELECT_MULTIPLE = true
+    }
 
     private var inSelectionMode: Boolean = false
     private var inCabMode: Boolean = false
-    private var selectionTracker: SelectionTracker<KeyType>? = null
+    private var canSelectMultiple: Boolean = DEFAULT_SELECT_MULTIPLE
+    private val isSingleSelection: Boolean get() = !canSelectMultiple
 
     var itemClickListener: ItemClickListener? = null
     private val selectableItemClickListener: ItemClickListener = { adapter,itemView,position ->
         if (inSelectionMode) {
-            toggleItemSelectionAtPosition(position)
+            this.adapter.getSelectionKeyAtPosition(position)?.let { toggleItemSelection(it) }
         }
         else {
             itemClickListener?.invoke(adapter,itemView,position)
@@ -64,13 +70,10 @@ class SelectionHelper<KeyType>(
     }
 
     var itemSelectionChangeCallback: ItemSelectionChangeCallback<KeyType>? = null
-    private val selectionTrackerObserver = object: SelectionTracker.SelectionObserver<KeyType>() {
-        override fun onItemStateChanged(key: KeyType & Any, selected: Boolean) {
-            itemSelectionChangeCallback?.invoke(this@SelectionHelper,key,adapter.getKeyPosition(key),selected)
-        }
-    }
 
     private var selectionVM: SelectionViewModel = ViewModelProvider(vmsOwner)[SelectionViewModel::class]
+
+    private val selections = mutableSetOf<KeyType>()
 
     init {
         adapter.selectionHelper = this
@@ -88,8 +91,9 @@ class SelectionHelper<KeyType>(
         selectionVM.let { vm ->
             val inSelectionMode = vm.inSelectionMode
             val inCabMode = vm.inCabMode
+            val canSelectMultiple = vm.canSelectMultiple
             if (inSelectionMode) {
-                startSelection(inCabMode)
+                startSelection(canSelectMultiple,inCabMode)
                 setSelections(vm.getSelectionKeys())
             }
         }
@@ -102,12 +106,15 @@ class SelectionHelper<KeyType>(
         // therefore caching these values before calling the method
         val inSelectionMode = this.inSelectionMode
         val inCabMode = this.inCabMode
-        val selections = getSelections()
+        val canSelectMultiple = this.canSelectMultiple
+        val selections = HashSet<KeyType>()
+        selections.addAll(this.selections)
 
         hideContextualActionBar()
         selectionVM.let { vm ->
             vm.inSelectionMode = inSelectionMode
             vm.inCabMode = inCabMode
+            vm.canSelectMultiple = canSelectMultiple
             vm.setSelectionKeys(selections)
         }
     }
@@ -155,43 +162,77 @@ class SelectionHelper<KeyType>(
     // Selection
 
     fun startSelection(
+        selectMultiple: Boolean = true,
         contextualActionBar: Boolean = false,
         initialSelection: KeyType? = null,
-        onStart: ((SelectionTracker<KeyType>)->Unit)? = null
+        onStart: ((SelectionHelper<KeyType>)->Unit)? = null
     ): Boolean {
         if (inSelectionMode) {
             Log.d(TAG, "startSelection: already in selection mode")
             return false
         }
 
-        Log.d(TAG, "startSelection: contextualActionBar=$contextualActionBar initialSelection=$initialSelection")
-        val tracker = selectionTrackerBuilderFactory().build()
-        tracker.addObserver(selectionTrackerObserver)
-        selectionTracker = tracker
+        Log.d(TAG, "startSelection: selectionMultiple=$selectMultiple" +
+                " contextualActionBar=$contextualActionBar initialSelection=$initialSelection")
+
+        canSelectMultiple = selectMultiple
         inSelectionMode = true
         if (contextualActionBar) {
             showContextualActionbar()
         }
-        selectItem(initialSelection)
-        onStart?.invoke(selectionTracker!!)
+        initialSelection?.let { selectItem(it) }
+        onStart?.invoke(this)
         return true
     }
 
-    fun getSelectionKey(position: Int): KeyType? = adapter.getSelectionKey(position)
+    private fun canSelectKey(key: KeyType) = adapter.canSelectKey(key)
 
-    fun selectItem(key: KeyType?) {
-        key?.let{
-            if (adapter.canSelectionKey(key)) {
-                selectionTracker?.select(it)
-            }
+    private fun setItemSelection(key: KeyType, newSelection: Boolean, notify: Boolean = true) {
+        val updated = if (!newSelection) {
+            selections.remove(key)
+        }
+        else if (canSelectKey(key)) {
+            selections.add(key)
+        }
+        else false
+
+        if (updated && notify) {
+            notifySelectionChange(key,newSelection)
+            itemSelectionChangeCallback?.invoke(this,key,newSelection)
         }
     }
 
-    fun deselectItem(key: KeyType?) {
-        key?.let{ selectionTracker?.deselect(it) }
+    fun selectItem(key: KeyType) {
+        // if single selection allowed then first restore the old selection
+        if (isSingleSelection && hasSelection()) {
+            val oldKey = selections.first()
+            setItemSelection(key = oldKey, newSelection = false)
+        }
+
+        // new selection is independent of selection type: single or multiple
+        // check the new key is selectable
+        setItemSelection(key,true)
     }
 
-    fun isSelected(key: KeyType): Boolean = selectionTracker?.isSelected(key) == true
+    fun deselectItem(key: KeyType) {
+        setItemSelection(key,false)
+    }
+
+    private fun notifySelectionChange(key: KeyType, selected: Boolean) {
+        val vh = recyclerView.children
+            .map{ child -> recyclerView.getChildViewHolder(child) }
+            .find { vh ->
+                if (vh is SelectableViewHolder<*>) {
+                    Log.d(TAG,"notifySelectionChange find: vh=$vh key=$key vh.selectionKey=${vh.getSelectionKey()}")
+                    return@find vh.getSelectionKey() == key
+                }
+                false
+            } as? SelectableViewHolder<*>
+        Log.d(TAG,"notifySelectionChange: vh=$vh key=$key selected=$selected")
+        vh?.changeSelection(selected)
+    }
+
+    fun isSelected(key: KeyType): Boolean = selections.contains(key)
 
     fun toggleItemSelection(key: KeyType) {
         if (isSelected(key)) {
@@ -202,26 +243,30 @@ class SelectionHelper<KeyType>(
         }
     }
 
-    fun toggleItemSelectionAtPosition(position: Int) {
-        getSelectionKey(position)?.let { toggleItemSelection(it) }
+    fun count(): Int = selections.size
+
+    fun hasSelection(): Boolean = count() > 0
+
+    fun getSelections(): List<KeyType> = if (inSelectionMode) selections.toList() else emptyList()
+
+    fun getSelection(): KeyType? = if (hasSelection()) selections.first() else null
+
+    fun setSelections(keys: Set<KeyType>) {
+        keys.forEach { setItemSelection(it, newSelection = true, notify = false) }
+        notifySelections()
     }
 
-    fun count(): Int = selectionTracker?.selection?.size() ?: 0
+    @Suppress("UNCHECKED_CAST")
+    private fun notifySelections(selected: Boolean = true) {
+        recyclerView.children.forEach { child ->
+            val vh = recyclerView.getChildViewHolder(child)
+            if (vh is SelectableViewHolder<*>) {
+                val key = vh.getSelectionKey() as? KeyType
+                if (key != null)
+                    vh.changeSelection(selected)
+            }
 
-    fun hasSelection(): Boolean = selectionTracker?.hasSelection() ?: false
-
-    fun getSelections(): List<KeyType> =
-        when(inSelectionMode) {
-            true -> selectionTracker?.selection?.toList() ?: emptyList()
-            else -> emptyList()
         }
-
-    fun getFirstSelection(): KeyType? = if (hasSelection()) getSelections()[0] else null
-
-    fun setSelections(keys: List<KeyType>) {
-        selectionTracker?.setItemsSelected(keys,true)
-        val positions = keys.map { key -> adapter.getKeyPosition(key) }
-        adapter.notifySelectionChanged(positions)
     }
 
     fun endSelection() {
@@ -229,8 +274,8 @@ class SelectionHelper<KeyType>(
 
         hideContextualActionBar()
         inSelectionMode = false
-        selectionTracker?.clearSelection()
-        selectionTracker = null
+        selections.clear()
+        notifySelections(false)
     }
 }
 
@@ -243,7 +288,7 @@ open class BaseViewHolder(itemView: View): ViewHolder(itemView) {
     fun getString(@StringRes id: Int, vararg args: Any) = context.getString(id,*args)
 }
 
-open class ClickableViewHolder(itemView: View): BaseViewHolder(itemView) {
+abstract class ClickableViewHolder(itemView: View): BaseViewHolder(itemView) {
 
     fun attachItemClickListener(clickListener: ((ViewHolder, View)->Unit)?) {
         itemView.setOnClickListener{ clickListener?.invoke(this, it)}
@@ -254,9 +299,18 @@ open class ClickableViewHolder(itemView: View): BaseViewHolder(itemView) {
     }
 }
 
-open class SelectableViewHolder<KeyType>(itemView: View): ClickableViewHolder(itemView) {
+abstract class SelectableViewHolder<KeyType>(itemView: View): ClickableViewHolder(itemView) {
 
-    open fun getSelectedItemDetails(): ItemDetailsLookup.ItemDetails<KeyType?>? = null
+    open fun getSelectionKey(): KeyType? = null
+
+    open fun changeSelection(selected: Boolean) {
+        if (itemView is Checkable) {
+            itemView.isSelected = selected
+        }
+        else {
+            itemView.isActivated = selected
+        }
+    }
 }
 
 typealias ItemClickListener = (RecyclerView.Adapter<*>,View,Int)->Unit
@@ -279,15 +333,11 @@ interface ISelectableItemAdapter<KeyType> {
 
     var itemClickListener: ItemClickListener?
 
-    fun getSelectionKey(position: Int): KeyType?
+    fun getSelectionKeyAtPosition(position: Int): KeyType?
 
-    fun getKeyPosition(key: KeyType): Int
+    fun canSelectKey(key: KeyType?): Boolean = key != null
 
-    fun notifySelectionChanged(positions: List<Int>)
-
-    fun canSelectionKey(key: KeyType): Boolean = canSelectionPosition(getKeyPosition(key))
-
-    fun canSelectionPosition(position: Int): Boolean = true
+    fun isSelected(key: KeyType): Boolean = selectionHelper?.isSelected(key) ?: false
 }
 
 abstract class BaseClickableItemListAdapter<T, VH : ClickableViewHolder>(callback: DiffUtil.ItemCallback<T>)
@@ -313,35 +363,4 @@ abstract class BaseSelectableItemListAdapter<ItemType, KeyType, VH>(callback: Di
         where VH: SelectableViewHolder<KeyType>
 {
     override var selectionHelper: SelectionHelper<KeyType>? = null
-
-    private var _mapKeyPosition: Map<KeyType,Int> = emptyMap()
-
-    override fun submitList(list: List<ItemType>?) = this.submitList(list, null)
-
-    override fun submitList(list: List<ItemType>?, commitCallback: Runnable?) {
-        super.submitList(list) {
-            updateKeyPositions()
-            commitCallback?.run()
-        }
-    }
-
-    protected fun updateKeyPositions() {
-        val map = mutableMapOf<KeyType,Int>()
-        currentList.forEachIndexed { pos,_ ->
-            getSelectionKey(pos)?.let { key ->
-                map[key] = pos
-            }
-        }
-        _mapKeyPosition = map
-    }
-
-    override fun getKeyPosition(key: KeyType): Int = _mapKeyPosition[key] ?: RecyclerView.NO_POSITION
-
-    fun isSelected(position: Int): Boolean {
-        return getSelectionKey(position)?.let { selectionHelper?.isSelected(it) } == true
-    }
-
-    override fun notifySelectionChanged(positions: List<Int>) {
-        positions.forEach { notifyItemChanged(it) }
-    }
 }

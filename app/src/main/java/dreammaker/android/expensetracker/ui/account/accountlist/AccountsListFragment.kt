@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.MenuProvider
@@ -16,41 +15,19 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.selection.ItemDetailsLookup
-import androidx.recyclerview.selection.ItemKeyProvider
-import androidx.recyclerview.selection.SelectionPredicates
-import androidx.recyclerview.selection.SelectionTracker
-import androidx.recyclerview.selection.StorageStrategy
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import dreammaker.android.expensetracker.Constants
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.core.util.QuickMessages
 import dreammaker.android.expensetracker.databinding.AccountsListBinding
 import dreammaker.android.expensetracker.util.SelectionHelper
-import dreammaker.android.expensetracker.util.UIState
+import dreammaker.android.expensetracker.ui.UIState
 import dreammaker.android.expensetracker.util.visibilityGone
 import dreammaker.android.expensetracker.util.visible
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import rahulstech.android.expensetracker.domain.model.Account
-
-class AccountSelectionKeyProvider(val adapter: AccountsAdapter): ItemKeyProvider<Long>(SCOPE_CACHED) {
-    override fun getKey(position: Int): Long? = adapter.getSelectionKey(position)
-
-    override fun getPosition(key: Long): Int = adapter.getKeyPosition(key)
-}
-
-class AccountDetailsLookup(val rv: RecyclerView): ItemDetailsLookup<Long>() {
-    override fun getItemDetails(e: MotionEvent): ItemDetails<Long?>? {
-        val itemView = rv.findChildViewUnder(e.x,e.y)
-        return itemView?.let { view ->
-            val vh = rv.getChildViewHolder(view) as AccountViewHolder
-            vh.getSelectedItemDetails()
-        }
-    }
-}
 
 class AccountsListFragment : Fragment() {
 
@@ -146,23 +123,15 @@ class AccountsListFragment : Fragment() {
     }
 
     private fun prepareItemSelection() {
-        selectionHelper = SelectionHelper(adapter,this,viewLifecycleOwner) {
-            SelectionTracker.Builder(
-                "multipleAccountSelection",
-                binding.list,
-                AccountSelectionKeyProvider(adapter),
-                AccountDetailsLookup(binding.list),
-                StorageStrategy.createLongStorage()
-            ).withSelectionPredicate(SelectionPredicates.createSelectAnything())
-
-        }.apply {
-            prepareContextualActionBar(requireActivity(),cabMenuProvider)
-        }
+        selectionHelper = SelectionHelper(binding.list,adapter,this,viewLifecycleOwner)
+        selectionHelper.prepareContextualActionBar(requireActivity(),cabMenuProvider)
 
         adapter.itemLongClickListener = { _,_,position ->
-            if (selectionHelper.startSelection(true)) {
-                selectionHelper.selectItem(adapter.getSelectionKey(position))
-            }
+            selectionHelper.startSelection(
+                selectMultiple = true,
+                contextualActionBar = true,
+                initialSelection = adapter.getItemId(position)
+            )
             true
         }
 
@@ -170,7 +139,7 @@ class AccountsListFragment : Fragment() {
             handleAccountClick(adapter.currentList[position])
         }
 
-        selectionHelper.itemSelectionChangeCallback = { _,_,_,_ ->
+        selectionHelper.itemSelectionChangeCallback = { _,_,_ ->
             selectionHelper.cabViewModel?.cabTitle = selectionHelper.count().toString()
         }
     }

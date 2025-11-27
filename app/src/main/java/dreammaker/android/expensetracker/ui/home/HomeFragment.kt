@@ -19,7 +19,6 @@ import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.databinding.HomeBinding
 import dreammaker.android.expensetracker.databinding.RecentItemViewBinding
 import dreammaker.android.expensetracker.util.getBalanceText
-import dreammaker.android.expensetracker.util.getDueText
 import dreammaker.android.expensetracker.util.toCurrencyString
 import dreammaker.android.expensetracker.util.visibilityGone
 import dreammaker.android.expensetracker.util.visible
@@ -111,7 +110,7 @@ class HomeFragment: Fragment()  {
             binding.apply {
                 icon.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_group_64, requireContext().theme))
                 text1.text = group.name
-                text2.text = group.getDueText(requireContext()) // TODO: apply countryCode and locale
+                text2.text = group.getBalanceText(requireContext()) // TODO: apply countryCode and locale
                 root.setOnClickListener {
                     navController.navigate(R.id.action_home_to_view_group, Bundle().apply {
                         putLong(Constants.ARG_ID, group.id)

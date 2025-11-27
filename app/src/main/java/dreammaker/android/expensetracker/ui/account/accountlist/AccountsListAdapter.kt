@@ -2,7 +2,6 @@ package dreammaker.android.expensetracker.ui.account.accountlist
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.recyclerview.selection.ItemDetailsLookup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import dreammaker.android.expensetracker.databinding.AccountListItemBinding
@@ -15,7 +14,13 @@ class AccountViewHolder(
     val binding: AccountListItemBinding
 ): SelectableViewHolder<Long>(binding.root) {
 
+    // NOTE: without RecyclerView.Adapter.setHasStableId(true) RecyclerView.ViewHolder.itemId is always invalidd
+    private var stableItemId: Long? = null
+
+    override fun getSelectionKey(): Long? = stableItemId
+
     fun bind(data: Account?, selected: Boolean) {
+        stableItemId = data?.id
         if (null == data) {
             binding.name.text = null
             binding.balance.text = null
@@ -26,12 +31,6 @@ class AccountViewHolder(
             binding.balance.text = data.getBalanceText(context)
             binding.root.isActivated = selected
         }
-    }
-
-    override fun getSelectedItemDetails(): ItemDetailsLookup.ItemDetails<Long?> = object : ItemDetailsLookup.ItemDetails<Long?>() {
-        override fun getPosition(): Int = absoluteAdapterPosition
-
-        override fun getSelectionKey(): Long? = itemId
     }
 }
 
@@ -45,15 +44,6 @@ private val callback = object: DiffUtil.ItemCallback<Account>() {
 
 class AccountsAdapter: BaseSelectableItemListAdapter<Account, Long, AccountViewHolder>(callback) {
 
-    init {
-        setHasStableIds(true)
-    }
-
-    override fun getSelectionKey(position: Int): Long? {
-        val id = getItemId(position)
-        return if (id == RecyclerView.NO_ID) null else id
-    }
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AccountViewHolder {
         val inflate = LayoutInflater.from(parent.context)
         val binding = AccountListItemBinding.inflate(inflate, parent, false)
@@ -64,8 +54,15 @@ class AccountsAdapter: BaseSelectableItemListAdapter<Account, Long, AccountViewH
     }
 
     override fun onBindViewHolder(holder: AccountViewHolder, position: Int) {
-        holder.bind(getItem(position),isSelected(position))
+        val item = getItem(position)
+        holder.bind(item,isSelected(item.id))
     }
 
     override fun getItemId(position: Int): Long = getItem(position)?.id ?: RecyclerView.NO_ID
+
+    override fun getSelectionKeyAtPosition(position: Int): Long? {
+        val id = getItemId(position)
+        if (id == RecyclerView.NO_ID) return null
+        return id
+    }
 }

@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.BundleCompat
@@ -18,11 +17,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.paging.LoadState
-import androidx.recyclerview.selection.ItemDetailsLookup
-import androidx.recyclerview.selection.ItemKeyProvider
-import androidx.recyclerview.selection.SelectionTracker
-import androidx.recyclerview.selection.StorageStrategy
-import androidx.recyclerview.widget.RecyclerView
 import dreammaker.android.expensetracker.Constants
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.core.util.QuickMessages
@@ -37,34 +31,6 @@ import dreammaker.android.expensetracker.util.setActivitySubTitle
 import dreammaker.android.expensetracker.util.visibilityGone
 import dreammaker.android.expensetracker.util.visible
 import rahulstech.android.expensetracker.domain.model.History
-
-class HistoryKeyProvider(private val adapter: HistoryListAdapter): ItemKeyProvider<Long>(SCOPE_CACHED) {
-    override fun getKey(position: Int): Long? = adapter.getSelectionKey(position)
-
-    override fun getPosition(key: Long): Int = adapter.getKeyPosition(key)
-}
-
-class HistoryLookup(private val rv: RecyclerView): ItemDetailsLookup<Long>() {
-    override fun getItemDetails(e: MotionEvent): ItemDetails<Long?>? {
-        val itemView = rv.findChildViewUnder(e.x,e.y)
-        return itemView?.let { view ->
-            val vh = rv.getChildViewHolder(view) as HistoryViewHolder
-            vh.getSelectedItemDetails()
-        }
-    }
-}
-
-class HistorySelectionPredicate(val adapter: HistoryListAdapter): SelectionTracker.SelectionPredicate<Long>() {
-
-    override fun canSetStateForKey(key: Long, nextState: Boolean): Boolean = key != RecyclerView.NO_ID
-
-    override fun canSetStateAtPosition(
-        position: Int,
-        nextState: Boolean
-    ): Boolean = adapter.getItemViewType(position) == HistoryListAdapter.TYPE_ITEM
-
-    override fun canSelectMultiple(): Boolean = true
-}
 
 class HistoryListFragment: Fragment(), MenuProvider {
 
@@ -318,28 +284,17 @@ class HistoryListFragment: Fragment(), MenuProvider {
     }
 
     private fun prepareItemSelection() {
-        selectionHelper = SelectionHelper(adapter,this,viewLifecycleOwner) {
-            SelectionTracker.Builder(
-                "multipleDayHistorySelection",
-                binding.historyList,
-                HistoryKeyProvider(adapter),
-                HistoryLookup(binding.historyList),
-                StorageStrategy.createLongStorage()
-            ).withSelectionPredicate(
-                HistorySelectionPredicate(adapter)
-            )
-        }.apply {
-            prepareContextualActionBar(requireActivity(),cabMenu)
-        }
+        selectionHelper = SelectionHelper(binding.historyList,adapter,this,viewLifecycleOwner)
+        selectionHelper.prepareContextualActionBar(requireActivity(),cabMenu)
 
         adapter.itemLongClickListener = { _,_,position ->
-            selectionHelper.startSelection(true, adapter.getSelectionKey(position))
+            selectionHelper.startSelection(contextualActionBar = true, initialSelection = adapter.getHistoryId(position))
             true
         }
 
         selectionHelper.itemClickListener = { _,_,position -> handleItemClick(position) }
 
-        selectionHelper.itemSelectionChangeCallback = { _,_,_,_ ->
+        selectionHelper.itemSelectionChangeCallback = { _,_,_ ->
             selectionHelper.cabViewModel?.cabTitle = selectionHelper.count().toString()
         }
     }
@@ -348,7 +303,7 @@ class HistoryListFragment: Fragment(), MenuProvider {
         val item = adapter.peek(position)
         if (item is HistoryListItem.Item) {
             navController.navigate(R.id.action_history_list_to_view_history, bundleOf(
-                Constants.ARG_ID to item.history.id
+                Constants.ARG_ID to item.data.id
             ))
         }
     }

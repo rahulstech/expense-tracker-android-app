@@ -11,7 +11,7 @@ import androidx.paging.cachedIn
 import androidx.paging.insertSeparators
 import androidx.paging.map
 import dreammaker.android.expensetracker.ui.HistoryListItem
-import dreammaker.android.expensetracker.util.UIState
+import dreammaker.android.expensetracker.ui.UIState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
@@ -80,8 +80,8 @@ class LoadHistoryParameters {
                 if (showHeaders) {
                     items = items.insertSeparators { before, after ->
 
-                        val bHistory = (before as? HistoryListItem.Item)?.history
-                        val aHistory = (after as? HistoryListItem.Item)?.history
+                        val bHistory = (before as? HistoryListItem.Item)?.data
+                        val aHistory = (after as? HistoryListItem.Item)?.data
 
                         // case 1: before = null then first item
                         if (null == before && null != aHistory) {
