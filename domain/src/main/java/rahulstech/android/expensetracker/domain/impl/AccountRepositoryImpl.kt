@@ -5,7 +5,7 @@ import androidx.lifecycle.map
 import dreammaker.android.expensetracker.database.IExpenseDatabase
 import dreammaker.android.expensetracker.database.dao.AccountDao
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.emptyFlow
 import rahulstech.android.expensetracker.domain.AccountRepository
 import rahulstech.android.expensetracker.domain.LocalCache
 import rahulstech.android.expensetracker.domain.model.Account
@@ -41,21 +41,23 @@ internal class AccountRepositoryImpl(
     override fun getLiveTotalBalance(): LiveData<Double> =
         accountDao.getLiveTotalBalance().map { totalBalance -> totalBalance ?: 0.toDouble() }
 
-    override fun getDefaultAccount(): Flow<Account?> = flow {
-        cache.getDefaultAccount()?.let { id ->
-            val account = findAccountById(id)
-            // if default account deleted from database then also delete from the cache
-            if (null == account) {
-                cache.removeDefaultAccount()
-                emit(null)
-            }
-            else {
-                emit(account)
-            }
-        }
-    }
+//    override fun getDefaultAccount(): Flow<Account?> = flow {
+//        cache.getDefaultAccount()?.let { id ->
+//            val account = findAccountById(id)
+//            // if default account deleted from database then also delete from the cache
+//            if (null == account) {
+//                cache.removeDefaultAccount()
+//                emit(null)
+//            }
+//            else {
+//                emit(account)
+//            }
+//        }
+//    }
 
-    override fun hasDefaultAccount(): Boolean = null != cache.getDefaultAccount()
+    override fun getDefaultAccount(): Flow<Account?> = emptyFlow()
+
+    override fun hasDefaultAccount(): Boolean = null != cache.getDefaultAccountId()
 
     override fun updateAccount(account: Account): Boolean {
         val _account = account.copy(lastUsed = LocalDateTime.now(), totalUsed = cache.getAccountTotalUsed(account.id)+1)
@@ -86,12 +88,12 @@ internal class AccountRepositoryImpl(
     }
 
     override fun changeDefaultAccount(account: Account?) {
-        if (null == account) {
-            cache.removeDefaultAccount()
-        }
-        else {
-            cache.setDefaultAccount(account.id)
-        }
+//        if (null == account) {
+//            cache.removeDefaultAccount()
+//        }
+//        else {
+//            cache.setDefaultAccount(account.id)
+//        }
     }
 
     override fun deleteAccount(id: Long) {

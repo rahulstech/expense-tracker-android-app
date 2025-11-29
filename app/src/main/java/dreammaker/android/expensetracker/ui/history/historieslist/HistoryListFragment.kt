@@ -15,6 +15,7 @@ import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.paging.LoadState
 import dreammaker.android.expensetracker.Constants
@@ -24,12 +25,16 @@ import dreammaker.android.expensetracker.databinding.FragmentHistoryListBinding
 import dreammaker.android.expensetracker.settings.SettingsProvider
 import dreammaker.android.expensetracker.settings.ViewHistory
 import dreammaker.android.expensetracker.ui.HistoryListItem
+import dreammaker.android.expensetracker.ui.UIState
 import dreammaker.android.expensetracker.util.AccountParcelable
 import dreammaker.android.expensetracker.util.GroupParcelable
 import dreammaker.android.expensetracker.util.SelectionHelper
 import dreammaker.android.expensetracker.util.setActivitySubTitle
+import dreammaker.android.expensetracker.util.toCurrencyString
 import dreammaker.android.expensetracker.util.visibilityGone
 import dreammaker.android.expensetracker.util.visible
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import rahulstech.android.expensetracker.domain.model.History
 
 class HistoryListFragment: Fragment(), MenuProvider {
@@ -132,6 +137,8 @@ class HistoryListFragment: Fragment(), MenuProvider {
         prepareItemSelection()
         observeLoadingState()
         observeHistoryLoading()
+        observeHistorySummary()
+        observeHistoryDelete()
 
         changeViewHistory(settings.getViewHistory())
         picker.restoreState(savedInstanceState)
@@ -238,6 +245,31 @@ class HistoryListFragment: Fragment(), MenuProvider {
             Log.d(TAG, "pagingData = $it")
             adapter.submitData(lifecycle,it)
             toggleEmptyView(adapter.itemCount==0)
+        }
+    }
+
+    private fun observeHistorySummary() {
+        viewModel.totalCreditDebit.observe(viewLifecycleOwner) { (TotalCredit, TotalDebit) ->
+            binding.apply {
+                totalCredit.text = TotalCredit.toCurrencyString()
+                totalDebit.text = TotalDebit.toCurrencyString()
+            }
+        }
+    }
+
+    private fun observeHistoryDelete() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.deleteHistoriesState.collectLatest { state ->
+                when(state) {
+                    is UIState.UISuccess<*> -> {
+                        QuickMessages.toastSuccess(requireContext(),"")
+                    }
+                    is UIState.UIError -> {
+                        Log.e(TAG,"delete histories failed",state.cause)
+                    }
+                    else -> {}
+                }
+            }
         }
     }
 

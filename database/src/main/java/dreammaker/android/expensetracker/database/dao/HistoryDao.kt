@@ -17,7 +17,9 @@ import dreammaker.android.expensetracker.database.model.GroupEntity
 import dreammaker.android.expensetracker.database.model.HistoryDetails
 import dreammaker.android.expensetracker.database.model.HistoryEntity
 import dreammaker.android.expensetracker.database.model.HistoryType
+import dreammaker.android.expensetracker.database.model.TotalCreditDebit
 import dreammaker.android.expensetracker.database.model.toNamesList
+import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 
 internal typealias SqlArgs = Pair<String,List<Any?>>
@@ -52,20 +54,22 @@ class HistoryQueryBuilder {
         return query
     }
 
-//    fun buildSummary(): SupportSQLiteQuery {
-//        val queryBuilder = SupportSQLiteQueryBuilder.builder("`histories`")
-//
-//        val columns = arrayOf(
-//            "SUM(CASE `type` WHEN 'CREDIT' THEN `amount` ELSE 0 END) AS `totalCredit`",
-//            "SUM(CASE `type` WHEN 'DEBIT' THEN `amount` ELSE 0 END) AS `totalDebit`",
-//        )
-//        queryBuilder.columns(columns)
-//
-//        where(queryBuilder)
-//        queryBuilder.groupBy("")
-//
-//        return queryBuilder.create()
-//    }
+    fun buildTotalCreditDebit(): SupportSQLiteQuery {
+        val queryBuilder = SupportSQLiteQueryBuilder.builder("`histories`")
+
+        val columns = arrayOf(
+            "SUM(CASE `type` WHEN 'CREDIT' THEN `amount` ELSE 0 END) AS `totalCredit`",
+            "SUM(CASE `type` WHEN 'DEBIT' THEN `amount` ELSE 0 END) AS `totalDebit`",
+        )
+        queryBuilder.columns(columns)
+
+        where(queryBuilder)
+        queryBuilder
+            .groupBy("`type`")
+            .having("`type` IN('CREDIT','DEBIT')")
+
+        return queryBuilder.create()
+    }
 
     private fun where(builder: SupportSQLiteQueryBuilder) {
         val selection = StringBuilder("1 = 1")
@@ -162,11 +166,15 @@ interface HistoryDao {
     fun getLiveHistoryById(id: Long): LiveData<HistoryDetails?>
 
     @Query("SELECT * FROM `histories` LIMIT :size OFFSET :from")
-    fun getHistories(from: Long, size: Long): List<HistoryEntity>
+    fun getHistories(size: Int, from: Long = 0): List<HistoryEntity>
 
     @RawQuery(observedEntities = [HistoryEntity::class, AccountEntity::class, GroupEntity::class])
     @Transaction
     fun getPagedHistories(query: SupportSQLiteQuery): PagingSource<Int, HistoryDetails>
+
+    // NOTE: if for the given filter no history exists then TotalCreditDebit will be null
+    @RawQuery(observedEntities = [HistoryEntity::class])
+    fun getHistoryTotalCreditDebit(query: SupportSQLiteQuery): Flow<TotalCreditDebit?>
 
     @Update
     fun updateHistory(history: HistoryEntity): Int

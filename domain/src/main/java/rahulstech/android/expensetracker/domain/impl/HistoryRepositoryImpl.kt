@@ -13,6 +13,7 @@ import rahulstech.android.expensetracker.domain.GroupRepository
 import rahulstech.android.expensetracker.domain.HistoryFilterParameters
 import rahulstech.android.expensetracker.domain.HistoryRepository
 import rahulstech.android.expensetracker.domain.model.History
+import rahulstech.android.expensetracker.domain.model.HistoryTotalCreditTotalDebit
 import rahulstech.android.expensetracker.domain.model.toHistory
 
 internal class HistoryRepositoryImpl(
@@ -46,6 +47,9 @@ internal class HistoryRepositoryImpl(
 
     override fun getPagedHistories(params: HistoryFilterParameters): Flow<PagingData<History>> =
         params.getPagedHistories(historyDao)
+
+    override fun getTotalCreditDebit(params: HistoryFilterParameters): Flow<HistoryTotalCreditTotalDebit> =
+        params.getTotalCreditDebit(historyDao)
 
     override fun updateHistory(history: History): Boolean =
         db.runInTransaction<Boolean> {

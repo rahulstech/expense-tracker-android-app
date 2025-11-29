@@ -14,7 +14,6 @@ import dreammaker.android.expensetracker.ui.HistoryListItem
 import dreammaker.android.expensetracker.ui.UIState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -29,6 +28,7 @@ import rahulstech.android.expensetracker.domain.ExpenseRepository
 import rahulstech.android.expensetracker.domain.HistoryFilterParameters
 import rahulstech.android.expensetracker.domain.HistoryRepository
 import rahulstech.android.expensetracker.domain.model.History
+import rahulstech.android.expensetracker.domain.model.HistoryTotalCreditTotalDebit
 import java.time.LocalDate
 import java.util.Objects
 
@@ -99,6 +99,12 @@ class LoadHistoryParameters {
                 items
             }
     }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun getTotalCreditDebit(repo: HistoryRepository): Flow<HistoryTotalCreditTotalDebit> {
+        Log.d("LoadHistoryParameters", "getTotalCreditDebit: filterParams=$filterParams")
+        return repo.getTotalCreditDebit(filterParams)
+    }
 }
 
 class ViewHistoryViewModel(
@@ -110,7 +116,6 @@ class ViewHistoryViewModel(
     }
 
     private val historyRepo = ExpenseRepository.getInstance(app).historyRepository
-    private var summaryJob: Job? = null
 
     private val loadHistoryParamsState = MutableStateFlow<LoadHistoryParameters?>(null)
 
@@ -121,9 +126,11 @@ class ViewHistoryViewModel(
         .asLiveData()
         .cachedIn(viewModelScope)
 
-//    val historySummary: LiveData<HistorySummary> by lazy {
-//        loadHistoryParametersLiveData.switchMap { params -> MutableLiveData(HistorySummary()) }
-//    }
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val totalCreditDebit: LiveData<HistoryTotalCreditTotalDebit> = loadHistoryParamsState.flatMapLatest {
+            it?.getTotalCreditDebit(historyRepo) ?: flowOf(HistoryTotalCreditTotalDebit())
+        }
+        .asLiveData()
 
     fun loadHistories(params: LoadHistoryParameters?) {
         Log.d(TAG,"loadHistories: params=$params")

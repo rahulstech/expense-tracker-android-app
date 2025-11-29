@@ -5,7 +5,7 @@ import androidx.lifecycle.map
 import dreammaker.android.expensetracker.database.IExpenseDatabase
 import dreammaker.android.expensetracker.database.dao.GroupDao
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.emptyFlow
 import rahulstech.android.expensetracker.domain.GroupRepository
 import rahulstech.android.expensetracker.domain.LocalCache
 import rahulstech.android.expensetracker.domain.model.Group
@@ -38,19 +38,21 @@ internal class GroupRepositoryImpl(
     override fun getLiveRecentlyUsedGroups(count: Int): LiveData<List<Group>> =
         groupDao.getLiveRecentlyUsedGroups(count).map { entities -> entities.map { it.toGroup() } }
 
-    override fun getDefaultGroup(): Flow<Group?> = flow {
-        cache.getDefaultGroup()?.let { id ->
-            val group = findGroupById(id)
-            // if default group delete from database then also remove from cache
-            if (null == group) {
-                cache.removeDefaultGroup()
-                emit(null)
-            }
-            else {
-                emit(group)
-            }
-        }
-    }
+//    override fun getDefaultGroup(): Flow<Group?> = flow {
+//        cache.getDefaultGroup()?.let { id ->
+//            val group = findGroupById(id)
+//            // if default group delete from database then also remove from cache
+//            if (null == group) {
+//                cache.removeDefaultGroup()
+//                emit(null)
+//            }
+//            else {
+//                emit(group)
+//            }
+//        }
+//    }
+
+    override fun getDefaultGroup(): Flow<Group?> = emptyFlow()
 
     override fun updateGroup(group: Group): Boolean {
         val cachedTotalUsed = cache.getGroupTotalCount(group.id)
@@ -82,12 +84,12 @@ internal class GroupRepositoryImpl(
     }
 
     override fun changeDefaultGroup(group: Group?) {
-        if (null == group) {
-            cache.removeDefaultGroup()
-        }
-        else {
-            cache.setDefaultGroup(group.id)
-        }
+//        if (null == group) {
+//            cache.removeDefaultGroup()
+//        }
+//        else {
+//            cache.setDefaultGroup(group.id)
+//        }
     }
 
     override fun deleteGroup(id: Long) {

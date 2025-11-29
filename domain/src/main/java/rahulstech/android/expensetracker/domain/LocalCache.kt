@@ -1,6 +1,9 @@
 package rahulstech.android.expensetracker.domain
 
-internal interface LocalCache{
+import rahulstech.android.expensetracker.domain.model.Account
+import rahulstech.android.expensetracker.domain.model.Group
+
+interface LocalCache{
 
     fun getAccountTotalUsed(id: Long,defaultValue: Long = 0): Long
 
@@ -14,15 +17,15 @@ internal interface LocalCache{
 
     fun removeGroupTotalUsed(id: Long)
 
-    fun setDefaultAccount(id: Long)
+    fun setDefaultAccount(account: Account)
 
-    fun getDefaultAccount(): Long?
+    fun getDefaultAccountId(): Long?
 
     fun removeDefaultAccount()
 
-    fun setDefaultGroup(id: Long)
+    fun setDefaultGroup(group: Group)
 
-    fun getDefaultGroup(): Long?
+    fun getDefaultGroupId(): Long?
 
     fun removeDefaultGroup()
 }

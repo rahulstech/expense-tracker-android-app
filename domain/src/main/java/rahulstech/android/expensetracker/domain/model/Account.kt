@@ -10,6 +10,7 @@ data class Account(
     val id: Long = 0,
     val lastUsed: LocalDateTime? = null,
     val totalUsed: Long = 0,
+    val isDefault: Boolean = false,
 ) {
     fun toAccountEntity(): AccountEntity = AccountEntity(id,name, balance,lastUsed,totalUsed)
 

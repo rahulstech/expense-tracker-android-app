@@ -12,7 +12,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import rahulstech.android.expensetracker.domain.model.History
+import rahulstech.android.expensetracker.domain.model.HistoryTotalCreditTotalDebit
 import rahulstech.android.expensetracker.domain.model.toHistory
+import rahulstech.android.expensetracker.domain.model.toHistoryTotalCreditTotalDebit
 import rahulstech.android.expensetracker.domain.model.toHistoryTypesList
 import java.time.LocalDate
 import java.util.Objects
@@ -26,6 +28,14 @@ class HistoryFilterParameters {
     var types: List<History.Type> = emptyList()
     var sortOldestFirst: Boolean = true
 
+    internal fun getHistoryQueryBuilder(): HistoryQueryBuilder = HistoryQueryBuilder().apply {
+            accounts = accountIds
+            groups = groupIds
+            dateRange = dateStart to dateEnd
+            historyTypes = types.toHistoryTypesList()
+            oldestFirst = sortOldestFirst
+        }
+
     internal fun getPagedHistories(dao: HistoryDao): Flow<PagingData<History>> {
         return Pager(
             config = PagingConfig(
@@ -34,18 +44,18 @@ class HistoryFilterParameters {
             pagingSourceFactory = {
                 // NOTE: must create new PagingSource everytime, can not return a cached source from this factory
                 //      otherwise it will throw error same PagingSource reused
-                val builder = HistoryQueryBuilder().apply {
-                    accounts = accountIds
-                    groups = groupIds
-                    dateRange = dateStart to dateEnd
-                    historyTypes = types.toHistoryTypesList()
-                    oldestFirst = sortOldestFirst
-                }
+                val builder = getHistoryQueryBuilder()
                 dao.getPagedHistories(builder.build())
             }
         ).flow.flowOn(Dispatchers.IO).map { pagingData ->
             pagingData.map { it.toHistory() }
         }
+    }
+
+    internal fun getTotalCreditDebit(dao: HistoryDao): Flow<HistoryTotalCreditTotalDebit> {
+        val builder = getHistoryQueryBuilder()
+        return dao.getHistoryTotalCreditDebit(builder.buildTotalCreditDebit())
+            .map { it?.toHistoryTotalCreditTotalDebit() ?: HistoryTotalCreditTotalDebit() }
     }
 
     override fun equals(other: Any?): Boolean {
@@ -80,6 +90,8 @@ interface HistoryRepository {
     fun getLiveHistoryById(id: Long): LiveData<History?>
 
     fun getPagedHistories(params: HistoryFilterParameters): Flow<PagingData<History>>
+
+    fun getTotalCreditDebit(params: HistoryFilterParameters): Flow<HistoryTotalCreditTotalDebit>
 
     fun updateHistory(history: History): Boolean
 

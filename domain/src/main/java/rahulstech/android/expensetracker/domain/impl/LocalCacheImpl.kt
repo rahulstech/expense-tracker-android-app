@@ -52,13 +52,13 @@ internal class LocalCacheImpl(
         }
     }
 
-    override fun setDefaultAccount(id: Long) {
+    override fun setDefaultAccount(account: Account) {
         edit {
-            putLong(KEY_DEFAULT_ACCOUNT,id)
+            putLong(KEY_DEFAULT_ACCOUNT,account.id)
         }
     }
 
-    override fun getDefaultAccount(): Long? =
+    override fun getDefaultAccountId(): Long? =
         sp.getLong(KEY_DEFAULT_ACCOUNT, 0L).takeIf { id -> id > 0 }
 
     override fun removeDefaultAccount() {
@@ -67,13 +67,13 @@ internal class LocalCacheImpl(
         }
     }
 
-    override fun setDefaultGroup(id: Long) {
+    override fun setDefaultGroup(group: Group) {
         edit {
-            putLong(KEY_DEFAULT_GROUP,id)
+            putLong(KEY_DEFAULT_GROUP,group.id)
         }
     }
 
-    override fun getDefaultGroup(): Long? =
+    override fun getDefaultGroupId(): Long? =
         sp.getLong(KEY_DEFAULT_GROUP,0L).takeIf { id -> id > 0 }
 
     override fun removeDefaultGroup() {

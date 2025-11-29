@@ -1,8 +1,28 @@
 package dreammaker.android.expensetracker.util
 
+import android.content.Context
+import androidx.annotation.ColorRes
+import androidx.core.content.res.ResourcesCompat
+import androidx.core.text.buildSpannedString
+import androidx.core.text.color
 import java.text.NumberFormat
 import java.util.Currency
 import java.util.Locale
+
+fun buildLabeledColoredAmountText(
+    context: Context,
+    amount: Number,
+    @ColorRes colorRes: Int,
+    currencyCode: String,
+    locale: Locale
+): CharSequence {
+    val color = ResourcesCompat.getColor(context.resources, colorRes, context.theme)
+    return buildSpannedString {
+        color(color) {
+            append(amount.toCurrencyString(currencyCode, locale))
+        }
+    }
+}
 
 fun Number.toCurrencyString(currencyCode: String = "USD", textLocale: Locale = Locale.ENGLISH): String {
     val format = NumberFormat.getCurrencyInstance(textLocale)

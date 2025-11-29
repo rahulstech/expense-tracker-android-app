@@ -58,7 +58,7 @@ dependencies {
     implementation libs.appcompat
 
     // room
-    implementation libs.room.runtime
+    api libs.room.runtime
     implementation libs.room.ktx
     implementation libs.room.paging
     kapt libs.room.compiler

@@ -14,6 +14,7 @@ import dreammaker.android.expensetracker.R
 import rahulstech.android.expensetracker.domain.model.Account
 import rahulstech.android.expensetracker.domain.model.Group
 import rahulstech.android.expensetracker.domain.model.History
+import rahulstech.android.expensetracker.domain.model.HistoryTotalCreditTotalDebit
 import java.time.LocalDate
 import java.time.YearMonth
 import java.util.Locale
@@ -204,3 +205,30 @@ fun History.getTypeColorOnBackground(context: Context): ColorStateList {
     }
     return ResourcesCompat.getColorStateList(context.resources, resId, context.theme)!!
 }
+
+
+fun HistoryTotalCreditTotalDebit.getTotalCreditText(
+    context: Context,
+    currencyCode: String = "USD",
+    locale: Locale = Locale.ENGLISH
+): CharSequence =
+    buildLabeledColoredAmountText(
+        context = context,
+        amount = totalCredit,
+        colorRes = R.color.colorCredit,
+        currencyCode = currencyCode,
+        locale = locale
+    )
+
+fun HistoryTotalCreditTotalDebit.getTotalDebitText(
+    context: Context,
+    currencyCode: String = "USD",
+    locale: Locale = Locale.ENGLISH
+): CharSequence =
+    buildLabeledColoredAmountText(
+        context = context,
+        amount = totalDebit,
+        colorRes = R.color.colorDebit,
+        currencyCode = currencyCode,
+        locale = locale
+    )

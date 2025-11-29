@@ -4,11 +4,13 @@ import android.content.Context
 import dreammaker.android.expensetracker.database.ExpensesDatabase
 import dreammaker.android.expensetracker.database.IExpenseDatabase
 import rahulstech.android.expensetracker.domain.impl.AccountRepositoryImpl
+import rahulstech.android.expensetracker.domain.impl.BackupRepositoryImpl
 import rahulstech.android.expensetracker.domain.impl.GroupRepositoryImpl
 import rahulstech.android.expensetracker.domain.impl.HistoryRepositoryImpl
 import rahulstech.android.expensetracker.domain.impl.LocalCacheImpl
+import rahulstech.android.expensetracker.domain.impl.RestoreRepositoryImpl
 
-class ExpenseRepository private constructor(private val appContext: Context) {
+class ExpenseRepository private constructor(private val appContext: Context): IExpenseRepository {
 
     companion object {
         private var instance: ExpenseRepository? = null
@@ -24,9 +26,13 @@ class ExpenseRepository private constructor(private val appContext: Context) {
 
     private val cache: LocalCache by lazy { LocalCacheImpl(appContext) }
 
-    val accountRepository: AccountRepository by lazy { AccountRepositoryImpl(db,cache) }
+    override val accountRepository: AccountRepository by lazy { AccountRepositoryImpl(db,cache) }
 
-    val groupRepository: GroupRepository by lazy { GroupRepositoryImpl(db,cache) }
+    override val groupRepository: GroupRepository by lazy { GroupRepositoryImpl(db,cache) }
 
-    val historyRepository: HistoryRepository by lazy { HistoryRepositoryImpl(db,accountRepository,groupRepository) }
+    override val historyRepository: HistoryRepository by lazy { HistoryRepositoryImpl(db,accountRepository,groupRepository) }
+
+    override val backupRepository: BackupRepository by lazy { BackupRepositoryImpl(db,cache) }
+
+    override val restoreRepository: RestoreRepository by lazy { RestoreRepositoryImpl(db,cache) }
 }
