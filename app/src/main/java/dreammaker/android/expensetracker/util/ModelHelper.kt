@@ -14,7 +14,6 @@ import dreammaker.android.expensetracker.R
 import rahulstech.android.expensetracker.domain.model.Account
 import rahulstech.android.expensetracker.domain.model.Group
 import rahulstech.android.expensetracker.domain.model.History
-import rahulstech.android.expensetracker.domain.model.HistoryTotalCreditTotalDebit
 import java.time.LocalDate
 import java.time.YearMonth
 import java.util.Locale
@@ -41,7 +40,7 @@ class AccountParcelable(val id: Long, val name: String, val balance: Float): Par
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeLong(id)
         parcel.writeString(name)
-        parcel.writeFloat(balance.toFloat())
+        parcel.writeFloat(balance)
     }
 
     override fun describeContents(): Int = 0
@@ -76,7 +75,7 @@ class GroupParcelable(val id: Long, val name: String, val balance: Float): Parce
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeLong(id)
         parcel.writeString(name)
-        parcel.writeFloat(balance.toFloat())
+        parcel.writeFloat(balance)
     }
 
     override fun describeContents(): Int = 0
@@ -125,16 +124,16 @@ fun Bundle.getGroupParcelable(key: String): GroupParcelable? =
     BundleCompat.getParcelable(this,key, GroupParcelable::class.java)
 
 fun Account.getBalanceText(context: Context, currencyCode: String = "USD", locale: Locale = Locale.ENGLISH): CharSequence {
-    val balance = this.balance.toFloat()
+    val balance = this.balance
     val balanceText = balance.toCurrencyString(currencyCode,locale)
     return if (balance < 0) {
         buildSpannedString {
-            color(ResourcesCompat.getColor(context.resources,R.color.colorDebit, context.theme)) { append(balanceText) }
+            color(ResourcesCompat.getColor(context.resources, dreammaker.android.expensetracker.core.R.color.colorDebit, context.theme)) { append(balanceText) }
         }
     }
     else if (balance > 0) {
         buildSpannedString {
-            color(ResourcesCompat.getColor(context.resources,R.color.colorCredit, context.theme)) { append(balanceText) }
+            color(ResourcesCompat.getColor(context.resources,dreammaker.android.expensetracker.core.R.color.colorCredit, context.theme)) { append(balanceText) }
         }
     }
     else {
@@ -151,12 +150,12 @@ fun Group.getBalanceText(context: Context, currencyCode: String = "USD", locale:
     val balanceText = balance.absoluteValue.toCurrencyString(currencyCode,locale)
     return if (balance > 0) {
         buildSpannedString {
-            color(ResourcesCompat.getColor(context.resources,R.color.colorDebit, context.theme)) { append(balanceText) }
+            color(ResourcesCompat.getColor(context.resources,dreammaker.android.expensetracker.core.R.color.colorDebit, context.theme)) { append(balanceText) }
         }
     }
     else if (balance < 0) {
         buildSpannedString {
-            color(ResourcesCompat.getColor(context.resources,R.color.colorCredit, context.theme)) { append(balanceText) }
+            color(ResourcesCompat.getColor(context.resources,dreammaker.android.expensetracker.core.R.color.colorCredit, context.theme)) { append(balanceText) }
         }
     }
     else {
@@ -164,13 +163,7 @@ fun Group.getBalanceText(context: Context, currencyCode: String = "USD", locale:
     }
 }
 
-fun Group.getDueLabel(context: Context): CharSequence {
-    val balance = this.balance.toFloat()
-    // TODO: compare up to 2 decimal
-    return if (balance > 0) context.getString(R.string.label_unsettled)
-    else if (balance < 0) context.getString(R.string.label_surplus)
-    else ""
-}
+fun Group.getDueLabel(context: Context): CharSequence = context.getString(R.string.balance)
 
 fun History.getTypeLabel(context: Context): String =
     when(this) {
@@ -181,9 +174,9 @@ fun History.getTypeLabel(context: Context): String =
 
 fun History.getTypeBackgroundColor(context: Context): ColorStateList {
     val resId = when(this) {
-        is History.CreditHistory -> R.color.colorCredit
-        is History.DebitHistory -> R.color.colorDebit
-        is History.TransferHistory -> R.color.colorTransfer
+        is History.CreditHistory -> dreammaker.android.expensetracker.core.R.color.colorCredit
+        is History.DebitHistory -> dreammaker.android.expensetracker.core.R.color.colorDebit
+        is History.TransferHistory -> dreammaker.android.expensetracker.core.R.color.colorTransfer
     }
     return ResourcesCompat.getColorStateList(context.resources, resId, context.theme)!!
 }
@@ -199,36 +192,9 @@ fun History.getTypeBackground(context: Context): Drawable {
 
 fun History.getTypeColorOnBackground(context: Context): ColorStateList {
     val resId = when(this) {
-        is History.CreditHistory -> R.color.colorOnCredit
-        is History.DebitHistory -> R.color.colorOnDebit
-        is History.TransferHistory -> R.color.colorOnTransfer
+        is History.CreditHistory -> dreammaker.android.expensetracker.core.R.color.colorOnCredit
+        is History.DebitHistory -> dreammaker.android.expensetracker.core.R.color.colorOnDebit
+        is History.TransferHistory -> dreammaker.android.expensetracker.core.R.color.colorOnTransfer
     }
     return ResourcesCompat.getColorStateList(context.resources, resId, context.theme)!!
 }
-
-
-fun HistoryTotalCreditTotalDebit.getTotalCreditText(
-    context: Context,
-    currencyCode: String = "USD",
-    locale: Locale = Locale.ENGLISH
-): CharSequence =
-    buildLabeledColoredAmountText(
-        context = context,
-        amount = totalCredit,
-        colorRes = R.color.colorCredit,
-        currencyCode = currencyCode,
-        locale = locale
-    )
-
-fun HistoryTotalCreditTotalDebit.getTotalDebitText(
-    context: Context,
-    currencyCode: String = "USD",
-    locale: Locale = Locale.ENGLISH
-): CharSequence =
-    buildLabeledColoredAmountText(
-        context = context,
-        amount = totalDebit,
-        colorRes = R.color.colorDebit,
-        currencyCode = currencyCode,
-        locale = locale
-    )

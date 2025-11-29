@@ -15,15 +15,16 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.chip.Chip
 import dreammaker.android.expensetracker.Constants
-import dreammaker.android.expensetracker.FULL_DATE_FORMAT
+import dreammaker.android.expensetracker.DATE_WITH_WEAKDAY_FORMAT
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.core.util.QuickMessages
+import dreammaker.android.expensetracker.ui.UIState
 import dreammaker.android.expensetracker.ui.history.historyinput.TransactionInputFragment.Companion.ARG_HISTORY_DATE
 import dreammaker.android.expensetracker.util.AccountParcelable
-import dreammaker.android.expensetracker.ui.UIState
 import dreammaker.android.expensetracker.util.getArgId
 import dreammaker.android.expensetracker.util.getDate
 import dreammaker.android.expensetracker.util.isActionEdit
+import dreammaker.android.expensetracker.util.setActivityTitle
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
@@ -66,7 +67,7 @@ abstract class BaseHistoryInputFragment : Fragment() {
         // observe date changes (both fragments do this)
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.dateState.collectLatest { date ->
-                dateTextView.text = date.format(FULL_DATE_FORMAT)
+                dateTextView.text = date.format(DATE_WITH_WEAKDAY_FORMAT)
             }
         }
 
@@ -86,6 +87,11 @@ abstract class BaseHistoryInputFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.saveHistoryState.collectLatest { onSaveHistoryUIStateChange(it) }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        setActivityTitle(title)
     }
 
     /////////////////////////////////////////////////////////////////

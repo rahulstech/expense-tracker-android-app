@@ -70,7 +70,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/container_total_balance"
                 app:layout_constraintVertical_chainStyle="spread"
-                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                 android:text="@string/label_accounts"/>
 
             <com.google.android.material.divider.MaterialDivider
@@ -88,15 +88,13 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_view_all_accounts"
-                style="@style/Widget.Material3.Button.TextButton"
+                style="@style/Widget.AppTheme.Button.Secondary"
                 android:layout_width="wrap_content"
                 android:layout_height="36dp"
-                app:backgroundTint="?attr/colorPrimaryContainer"
                 android:layout_marginTop="24dp"
                 android:layout_marginEnd="16dp"
                 android:text="@string/label_view_all"
                 android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                android:textColor="@color/stateful_color_on_surface"
                 app:layout_constraintBottom_toBottomOf="@id/label_section_account"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/container_total_balance"
@@ -132,7 +130,7 @@
                     android:padding="12dp"
                     android:layout_gravity="center"
                     android:gravity="center"
-                    android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
+                    android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
                     android:textColor="?android:attr/textColorSecondary"
                     tools:text="No Recent Account"/>
 
@@ -149,7 +147,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/container_latest_used_accounts"
                 app:layout_constraintVertical_chainStyle="spread"
-                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                 android:text="@string/label_groups"/>
 
             <com.google.android.material.divider.MaterialDivider
@@ -167,15 +165,13 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_view_all_groups"
-                style="@style/Widget.Material3.Button.TextButton"
+                style="@style/Widget.AppTheme.Button.Secondary"
                 android:layout_width="wrap_content"
                 android:layout_height="36dp"
-                app:backgroundTint="@color/colorPrimaryContainer"
                 android:layout_marginTop="24dp"
                 android:layout_marginEnd="16dp"
                 android:text="@string/label_view_all"
                 android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                android:textColor="@color/stateful_color_on_surface"
                 app:layout_constraintBottom_toBottomOf="@id/label_section_group"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/container_latest_used_accounts"
@@ -210,7 +206,7 @@
                     android:padding="12dp"
                     android:layout_gravity="center"
                     android:gravity="center"
-                    android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
+                    android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
                     android:textColor="?android:attr/textColorSecondary"
                     tools:text="No Recent Group"/>
 
@@ -226,7 +222,8 @@
         android:layout_margin="12dp"
         android:layout_gravity="bottom|center_horizontal"
         app:icon="@drawable/ic_add"
-        android:text="@string/label_add_history"/>
+        android:text="@string/label_add_history"
+        app:layout_behavior="@string/hide_bottom_view_on_scroll_behavior" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

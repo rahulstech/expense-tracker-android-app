@@ -22,13 +22,13 @@ import dreammaker.android.expensetracker.Constants
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.core.util.QuickMessages
 import dreammaker.android.expensetracker.databinding.FragmentHistoryListBinding
-import dreammaker.android.expensetracker.settings.SettingsProvider
-import dreammaker.android.expensetracker.settings.ViewHistory
 import dreammaker.android.expensetracker.ui.HistoryListItem
 import dreammaker.android.expensetracker.ui.UIState
 import dreammaker.android.expensetracker.util.AccountParcelable
+import dreammaker.android.expensetracker.util.AppLocalCache
 import dreammaker.android.expensetracker.util.GroupParcelable
 import dreammaker.android.expensetracker.util.SelectionHelper
+import dreammaker.android.expensetracker.util.ViewHistory
 import dreammaker.android.expensetracker.util.setActivitySubTitle
 import dreammaker.android.expensetracker.util.toCurrencyString
 import dreammaker.android.expensetracker.util.visibilityGone
@@ -66,7 +66,7 @@ class HistoryListFragment: Fragment(), MenuProvider {
         }
     }
 
-    private val settings by lazy { SettingsProvider.get(requireContext()) }
+    private val settings by lazy { AppLocalCache(requireContext()) }
     private lateinit var picker: DateRangePicker
     private lateinit var adapter: HistoryListAdapter
     private lateinit var selectionHelper: SelectionHelper<Long>
@@ -262,7 +262,7 @@ class HistoryListFragment: Fragment(), MenuProvider {
             viewModel.deleteHistoriesState.collectLatest { state ->
                 when(state) {
                     is UIState.UISuccess<*> -> {
-                        QuickMessages.toastSuccess(requireContext(),"")
+                        QuickMessages.toastSuccess(requireContext(),getString(R.string.message_success_delete_history))
                     }
                     is UIState.UIError -> {
                         Log.e(TAG,"delete histories failed",state.cause)

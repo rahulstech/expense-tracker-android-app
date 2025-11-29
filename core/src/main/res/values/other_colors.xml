@@ -3,16 +3,11 @@
 
     <color name="colorWhite">#FFFFFF</color>
     <color name="colorBlack">#000000</color>
-    <color name="colorPrimary">#1B79CC</color>
-    <color name="colorOnPrimary">@color/colorWhite</color>
-    <color name="colorPrimaryContainer">#e8f1f9</color>
-    <color name="colorOnPrimaryContainer">#186cb7</color>
-    <color name="colorPrimaryDark">#1666ab</color>
-    <color name="colorOnPrimaryDark">@color/colorWhite</color>
-    <color name="colorSecondary">#CAC31D</color>
-    <color name="colorOnSecondary">@color/colorBlack</color>
-    <color name="colorSecondaryContainer">#f9f9e8</color>
-    <color name="colorOnSecondaryContainer">#b5af1a</color>
-    <color name="colorSurface">@color/colorWhite</color>
+    <color name="colorCredit">#4B7831</color>
+    <color name="colorOnCredit">@color/colorWhite</color>
+    <color name="colorDebit">#CC2929</color>
+    <color name="colorOnDebit">@color/colorWhite</color>
+    <color name="colorTransfer">#7842c6</color>
+    <color name="colorOnTransfer">@color/colorWhite</color>
 
 </resources>

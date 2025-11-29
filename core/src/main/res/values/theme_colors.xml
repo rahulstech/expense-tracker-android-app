@@ -141,14 +141,4 @@
     <color name="md_theme_surfaceContainerHigh_highContrast">#D2D4DB</color>
     <color name="md_theme_surfaceContainerHighest_highContrast">#C4C6CE</color>
 
-    <!-- NOTE: can not create the following colors dynamically. therefore need to provide
-               the hardcoded colors with proper alphas. do the same in night/colors.xml -->
-
-    <!-- 8% of colorOnSurface -->
-    <color name="md_theme_onSurface_a8">#14181C21</color>
-    <!-- 12% of colorOnSurface -->
-    <color name="md_theme_onSurface_a12">#1F181C21</color>
-    <!-- 38% of colorOnSurface -->
-    <color name="md_theme_onSurface_a38">#61181C21</color>
-
 </resources>

@@ -18,6 +18,7 @@ import dreammaker.android.expensetracker.databinding.SingleAccountPickerListWith
 import dreammaker.android.expensetracker.ui.AccountListItem
 import dreammaker.android.expensetracker.ui.history.historyinput.HistoryInputViewModel
 import dreammaker.android.expensetracker.util.SelectionHelper
+import dreammaker.android.expensetracker.util.setActivityTitle
 import dreammaker.android.expensetracker.util.visibilityGone
 import dreammaker.android.expensetracker.util.visible
 import rahulstech.android.expensetracker.domain.model.Account
@@ -68,6 +69,11 @@ class PickHistoryAccountFragment : Fragment() {
         prepareItemSelection()
 
         viewModel.getAllAccounts().observe(viewLifecycleOwner, this::onAccountsLoaded)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        setActivityTitle(R.string.title_choose_account)
     }
 
     private fun prepareItemSelection() {

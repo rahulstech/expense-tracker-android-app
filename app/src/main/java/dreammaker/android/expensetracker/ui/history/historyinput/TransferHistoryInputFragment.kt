@@ -15,6 +15,7 @@ import dreammaker.android.expensetracker.core.util.QuickMessages
 import dreammaker.android.expensetracker.databinding.TransferHistoryInputLayoutBinding
 import dreammaker.android.expensetracker.util.createInputChip
 import dreammaker.android.expensetracker.util.getArgId
+import dreammaker.android.expensetracker.util.isActionEdit
 import dreammaker.android.expensetracker.util.visibilityGone
 import dreammaker.android.expensetracker.util.visible
 import kotlinx.coroutines.flow.collectLatest
@@ -36,6 +37,12 @@ class TransferHistoryInputFragment : BaseHistoryInputFragment() {
     override val noteInput: EditText get() = binding.inputNote
     override val btnSave: View get() = binding.btnSave
     override val btnCancel: View get() = binding.btnCancel
+    override val title: String
+        get() = if (isActionEdit()) {
+            getString(R.string.title_edit_transfer_history)
+        } else {
+            getString(R.string.title_create_transfer_history)
+        }
 
     /////////////////////////////////////////////////////////////////
     ///                     Fragment Api                         ///

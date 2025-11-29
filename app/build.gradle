@@ -59,7 +59,6 @@ dependencies {
 
     implementation project(':core')
     implementation project(':domain')
-    implementation project(':app-settings')
     implementation project(':feature:backup-restore')
 
     // architecture

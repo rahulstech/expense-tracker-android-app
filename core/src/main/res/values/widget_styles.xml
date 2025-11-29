@@ -1,12 +1,5 @@
 <resources>
 
-    <!-- NoActionBar Theme -->
-    <style name="AppTheme.NoActionBar">
-        <!-- Customize your theme here. -->
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-    </style>
-
     <!-- Widget Style -->
 
     <style name="Widget.AppTheme.FloatingActionButton" parent="Widget.Material3.FloatingActionButton.Primary">
@@ -66,17 +59,18 @@
         <item name="android:minHeight">24dp</item>
         <item name="android:padding">6dp</item>
         <item name="iconSize">24dp</item>
-        <item name="iconTint">?attr/colorOnSurface</item>
+        <item name="iconTint">@color/md_theme_secondary_button_text</item>
         <item name="iconGravity">textStart</item>
-        <item name="backgroundTint">?attr/colorPrimaryContainer</item>
+        <item name="backgroundTint">@color/md_theme_secondary_button_background</item>
     </style>
 
     <style name="Widget.AppTheme.Button.Secondary" parent="Widget.Material3.Button">
         <item name="iconSize">24dp</item>
         <item name="iconGravity">textStart</item>
-        <item name="iconTint">?attr/colorOnSecondary</item>
-        <item name="android:textColor">?attr/colorOnSecondary</item>
-        <item name="backgroundTint">?attr/colorSecondary</item>
+        <item name="iconTint">@color/md_theme_secondary_button_text</item>
+        <item name="android:textColor">@color/md_theme_secondary_button_text</item>
+        <item name="backgroundTint">@color/md_theme_secondary_button_background</item>
+        <item name="android:foreground">?attr/selectableItemBackground</item>
     </style>
 
 </resources>

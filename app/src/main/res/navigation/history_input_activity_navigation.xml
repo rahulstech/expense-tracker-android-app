@@ -42,13 +42,13 @@
     <fragment
         android:id="@+id/pick_primary_account"
         android:name="dreammaker.android.expensetracker.ui.history.historyinput.picker.account.PickHistoryAccountFragment"
-        android:label="@string/title_account_chooser"
+        android:label="@string/title_choose_account"
         tools:layout="@layout/single_account_picker_list_with_search_layout"/>
 
     <fragment
         android:id="@+id/pick_history_group"
         android:name="dreammaker.android.expensetracker.ui.history.historyinput.picker.group.PickHistoryGroupFragment"
-        android:label="@string/title_history_group_picker"
+        android:label="@string/title_choose_group"
         tools:layout="@layout/single_group_picker_list_with_search_layout"/>
 
 </navigation>

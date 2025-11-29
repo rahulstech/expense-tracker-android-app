@@ -150,14 +150,14 @@
 
 
 	<string name="title_history_list">History</string>
-	<string name="title_account_chooser">Choose Account</string>
-	<string name="title_choose_credit_source">Received From</string>
-	<string name="title_choose_debit_source_account">Debit To</string>
-	<string name="title_choose_transfer_source_account">Transfer From</string>
-	<string name="title_choose_credit_destination_account">Credit To</string>
-	<string name="title_choose_transfer_destination_account">Transfer To</string>
-	<string name="title_choose_income_destination">Receive In</string>
-	<string name="title_choose_expense_source_account">Pay From</string>
+	<string name="title_choose_account">Choose Account</string>
+<!--	<string name="title_choose_credit_source">Received From</string>-->
+<!--	<string name="title_choose_debit_source_account">Debit To</string>-->
+<!--	<string name="title_choose_transfer_source_account">Transfer From</string>-->
+<!--	<string name="title_choose_credit_destination_account">Credit To</string>-->
+<!--	<string name="title_choose_transfer_destination_account">Transfer To</string>-->
+<!--	<string name="title_choose_income_destination">Receive In</string>-->
+<!--	<string name="title_choose_expense_source_account">Pay From</string>-->
 	<string name="title_input_history_create">New History</string>
     <string name="label_empty_account_list">No Account</string>
 	<string name="title_account_list">Accounts</string>
@@ -171,7 +171,7 @@
 	<string name="title_choose_destination_account">Receive In</string>
 	<string name="title_groups_list">Groups</string>
 	<string name="title_view_group">Group Details</string>
-	<string name="title_history_group_picker">Choose Group</string>
+	<string name="title_choose_group">Choose Group</string>
 	<string name="title_view_history">History Details</string>
 
     <string name="error_invalid_balance_input">balance valid number</string>
@@ -180,11 +180,6 @@
 	<string name="error_empty_account_name_input">name must not empty</string>
 	<string name="error_invalid_due_input">due is not a valid number</string>
 	<string name="error_invalid_group_balance_input">balance must be a number</string>
-
-<!--	<string name="message_fail_create_account">account not created</string>-->
-<!--	<string name="message_fail_edit_account">account not saved</string>-->
-<!--	<string name="message_success_create_account">account created</string>-->
-<!--	<string name="message_success_edit_account">account saved</string>-->
 
 	<string name="message_error">something error occurred</string>
 

@@ -3,7 +3,7 @@ package dreammaker.android.expensetracker.ui.history.historieslist
 import android.app.DatePickerDialog
 import android.content.Context
 import android.os.Bundle
-import dreammaker.android.expensetracker.FULL_DATE_FORMAT
+import dreammaker.android.expensetracker.DATE_WITH_WEAKDAY_FORMAT
 import dreammaker.android.expensetracker.FULL_MONTH_FORM
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.core.util.atStartOfMonth
@@ -92,7 +92,7 @@ class DayPicker(val context: Context): DateRangePicker() {
         datePicker.show()
     }
 
-    override fun getSelectionLabel(): String = selectedDate.format(FULL_DATE_FORMAT)
+    override fun getSelectionLabel(): String = selectedDate.format(DATE_WITH_WEAKDAY_FORMAT)
 
     override fun getDefaultLabel(): String = context.getString(R.string.label_today)
 

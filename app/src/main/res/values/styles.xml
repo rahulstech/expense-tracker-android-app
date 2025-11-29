@@ -1,9 +1,9 @@
 <resources>
 
     <style name="AppTheme.SplashScreen" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher</item>
         <item name="windowSplashScreenAnimationDuration">3000</item> <!-- only 3 seconds -->
-        <item name="postSplashScreenTheme">@style/AppTheme.NoActionBar</item>
+        <item name="postSplashScreenTheme">@style/AppTheme</item>
     </style>
 
     <style name="Widget.AppTheme.MonthChip" parent="Widget.Material3.Chip.Filter">

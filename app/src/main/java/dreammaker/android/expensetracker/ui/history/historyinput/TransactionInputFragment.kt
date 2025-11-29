@@ -40,6 +40,12 @@ class TransactionInputFragment : BaseHistoryInputFragment() {
     override val noteInput: EditText get() = binding.inputNote
     override val btnSave: View get() = binding.btnSave
     override val btnCancel: View get() = binding.btnCancel
+    override val title: String
+        get() = if (isActionEdit()) {
+            getString(R.string.title_input_history_edit)
+        } else {
+            getString(R.string.title_input_history_create)
+        }
 
     /////////////////////////////////////////////////////////////////
     ///                 Fragment Argument                        ///
@@ -76,7 +82,6 @@ class TransactionInputFragment : BaseHistoryInputFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         preparePrimaryAccount()
         prepareGroup()
     }

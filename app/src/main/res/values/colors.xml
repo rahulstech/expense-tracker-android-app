@@ -1,17 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <color name="colorCredit">#4B7831</color>
-    <color name="colorOnCredit">@color/colorWhite</color>
-    <color name="colorDebit">#CC2929</color>
-    <color name="colorOnDebit">@color/colorWhite</color>
-    <color name="colorTransfer">#7842c6</color>
-    <color name="colorOnTransfer">@color/colorWhite</color>
-    <color name="colorExpense">#CC2929</color>
-    <color name="colorOnExpense">@color/colorWhite</color>
-    <color name="colorIncome">#4B7831</color>
-    <color name="colorOnIncome">@color/colorWhite</color>
-
     <color name="colorShimmer">#B2C6D5</color>
-
 </resources>

@@ -16,6 +16,7 @@ import dreammaker.android.expensetracker.databinding.SingleGroupPickerListWithSe
 import dreammaker.android.expensetracker.ui.GroupListItem
 import dreammaker.android.expensetracker.ui.history.historyinput.HistoryInputViewModel
 import dreammaker.android.expensetracker.util.SelectionHelper
+import dreammaker.android.expensetracker.util.setActivityTitle
 import dreammaker.android.expensetracker.util.visibilityGone
 import dreammaker.android.expensetracker.util.visible
 import rahulstech.android.expensetracker.domain.model.Group
@@ -55,6 +56,11 @@ class PickHistoryGroupFragment : Fragment() {
         prepareItemSelection()
 
         viewModel.getAllGroups().observe(viewLifecycleOwner, this::onGroupsLoaded)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        setActivityTitle(R.string.title_choose_group)
     }
 
     private fun prepareItemSelection() {
