@@ -17,6 +17,7 @@ import dreammaker.android.expensetracker.databinding.InputAccountBinding
 import dreammaker.android.expensetracker.ui.UIState
 import dreammaker.android.expensetracker.util.getArgId
 import dreammaker.android.expensetracker.util.hasArgument
+import dreammaker.android.expensetracker.util.isActionEdit
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import rahulstech.android.expensetracker.domain.model.Account
@@ -40,8 +41,6 @@ class AccountInputFragment : Fragment() {
     }
 
     private fun getAction(): String? = arguments?.getString(Constants.ARG_ACTION)
-
-    private fun isActionEdit(): Boolean = getAction() == Constants.ACTION_EDIT
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -69,11 +68,9 @@ class AccountInputFragment : Fragment() {
                 }
             }
         }
-        if (isActionEdit()) {
-            if (viewModel.getStoredAccount() == null) {
-                val id = requireArguments().getLong(Constants.ARG_ID)
-                viewModel.findAccountById(id).observe(viewLifecycleOwner, this::onAccountLoaded)
-            }
+        if (isActionEdit() && viewModel.getStoredAccount() == null) {
+            val id = getArgId()
+            viewModel.findAccountById(id).observe(viewLifecycleOwner, this::onAccountLoaded)
         }
     }
 

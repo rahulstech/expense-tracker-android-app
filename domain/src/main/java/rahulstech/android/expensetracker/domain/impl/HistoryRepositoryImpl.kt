@@ -30,7 +30,7 @@ internal class HistoryRepositoryImpl(
             val entity = history.toHistoryEntity()
             val id = historyDao.insertHistory(entity)
 
-            // update balance and due
+            // update balance
             updateAccountBalance(entity)
             updateAccountBalance(entity,false)
             updateGroupDue(entity)
@@ -126,7 +126,7 @@ internal class HistoryRepositoryImpl(
         else {
             when(history.type) {
                 HistoryType.TRANSFER -> {
-                    history.primaryAccountId?.let { id ->
+                    history.secondaryAccountId?.let { id ->
                         accountRepository.creditBalance(id,history.amount)
                     }
                 }
@@ -155,7 +155,7 @@ internal class HistoryRepositoryImpl(
             when(history.type) {
                 HistoryType.TRANSFER -> {
                     history.secondaryAccountId?.let { id ->
-                        accountRepository.creditBalance(id,history.amount)
+                        accountRepository.debitBalance(id,history.amount)
                     }
                 }
                 else -> {}

@@ -28,6 +28,7 @@ import dreammaker.android.expensetracker.util.AccountParcelable
 import dreammaker.android.expensetracker.util.AppLocalCache
 import dreammaker.android.expensetracker.util.GroupParcelable
 import dreammaker.android.expensetracker.util.SelectionHelper
+import dreammaker.android.expensetracker.util.SortByDate
 import dreammaker.android.expensetracker.util.ViewHistory
 import dreammaker.android.expensetracker.util.setActivitySubTitle
 import dreammaker.android.expensetracker.util.toCurrencyString
@@ -152,11 +153,8 @@ class HistoryListFragment: Fragment(), MenuProvider {
     }
 
     override fun onPrepareMenu(menu: Menu) {
-        val viewAs = settings.getViewHistory()
-        when(viewAs) {
-            ViewHistory.MONTHLY -> menu.findItem(R.id.menu_view_as_monthly).isChecked = true
-            ViewHistory.DAILY -> menu.findItem(R.id.menu_view_as_daily).isChecked = true
-        }
+        prepareViewHistory(menu)
+        prepareSortByDate(menu)
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
@@ -167,6 +165,14 @@ class HistoryListFragment: Fragment(), MenuProvider {
             }
             R.id.menu_view_as_monthly -> {
                 changeViewHistory(ViewHistory.MONTHLY)
+                true
+            }
+            R.id.menu_sort_old_first -> {
+                changeSortByDate(SortByDate.OLD_FIRST)
+                true
+            }
+            R.id.menu_sort_new_first -> {
+                changeSortByDate(SortByDate.NEW_FIRST)
                 true
             }
             else -> false
@@ -193,10 +199,30 @@ class HistoryListFragment: Fragment(), MenuProvider {
         setActivitySubTitle(null)
     }
 
+    private fun prepareViewHistory(menu: Menu) {
+        when(settings.getViewHistory()) {
+            ViewHistory.MONTHLY -> menu.findItem(R.id.menu_view_as_monthly).isChecked = true
+            ViewHistory.DAILY -> menu.findItem(R.id.menu_view_as_daily).isChecked = true
+        }
+    }
+
     private fun changeViewHistory(viewAs: ViewHistory) {
         settings.setViewHistory(viewAs)
         requireActivity().invalidateOptionsMenu()
         changePicker(viewAs)
+        loadHistories()
+    }
+
+    private fun prepareSortByDate(menu: Menu) {
+        when(settings.getSortHistoryByDate()) {
+            SortByDate.NEW_FIRST -> menu.findItem(R.id.menu_sort_new_first).isChecked = true
+            SortByDate.OLD_FIRST -> menu.findItem(R.id.menu_sort_old_first).isChecked = true
+        }
+    }
+
+    private fun changeSortByDate(sortBy: SortByDate) {
+        settings.setSortHistoryByDate(sortBy)
+        requireActivity().invalidateOptionsMenu()
         loadHistories()
     }
 
@@ -342,6 +368,7 @@ class HistoryListFragment: Fragment(), MenuProvider {
 
     private fun getLoadHistoryParameters(): LoadHistoryParameters? {
         val otherThanDailyView = settings.getViewHistory() != ViewHistory.DAILY
+        val sortByDate = settings.getSortHistoryByDate()
         val dateRange = picker.getSelection()
         val entity = getArgHistoriesOf()
 
@@ -354,6 +381,7 @@ class HistoryListFragment: Fragment(), MenuProvider {
             betweenDates(dateRange.first, dateRange.second)
             withHeaders(otherThanDailyView)
             withTypes(getCheckedTypes())
+            withSortByDate(sortByDate)
         }
         return params
     }

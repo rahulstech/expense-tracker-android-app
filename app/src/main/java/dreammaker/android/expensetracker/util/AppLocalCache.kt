@@ -10,12 +10,19 @@ enum class ViewHistory {
     ;
 }
 
+enum class SortByDate {
+    OLD_FIRST,
+    NEW_FIRST,
+    ;
+}
+
 class AppLocalCache(private val context: Context) {
 
     companion object {
         private const val SHARED_PREFERENCE_NAME = "dreammaker.android.expensetracker.preferernce.applocalcache"
 
         private const val KEY_VIEW_HISTORY = "view_history"
+        private const val KEY_SORT_HISTORY_BY_DATE = "sort_history_by_date"
     }
 
 
@@ -30,6 +37,17 @@ class AppLocalCache(private val context: Context) {
     fun getViewHistory(defaultValue: ViewHistory = ViewHistory.DAILY): ViewHistory =
         sp.getString(KEY_VIEW_HISTORY,null)
             ?.let { name -> ViewHistory.valueOf(name) }
+            ?: defaultValue
+
+    fun setSortHistoryByDate(value: SortByDate) {
+        edit {
+            putString(KEY_SORT_HISTORY_BY_DATE,value.name)
+        }
+    }
+
+    fun getSortHistoryByDate(defaultValue: SortByDate = SortByDate.OLD_FIRST): SortByDate =
+        sp.getString(KEY_SORT_HISTORY_BY_DATE,null)
+            ?.let { name -> SortByDate.valueOf(name) }
             ?: defaultValue
 
     private fun edit(action: SharedPreferences.Editor.()->Unit) {

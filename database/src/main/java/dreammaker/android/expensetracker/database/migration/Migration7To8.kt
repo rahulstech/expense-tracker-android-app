@@ -49,11 +49,13 @@ class Migration7To8: Migration(7,8) {
         db.execSQL("CREATE INDEX IF NOT EXISTS `index_histories_groupId` ON `histories`(`groupId`)")
 
         // add transactions into histories
+        // NOTE: in previous version deleted transactions had delete = 1 flag
+        //      in the new version i will not insert those transactions
         db.execSQL("INSERT INTO `histories` (`type`,`date`,`primaryAccountId`,`groupId`, `amount`, `note`)" +
                 " SELECT " +
                 "CASE `type` WHEN 0 THEN 'DEBIT' ELSE 'CREDIT' END AS `type`, `date`, " +
                 "`account_id` AS `primaryAccountId`, `person_id` AS `groupId`, `amount`, `description` AS `note`" +
-                "FROM `transactions` WHERE `deleted` = 0 AND `person_id` IS NULL")
+                "FROM `transactions` WHERE `deleted` = 0")
 
         // add money_transfers into histories
         db.execSQL("INSERT INTO `histories` (`type`,`date`,`primaryAccountId`,`secondaryAccountId`, `amount`, `note`) " +

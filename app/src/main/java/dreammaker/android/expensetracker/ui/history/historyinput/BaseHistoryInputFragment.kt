@@ -54,6 +54,9 @@ abstract class BaseHistoryInputFragment : Fragment() {
 
     protected abstract fun getInputHistory(): History
 
+    /**
+     * @return true means all inputs are valid, false otherwise
+     */
     protected abstract fun validateInput(history: History): Boolean
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -71,7 +74,7 @@ abstract class BaseHistoryInputFragment : Fragment() {
             }
         }
 
-        if (isActionEdit()) {
+        if (isActionEdit() && viewModel.history == null) {
             viewModel.findHistory(getArgId())
             viewLifecycleOwner.lifecycleScope.launch {
                 viewModel.historyState.filterNotNull().collectLatest { onFindHistoryUIStateChange(it) }
@@ -101,6 +104,7 @@ abstract class BaseHistoryInputFragment : Fragment() {
     // ui state event for find history
 
     private fun onFindHistoryUIStateChange(state: UIState<History>) {
+        Log.d(TAG,"onFindHistoryUIStateChange: $state")
         when(state) {
             is UIState.UISuccess -> {
                 if (null == state.data) {
@@ -152,9 +156,11 @@ abstract class BaseHistoryInputFragment : Fragment() {
     }
 
     protected open fun onClickInputDate(date: LocalDate) {
+        // NOTE: DatePickerDialog works with 0 based month i.e. 0 = January 1 = February etc.
+        // where as LocalDate works with 1 based month i.e. 1 = January 2 = February etc.
         val picker = DatePickerDialog(requireContext(), { _, y, m, d ->
-            viewModel.setDate(LocalDate.of(y, m, d))
-        }, date.year, date.monthValue, date.dayOfMonth)
+            viewModel.setDate(LocalDate.of(y, m+1, d))
+        }, date.year, date.monthValue-1, date.dayOfMonth)
         picker.show()
     }
 
@@ -170,6 +176,7 @@ abstract class BaseHistoryInputFragment : Fragment() {
 
     protected fun handleSave() {
         val history = getInputHistory()
+        Log.d(TAG,"handleSave: input history $history")
         if (validateInput(history)) {
             if (isActionEdit()) {
                 viewModel.setHistory(history)

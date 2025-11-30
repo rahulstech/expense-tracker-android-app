@@ -254,5 +254,8 @@
 	<string name="label_header_others">Others</string>
     <string name="label_search_account_name">Search Account Name</string>
     <string name="label_search_group_name">Search Group Name</string>
+    <string name="menu_title_sort_history">Sort</string>
+	<string name="menu_title_sort_old_first">Old First</string>
+	<string name="menu_title_sort_new_first">New First</string>
 
 </resources>

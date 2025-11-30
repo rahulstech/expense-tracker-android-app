@@ -26,6 +26,8 @@ internal typealias SqlArgs = Pair<String,List<Any?>>
 
 class HistoryQueryBuilder {
 
+    private val TAG = HistoryQueryBuilder::class.simpleName
+
     var historyTypes: List<HistoryType> = emptyList()
     var accounts: List<Long> = emptyList()
     var groups: List<Long> = emptyList()
@@ -50,7 +52,7 @@ class HistoryQueryBuilder {
         orderBy(queryBuilder)
 
         val query = queryBuilder.create()
-        Log.d("HistoryQueryBuilder","query = ${query.sql}")
+        Log.d(TAG,"build: query = ${query.sql}")
         return query
     }
 
@@ -64,11 +66,15 @@ class HistoryQueryBuilder {
         queryBuilder.columns(columns)
 
         where(queryBuilder)
-        queryBuilder
-            .groupBy("`type`")
-            .having("`type` IN('CREDIT','DEBIT')")
+        // i want one row with two columns i.e. totalCredit and totalDebit
+        // but wil group by it will create two rows for two types
+//        queryBuilder
+//            .groupBy("`type`")
+//            .having("`type` IN('CREDIT','DEBIT')")
 
-        return queryBuilder.create()
+        val query = queryBuilder.create()
+        Log.d(TAG,"buildTotalCreditDebit: query = ${query.sql}")
+        return query
     }
 
     private fun where(builder: SupportSQLiteQueryBuilder) {

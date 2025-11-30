@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import rahulstech.android.expensetracker.domain.ExpenseRepository
 import rahulstech.android.expensetracker.domain.model.Account
@@ -29,18 +29,20 @@ class HistoryInputViewModel (
 
     private val repos = ExpenseRepository.getInstance(app)
     private val historyRepo = repos.historyRepository
-    private val accountRepo = repos.accountRepository
-    private val groupRepo = repos.groupRepository
 
     private val TAG = HistoryInputViewModel::class.simpleName
 
-    private val _historyState = MutableSharedFlow<UIState<History>>(
-        replay = 0,
-        extraBufferCapacity = 1,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    private val _historyState = MutableStateFlow<UIState<History>>(UIState.UILoading())
+    val historyState: Flow<UIState<History>?> = _historyState.shareIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(),
+        replay = 0 // once delivered no need to redeliver
     )
-    val historyState: Flow<UIState<History>?> = _historyState
-    val history: History? = null
+    val history: History? get() =
+        when(_historyState.value) {
+            is UIState.UISuccess<History> -> (_historyState.value as UIState.UISuccess<History>).data
+            else -> null
+        }
 
     fun findHistory(id: Long) {
         // history found, no need to find again
@@ -87,26 +89,6 @@ class HistoryInputViewModel (
                 .collect { _saveHistoryState.tryEmit(UIState.UISuccess(it)) }
         }
     }
-
-    private val _defaultAccount: StateFlow<Account?> by lazy {
-        accountRepo.getDefaultAccount()
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.Lazily,
-                initialValue = null
-            )
-    }
-    val defaultAccount: Flow<Account?> = _defaultAccount
-
-    private val _defaultGroup: StateFlow<Group?> by lazy {
-        groupRepo.getDefaultGroup()
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.Lazily,
-                initialValue = null
-            )
-    }
-    val defaultGroup: Flow<Group?> = _defaultGroup
 
     private val _dateState = MutableStateFlow<LocalDate>(LocalDate.now())
     val dateState: StateFlow<LocalDate> = _dateState

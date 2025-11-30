@@ -12,6 +12,7 @@ import androidx.paging.insertSeparators
 import androidx.paging.map
 import dreammaker.android.expensetracker.ui.HistoryListItem
 import dreammaker.android.expensetracker.ui.UIState
+import dreammaker.android.expensetracker.util.SortByDate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.BufferOverflow
@@ -54,6 +55,11 @@ class LoadHistoryParameters {
 
     fun withGroupId(id: Long) {
         filterParams.groupIds = listOf(id)
+    }
+
+    fun withSortByDate(sortBy: SortByDate) {
+        val dateAsc = sortBy == SortByDate.OLD_FIRST
+        filterParams.sortOldestFirst = dateAsc
     }
 
     override fun equals(other: Any?): Boolean {

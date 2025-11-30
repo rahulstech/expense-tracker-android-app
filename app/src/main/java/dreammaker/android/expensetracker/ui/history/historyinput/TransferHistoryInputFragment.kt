@@ -64,7 +64,6 @@ class TransferHistoryInputFragment : BaseHistoryInputFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         preparePrimaryAccount()
         prepareSecondaryAccount()
     }
@@ -78,16 +77,16 @@ class TransferHistoryInputFragment : BaseHistoryInputFragment() {
         binding.amountInputLayout.error = null
         binding.errorSource.visibilityGone()
         binding.errorDestination.visibilityGone()
-        var hasError = false
+        var allValid = true
         if (history.primaryAccountId==0L) {
-            hasError = true
+            allValid = false
             binding.errorSource.visible()
         }
         if (history.secondaryAccountId==0L) {
-            hasError = true
+            allValid = false
             binding.errorDestination.visible()
         }
-        return hasError
+        return allValid
     }
 
     override fun getInputHistory(): History {

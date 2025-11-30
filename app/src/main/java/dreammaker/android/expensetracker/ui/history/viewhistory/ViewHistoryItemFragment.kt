@@ -7,6 +7,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
@@ -19,7 +20,6 @@ import dreammaker.android.expensetracker.Constants
 import dreammaker.android.expensetracker.DATE_WITH_WEAKDAY_FORMAT
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.core.util.QuickMessages
-import dreammaker.android.expensetracker.databinding.HistoryItemLayoutBinding
 import dreammaker.android.expensetracker.databinding.ViewHistoryLayoutBinding
 import dreammaker.android.expensetracker.ui.UIState
 import dreammaker.android.expensetracker.util.UNKNOWN_ACCOUNT
@@ -132,60 +132,48 @@ class ViewHistoryItemFragment: Fragment(), MenuProvider {
     }
 
     private fun prepareSource(history: History) {
-        when(history) {
+        val account = when(history) {
             is History.DebitHistory,
-            is History.TransferHistory -> {
-                val account = history.primaryAccount ?: UNKNOWN_ACCOUNT
-                binding.sourceLabel.text = getString(R.string.label_history_item_source_account)
-                binding.source.text = account.name
-                binding.sourceGroup.visible()
-            }
+            is History.TransferHistory -> history.primaryAccount ?: UNKNOWN_ACCOUNT
             else -> {
                 binding.sourceGroup.visibilityGone()
+                return
             }
         }
-        binding.viewSource.setOnClickListener { onClickViewSource(history) }
-    }
-
-    private fun onClickViewSource(history: History) {
-        history.primaryAccountId?.let { id ->
-            navController.navigate(R.id.action_view_history_to_view_account, Bundle().apply {
-                putLong(Constants.ARG_ID, id)
-            })
-        }
+        binding.sourceLabel.text = getString(R.string.label_history_item_source_account)
+        binding.source.text = account.name
+        binding.viewSource.setOnClickListener { onClickViewAccount(account.id) }
+        binding.sourceGroup.visible()
     }
 
     private fun prepareDestination(history: History) {
-        when(history) {
-            is History.CreditHistory,
-            is History.TransferHistory -> {
-                val account = history.primaryAccount ?: UNKNOWN_ACCOUNT
-                binding.destinationLabel.text = getString(R.string.label_history_item_destination_account)
-                binding.destination.text = account.name
-                binding.destinationGroup.visible()
-            }
+        val account = when(history) {
+            is History.CreditHistory -> history.primaryAccount ?: UNKNOWN_ACCOUNT
+            is History.TransferHistory -> history.secondaryAccount ?: UNKNOWN_ACCOUNT
             else -> {
                 binding.destinationGroup.visibilityGone()
+                return
             }
         }
-        binding.viewDestination.setOnClickListener { onClickViewDestination(history) }
+        binding.destinationLabel.text = getString(R.string.label_history_item_destination_account)
+        binding.destination.text = account.name
+        binding.viewDestination.setOnClickListener { onClickViewAccount(account.id) }
+        binding.destinationGroup.visible()
     }
 
-    private fun onClickViewDestination(history: History) {
-        history.secondaryAccountId?.let { id ->
-            navController.navigate(R.id.action_view_history_to_view_account, Bundle().apply {
-                putLong(Constants.ARG_ID, id)
-            })
-        }
+    private fun onClickViewAccount(id: Long) {
+        navController.navigate(R.id.action_view_history_to_view_account, bundleOf (
+            Constants.ARG_ID to id
+        ))
     }
 
     private fun prepareGroup(history: History) {
-        val group = history.group ?: UNKNOWN_GROUP
+        val group = if (history.groupId != null) { history.group ?: UNKNOWN_GROUP } else return
         val chip = createChip(binding.containerGroupAndTags, group.name)
         chip.setOnClickListener {
-            navController.navigate(R.id.action_view_history_to_view_group, Bundle().apply {
-                putLong(Constants.ARG_ID, group.id)
-            })
+            navController.navigate(R.id.action_view_history_to_view_group, bundleOf (
+                Constants.ARG_ID to group.id
+            ))
         }
         binding.containerGroupAndTags.addView(chip)
     }

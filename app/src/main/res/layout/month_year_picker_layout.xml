@@ -15,16 +15,28 @@
         app:iconSize="28dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/input_year"
-        app:layout_constraintBottom_toBottomOf="@id/input_year" />
+        app:layout_constraintEnd_toStartOf="@id/input_year_container"
+        app:layout_constraintBottom_toBottomOf="@id/input_year_container" />
 
-    <Spinner
-        android:id="@+id/input_year"
+    <FrameLayout
+        android:id="@+id/input_year_container"
         android:layout_width="wrap_content"
-        android:layout_height="52dp"
+        android:layout_height="wrap_content"
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        android:background="@drawable/rounded_rectangle_border">
+
+        <Spinner
+            android:id="@+id/input_year"
+            android:layout_width="wrap_content"
+            android:layout_height="52dp" />
+
+    </FrameLayout>
+
+
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_year_increase"
@@ -32,8 +44,8 @@
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/input_year"
-        app:layout_constraintBottom_toBottomOf="@id/input_year"
+        app:layout_constraintStart_toEndOf="@id/input_year_container"
+        app:layout_constraintBottom_toBottomOf="@id/input_year_container"
         app:icon="@drawable/baseline_arrow_right"
         app:iconSize="28dp"
         app:iconGravity="textEnd"
@@ -48,7 +60,7 @@
         android:paddingEnd="8dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/input_year"
+        app:layout_constraintTop_toBottomOf="@id/input_year_container"
         app:selectionRequired="true"
         app:singleSelection="true">
 
