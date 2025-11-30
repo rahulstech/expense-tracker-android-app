@@ -1,116 +1,100 @@
 package rahulstech.android.expensetracker.backuprestore.util
 
-import com.google.gson.annotations.SerializedName
-import dreammaker.android.expensetracker.database.model.AccountEntity
-import dreammaker.android.expensetracker.database.model.GroupEntity
-import dreammaker.android.expensetracker.database.model.HistoryEntity
-import dreammaker.android.expensetracker.settings.SettingsModel
+import rahulstech.android.expensetracker.domain.model.Account
+import rahulstech.android.expensetracker.domain.model.Group
+import rahulstech.android.expensetracker.domain.model.History
+import java.time.LocalDate
+import java.time.LocalDateTime
 
-data class AccountData(
-    @SerializedName("id", alternate = ["_id"])
-    val id: Long,
-    @SerializedName("name", alternate = ["account_name"])
-    val name: String,
-    val balance: Float
-) {
-//    fun toAccountModel(): AccountModel = AccountModel(id,name,balance)
-}
-
-data class GroupData(
-    @SerializedName("id", alternate = ["_id"])
-    val id: Long,
-    @SerializedName("name", alternate = ["person_name"])
-    val name: String,
-    @SerializedName("balance", alternate = ["due"])
-    val balance: Float
-) {
-//    fun toGroupModel(): GroupModel = GroupModel(id,name,balance)
-}
+//data class AccountData(
+//    val id: Long,
+//    val name: String,
+//    val balance: Float,
+//    val lastUsed: LocalDateTime?,
+//    val totalUsed: Long,
+//    val isDefault: Boolean,
+//) {
+//    fun toAccount(): Account = Account(
+//        id = id, name = name, balance = balance,
+//        lastUsed = lastUsed, totalUsed = totalUsed, isDefault = isDefault
+//    )
+//}
+//
+//fun Account.toAccountData(): AccountData = AccountData(
+//    id = id, name = name, balance = balance,
+//    lastUsed = lastUsed, totalUsed = totalUsed, isDefault = isDefault
+//)
+//
+//data class GroupData(
+//    val id: Long,
+//    val name: String,
+//    val balance: Float,
+//    val lastUsed: LocalDateTime?,
+//    val totalUsed: Long,
+//    val isDefault: Boolean,
+//) {
+//    fun toGroup(): Group = Group(
+//        id = id,name = name, balance = balance,
+//        lastUsed = lastUsed, totalUsed = totalUsed, isDefault = isDefault
+//    )
+//}
+//
+//fun Group.toGroupData(): GroupData = GroupData(
+//    id = id,name = name, balance = balance,
+//    lastUsed = lastUsed, totalUsed = totalUsed, isDefault = isDefault
+//)
 
 data class HistoryData(
     val id: Long,
-    val type: Any,
+    val type: History.Type,
+    val amount: Float,
+    val date: LocalDate,
     val primaryAccountId: Long?,
-    val secondaryAccountId: Long?,
-    val groupId: Long?,
-    val amount: Float,
-    val date: Any,
-    val note: String?,
-
-    @Transient
-    val deleted: Boolean = false
+    val secondaryAccountId: Long? = null,
+    val groupId: Long? = null,
+    val note: String? = null,
 ) {
-
-//    fun toHistoryModel(): HistoryModel
-//    = HistoryModel(id, type,
-//        primaryAccountId, secondaryAccountId, groupId, null, null, null,
-//        amount, date, note)
-}
-
-data class MoneyTransferData(
-    val id: Long,
-    val amount: Float,
-    @SerializedName("when")
-    val date: Any,
-    @SerializedName("payer_account_id")
-    val primaryAccountId: Long,
-    @SerializedName("payee_account_id")
-    val secondaryAccountId: Long,
-    @SerializedName("description")
-    val note: String?
-) {
-    fun toHistoryData(): HistoryData
-    = HistoryData(id, Any(), primaryAccountId, secondaryAccountId, null, amount, date, note)
-}
-
-data class TransactionData(
-    @SerializedName("_id")
-    val id: Long,
-    val amount: Float,
-    val date: Any,
-    @SerializedName("account_id")
-    val primaryAccountId: Long,
-    @SerializedName("person_id")
-    val groupId: Long?,
-    @SerializedName("description")
-    val note: String?,
-    val type: Int,
-    val deleted: Boolean
-) {
-    private fun getHistoryType(): Any = Any()
-
-    fun toHistoryData(): HistoryData {
-        return HistoryData(id,getHistoryType(), primaryAccountId, null, groupId, amount, date, note, deleted)
+    fun toHistory(): History = when(type) {
+        History.Type.CREDIT -> {
+            History.CreditHistory(
+                id = id,
+                date = date,
+                amount = amount,
+                primaryAccountId = primaryAccountId ?: 0,
+                groupId = groupId,
+                note = note
+            )
+        }
+        History.Type.DEBIT -> {
+            History.DebitHistory(
+                id = id,
+                date = date,
+                amount = amount,
+                primaryAccountId = primaryAccountId ?: 0,
+                groupId = groupId,
+                note = note
+            )
+        }
+        History.Type.TRANSFER -> {
+            History.TransferHistory(
+                id = id,
+                date = date,
+                amount = amount,
+                primaryAccountId = primaryAccountId ?: 0,
+                secondaryAccountId = secondaryAccountId ?: 0,
+                note = note
+            )
+        }
     }
 }
 
-class AppSettingsData {
-    
-    fun toSettingsModel(): SettingsModel {
-        return SettingsModel()
-    }
-
-    override fun equals(other: Any?): Boolean {
-        return this === other || other is AppSettingsData
-    }
-
-    override fun hashCode(): Int {
-        return javaClass.hashCode()
-    }
-}
-
-fun AccountEntity.toAccountData(): AccountData {
-    return AccountData(id,name,balance)
-}
-
-fun GroupEntity.toGroupData(): GroupData {
-    return GroupData(id,name,balance)
-}
-
-fun HistoryEntity.toHistoryData(): HistoryData {
-    return HistoryData(id,type,primaryAccountId,secondaryAccountId,groupId,amount,date,note)
-}
-
-fun SettingsModel.toSettingsData(): AppSettingsData {
-    return AppSettingsData()
-}
+fun History.toHistoryData(): HistoryData = HistoryData(
+    id = id,
+    date = date,
+    type = type,
+    amount = amount,
+    primaryAccountId = primaryAccountId,
+    secondaryAccountId = secondaryAccountId,
+    groupId = groupId,
+    note = note
+)

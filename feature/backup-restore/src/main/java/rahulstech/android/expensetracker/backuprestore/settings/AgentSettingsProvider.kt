@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import androidx.core.content.edit
 import androidx.lifecycle.LiveData
 import rahulstech.android.expensetracker.backuprestore.R
+import java.time.LocalDateTime
 
 enum class BackupFrequency {
     NEVER,
@@ -36,21 +37,25 @@ class AgentSettingsProvider private constructor(applicationContext: Context){
         }
     }
 
-    fun setLastLocalBackupMillis(millis: Long) {
+    fun setLastLocalBackupNow() {
         sharedPreferences.edit(true) {
-            putLong(KEY_LAST_LOCAL_BACKUP_MILLIS, millis)
+            putString(KEY_LAST_LOCAL_BACKUP_DATETIME, LocalDateTime.now().toString())
         }
     }
 
-    fun getLastLocalBackupMillis(): Long = sharedPreferences.getLong(KEY_LAST_LOCAL_BACKUP_MILLIS, -1)
+    fun getLastLocalBackupLocalDateTime(): LocalDateTime? =
+        sharedPreferences.getString(KEY_LAST_LOCAL_BACKUP_DATETIME, null)
+            ?.let { value -> LocalDateTime.parse(value) }
 
-    fun getLastLocalBackupMillisLiveData(): LiveData<Long> = SharedPreferenceLiveData(KEY_LAST_LOCAL_BACKUP_MILLIS)
+
+    fun getLastLocalBackupLocalDateTimeLiveData(): LiveData<LocalDateTime> =
+        SharedPreferenceLiveData(KEY_LAST_LOCAL_BACKUP_DATETIME)
 
     @Suppress("UNCHECKED_CAST")
     private fun <T> getValue(key: String): T? {
         val value = when(key) {
             KEY_BACKUP_FREQUENCY -> getBackupFrequency()
-            KEY_LAST_LOCAL_BACKUP_MILLIS -> getLastLocalBackupMillis()
+            KEY_LAST_LOCAL_BACKUP_DATETIME -> getLastLocalBackupLocalDateTime()
             else -> throw IllegalStateException("unknown key $key") // should never reach this branch
         }
         return value as T
@@ -60,7 +65,7 @@ class AgentSettingsProvider private constructor(applicationContext: Context){
 
         private const val SHARED_PREFERENCES_NAME = "rahulstech.android.expensetrcker.backuprestore.settings.agent"
         private const val KEY_BACKUP_FREQUENCY = "backup_frequency"
-        private const val KEY_LAST_LOCAL_BACKUP_MILLIS = "last_local_backup_millis"
+        private const val KEY_LAST_LOCAL_BACKUP_DATETIME = "last_local_backup_millis"
 
         @Volatile
         private var instance: AgentSettingsProvider? = null

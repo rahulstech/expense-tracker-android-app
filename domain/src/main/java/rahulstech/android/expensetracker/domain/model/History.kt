@@ -34,7 +34,7 @@ sealed class History(
         }
     }
 
-    fun toHistoryEntity(): HistoryEntity =
+    internal fun toHistoryEntity(): HistoryEntity =
         HistoryEntity(id,type.toHistoryType(),primaryAccountId,secondaryAccountId,groupId, amount,date,note)
 
     data class CreditHistory(
@@ -68,7 +68,7 @@ sealed class History(
         override val note: String? = null,
         override val primaryAccount: Account? = null,
         override val secondaryAccount: Account? = null,
-    ): History(id,date,Type.DEBIT,amount,primaryAccountId,secondaryAccountId,null,note,primaryAccount,secondaryAccount,null)
+    ): History(id,date,Type.TRANSFER,amount,primaryAccountId,secondaryAccountId,null,note,primaryAccount,secondaryAccount,null)
 }
 
 fun HistoryEntity.toHistory(): History =

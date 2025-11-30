@@ -1,8 +1,6 @@
 package rahulstech.android.expensetracker.backuprestore.worker.backup
 
-import dreammaker.android.expensetracker.database.HistoryType
 import rahulstech.android.expensetracker.backuprestore.util.AccountData
-import rahulstech.android.expensetracker.backuprestore.util.AppSettingsData
 import rahulstech.android.expensetracker.backuprestore.util.GroupData
 import rahulstech.android.expensetracker.backuprestore.util.HistoryData
 
@@ -18,12 +16,12 @@ class FakeReadHelper: JsonBackupWorker.ReadHelper {
         GroupData(2,"Group 2", -150.0f)
     )
 
-    private val histories = listOf(
-        HistoryData(1, HistoryType.CREDIT, 1, null, null, 150f, Date(2023,4,16),null) ,
-        HistoryData(2, HistoryType.DEBIT, 1, null, null, 150f, Date(2023,4,16),"debit"),
-        HistoryData(3, HistoryType.CREDIT, 1, null, 1, 150f, Date(2023,4,16),"credit") ,
-        HistoryData(4, HistoryType.DEBIT, 1, null, 1, 150f, Date(2023,4,16),null),
-        HistoryData(5, HistoryType.TRANSFER, 1, 2, null, 150f, Date(2023,4,16),null)
+    private val histories = listOf<HistoryData>(
+//        HistoryData(1, HistoryType.CREDIT, 1, null, null, 150f, Date(2023,4,16),null) ,
+//        HistoryData(2, HistoryType.DEBIT, 1, null, null, 150f, Date(2023,4,16),"debit"),
+//        HistoryData(3, HistoryType.CREDIT, 1, null, 1, 150f, Date(2023,4,16),"credit") ,
+//        HistoryData(4, HistoryType.DEBIT, 1, null, 1, 150f, Date(2023,4,16),null),
+//        HistoryData(5, HistoryType.TRANSFER, 1, 2, null, 150f, Date(2023,4,16),null)
     )
 
     override fun open() {}
@@ -43,7 +41,7 @@ class FakeReadHelper: JsonBackupWorker.ReadHelper {
         return emptyList()
     }
 
-    override fun readAppSettings(): AppSettingsData {
-        return AppSettingsData()
-    }
+//    override fun readAppSettings(): AppSettingsData {
+//        return AppSettingsData()
+//    }
 }

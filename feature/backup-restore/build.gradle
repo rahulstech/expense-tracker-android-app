@@ -38,8 +38,7 @@ dependencies {
 
     // modules
     implementation project(':core')
-    implementation project(":database")
-    implementation project(':app-settings')
+    compileOnly project(':domain')
 
     // architecture
     implementation libs.core.ktx
@@ -62,6 +61,7 @@ dependencies {
     implementation libs.apachec.compress
 
     // test
+    testImplementation project(":domain")
     testImplementation libs.junit
     androidTestImplementation libs.junit.android
     androidTestImplementation libs.android.runnner

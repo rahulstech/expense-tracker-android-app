@@ -6,6 +6,7 @@ import android.content.pm.ServiceInfo
 import android.net.Uri
 import android.os.Build
 import android.util.Log
+import androidx.core.net.toUri
 import androidx.core.text.bold
 import androidx.core.text.buildSpannedString
 import androidx.work.ForegroundInfo
@@ -14,13 +15,12 @@ import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
+import rahulstech.android.expensetracker.backuprestore.Constants
 import rahulstech.android.expensetracker.backuprestore.R
 import rahulstech.android.expensetracker.backuprestore.util.FileUtil
 import rahulstech.android.expensetracker.backuprestore.util.NotificationBuilder
 import rahulstech.android.expensetracker.backuprestore.util.NotificationConstants
-import rahulstech.android.expensetracker.backuprestore.Constants
 import java.io.File
-import java.io.InputStream
 
 class GZipRestoreWorker(context: Context, parameters: WorkerParameters): Worker(context,parameters) {
 
@@ -36,37 +36,25 @@ class GZipRestoreWorker(context: Context, parameters: WorkerParameters): Worker(
         try {
             outputBackupFile = restore(inputBackupFile)
             Log.i(TAG,"outputBackupFile=$outputBackupFile")
+            val resultData = workDataOf(
+                Constants.DATA_BACKUP_FILE to Uri.fromFile(outputBackupFile).toString()
+            )
+            return Result.success(resultData)
         }
         catch (ex: Exception) {
             Log.e(TAG, "GZipRestoreWorker failed with exception",ex)
             return Result.failure()
         }
-
-        val resultData = workDataOf(
-            Constants.DATA_BACKUP_FILE to Uri.fromFile(outputBackupFile).toString()
-        )
-        return Result.success(resultData)
     }
 
-    private fun restore(inputBackupFile: Uri): File {
-        var source: InputStream? = null
-        var gzIS: GzipCompressorInputStream? = null
-        var tarIS: TarArchiveInputStream? = null
-        try {
-            source = FileUtil.openInputStream(applicationContext, inputBackupFile)
-            gzIS = GzipCompressorInputStream(source)
-            tarIS = TarArchiveInputStream(gzIS)
-
-            readVersion(tarIS)
+    private fun restore(inputBackupFile: Uri): File =
+        FileUtil.openInputStream(applicationContext, inputBackupFile).use {
+            val gzIS = GzipCompressorInputStream(it)
+            val tarIS = TarArchiveInputStream(gzIS)
+            val version = readVersion(tarIS)
             val backupFile = readBackupFile(tarIS, applicationContext.cacheDir)
-            return backupFile
+            backupFile
         }
-        finally {
-            runCatching { tarIS?.close() }
-            runCatching { gzIS?.close() }
-            runCatching { source?.close() }
-        }
-    }
 
     private fun readVersion(tarIS: TarArchiveInputStream): Int {
         val entry = tarIS.nextEntry
@@ -79,20 +67,21 @@ class GZipRestoreWorker(context: Context, parameters: WorkerParameters): Worker(
     private fun readBackupFile(tarIS: TarArchiveInputStream, outputDir: File): File {
         val entry = tarIS.nextEntry
         val outputFile = File(outputDir, entry.name)
-        val dest = outputFile.outputStream()
-        dest.use { FileUtil.copy(tarIS, dest) }
+        outputFile.outputStream().use {
+            FileUtil.copy(tarIS, it)
+        }
         return outputFile
     }
 
     private fun getInputBackupFile(): Uri {
         val path = inputData.getString(Constants.DATA_BACKUP_FILE)
             ?: throw IllegalStateException("no input data found for name ${Constants.DATA_BACKUP_FILE}")
-        return Uri.parse(path)
+        return path.toUri()
     }
 
     private fun createRestoreNotification(): Notification {
-        val builder = NotificationBuilder().apply {
-            setMessage(getStyledMessage())
+        val builder = NotificationBuilder(applicationContext).apply {
+            message = getStyledMessage()
         }
         val progressData = workDataOf(
             Constants.DATA_PROGRESS_MESSAGE to getPlainMessage()

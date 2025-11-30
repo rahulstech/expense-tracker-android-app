@@ -12,7 +12,7 @@ data class Group(
     val totalUsed: Long = 0,
     val isDefault: Boolean = false,
 ) {
-    fun toGroupEntity(): GroupEntity = GroupEntity(id,name,balance,lastUsed,totalUsed)
+    internal fun toGroupEntity(): GroupEntity = GroupEntity(id,name,balance,lastUsed,totalUsed)
 
     fun isUsedAfterCreate(): Boolean = totalUsed > 1
 }

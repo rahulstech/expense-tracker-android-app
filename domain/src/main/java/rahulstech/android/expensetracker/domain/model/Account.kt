@@ -12,7 +12,7 @@ data class Account(
     val totalUsed: Long = 0,
     val isDefault: Boolean = false,
 ) {
-    fun toAccountEntity(): AccountEntity = AccountEntity(id,name, balance,lastUsed,totalUsed)
+    internal fun toAccountEntity(): AccountEntity = AccountEntity(id,name, balance,lastUsed,totalUsed)
 
     fun isUsedAfterCreate(): Boolean = totalUsed > 1
 }

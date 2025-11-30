@@ -15,14 +15,14 @@ import androidx.work.workDataOf
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream
+import rahulstech.android.expensetracker.backuprestore.Constants
 import rahulstech.android.expensetracker.backuprestore.R
 import rahulstech.android.expensetracker.backuprestore.receiver.WorkBroadcastReceiver
-import rahulstech.android.expensetracker.backuprestore.util.DateTimeUtil
 import rahulstech.android.expensetracker.backuprestore.util.FileUtil
 import rahulstech.android.expensetracker.backuprestore.util.NotificationBuilder
 import rahulstech.android.expensetracker.backuprestore.util.NotificationConstants
 import rahulstech.android.expensetracker.backuprestore.util.createBackupNotification
-import rahulstech.android.expensetracker.backuprestore.Constants
+import rahulstech.android.expensetracker.backuprestore.util.formatDateTimeInFilename
 import java.io.File
 import java.util.Locale
 
@@ -133,7 +133,7 @@ class GZipBackupWorker(context: Context, parameters: WorkerParameters): Worker(c
     }
 
     private fun getPublicBackupFilename(): String {
-        val currentTimeStamp = DateTimeUtil.formatDateTimeInFilename()
+        val currentTimeStamp = formatDateTimeInFilename()
         val filename = String.format(Locale.ENGLISH, PUBLIC_BACKUP_FILE_NAME, currentTimeStamp)
         return filename
     }
@@ -154,21 +154,20 @@ class GZipBackupWorker(context: Context, parameters: WorkerParameters): Worker(c
     private fun notifyBackupTime() {
         applicationContext.sendBroadcast(Intent(applicationContext, WorkBroadcastReceiver::class.java).apply {
             action = WorkBroadcastReceiver.ACTION_UPDATE_LAST_BACKUP_MILLIS
-            putExtra(WorkBroadcastReceiver.EXTRA_LOCAL_BACKUP, DateTimeUtil.currentTimeMillis())
         })
     }
 
     private fun updateProgress(current: Int, @StringRes messageId: Int) {
-        val message = applicationContext.getString(messageId)
+        val progressMessage = applicationContext.getString(messageId)
         setProgressAsync(
             workDataOf(
                 Constants.DATA_PROGRESS_MAX to MAX_PROGRESS,
                 Constants.DATA_PROGRESS_CURRENT to current,
-                Constants.DATA_PROGRESS_MESSAGE to message
+                Constants.DATA_PROGRESS_MESSAGE to progressMessage
             )
         )
-        val builder = NotificationBuilder().apply {
-            setMessage(message)
+        val builder = NotificationBuilder(applicationContext).apply {
+            message = progressMessage
             setProgress(current, MAX_PROGRESS)
         }
         val notification = createBackupNotification(applicationContext, builder)

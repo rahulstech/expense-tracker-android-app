@@ -24,11 +24,11 @@ import rahulstech.android.expensetracker.backuprestore.R
 import rahulstech.android.expensetracker.backuprestore.databinding.ActivityBackupRestoreBinding
 import rahulstech.android.expensetracker.backuprestore.settings.AgentSettingsProvider
 import rahulstech.android.expensetracker.backuprestore.settings.BackupFrequency
-import rahulstech.android.expensetracker.backuprestore.util.DateTimeUtil
 import rahulstech.android.expensetracker.backuprestore.util.FileEntry
 import rahulstech.android.expensetracker.backuprestore.util.FileUtil
 import rahulstech.android.expensetracker.backuprestore.worker.BackupRestoreHelper
 import rahulstech.android.expensetracker.backuprestore.worker.ProgressData
+import java.time.format.DateTimeFormatter
 
 typealias PendingTask = () -> Unit
 
@@ -36,6 +36,7 @@ class BackupRestoreActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "BackupRestoreActivity"
+        private val DATETIME_FORMAT = DateTimeFormatter.ofPattern("EEE, dd-MMM-yyyy hh:mm a")
     }
 
     private lateinit var binding: ActivityBackupRestoreBinding
@@ -180,17 +181,11 @@ class BackupRestoreActivity : AppCompatActivity() {
     }
 
     private fun updateLastLocalBackupTime() {
-        val milli = settings.getLastLocalBackupMillis()
-        val time = if (milli < 0) {
-            getString(R.string.label_last_local_backup_time_never)
-        }
-        else {
-            DateTimeUtil.formatLastLocalBackup(milli)
-        }
+        val datetime = settings.getLastLocalBackupLocalDateTime()
         binding.labelLastLocalBackup.text = buildString {
             append(getString(R.string.label_last_local_backup_time))
             append(": ")
-            append(time)
+            append(datetime?.format(DATETIME_FORMAT) ?: getString(R.string.label_last_local_backup_time_never))
         }
     }
 

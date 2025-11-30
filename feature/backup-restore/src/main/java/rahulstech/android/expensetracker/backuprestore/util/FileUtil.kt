@@ -15,7 +15,8 @@ import java.io.FileInputStream
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
-
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 data class FileEntry(
     val displayName: String,
@@ -125,3 +126,8 @@ object FileUtil {
         return contentResolver.openOutputStream(contentUri) ?: throw IllegalStateException("unable to open OutputStream for backup file $relativePath/$filename")
     }
 }
+
+private val FILENAME_DATETIME_PATTERN = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")
+
+fun formatDateTimeInFilename(datetime: LocalDateTime = LocalDateTime.now()): String =
+    datetime.format(FILENAME_DATETIME_PATTERN)

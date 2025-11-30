@@ -19,7 +19,7 @@
     <application>
         <activity android:name=".ui.BackupRestoreActivity"
             android:exported="false"
-            android:theme="@style/AppTheme.NoActionBar"
+            android:theme="@style/AppTheme"
             android:label="@string/activity_title_backup_restore"/>
         <receiver
             android:name=".receiver.WorkBroadcastReceiver"

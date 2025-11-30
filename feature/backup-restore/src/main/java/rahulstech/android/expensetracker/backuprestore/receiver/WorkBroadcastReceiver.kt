@@ -3,9 +3,9 @@ package rahulstech.android.expensetracker.backuprestore.receiver
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import rahulstech.android.expensetracker.backuprestore.Constants
 import rahulstech.android.expensetracker.backuprestore.settings.AgentSettingsProvider
 import rahulstech.android.expensetracker.backuprestore.worker.BackupRestoreHelper
-import rahulstech.android.expensetracker.backuprestore.Constants
 
 class WorkBroadcastReceiver: BroadcastReceiver() {
 
@@ -33,7 +33,6 @@ class WorkBroadcastReceiver: BroadcastReceiver() {
     }
 
     private fun updateLastBackupMillis(appContext: Context, intent: Intent) {
-        val milli = intent.getLongExtra(EXTRA_LOCAL_BACKUP, -1)
-        AgentSettingsProvider.get(appContext).setLastLocalBackupMillis(milli)
+        AgentSettingsProvider.get(appContext).setLastLocalBackupNow()
     }
 }

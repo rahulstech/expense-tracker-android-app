@@ -1,30 +1,28 @@
-package rahulstech.android.expensetracker.backuprestore.work.restore.job
+package rahulstech.android.expensetracker.backuprestore.worker.job
 
-import dreammaker.android.expensetracker.database.model.HistoryType
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import rahulstech.android.expensetracker.backuprestore.FakeRestoreRepositoryImpl
+import rahulstech.android.expensetracker.backuprestore.SimpleData
+import rahulstech.android.expensetracker.backuprestore.VersionException
 import rahulstech.android.expensetracker.backuprestore.asInputStream
-import rahulstech.android.expensetracker.backuprestore.util.AccountData
-import rahulstech.android.expensetracker.backuprestore.util.HistoryData
-import rahulstech.android.expensetracker.backuprestore.worker.job.JsonRestoreJob
+import rahulstech.android.expensetracker.backuprestore.worker.job.impl.restore.JsonRestoreJobV8Impl
 import java.io.InputStream
-import java.time.LocalDate
 
-data class SimpleValue(
-    val data: Int
-)
 
 class JsonRestoreJobTestImpl(source: InputStream): JsonRestoreJob(1,source) {
 
-    var key1: SimpleValue? = null
+    var key1: SimpleData? = null
 
     override fun doRestore() {
         while (hasNext()) {
             val name = readNextName()
             when(name) {
                 "key1" -> {
-                    key1 = readNextObject(SimpleValue::class.java)
+                    key1 = readNextObject(SimpleData::class.java)
                 }
                 else -> skipNext()
             }
@@ -41,7 +39,6 @@ class InputStreamWrapper: InputStream() {
     }
 
     override fun read(): Int = org?.read() ?: -1
-
 }
 
 class JsonRestoreJobTest {
@@ -58,15 +55,15 @@ class JsonRestoreJobTest {
     @Test
     fun readNextArray() {
         val json = "[" +
-                    "{\"id\": 1, \"name\": \"Account 1\",\"balance\": 120.0}," +
-                    "{\"id\": 2, \"name\": \"Account 2\",\"balance\": 1000.0}" +
+                    "{\"data\":1}," +
+                    "{\"data\":2}" +
                 "]"
         source.wrap(json.asInputStream())
         val expected = listOf(
-            AccountData(1,"Account 1", 120.0f),
-            AccountData(2,"Account 2",1000.0f)
+            SimpleData(1),
+            SimpleData(2)
         )
-        val actual = job.readNextObjectArray(AccountData::class.java)
+        val actual = job.readNextObjectArray(SimpleData::class.java)
 
         assertEquals(expected,actual)
     }
@@ -74,24 +71,22 @@ class JsonRestoreJobTest {
     @Test
     fun readNextArrayInChunk() {
         val json = "[" +
-                    "{\"id\": 1,\"amount\": 100.0, \"type\": \"CREDIT\", \"date\": \"2025-05-06\", \"primaryAccountId\": 1}," +
-                    "{\"id\": 2,\"amount\": 150.0, \"type\": \"DEBIT\", \"date\": \"2025-05-06\", \"primaryAccountId\": 1}," +
-                    "{\"id\": 3,\"amount\": 120.0, \"type\": \"DEBIT\", \"date\": \"2025-05-06\", \"primaryAccountId\": 2}," +
-                    "{\"id\": 4,\"amount\": 80.0, \"type\": \"CREDIT\", \"date\": \"2025-05-06\", \"primaryAccountId\": 2}," +
-                    "{\"id\": 5,\"amount\": 1100.0, \"type\": \"CREDIT\", \"date\": \"2025-05-06\", \"primaryAccountId\": 1}," +
-                    "{\"id\": 6,\"amount\": 10.0, \"type\": \"DEBIT\", \"date\": \"2025-05-06\", \"primaryAccountId\": 1}" +
+                    "{\"data\":1}," +
+                    "{\"data\":2}," +
+                    "{\"data\":3}," +
+                    "{\"data\":4}," +
+                    "{\"data\":5}" +
                 "]"
         source.wrap(json.asInputStream())
         val expected = listOf(
-            HistoryData(id=1, amount = 100.0f, type= HistoryType.CREDIT, date= LocalDate.of(2025,5,6), primaryAccountId = 1),
-            HistoryData(id=2, amount = 150.0f, type= HistoryType.DEBIT, date= LocalDate.of(2025,5,6), primaryAccountId = 1) ,
-            HistoryData(id=3, amount = 120.0f, type= HistoryType.DEBIT, date= LocalDate.of(2025,5,6), primaryAccountId = 2) ,
-            HistoryData(id=4, amount = 80.0f, type= HistoryType.CREDIT, date= LocalDate.of(2025,5,6), primaryAccountId = 2),
-            HistoryData(id=5, amount = 1100.0f, type= HistoryType.CREDIT, date= LocalDate.of(2025,5,6), primaryAccountId = 1),
-            HistoryData(id=6, amount = 10.0f, type= HistoryType.DEBIT, date= LocalDate.of(2025,5,6), primaryAccountId = 1)
+            SimpleData(1),
+            SimpleData(2),
+            SimpleData(3),
+            SimpleData(4),
+            SimpleData(5)
         )
-        val reader = job.readNextObjectArrayInChunk(HistoryData::class.java)
-        val actual = mutableListOf<HistoryData>()
+        val reader = job.readNextObjectArrayInChunk(SimpleData::class.java)
+        val actual = mutableListOf<SimpleData>()
         while (reader.hasNext()) {
             actual.addAll(reader.readNextChunk(2))
         }
@@ -105,8 +100,30 @@ class JsonRestoreJobTest {
         job.restore()
 
         val actual = job.key1
-        val expected = SimpleValue(10)
+        val expected = SimpleData(10)
 
         assertEquals(expected, actual)
+    }
+
+    @Test
+    fun readVersion() {
+        val json = "{\"version\": 8}"
+        val version = JsonRestoreJob.readVersion(json.byteInputStream(Charsets.UTF_8))
+        assertEquals(8, version)
+    }
+
+    @Test
+    fun create_throwsVersionException() {
+        val json = "{\"version\":10}"
+        assertThrows(VersionException::class.java) {
+            JsonRestoreJob.create(FakeRestoreRepositoryImpl()) { json.asInputStream() }
+        }
+    }
+
+    @Test
+    fun create() {
+        val json = "{\"version\":8}"
+        val job = JsonRestoreJob.create(FakeRestoreRepositoryImpl()) { json.asInputStream() }
+        assertTrue(job is JsonRestoreJobV8Impl)
     }
 }

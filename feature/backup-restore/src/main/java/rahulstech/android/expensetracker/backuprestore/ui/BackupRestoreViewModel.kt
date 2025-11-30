@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.Flow
 import rahulstech.android.expensetracker.backuprestore.settings.AgentSettingsProvider
 import rahulstech.android.expensetracker.backuprestore.worker.BackupRestoreHelper
 import rahulstech.android.expensetracker.backuprestore.worker.ProgressData
+import java.time.LocalDateTime
 
 class BackupRestoreViewModel(private val app: Application): AndroidViewModel(app) {
 
@@ -32,11 +33,11 @@ class BackupRestoreViewModel(private val app: Application): AndroidViewModel(app
         return restoreProgress!!
     }
 
-    private var lastLocalBackupTime: LiveData<Long>? = null
+    private var lastLocalBackupTime: LiveData<LocalDateTime>? = null
 
-    fun getLastLocalBackupTime(): LiveData<Long> {
+    fun getLastLocalBackupTime(): LiveData<LocalDateTime> {
         if (null == lastLocalBackupTime) {
-            lastLocalBackupTime = AgentSettingsProvider.get(app.applicationContext).getLastLocalBackupMillisLiveData()
+            lastLocalBackupTime = AgentSettingsProvider.get(app.applicationContext).getLastLocalBackupLocalDateTimeLiveData()
         }
         return lastLocalBackupTime!!
     }

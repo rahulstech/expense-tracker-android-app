@@ -1,15 +1,13 @@
-package rahulstech.android.expensetracker.backuprestore.worker.restore.job
+package rahulstech.android.expensetracker.backuprestore.worker.job
 
-import android.content.Context
+import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonToken
-import dreammaker.android.expensetracker.database.IExpenseDatabase
-import rahulstech.android.expensetracker.backuprestore.Constants
 import rahulstech.android.expensetracker.backuprestore.VersionException
-import rahulstech.android.expensetracker.backuprestore.util.AccountData
-import rahulstech.android.expensetracker.backuprestore.util.GroupData
-import rahulstech.android.expensetracker.backuprestore.util.HistoryData
 import rahulstech.android.expensetracker.backuprestore.util.Progress
 import rahulstech.android.expensetracker.backuprestore.util.newGson
+import rahulstech.android.expensetracker.backuprestore.worker.job.impl.restore.JsonRestoreJobV8Impl
+import rahulstech.android.expensetracker.domain.RestoreRepository
+import java.io.Closeable
 import java.io.InputStream
 import java.io.InputStreamReader
 
@@ -33,48 +31,57 @@ class JsonArrayChunkReader<T>(
         if (eoa) {
             throw IllegalStateException("already reached end of array")
         }
-
         val buffer = mutableListOf<T>()
         for (x in 1..limit) {
             if (job.isNextArrayEnd()) {
-                eoa = true
-                job.endArray()
+                markEOA()
                 break
             }
             val item = job.readNextObject(clazz)
+            // NOTE: let say limit is 5 and only 3 items remaining in the json array
+            // so during 4th iteration it will return null,
+            if (null == item) {
+                markEOA()
+                break
+            }
             buffer.add(item)
         }
         return buffer
     }
+
+    private fun markEOA() {
+        eoa = true
+        if (job.isNextArrayEnd()) {
+            job.endArray()
+        }
+    }
 }
 
+
 abstract class JsonRestoreJob(
-    val context: Context,
     val version: Int,
     val source: InputStream,
-) {
+): Closeable {
 
     companion object {
 
         private val TAG = JsonRestoreJob::class.simpleName
 
-        fun create(context: Context, db: IExpenseDatabase, sourceFactory: ()->InputStream): JsonRestoreJob {
+        fun create(repo: RestoreRepository, sourceFactory: ()->InputStream): JsonRestoreJob {
             val version = sourceFactory().use { source ->
                 readVersion(source)
             }
-
-            return sourceFactory().use { source ->
-                when (version) {
-                    8 -> V8Impl(context,source, db)
-                    else -> throw VersionException("can not create JsonRestoreJob for version $version")
-                }
+            val source = sourceFactory()
+            return when (version) {
+                8 -> JsonRestoreJobV8Impl(source, repo)
+                else -> throw VersionException("can not create JsonRestoreJob for version $version")
             }
         }
 
         internal fun readVersion(source: InputStream): Int {
-            val reader = android.util.JsonReader(InputStreamReader(source))
+            val reader = JsonReader(InputStreamReader(source))
             reader.beginObject()
-            reader.nextName() // read
+            reader.nextName()
             return reader.nextInt()
         }
     }
@@ -91,7 +98,6 @@ abstract class JsonRestoreJob(
     fun restore() {
         beginObject()
         ensureNotTerminated()
-        notifyProgress(Progress.Infinite())
         doRestore()
         endObject()
     }
@@ -186,43 +192,8 @@ abstract class JsonRestoreJob(
     fun notifyProgress(progress: Progress) {
         progressCallback?.invoke(this,progress)
     }
-}
 
-class V8Impl(
-    context: Context,
-    source: InputStream,
-    val db: IExpenseDatabase,
-): JsonRestoreJob(context,8,source) {
-
-    override fun doRestore() {
-        db.runInTransaction {
-            while (hasNext()) {
-                val name = readNextName()
-                when(name) {
-                    Constants.JSON_FIELD_ACCOUNTS -> restoreAccounts(readNextObjectArray(AccountData::class.java))
-                    Constants.JSON_FIELD_GROUPS -> restoreGroups(readNextObjectArray(GroupData::class.java))
-                    Constants.JSON_FIELD_HISTORIES -> restoreHistories(readNextObjectArrayInChunk(HistoryData::class.java))
-                    else -> skipNext()
-                }
-            }
-        }
-    }
-
-    private fun restoreAccounts(data: List<AccountData>) {
-        val accounts = data.map { it.toAccountEntity() }
-        db.accountDao.insertAccounts(accounts)
-    }
-
-    private fun restoreGroups(data: List<GroupData>) {
-        val groups = data.map { it.toGroupEntity() }
-        db.groupDao.insertGroups(groups)
-    }
-
-    private fun restoreHistories(reader: JsonArrayChunkReader<HistoryData>) {
-        while (reader.hasNext()) {
-            val chunk = reader.readNextChunk()
-            val histories = chunk.map { it.toHistoryEntity() }
-            db.historyDao.insertHistories(histories)
-        }
+    override fun close() {
+        source.close()
     }
 }
