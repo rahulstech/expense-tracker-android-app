@@ -36,7 +36,7 @@
             android:id="@+id/due"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="numberDecimal"
+            android:inputType="numberSigned"
             android:singleLine="true"
             tools:text="120.50"/>
     </com.google.android.material.textfield.TextInputLayout>

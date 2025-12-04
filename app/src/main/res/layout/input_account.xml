@@ -37,7 +37,7 @@
             android:id="@+id/balance"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="numberDecimal"
+            android:inputType="numberSigned"
             android:maxLines="1"
             tools:text="120.00"/>
     </com.google.android.material.textfield.TextInputLayout>

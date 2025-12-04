@@ -136,6 +136,7 @@ class GroupListFragment : Fragment() {
     }
 
     private fun onGroupsLoaded(groups: List<Group>) {
+        toggleLoading(false)
         adapter.submitList(groups)
         if (groups.isEmpty()) {
             binding.list.visibilityGone()
@@ -151,5 +152,23 @@ class GroupListFragment : Fragment() {
         navController.navigate(R.id.action_groups_list_to_view_group, Bundle().apply {
             putLong(Constants.ARG_ID,group.id)
         })
+    }
+
+
+    private fun toggleLoading(loading: Boolean) {
+        if (loading) {
+            binding.apply {
+                shimmerContent.startShimmer()
+                mainContent.visibilityGone()
+                shimmerContent.visible()
+            }
+        }
+        else {
+            binding.apply {
+                shimmerContent.stopShimmer()
+                shimmerContent.visibilityGone()
+                mainContent.visible()
+            }
+        }
     }
 }

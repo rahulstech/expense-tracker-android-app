@@ -20,8 +20,8 @@ import dreammaker.android.expensetracker.Constants
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.core.util.QuickMessages
 import dreammaker.android.expensetracker.databinding.AccountsListBinding
-import dreammaker.android.expensetracker.util.SelectionHelper
 import dreammaker.android.expensetracker.ui.UIState
+import dreammaker.android.expensetracker.util.SelectionHelper
 import dreammaker.android.expensetracker.util.visibilityGone
 import dreammaker.android.expensetracker.util.visible
 import kotlinx.coroutines.flow.collectLatest
@@ -145,6 +145,7 @@ class AccountsListFragment : Fragment() {
     }
 
     private fun onAccountsLoaded(accounts: List<Account>) {
+        toggleLoading(false)
         adapter.submitList(accounts)
         if (accounts.isEmpty()) {
             binding.list.visibilityGone()
@@ -162,5 +163,22 @@ class AccountsListFragment : Fragment() {
             putLong(Constants.ARG_ID, account.id)
         }
         navController.navigate(R.id.action_account_list_to_view_account, args)
+    }
+
+    private fun toggleLoading(loading: Boolean) {
+        if (loading) {
+            binding.apply {
+                shimmerContent.startShimmer()
+                mainContent.visibilityGone()
+                shimmerContent.visible()
+            }
+        }
+        else {
+            binding.apply {
+                shimmerContent.stopShimmer()
+                shimmerContent.visibilityGone()
+                mainContent.visible()
+            }
+        }
     }
 }

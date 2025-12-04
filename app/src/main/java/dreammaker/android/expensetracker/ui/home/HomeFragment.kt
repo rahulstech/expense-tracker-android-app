@@ -1,15 +1,10 @@
 package dreammaker.android.expensetracker.ui.home
 
-import android.graphics.Typeface
 import android.os.Bundle
-import android.text.style.RelativeSizeSpan
-import android.text.style.StyleSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.text.buildSpannedString
-import androidx.core.text.inSpans
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
@@ -26,7 +21,6 @@ import rahulstech.android.expensetracker.domain.model.Account
 import rahulstech.android.expensetracker.domain.model.Group
 
 class HomeFragment: Fragment()  {
-    private val TAG = HomeFragment::class.simpleName
 
     private var _binding: HomeBinding? = null
     private val binding get() = _binding!!
@@ -44,8 +38,6 @@ class HomeFragment: Fragment()  {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        prepareAccountsPlaceholder()
-        prepareGroupsPlaceholder()
         binding.btnViewAllAccounts.setOnClickListener {
             navController.navigate(R.id.action_home_to_accounts_list)
         }
@@ -57,24 +49,6 @@ class HomeFragment: Fragment()  {
         viewModel.getTotalBalance().observe(viewLifecycleOwner, this::onTotalBalanceLoaded)
         viewModel.getRecentlyUsedThreeAccounts().observe(viewLifecycleOwner, this::onRecentlyUsedAccountsLoaded)
         viewModel.getRecentlyUsedThreeGroups().observe(viewLifecycleOwner, this::onRecentlyUsedGroupsLoaded)
-    }
-
-    private fun prepareAccountsPlaceholder() {
-        binding.emptyAccountsPlaceholder.text = makeStyledPlaceholderText(getString(R.string.label_empty_recent_account_list),
-            getString(R.string.description_empty_recent_account_list))
-    }
-
-    private fun prepareGroupsPlaceholder() {
-        binding.emptyGroupsPlaceholder.text = makeStyledPlaceholderText(getString(R.string.label_empty_recent_group_list),
-            getString(R.string.description_empty_recent_group_list))
-    }
-
-    private fun makeStyledPlaceholderText(label: String, description: String): CharSequence {
-        return buildSpannedString {
-            inSpans(RelativeSizeSpan(1.25f), StyleSpan(Typeface.BOLD_ITALIC)) { append(label) }
-            append("\n")
-            inSpans(RelativeSizeSpan(.85f)) { append(description) }
-        }
     }
 
     private fun navigateToCreateHistory() {

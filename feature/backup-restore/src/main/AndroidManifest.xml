@@ -17,10 +17,15 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application>
-        <activity android:name=".ui.BackupRestoreActivity"
-            android:exported="false"
-            android:theme="@style/AppTheme"
-            android:label="@string/activity_title_backup_restore"/>
+        <!--
+            activity remove from here because i can not add parent activity here.
+            now user module have to add this activity itself in manifest.
+         -->
+<!--        <activity android:name=".ui.BackupRestoreActivity"-->
+<!--            android:exported="false"-->
+<!--            android:theme="@style/AppTheme"-->
+<!--            android:label="@string/activity_title_backup_restore"/>-->
+
         <receiver
             android:name=".receiver.WorkBroadcastReceiver"
             android:exported="false" />

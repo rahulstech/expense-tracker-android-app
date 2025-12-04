@@ -4,6 +4,8 @@ package rahulstech.android.expensetracker.domain.impl
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import org.json.JSONObject
 import rahulstech.android.expensetracker.domain.LocalCache
 import rahulstech.android.expensetracker.domain.model.Account
@@ -52,34 +54,25 @@ internal class LocalCacheImpl(
         }
     }
 
-    override fun setDefaultAccount(account: Account) {
+    override fun setDefaultAccountId(id: Long) {
         edit {
-            putLong(KEY_DEFAULT_ACCOUNT,account.id)
+            putLong(KEY_DEFAULT_ACCOUNT,id)
         }
+        _defaultAccountIdFlow.value = id
     }
 
     override fun getDefaultAccountId(): Long? =
         sp.getLong(KEY_DEFAULT_ACCOUNT, 0L).takeIf { id -> id > 0 }
 
+    private val _defaultAccountIdFlow by lazy { MutableStateFlow(getDefaultAccountId()) }
+
+    override fun getDefaultAccountIdFlow(): Flow<Long?> = _defaultAccountIdFlow
+
     override fun removeDefaultAccount() {
         edit {
             remove(KEY_DEFAULT_ACCOUNT)
         }
-    }
-
-    override fun setDefaultGroup(group: Group) {
-        edit {
-            putLong(KEY_DEFAULT_GROUP,group.id)
-        }
-    }
-
-    override fun getDefaultGroupId(): Long? =
-        sp.getLong(KEY_DEFAULT_GROUP,0L).takeIf { id -> id > 0 }
-
-    override fun removeDefaultGroup() {
-        edit {
-            remove(KEY_DEFAULT_GROUP)
-        }
+        _defaultAccountIdFlow.value = null
     }
 
     private fun getAccountKey(id: Long, suffix: String): String = buildString {

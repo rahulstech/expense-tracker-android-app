@@ -40,11 +40,8 @@
             app:popExitAnim="@anim/slide_out_left"/>
         <action
             android:id="@+id/action_home_to_create_history"
-            app:destination="@+id/create_history"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right"
-            app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left"/>
+            app:destination="@+id/create_history" />
+
     </fragment>
 
     <!-- Account -->
@@ -72,18 +69,10 @@
         tools:layout="@layout/view_account_layout">
 
         <action android:id="@+id/action_view_account_to_create_history"
-            app:destination="@id/create_history"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right"
-            app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left"/>
+            app:destination="@id/create_history" />
 
         <action android:id="@+id/action_view_account_to_create_transfer_history"
-            app:destination="@id/create_transfer_history"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right"
-            app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left"/>
+            app:destination="@id/create_transfer_history"/>
 
         <action android:id="@+id/action_view_account_to_edit_account"
             app:destination="@id/edit_account"
@@ -145,11 +134,7 @@
             app:popEnterAnim="@anim/slide_in_right"
             app:popExitAnim="@anim/slide_out_left"/>
         <action android:id="@+id/action_view_group_to_add_history"
-            app:destination="@id/create_history"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right"
-            app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left"/>
+            app:destination="@id/create_history"/>
         <action android:id="@+id/action_view_group_to_history_list"
             app:destination="@id/history_list"
             app:enterAnim="@anim/slide_in_left"
@@ -177,11 +162,7 @@
         tools:layout="@layout/fragment_history_list">
 
         <action android:id="@+id/action_history_list_to_create_history"
-            app:destination="@id/create_history"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right"
-            app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left"/>
+            app:destination="@id/create_history"/>
 
         <action android:id="@+id/action_history_list_to_view_history"
             app:destination="@id/view_history"
@@ -211,18 +192,10 @@
             app:popExitAnim="@anim/slide_out_left"/>
 
         <action android:id="@+id/action_view_history_to_edit_history"
-            app:destination="@id/edit_history"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right"
-            app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left" />
+            app:destination="@id/edit_history" />
 
         <action android:id="@+id/action_view_history_to_edit_transfer_history"
-            app:destination="@id/edit_transfer_history"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right"
-            app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left" />
+            app:destination="@id/edit_transfer_history" />
     </fragment>
 
     <activity

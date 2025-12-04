@@ -7,6 +7,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import dreammaker.android.expensetracker.database.model.AccountEntity
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface AccountDao {
@@ -27,8 +28,11 @@ interface AccountDao {
     @Query("SELECT * FROM `accounts` WHERE `id` = :id")
     fun findAccountById(id: Long): AccountEntity?
 
+//    @Query("SELECT * FROM `accounts` WHERE `id` = :id")
+//    fun getLiveAccountById(id: Long): LiveData<AccountEntity?>
+
     @Query("SELECT * FROM `accounts` WHERE `id` = :id")
-    fun getLiveAccountById(id: Long): LiveData<AccountEntity?>
+    fun getFlowAccountById(id: Long): Flow<AccountEntity?>
 
     @Query("SELECT SUM(`balance`) AS `total_balance` FROM `accounts`")
     fun getLiveTotalBalance(): LiveData<Double?>

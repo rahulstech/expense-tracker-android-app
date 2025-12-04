@@ -1,11 +1,18 @@
 package rahulstech.android.expensetracker.domain.impl
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.map
 import dreammaker.android.expensetracker.database.IExpenseDatabase
 import dreammaker.android.expensetracker.database.dao.AccountDao
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flowOn
 import rahulstech.android.expensetracker.domain.AccountRepository
 import rahulstech.android.expensetracker.domain.LocalCache
 import rahulstech.android.expensetracker.domain.model.Account
@@ -27,10 +34,15 @@ internal class AccountRepositoryImpl(
     }
 
     override fun findAccountById(id: Long): Account? =
-        accountDao.findAccountById(id)?.toAccount()
+        accountDao.findAccountById(id)?.toAccount(isDefault = cache.getDefaultAccountId() == id)
 
-    override fun getLiveAccountById(id: Long): LiveData<Account?> =
-        accountDao.getLiveAccountById(id).map { it?.toAccount() }
+    override fun getLiveAccountById(id: Long): LiveData<Account?> {
+        return combine(accountDao.getFlowAccountById(id), cache.getDefaultAccountIdFlow()) { account, defaultId ->
+            account?.toAccount(isDefault = account.id == defaultId)
+        }
+            .flowOn(Dispatchers.IO)
+            .asLiveData()
+    }
 
     override fun getLiveAllAccounts(): LiveData<List<Account>> =
         accountDao.getLiveAllAccounts().map{ entities -> entities.map { it.toAccount() }}
@@ -40,24 +52,6 @@ internal class AccountRepositoryImpl(
 
     override fun getLiveTotalBalance(): LiveData<Double> =
         accountDao.getLiveTotalBalance().map { totalBalance -> totalBalance ?: 0.toDouble() }
-
-//    override fun getDefaultAccount(): Flow<Account?> = flow {
-//        cache.getDefaultAccount()?.let { id ->
-//            val account = findAccountById(id)
-//            // if default account deleted from database then also delete from the cache
-//            if (null == account) {
-//                cache.removeDefaultAccount()
-//                emit(null)
-//            }
-//            else {
-//                emit(account)
-//            }
-//        }
-//    }
-
-    override fun getDefaultAccount(): Flow<Account?> = emptyFlow()
-
-    override fun hasDefaultAccount(): Boolean = null != cache.getDefaultAccountId()
 
     override fun updateAccount(account: Account): Boolean {
         val _account = account.copy(lastUsed = LocalDateTime.now(), totalUsed = cache.getAccountTotalUsed(account.id)+1)
@@ -82,18 +76,9 @@ internal class AccountRepositoryImpl(
         val account = accountDao.findAccountById(id)
         account?.let {
             val account = it.toAccount()
-            val updatedAccount = account.copy(balance = account.balance.toFloat() - amount.toFloat())
+            val updatedAccount = account.copy(balance = account.balance - amount.toFloat())
             updateAccount(updatedAccount)
         }
-    }
-
-    override fun changeDefaultAccount(account: Account?) {
-//        if (null == account) {
-//            cache.removeDefaultAccount()
-//        }
-//        else {
-//            cache.setDefaultAccount(account.id)
-//        }
     }
 
     override fun deleteAccount(id: Long) {
@@ -104,5 +89,27 @@ internal class AccountRepositoryImpl(
     override fun deleteMultipleAccounts(ids: List<Long>) {
         accountDao.deleteMultipleAccounts(ids)
         ids.forEach { cache.removeAccountTotalUsed(it) }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override fun getDefaultAccount(): Flow<Account?> = cache.getDefaultAccountIdFlow().flatMapLatest { id ->
+        if (null == id) {
+            emptyFlow()
+        }
+        else {
+            val account = findAccountById(id)
+            flowOf(account)
+        }
+    }
+        .flowOn(Dispatchers.IO)
+
+    override fun hasDefaultAccount(): Boolean = null != cache.getDefaultAccountId()
+
+    override fun setDefaultAccount(account: Account) {
+        cache.setDefaultAccountId(account.id)
+    }
+
+    override fun removeDefaultAccount() {
+        cache.removeDefaultAccount()
     }
 }

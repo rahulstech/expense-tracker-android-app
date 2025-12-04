@@ -70,7 +70,6 @@
         <item name="iconTint">@color/md_theme_secondary_button_text</item>
         <item name="android:textColor">@color/md_theme_secondary_button_text</item>
         <item name="backgroundTint">@color/md_theme_secondary_button_background</item>
-        <item name="android:foreground">?attr/selectableItemBackground</item>
     </style>
 
 </resources>

@@ -65,7 +65,7 @@ class AgentSettingsProvider private constructor(applicationContext: Context){
 
         private const val SHARED_PREFERENCES_NAME = "rahulstech.android.expensetrcker.backuprestore.settings.agent"
         private const val KEY_BACKUP_FREQUENCY = "backup_frequency"
-        private const val KEY_LAST_LOCAL_BACKUP_DATETIME = "last_local_backup_millis"
+        private const val KEY_LAST_LOCAL_BACKUP_DATETIME = "last_local_backup_datetime"
 
         @Volatile
         private var instance: AgentSettingsProvider? = null

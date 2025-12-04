@@ -33,9 +33,10 @@ class HistoryInputActivity: AppCompatActivity() {
         navController.setGraph(graph, intent.extras)
     }
 
-    override fun onSupportNavigateUp(): Boolean {
-        return if (navController.popBackStack()) true
-        else if (super.onSupportNavigateUp()) true
-        else false
-    }
+    // TODO: fix up navigation not working
+//    override fun onSupportNavigateUp(): Boolean {
+//        return if (navController.popBackStack()) true
+//        else if (super.onSupportNavigateUp()) true
+//        else false
+//    }
 }

@@ -18,19 +18,22 @@ interface AccountRepository{
 
     fun getLiveTotalBalance(): LiveData<Double>
 
-    fun getDefaultAccount(): Flow<Account?>
-
-    fun hasDefaultAccount(): Boolean
-
     fun updateAccount(account: Account): Boolean
 
     fun creditBalance(id: Long, amount: Number)
 
     fun debitBalance(id: Long, amount: Number)
 
-    fun changeDefaultAccount(account: Account?)
-
     fun deleteAccount(id: Long)
 
     fun deleteMultipleAccounts(ids: List<Long>)
+
+
+    fun getDefaultAccount(): Flow<Account?>
+
+    fun hasDefaultAccount(): Boolean
+
+    fun setDefaultAccount(account: Account)
+
+    fun removeDefaultAccount()
 }

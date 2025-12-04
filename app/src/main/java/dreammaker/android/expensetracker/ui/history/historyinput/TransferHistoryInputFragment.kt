@@ -1,14 +1,12 @@
 package dreammaker.android.expensetracker.ui.history.historyinput
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.TextView
 import androidx.core.os.bundleOf
-import androidx.lifecycle.lifecycleScope
 import dreammaker.android.expensetracker.Constants
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.core.util.QuickMessages
@@ -18,8 +16,6 @@ import dreammaker.android.expensetracker.util.getArgId
 import dreammaker.android.expensetracker.util.isActionEdit
 import dreammaker.android.expensetracker.util.visibilityGone
 import dreammaker.android.expensetracker.util.visible
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 import rahulstech.android.expensetracker.domain.model.Account
 import rahulstech.android.expensetracker.domain.model.History
 
@@ -47,11 +43,6 @@ class TransferHistoryInputFragment : BaseHistoryInputFragment() {
     /////////////////////////////////////////////////////////////////
     ///                     Fragment Api                         ///
     ///////////////////////////////////////////////////////////////
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        viewModel.setAccount(getArgAccount())
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -95,8 +86,8 @@ class TransferHistoryInputFragment : BaseHistoryInputFragment() {
         val amountText = binding.inputAmount.text.toString()
         val amount = if (amountText.isBlank()) 0f else amountText.toFloat()
         val note = binding.inputNote.text.toString().takeUnless { it.isBlank() } ?: getString(R.string.label_history_type_transfer)
-        val srcAccount: Account? = viewModel.getAccount()
-        val destAccount: Account? = viewModel.getAccount(false)
+        val srcAccount: Account? = if (isActionEdit()) viewModel.history?.primaryAccount else getArgAccount()
+        val destAccount: Account? = viewModel.getAccountSelection()
         return History.TransferHistory(
             id = id,
             amount = amount,
@@ -113,8 +104,8 @@ class TransferHistoryInputFragment : BaseHistoryInputFragment() {
 
     override fun onHistoryFound(history: History) {
         super.onHistoryFound(history)
-        viewModel.setAccount(history.primaryAccount)
-        viewModel.setAccount(history.secondaryAccount,false)
+        updatePrimaryAccountChip(history.primaryAccount)
+        viewModel.setAccountSelection(history.secondaryAccount)
     }
 
     override fun onHistorySaved(history: History?) {
@@ -128,11 +119,8 @@ class TransferHistoryInputFragment : BaseHistoryInputFragment() {
     ///////////////////////////////////////////////////////////////
 
     private fun preparePrimaryAccount() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.primaryAccountState.collectLatest { account ->
-                Log.d(TAG,"secondary account changed $account")
-                updatePrimaryAccountChip(account)
-            }
+        if (!isActionEdit()) {
+            updatePrimaryAccountChip(getArgAccount())
         }
     }
 
@@ -143,12 +131,10 @@ class TransferHistoryInputFragment : BaseHistoryInputFragment() {
                 Constants.ARG_DISABLED_ID to getArgAccount()?.id
             ))
         }
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.secondaryAccountState.collectLatest { account ->
-                Log.d(TAG,"secondary account changed $account")
-                updateSecondaryAccountChip(account)
-            }
-        }
+    }
+
+    override fun onAccountSelectionChange(account: Account?) {
+        updateSecondaryAccountChip(account)
     }
 
     /////////////////////////////////////////////////////////////////
