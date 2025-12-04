@@ -17,6 +17,7 @@ data class Account(
     fun isUsedAfterCreate(): Boolean = totalUsed > 1
 }
 
-fun AccountEntity.toAccount(): Account = Account(name,balance,id,lastUsed,totalUsed ?: 0)
+fun AccountEntity.toAccount(isDefault: Boolean = false): Account =
+    Account(name,balance,id,lastUsed,totalUsed ?: 0, isDefault)
 
-fun AccountIdName.toAccount(): Account = Account(name,0f,id)
+fun AccountIdName.toAccount(): Account = Account(name = name,id = id)

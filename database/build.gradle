@@ -60,7 +60,7 @@ dependencies {
     // room
     api libs.room.runtime
     implementation libs.room.ktx
-    implementation libs.room.paging
+    api libs.room.paging
     kapt libs.room.compiler
     androidTestImplementation libs.room.test
 

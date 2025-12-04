@@ -50,7 +50,7 @@ class TransferHistoryInputFragment : BaseHistoryInputFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel.setAccount(getArgAccount())
+        viewModel.setAccoutSelection(getArgAccount())
     }
 
     override fun onCreateView(
@@ -95,8 +95,8 @@ class TransferHistoryInputFragment : BaseHistoryInputFragment() {
         val amountText = binding.inputAmount.text.toString()
         val amount = if (amountText.isBlank()) 0f else amountText.toFloat()
         val note = binding.inputNote.text.toString().takeUnless { it.isBlank() } ?: getString(R.string.label_history_type_transfer)
-        val srcAccount: Account? = viewModel.getAccount()
-        val destAccount: Account? = viewModel.getAccount(false)
+        val srcAccount: Account? = viewModel.getAccountSelection()
+        val destAccount: Account? = viewModel.getAccountSelection()
         return History.TransferHistory(
             id = id,
             amount = amount,
@@ -113,8 +113,8 @@ class TransferHistoryInputFragment : BaseHistoryInputFragment() {
 
     override fun onHistoryFound(history: History) {
         super.onHistoryFound(history)
-        viewModel.setAccount(history.primaryAccount)
-        viewModel.setAccount(history.secondaryAccount,false)
+        viewModel.setAccoutSelection(history.primaryAccount)
+        viewModel.setAccoutSelection(history.secondaryAccount)
     }
 
     override fun onHistorySaved(history: History?) {
@@ -129,7 +129,7 @@ class TransferHistoryInputFragment : BaseHistoryInputFragment() {
 
     private fun preparePrimaryAccount() {
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.primaryAccountState.collectLatest { account ->
+            viewModel.accountState.collectLatest { account ->
                 Log.d(TAG,"secondary account changed $account")
                 updatePrimaryAccountChip(account)
             }
@@ -143,12 +143,10 @@ class TransferHistoryInputFragment : BaseHistoryInputFragment() {
                 Constants.ARG_DISABLED_ID to getArgAccount()?.id
             ))
         }
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.secondaryAccountState.collectLatest { account ->
-                Log.d(TAG,"secondary account changed $account")
-                updateSecondaryAccountChip(account)
-            }
-        }
+    }
+
+    override fun onAccountSelectionChange(account: Account?) {
+        updateSecondaryAccountChip(account)
     }
 
     /////////////////////////////////////////////////////////////////

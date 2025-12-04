@@ -55,4 +55,13 @@ class ViewAccountViewModel(
                 .collect { _deleteAccountState.tryEmit(UIState.UISuccess(it)) }
         }
     }
+
+    fun toggleDefaultAccount(account: Account) {
+        if (account.isDefault) {
+            accountRepo.removeDefaultAccount()
+        }
+        else {
+            accountRepo.setDefaultAccount(account)
+        }
+    }
 }

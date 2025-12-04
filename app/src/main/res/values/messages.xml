@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="error_invalid_balance_input">balance valid number</string>
+    <string name="error_invalid_history_amount_input">invalid number</string>
+    <string name="error_no_selection">nothing selected</string>
+    <string name="error_empty_account_name_input">name must not empty</string>
+    <string name="error_invalid_due_input">due is not a valid number</string>
+    <string name="error_invalid_group_balance_input">balance must be a number</string>
+    <string name="message_error">something error occurred</string>
+    <string name="message_account_not_found">account not found</string>
+    <string name="message_fail_save_account">Account not saved</string>
+    <string name="message_success_save_account">Account saved</string>
+    <string name="message_group_not_found">group not found</string>
+    <string name="message_success_save_group">Group saved</string>
+    <string name="message_fail_save_group">Group not saved</string>
+    <string name="message_history_not_found">history not found</string>
+    <string name="message_success_save_history">History saved</string>
+    <string name="message_success_save_history_ask_add_more">History saved. Do you want to add more history?</string>
+    <string name="message_error_save_history">history not saved</string>
+    <string name="message_success_delete_account">Account deleted</string>
+    <string name="message_fail_delete_account">Account not deleted</string>
+    <string name="message_success_delete_multiple_accounts">Accounts deleted</string>
+    <string name="message_fail_delete_multiple_accounts">Accounts not deleted</string>
+    <string name="message_success_delete_group">Group deleted</string>
+    <string name="message_fail_delete_group">Group not deleted</string>
+    <string name="message_success_delete_multiple_groups">Groups deleted</string>
+    <string name="message_fail_delete_multiple_groups">Groups not deleted</string>
+    <string name="message_success_delete_history">History deleted</string>
+    <string name="message_fail_delete_history">History not deleted</string>
+    <string name="message_success_delete_multiple_histories">Histories deleted</string>
+    <string name="message_fail_delete_multiple_histories">Histories not deleted</string>
+    <string name="message_warning_delete">Do you want to delete %1$s permanently?</string>
+    <string name="message_warning_delete_multiple">Do you want to delete %1$d items permanently?</string>
+    <string name="message_set_default_account">Set %1$s as default account?</string>
+    <string name="message_error_file_access">
+		Read and write to external storage is not allowed for this app. Open setting and allow permission now.
+	</string>
+</resources>

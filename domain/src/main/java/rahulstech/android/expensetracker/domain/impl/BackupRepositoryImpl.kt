@@ -30,17 +30,8 @@ internal class BackupRepositoryImpl(
     }
 
     override fun getMultipleGroups(): List<Group> {
-        val defaultGroupId = cache.getDefaultGroupId()
         return db.groupDao.getAllGroups()
-            .map { entity ->
-                val group = entity.toGroup()
-                if (group.id == defaultGroupId) {
-                    group.copy(isDefault = true)
-                }
-                else {
-                    group
-                }
-            }
+            .map { entity -> entity.toGroup() }
     }
 
     override fun getMultipleHistories(

@@ -7,6 +7,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import dreammaker.android.expensetracker.database.model.GroupEntity
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface GroupDao {
@@ -19,7 +20,7 @@ interface GroupDao {
     fun insertGroups(groups: List<GroupEntity>)
 
     @Query("SELECT * FROM `groups` ORDER BY `name` ASC")
-    fun getLiveAllGroups(): LiveData<List<GroupEntity>>
+    fun getFlowAllGroups(): Flow<List<GroupEntity>>
 
     @Query("SELECT * FROM `groups`")
     fun getAllGroups(): List<GroupEntity>
