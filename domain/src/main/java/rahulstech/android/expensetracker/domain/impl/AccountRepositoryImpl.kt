@@ -76,7 +76,7 @@ internal class AccountRepositoryImpl(
         val account = accountDao.findAccountById(id)
         account?.let {
             val account = it.toAccount()
-            val updatedAccount = account.copy(balance = account.balance.toFloat() - amount.toFloat())
+            val updatedAccount = account.copy(balance = account.balance - amount.toFloat())
             updateAccount(updatedAccount)
         }
     }
