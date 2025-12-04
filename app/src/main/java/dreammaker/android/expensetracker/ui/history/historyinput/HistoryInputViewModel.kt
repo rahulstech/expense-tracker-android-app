@@ -1,7 +1,6 @@
 package dreammaker.android.expensetracker.ui.history.historyinput
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import dreammaker.android.expensetracker.ui.UIState
@@ -16,6 +15,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import rahulstech.android.expensetracker.domain.ExpenseRepository
 import rahulstech.android.expensetracker.domain.model.Account
@@ -29,8 +29,7 @@ class HistoryInputViewModel (
 
     private val repos = ExpenseRepository.getInstance(app)
     private val historyRepo = repos.historyRepository
-
-    private val TAG = HistoryInputViewModel::class.simpleName
+    private val accountRepo = repos.accountRepository
 
     private val _historyState = MutableStateFlow<UIState<History>>(UIState.UILoading())
     val historyState: Flow<UIState<History>?> = _historyState.shareIn(
@@ -93,11 +92,8 @@ class HistoryInputViewModel (
     private val _dateState = MutableStateFlow<LocalDate>(LocalDate.now())
     val dateState: StateFlow<LocalDate> = _dateState
 
-    private val _primaryAccountState = MutableStateFlow<Account?>(null)
-    val primaryAccountState: StateFlow<Account?> = _primaryAccountState
-
-    private val _secondaryAccountState = MutableStateFlow<Account?>(null)
-    val secondaryAccountState: StateFlow<Account?> = _secondaryAccountState
+    private val _accountState = MutableStateFlow<Account?>(null)
+    val accountState: StateFlow<Account?> = _accountState
 
     private val _groupState = MutableStateFlow<Group?>(null)
     val groupState: StateFlow<Group?> = _groupState
@@ -108,24 +104,11 @@ class HistoryInputViewModel (
 
     fun getDate(): LocalDate = _dateState.value
 
-    fun setAccount(account: Account?, primary: Boolean = true) {
-        Log.i(TAG,"set account $account primary $primary")
-        if (primary) {
-            _primaryAccountState.tryEmit(account)
-        }
-        else {
-            _secondaryAccountState.tryEmit(account)
-        }
+    fun setAccountSelection(account: Account?) {
+        _accountState.value = account
     }
 
-    fun getAccount(primary: Boolean = true): Account? {
-        return if (primary) {
-            _primaryAccountState.value
-        }
-        else {
-            _secondaryAccountState.value
-        }
-    }
+    fun getAccountSelection(): Account? = _accountState.value
 
     fun setGroup(group: Group?) {
         _groupState.tryEmit(group)
@@ -133,5 +116,25 @@ class HistoryInputViewModel (
 
     fun getGroup(): Group? {
         return _groupState.value
+    }
+
+    // default account
+
+    fun setDefaultAccount(account: Account) = accountRepo.setDefaultAccount(account)
+
+    private var _defaultAccountFlow: StateFlow<Account?>? = null
+
+    val defaultAccount: Account? get() = _defaultAccountFlow?.value
+
+    fun getDefaultAccount(): Flow<Account?> {
+        if (null == _defaultAccountFlow) {
+            _defaultAccountFlow = accountRepo.getDefaultAccount()
+                .stateIn(
+                    scope = viewModelScope,
+                    started = SharingStarted.WhileSubscribed(),
+                    initialValue = null
+                )
+        }
+        return _defaultAccountFlow!!
     }
 }

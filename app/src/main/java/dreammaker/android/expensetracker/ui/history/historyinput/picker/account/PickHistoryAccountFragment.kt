@@ -83,7 +83,7 @@ class PickHistoryAccountFragment : Fragment() {
     }
 
     private fun getInitialSelection(): Long? {
-        return historyViewModel.getAccount(argIsPrimary)?.id
+        return historyViewModel.getAccountSelection()?.id
     }
 
     private fun onAccountsLoaded(accounts: List<AccountListItem>) {
@@ -101,7 +101,7 @@ class PickHistoryAccountFragment : Fragment() {
     private fun handlePickAccount() {
         val selectedAccount = getSelectedAccount()
         Log.d(TAG, "selected account $selectedAccount is_primary = $argIsPrimary")
-        historyViewModel.setAccount(selectedAccount, argIsPrimary)
+        historyViewModel.setAccountSelection(selectedAccount)
         navController.popBackStack()
     }
 

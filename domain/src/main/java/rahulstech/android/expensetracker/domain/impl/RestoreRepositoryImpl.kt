@@ -19,15 +19,13 @@ internal class RestoreRepositoryImpl(
             it.toAccountEntity()
         }
         db.accountDao.insertAccounts(entities)
-        defaultAccount?.let { cache.setDefaultAccount(it) }
+        defaultAccount?.let { cache.setDefaultAccountId(it.id) }
     }
 
     override fun insertMultipleGroups(groups: List<Group>) {
         if (groups.isEmpty()) return
-        val defaultGroup = groups.find { it.isDefault }
         val entities = groups.map { it.toGroupEntity() }
         db.groupDao.insertGroups(entities)
-        defaultGroup?.let { cache.setDefaultGroup(it) }
     }
 
     override fun insertMultipleHistories(histories: List<History>) {

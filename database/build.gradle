@@ -11,8 +11,8 @@ android {
 
     defaultConfig {
         minSdk 26
-        versionCode 8
-        versionName "8.0.0"
+        versionCode 9
+        versionName "8.1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
         javaCompileOptions {
@@ -60,7 +60,7 @@ dependencies {
     // room
     api libs.room.runtime
     implementation libs.room.ktx
-    implementation libs.room.paging
+    api libs.room.paging
     kapt libs.room.compiler
     androidTestImplementation libs.room.test
 

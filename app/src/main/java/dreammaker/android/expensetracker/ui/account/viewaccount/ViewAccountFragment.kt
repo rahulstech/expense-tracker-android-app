@@ -1,5 +1,6 @@
 package dreammaker.android.expensetracker.ui.account.viewaccount
 
+//import dreammaker.android.expensetracker.ui.history.historieslist.HistoryListContainer
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.Menu
@@ -19,9 +20,8 @@ import dreammaker.android.expensetracker.Constants
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.core.util.QuickMessages
 import dreammaker.android.expensetracker.databinding.ViewAccountLayoutBinding
-//import dreammaker.android.expensetracker.ui.history.historieslist.HistoryListContainer
-import dreammaker.android.expensetracker.util.AccountParcelable
 import dreammaker.android.expensetracker.ui.UIState
+import dreammaker.android.expensetracker.util.AccountParcelable
 import dreammaker.android.expensetracker.util.getBalanceText
 import dreammaker.android.expensetracker.util.hasArgument
 import kotlinx.coroutines.flow.collectLatest
@@ -30,8 +30,7 @@ import rahulstech.android.expensetracker.domain.model.Account
 
 class ViewAccountFragment: Fragment(), MenuProvider {
 
-    private var _binding: ViewAccountLayoutBinding? = null
-    private val binding get() = _binding!!
+    private lateinit var binding: ViewAccountLayoutBinding
     private val navController: NavController by lazy {  findNavController() }
     private val viewModel: ViewAccountViewModel by viewModels()
 
@@ -49,7 +48,7 @@ class ViewAccountFragment: Fragment(), MenuProvider {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = ViewAccountLayoutBinding.inflate(inflater, container, false)
+        binding = ViewAccountLayoutBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -120,6 +119,12 @@ class ViewAccountFragment: Fragment(), MenuProvider {
         }
     }
 
+    override fun onPrepareMenu(menu: Menu) {
+        menu.findItem(R.id.set_default)?.let { itemSetDefault ->
+            itemSetDefault.isChecked = viewModel.getStoredAccount()?.isDefault ?: false
+        }
+    }
+
     override fun onMenuItemSelected(item: MenuItem): Boolean {
         return when(item.itemId) {
             R.id.edit -> {
@@ -131,6 +136,10 @@ class ViewAccountFragment: Fragment(), MenuProvider {
             }
             R.id.delete -> {
                 onClickDeleteAccount()
+                true
+            }
+            R.id.set_default -> {
+                onChangeDefaultAccount()
                 true
             }
             else -> false
@@ -149,8 +158,7 @@ class ViewAccountFragment: Fragment(), MenuProvider {
         }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+    private fun onChangeDefaultAccount() {
+        viewModel.getStoredAccount()?.let { viewModel.toggleDefaultAccount(it) }
     }
 }

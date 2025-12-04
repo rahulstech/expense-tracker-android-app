@@ -6,10 +6,10 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.9.2'
+        classpath 'com.android.tools.build:gradle:8.10.1' // 8.9.1 -> 8.10.1
         // compileSdk required android gradle plugin 8.1.0 or above with gradle 8.0 or above
         // classpath 'androidx.navigation:navigation-safe-args-gradle-plugin:2.8.9'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.0"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:2.0.21" // 2.1.0 -> 2.0.21
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }

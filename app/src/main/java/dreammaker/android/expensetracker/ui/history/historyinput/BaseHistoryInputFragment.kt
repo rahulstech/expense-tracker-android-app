@@ -14,6 +14,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.chip.Chip
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dreammaker.android.expensetracker.Constants
 import dreammaker.android.expensetracker.DATE_WITH_WEAKDAY_FORMAT
 import dreammaker.android.expensetracker.R
@@ -21,6 +22,8 @@ import dreammaker.android.expensetracker.core.util.QuickMessages
 import dreammaker.android.expensetracker.ui.UIState
 import dreammaker.android.expensetracker.ui.history.historyinput.TransactionInputFragment.Companion.ARG_HISTORY_DATE
 import dreammaker.android.expensetracker.util.AccountParcelable
+import dreammaker.android.expensetracker.util.AppLocalCache
+import dreammaker.android.expensetracker.util.getArgAction
 import dreammaker.android.expensetracker.util.getArgId
 import dreammaker.android.expensetracker.util.getDate
 import dreammaker.android.expensetracker.util.isActionEdit
@@ -40,6 +43,7 @@ abstract class BaseHistoryInputFragment : Fragment() {
 
     protected val viewModel: HistoryInputViewModel by activityViewModels()
     protected val navController: NavController by lazy { findNavController() }
+    protected val cache: AppLocalCache by lazy { AppLocalCache(requireContext()) }
 
     protected abstract val dateTextView: TextView
     protected abstract val amountInput: EditText
@@ -62,25 +66,56 @@ abstract class BaseHistoryInputFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         btnSave.setOnClickListener { onClickSave() }
         btnCancel.setOnClickListener { onClickCancel() }
+        dateTextView.setOnClickListener { onClickInputDate(viewModel.getDate()) }
 
-        dateTextView.setOnClickListener {
-            onClickInputDate(viewModel.getDate())
-        }
+        observeDateChange()
+        observeAccountSelectionChange()
+        observeSaveUIState()
+        loadHistoryIfRequired()
+        loadDefaultSelectedAccountIfRequired()
+    }
 
+    override fun onResume() {
+        super.onResume()
+        setActivityTitle(title)
+    }
+
+    private fun observeDateChange() {
         // observe date changes (both fragments do this)
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.dateState.collectLatest { date ->
                 dateTextView.text = date.format(DATE_WITH_WEAKDAY_FORMAT)
             }
         }
+    }
 
+    private fun observeAccountSelectionChange() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.accountState.collectLatest { account ->
+                Log.d(TAG, "account picked = $account")
+                onAccountSelectionChange(account)
+                if (null != account) {
+                    showSetDefaultAccount(account)
+                }
+                else if (getArgAction() == Constants.ACTION_CREATE && null == getArgAccount()) {
+                    loadDefaultAccount()
+                }
+            }
+        }
+    }
+
+    protected open fun onAccountSelectionChange(account: Account?) {}
+
+    private fun loadHistoryIfRequired() {
         if (isActionEdit() && viewModel.history == null) {
             viewModel.findHistory(getArgId())
             viewLifecycleOwner.lifecycleScope.launch {
                 viewModel.historyState.filterNotNull().collectLatest { onFindHistoryUIStateChange(it) }
             }
         }
+    }
 
+    private fun observeSaveUIState() {
         // NOTE: lifecycleScope bound to fragment lifecycle
         //      viewLifecycleOwner.lifecycleScope bound to view which starts onCreateView and ends onDestroyView
         // if i use lifecycleScope then on each recreate of view an launch code will be added i.e. multiple collectors will present
@@ -92,17 +127,11 @@ abstract class BaseHistoryInputFragment : Fragment() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        setActivityTitle(title)
-    }
-
     /////////////////////////////////////////////////////////////////
     ///                     Event Handler                        ///
     ///////////////////////////////////////////////////////////////
 
     // ui state event for find history
-
     private fun onFindHistoryUIStateChange(state: UIState<History>) {
         Log.d(TAG,"onFindHistoryUIStateChange: $state")
         when(state) {
@@ -213,5 +242,35 @@ abstract class BaseHistoryInputFragment : Fragment() {
             return@createChip chip
         }
         return null
+    }
+
+    protected fun loadDefaultSelectedAccountIfRequired() {
+        if (getArgAction() == Constants.ACTION_CREATE && viewModel.getAccountSelection() == null) {
+            loadDefaultAccount()
+        }
+    }
+
+    private fun loadDefaultAccount() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.getDefaultAccount().collectLatest { defaultAccount ->
+                viewModel.setAccountSelection(defaultAccount)
+            }
+        }
+    }
+
+    private fun showSetDefaultAccount(account: Account) {
+        if (cache.isShowSetDefaultAccount() && viewModel.defaultAccount != account && getArgAccount() == null) {
+            val dialog = MaterialAlertDialogBuilder(requireContext())
+                .setMessage(getString(R.string.message_set_default_account, account.name))
+                .setNeutralButton(R.string.label_never_show) { _,_ ->
+                    cache.setShowSetDefaultAccount(false)
+                }
+                .setPositiveButton(R.string.label_yes) { _,_ ->
+                    viewModel.setDefaultAccount(account)
+                }
+                .setNegativeButton(R.string.label_cancel,null)
+                .create()
+            dialog.show()
+        }
     }
 }

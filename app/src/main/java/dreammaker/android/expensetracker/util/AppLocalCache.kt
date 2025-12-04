@@ -23,8 +23,8 @@ class AppLocalCache(private val context: Context) {
 
         private const val KEY_VIEW_HISTORY = "view_history"
         private const val KEY_SORT_HISTORY_BY_DATE = "sort_history_by_date"
+        private const val KEY_SHOW_SET_DEFAULT_ACCOUNT = "show_set_default_account"
     }
-
 
     private val sp by lazy { context.getSharedPreferences(SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE) }
 
@@ -49,6 +49,15 @@ class AppLocalCache(private val context: Context) {
         sp.getString(KEY_SORT_HISTORY_BY_DATE,null)
             ?.let { name -> SortByDate.valueOf(name) }
             ?: defaultValue
+
+
+    fun isShowSetDefaultAccount(): Boolean = sp.getBoolean(KEY_SHOW_SET_DEFAULT_ACCOUNT, true)
+
+    fun setShowSetDefaultAccount(show: Boolean) {
+        edit {
+            putBoolean(KEY_SHOW_SET_DEFAULT_ACCOUNT,show)
+        }
+    }
 
     private fun edit(action: SharedPreferences.Editor.()->Unit) {
         sp.edit(true,action)

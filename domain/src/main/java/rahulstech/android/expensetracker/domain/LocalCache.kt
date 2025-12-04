@@ -1,7 +1,6 @@
 package rahulstech.android.expensetracker.domain
 
-import rahulstech.android.expensetracker.domain.model.Account
-import rahulstech.android.expensetracker.domain.model.Group
+import kotlinx.coroutines.flow.Flow
 
 interface LocalCache{
 
@@ -17,15 +16,11 @@ interface LocalCache{
 
     fun removeGroupTotalUsed(id: Long)
 
-    fun setDefaultAccount(account: Account)
+    fun setDefaultAccountId(id: Long)
 
     fun getDefaultAccountId(): Long?
 
+    fun getDefaultAccountIdFlow(): Flow<Long?>
+
     fun removeDefaultAccount()
-
-    fun setDefaultGroup(group: Group)
-
-    fun getDefaultGroupId(): Long?
-
-    fun removeDefaultGroup()
 }

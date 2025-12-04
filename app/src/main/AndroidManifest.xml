@@ -24,5 +24,15 @@
                 android:value=".ui.main.MainActivity" />
         </activity>
 
+        <!-- activity from :feature:backup-restore module -->
+        <activity android:name="rahulstech.android.expensetracker.backuprestore.ui.BackupRestoreActivity"
+            android:exported="false"
+            android:theme="@style/AppTheme"
+            android:label="@string/activity_title_backup_restore"
+            android:parentActivityName=".ui.main.MainActivity">
+            <meta-data android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.main.MainActivity" />
+        </activity>
+
     </application>
 </manifest>

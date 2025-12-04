@@ -99,10 +99,6 @@
 	<string name="schedule_weekly">Weekly</string>
 	<string name="schedule_monthly">Monthly</string>
 
-	<string name="message_error_file_access">
-		Read and write to external storage is not allowed for this app. Open setting and allow permission now.
-	</string>
-
 	<!-- menu title -->
 	<string name="menu_title_edit">Edit</string>
 	<string name="menu_title_delete">Delete</string>
@@ -111,21 +107,23 @@
 	<string name="menu_title_view_history_as">View history as</string>
 	<string name="menu_title_view_history_daily">Daily</string>
 	<string name="menu_title_view_history_monthly">Monthly</string>
+	<string name="menu_title_app_data">App Data</string>
+	<string name="menu_title_sort_history">Sort</string>
+	<string name="menu_title_sort_old_first">Old First</string>
+	<string name="menu_title_sort_new_first">New First</string>
+	<string name="menu_title_set_default">Set Default</string>
+
+	<!-- labels -->
 
 	<string name="label_history_list_item_source_account">From</string>
 	<string name="label_history_list_item_destination_account">In</string>
-
-	<string name="hint_history_note">Note</string>
-
 	<string name="label_empty_history_list">No History</string>
 	<string name="label_view">View</string>
 	<string name="label_history_type_credit">Credit</string>
 	<string name="label_history_type_debit">Debit</string>
 	<string name="label_history_type_transfer">Transfer</string>
-
 	<string name="label_history_item_source_account">From</string>
 	<string name="label_history_item_destination_account">In</string>
-
 	<string name="label_view_history">View History</string>
 	<string name="label_add_account">Add Account</string>
 	<string name="label_add_history">Add History</string>
@@ -141,23 +139,48 @@
 	<string name="label_add_transfer">Transfer</string>
 	<string name="label_yes">Yes</string>
 	<string name="label_no">No</string>
+	<string name="label_cancel">Cancel</string>
+	<string name="label_ok">OK</string>
+	<string name="label_never_show">Never Show</string>
 	<string name="label_send_money">Send Money</string>
 	<string name="label_group_and_tags">Group</string>
+	<string name="label_history_list_view_daily">Daily</string>
+	<string name="label_history_list_view_monthly">Monthly</string>
+	<string name="label_this_month">This Month</string>
+	<string name="label_january">Jan</string>
+	<string name="label_february">Feb</string>
+	<string name="label_march">Mar</string>
+	<string name="label_april">Apr</string>
+	<string name="label_may">May</string>
+	<string name="label_june">Jun</string>
+	<string name="label_july">Jul</string>
+	<string name="label_august">Aug</string>
+	<string name="label_september">Sept</string>
+	<string name="label_october">Oct</string>
+	<string name="label_november">Nov</string>
+	<string name="label_december">Dec</string>
+	<string name="label_view_all">View All</string>
+	<string name="label_account">Account</string>
+	<string name="label_groups">Groups</string>
+	<string name="label_no_group">No Group</string>
+	<string name="label_unsettled">Unsettled</string>
+	<string name="label_surplus">Surplus</string>
+	<string name="label_total_credit">Total Credit</string>
+	<string name="label_total_debit">Total Debit</string>
+	<string name="label_empty_recent_account_list">No Recent Account</string>
+	<string name="label_empty_recent_group_list">No Recent Group</string>
+	<string name="label_header_frequently_used">Frequently Used</string>
+	<string name="label_header_others">Others</string>
+	<string name="label_search_account_name">Search Account Name</string>
+	<string name="label_search_group_name">Search Group Name</string>
 
 	<string name="hint_group_name">Group Name</string>
 	<string name="hint_group_balance">Balance</string>
-
+	<string name="hint_history_note">Note</string>
 
 
 	<string name="title_history_list">History</string>
 	<string name="title_choose_account">Choose Account</string>
-<!--	<string name="title_choose_credit_source">Received From</string>-->
-<!--	<string name="title_choose_debit_source_account">Debit To</string>-->
-<!--	<string name="title_choose_transfer_source_account">Transfer From</string>-->
-<!--	<string name="title_choose_credit_destination_account">Credit To</string>-->
-<!--	<string name="title_choose_transfer_destination_account">Transfer To</string>-->
-<!--	<string name="title_choose_income_destination">Receive In</string>-->
-<!--	<string name="title_choose_expense_source_account">Pay From</string>-->
 	<string name="title_input_history_create">New History</string>
     <string name="label_empty_account_list">No Account</string>
 	<string name="title_account_list">Accounts</string>
@@ -173,89 +196,14 @@
 	<string name="title_view_group">Group Details</string>
 	<string name="title_choose_group">Choose Group</string>
 	<string name="title_view_history">History Details</string>
-
-    <string name="error_invalid_balance_input">balance valid number</string>
-	<string name="error_invalid_history_amount_input">invalid number</string>
-	<string name="error_no_selection">nothing selected</string>
-	<string name="error_empty_account_name_input">name must not empty</string>
-	<string name="error_invalid_due_input">due is not a valid number</string>
-	<string name="error_invalid_group_balance_input">balance must be a number</string>
-
-	<string name="message_error">something error occurred</string>
-
-	<string name="message_account_not_found">account not found</string>
-	<string name="message_fail_save_account">Account not saved</string>
-	<string name="message_success_save_account">Account saved</string>
-
-	<string name="message_group_not_found">group not found</string>
-	<string name="message_success_save_group">Group saved</string>
-	<string name="message_fail_save_group">Group not saved</string>
-
-    <string name="message_history_not_found">history not found</string>
-    <string name="message_success_save_history">History saved</string>
-	<string name="message_success_save_history_ask_add_more">History saved. Do you want to add more history?</string>
-	<string name="message_error_save_history">history not saved</string>
-
-	<string name="label_history_list_view_daily">Daily</string>
-	<string name="label_history_list_view_monthly">Monthly</string>
-    <string name="label_this_month">This Month</string>
-    <string name="label_january">Jan</string>
-	<string name="label_february">Feb</string>
-	<string name="label_march">Mar</string>
-	<string name="label_april">Apr</string>
-	<string name="label_may">May</string>
-	<string name="label_june">Jun</string>
-	<string name="label_july">Jul</string>
-	<string name="label_august">Aug</string>
-	<string name="label_september">Sept</string>
-	<string name="label_october">Oct</string>
-	<string name="label_november">Nov</string>
-	<string name="label_december">Dec</string>
-	<string name="label_view_all">View All</string>
-	<string name="label_groups">Groups</string>
-    <string name="label_no_group">No Group</string>
-	<string name="label_unsettled">Unsettled</string>
-	<string name="label_surplus">Surplus</string>
-	<string name="label_total_credit">Total Credit</string>
-	<string name="label_total_debit">Total Debit</string>
-    <string name="label_empty_recent_account_list">No Recent Account</string>
-	<string name="description_empty_recent_account_list">add account histories to see latest used account.up to 3 latest used accounts will show here</string>
-	<string name="label_empty_recent_group_list">No Recent Group</string>
-	<string name="description_empty_recent_group_list">add group histories to see latest used group. up to 3 latest used groups will show here.</string>
-    <string name="title_app_data">Backup Restore</string>
-    <string name="menu_title_app_data">App Data</string>
-    <string name="title_local_restore">Local Restore</string>
-    <string name="label_account">Account</string>
-    <string name="title_edit_transfer_history">Edit Transfer</string>
+	<string name="title_app_data">Backup Restore</string>
+	<string name="title_local_restore">Local Restore</string>
+	<string name="title_edit_transfer_history">Edit Transfer</string>
 	<string name="title_create_transfer_history">Send Money</string>
+	<string name="title_send_to">Send To</string>
 
-	<string name="label_ok">OK</string>
 
-
-	<string name="message_success_delete_account">Account deleted</string>
-	<string name="message_fail_delete_account">Account not deleted</string>
-	<string name="message_success_delete_multiple_accounts">Accounts deleted</string>
-	<string name="message_fail_delete_multiple_accounts">Accounts not deleted</string>
-
-	<string name="message_success_delete_group">Group deleted</string>
-	<string name="message_fail_delete_group">Group not deleted</string>
-	<string name="message_success_delete_multiple_groups">Groups deleted</string>
-	<string name="message_fail_delete_multiple_groups">Groups not deleted</string>
-
-	<string name="message_success_delete_history">History deleted</string>
-	<string name="message_fail_delete_history">History not deleted</string>
-	<string name="message_success_delete_multiple_histories">Histories deleted</string>
-	<string name="message_fail_delete_multiple_histories">Histories not deleted</string>
-
-	<string name="message_warning_delete">Do you want to delete %1$s permanently?</string>
-    <string name="message_warning_delete_multiple">Do you want to delete %1$d items permanently?</string>
-    <string name="title_send_to">Send To</string>
-    <string name="label_header_frequently_used">Frequently Used</string>
-	<string name="label_header_others">Others</string>
-    <string name="label_search_account_name">Search Account Name</string>
-    <string name="label_search_group_name">Search Group Name</string>
-    <string name="menu_title_sort_history">Sort</string>
-	<string name="menu_title_sort_old_first">Old First</string>
-	<string name="menu_title_sort_new_first">New First</string>
+	<string name="description_empty_recent_account_list">add account histories to see latest used account.up to 3 latest used accounts will show here</string>
+	<string name="description_empty_recent_group_list">add group histories to see latest used group. up to 3 latest used groups will show here.</string>
 
 </resources>

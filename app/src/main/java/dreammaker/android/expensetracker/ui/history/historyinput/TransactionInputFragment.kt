@@ -47,6 +47,7 @@ class TransactionInputFragment : BaseHistoryInputFragment() {
             getString(R.string.title_input_history_create)
         }
 
+
     /////////////////////////////////////////////////////////////////
     ///                 Fragment Argument                        ///
     ///////////////////////////////////////////////////////////////
@@ -67,7 +68,7 @@ class TransactionInputFragment : BaseHistoryInputFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel.setDate(getArgDate())
-        viewModel.setAccount(getArgAccount())
+        viewModel.setAccountSelection(getArgAccount())
         viewModel.setGroup(getArgGroup())
     }
 
@@ -106,7 +107,7 @@ class TransactionInputFragment : BaseHistoryInputFragment() {
         val amountText = binding.inputAmount.text.toString()
         val amount = if (amountText.isBlank()) 0f else amountText.toFloat()
         val note = binding.inputNote.text.toString().takeUnless { it.isBlank() }
-        val account: Account? = viewModel.getAccount()
+        val account: Account? = viewModel.getAccountSelection()
         val group: Group? = viewModel.getGroup()
         return when(isCreditHistory()) {
             true -> History.CreditHistory(
@@ -135,7 +136,7 @@ class TransactionInputFragment : BaseHistoryInputFragment() {
     override fun onHistoryFound(history: History) {
         super.onHistoryFound(history)
         selectHistoryType(history)
-        viewModel.setAccount(history.primaryAccount)
+        viewModel.setAccountSelection(history.primaryAccount)
         viewModel.setGroup(history.group)
     }
 
@@ -182,12 +183,10 @@ class TransactionInputFragment : BaseHistoryInputFragment() {
                 Constants.KEY_IS_PRIMARY to true
             ))
         }
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.primaryAccountState.collectLatest { account ->
-                Log.d(TAG, "account changed $account")
-                updatePrimaryAccountChip(account)
-            }
-        }
+    }
+
+    override fun onAccountSelectionChange(account: Account?) {
+        updatePrimaryAccountChip(account)
     }
 
     private fun prepareGroup() {
@@ -225,7 +224,7 @@ class TransactionInputFragment : BaseHistoryInputFragment() {
         binding.inputAmount.text = null
         binding.inputNote.text = null
         viewModel.setDate(getArgDate())
-        viewModel.setAccount(getArgAccount())
+        viewModel.setAccountSelection(getArgAccount())
         viewModel.setGroup(getArgGroup())
     }
 }
