@@ -259,8 +259,7 @@ abstract class BaseHistoryInputFragment : Fragment() {
     }
 
     private fun showSetDefaultAccount(account: Account) {
-        Log.d(TAG,"defaultAccount = ${viewModel.defaultAccount} selected account = $account")
-        if (cache.isShowSetDefaultAccount() && viewModel.defaultAccount != account) {
+        if (cache.isShowSetDefaultAccount() && viewModel.defaultAccount != account && getArgAccount() == null) {
             val dialog = MaterialAlertDialogBuilder(requireContext())
                 .setMessage(getString(R.string.message_set_default_account, account.name))
                 .setNeutralButton(R.string.label_never_show) { _,_ ->

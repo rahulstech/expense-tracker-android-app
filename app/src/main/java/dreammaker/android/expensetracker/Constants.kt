@@ -25,5 +25,7 @@ object Constants {
 }
 
 val FULL_DATE_FORMAT = DateTimeFormatter.ofPattern("MMMM dd, yyyy")
+val SHORT_DATE_FORMAT = DateTimeFormatter.ofPattern("d-MMM-yy")
 val DATE_WITH_WEAKDAY_FORMAT = DateTimeFormatter.ofPattern("EEE, MMM dd, yyyy")
 val FULL_MONTH_FORM = DateTimeFormatter.ofPattern("MMMM yyyy")
+val SHORT_MONTH_FORM = DateTimeFormatter.ofPattern("MMM yyyy")

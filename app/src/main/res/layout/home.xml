@@ -6,8 +6,7 @@
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginBottom="70dp">
+        android:layout_height="match_parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -42,7 +41,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/label_total_balance"
-                        android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
+                        android:textAppearance="@style/TextAppearance.Material3.BodySmall"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintStart_toStartOf="parent" />
                     <TextView
@@ -51,7 +50,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:textStyle="bold"
-                        android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+                        android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                         app:layout_constraintTop_toBottomOf="@id/label_total_balance"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -104,19 +103,16 @@
             <FrameLayout
                 android:id="@+id/container_latest_used_accounts"
                 android:layout_width="0dp"
-                android:layout_height="136dp"
-                android:layout_marginTop="8dp"
-                android:orientation="vertical"
+                android:layout_height="144dp"
+                android:padding="8dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/btn_view_all_accounts">
 
                 <LinearLayout
                     android:id="@+id/accounts"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="136dp"
-                    android:paddingLeft="8dp"
-                    android:paddingRight="8dp"
                     android:orientation="horizontal"
                     android:gravity="start"
                     android:layout_gravity="start"
@@ -130,9 +126,8 @@
                     android:padding="12dp"
                     android:layout_gravity="center"
                     android:gravity="center"
-                    android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
-                    android:textColor="?android:attr/textColorSecondary"
-                    tools:text="No Recent Account"/>
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                    android:text="@string/label_empty_recent_account_list"/>
 
             </FrameLayout>
 
@@ -181,8 +176,8 @@
             <FrameLayout
                 android:id="@+id/container_latest_used_groups"
                 android:layout_width="0dp"
-                android:layout_height="136dp"
-                android:layout_marginTop="8dp"
+                android:layout_height="144dp"
+                android:padding="8dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/btn_view_all_groups">
@@ -191,8 +186,6 @@
                     android:id="@+id/groups"
                     android:layout_width="match_parent"
                     android:layout_height="136dp"
-                    android:paddingLeft="8dp"
-                    android:paddingRight="8dp"
                     android:orientation="horizontal"
                     android:gravity="start"
                     android:layout_gravity="start"
@@ -206,9 +199,9 @@
                     android:padding="12dp"
                     android:layout_gravity="center"
                     android:gravity="center"
-                    android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                     android:textColor="?android:attr/textColorSecondary"
-                    tools:text="No Recent Group"/>
+                    android:text="@string/label_empty_recent_group_list"/>
 
             </FrameLayout>
 
@@ -219,7 +212,6 @@
         android:id="@+id/add_history"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="12dp"
         android:layout_gravity="bottom|center_horizontal"
         app:icon="@drawable/ic_add"
         android:text="@string/label_add_history"
