@@ -116,7 +116,7 @@ class ViewHistoryItemFragment: Fragment(), MenuProvider {
 
     }
 
-    private fun prepareAmount(amount: Float,) {
+    private fun prepareAmount(amount: Float) {
         binding.amount.text = amount.toCurrencyString()
     }
 
@@ -223,7 +223,7 @@ class ViewHistoryItemFragment: Fragment(), MenuProvider {
     private fun onClickDeleteHistory(history: History?) {
         history?.let {
             QuickMessages.alertWarning(requireContext(),
-                getString(R.string.message_warning_delete),
+                getString(R.string.message_warning_delete_history), // TODO: fix this message
                 QuickMessages.AlertButton(getString(R.string.label_no)),
                 QuickMessages.AlertButton(getString(R.string.label_yes)){
                     viewModel.removeHistory(history)

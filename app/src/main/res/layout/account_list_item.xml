@@ -2,7 +2,7 @@
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
-	android:layout_height="72dp"
+	android:layout_height="wrap_content"
 	android:background="@drawable/selectable_item_drawable">
 
 	<TextView
@@ -32,18 +32,17 @@
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@id/name"
 		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintBottom_toTopOf="@id/divider"
 		tools:text="$200.00" />
 
-	<com.google.android.material.divider.MaterialDivider
-		android:id="@+id/divider"
-		android:layout_width="0dp"
-		android:layout_height="wrap_content"
-		android:layout_marginTop="12dp"
-		app:lastItemDecorated="false"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintTop_toBottomOf="@id/balance" />
+<!--	<com.google.android.material.divider.MaterialDivider-->
+<!--		android:id="@+id/divider"-->
+<!--		android:layout_width="0dp"-->
+<!--		android:layout_height="wrap_content"-->
+<!--		android:layout_marginTop="12dp"-->
+<!--		app:lastItemDecorated="false"-->
+<!--		app:layout_constraintStart_toStartOf="parent"-->
+<!--		app:layout_constraintEnd_toEndOf="parent"-->
+<!--		app:layout_constraintTop_toBottomOf="@id/balance" />-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 

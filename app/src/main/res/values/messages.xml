@@ -30,6 +30,7 @@
     <string name="message_success_delete_multiple_histories">Histories deleted</string>
     <string name="message_fail_delete_multiple_histories">Histories not deleted</string>
     <string name="message_warning_delete">Do you want to delete %1$s permanently?</string>
+    <string name="message_warning_delete_history">Delete history permanently?</string>
     <string name="message_warning_delete_multiple">Do you want to delete %1$d items permanently?</string>
     <string name="message_set_default_account">Set %1$s as default account?</string>
     <string name="message_error_file_access">
