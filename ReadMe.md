@@ -24,7 +24,8 @@ A simple, clean, no-nonsense Android app for tracking daily credits, debits, bal
 |---------------------------------------|-------------------------------------------------|
 | ![](./screenshots/backup_restore.png) | ![](./screenshots/backup_frequency_chooser.png) |
 
-Do check a working example on [Youtube](https://youtu.be/59j8cjbDphY)
+
+Browse all images [here](./screenshots). Do check a working example on [Youtube](https://youtu.be/59j8cjbDphY)
 
 ## ✨ Features
 
@@ -66,6 +67,7 @@ Do check a working example on [Youtube](https://youtu.be/59j8cjbDphY)
 * WorkManager
 * RecyclerView
 * ConstraintLayout
+* Paging3
 
 **Async:** Coroutines + Flow
 **DI:** None
@@ -87,14 +89,16 @@ Used `SharedFlow` + sealed UI states (`UILoading`, `UISuccess`, `UIError`) for p
 
 ## 🚀 Upcoming Features (Next 2–3 Releases)
 
-* Income & expense categories
+* Income & expense with categories
 * Track and visualize earning and expenses
 * Export history in pdf, excel, csv etc.
 * Cloud backup + restore
 
-## 📦 Project Links
+## 📦 Important Links
 
 **Email:** rahulstech18@gmail.com
-**GitHub:** [Visit Github](https://github.com/rahulstech)
-**LinkedIn:** [Visit LinkedIn](https://www.linkedin.com/in/rahul-bagchi-176a63212/)
+
+**GitHub:** [Profile](https://github.com/rahulstech)
+
+**LinkedIn:** [Profile](https://www.linkedin.com/in/rahul-bagchi-176a63212/)
 

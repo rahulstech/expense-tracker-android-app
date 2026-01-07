@@ -110,6 +110,9 @@ object BackupRestoreHelper {
             ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
             request
         )
+
+        // must manually trigger the first work otherwise the periodic work will never run
+        backupOnce(workManager)
     }
 
     // restore related methods
