@@ -14,11 +14,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dreammaker.android.expensetracker.core.util.QuickMessages
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 import rahulstech.android.expensetracker.backuprestore.Constants.BACKUP_FILE_MIME_TYPES
 import rahulstech.android.expensetracker.backuprestore.R
 import rahulstech.android.expensetracker.backuprestore.databinding.ActivityBackupRestoreBinding
@@ -27,7 +24,6 @@ import rahulstech.android.expensetracker.backuprestore.settings.BackupFrequency
 import rahulstech.android.expensetracker.backuprestore.util.FileEntry
 import rahulstech.android.expensetracker.backuprestore.util.FileUtil
 import rahulstech.android.expensetracker.backuprestore.worker.BackupRestoreHelper
-import rahulstech.android.expensetracker.backuprestore.worker.ProgressData
 import java.time.format.DateTimeFormatter
 
 typealias PendingTask = () -> Unit
@@ -86,16 +82,16 @@ class BackupRestoreActivity : AppCompatActivity() {
         }
 
         binding.btnStartBackup.setOnClickListener { onClickStartBackup() }
-        binding.btnCancelBackup.setOnClickListener { onClickCancelBackup() }
+//        binding.btnCancelBackup.setOnClickListener { onClickCancelBackup() }
         binding.btnOpenRestoreLocal.setOnClickListener { onClickPickBackupFile() }
 
         viewModel.getLastLocalBackupTime().observe(this) { updateLastLocalBackupTime() }
-        lifecycleScope.launch {
-            viewModel.getBackupProgressFlow().collectLatest { updateBackupProgress(it) }
-        }
-        lifecycleScope.launch {
-            viewModel.getRestoreProgressFlow().collectLatest { updateRestoreProgress(it) }
-        }
+//        lifecycleScope.launch {
+//            viewModel.getBackupProgressFlow().collectLatest { updateBackupProgress(it) }
+//        }
+//        lifecycleScope.launch {
+//            viewModel.getRestoreProgressFlow().collectLatest { updateRestoreProgress(it) }
+//        }
     }
 
     // event handlers
@@ -119,7 +115,7 @@ class BackupRestoreActivity : AppCompatActivity() {
         }
     }
 
-    private fun onClickCancelBackup() { cancelBackup() }
+//    private fun onClickCancelBackup() { cancelBackup() }
 
     private fun onClickPickBackupFile() {
         val permissions: Array<String> = when {
@@ -173,9 +169,9 @@ class BackupRestoreActivity : AppCompatActivity() {
         BackupRestoreHelper.startBackup(applicationContext, settings.getBackupFrequency())
     }
 
-    private fun cancelBackup() {
-        BackupRestoreHelper.cancelBackup(applicationContext)
-    }
+//    private fun cancelBackup() {
+//        BackupRestoreHelper.cancelBackup(applicationContext)
+//    }
 
     private fun startRestore(entry: FileEntry) {
         BackupRestoreHelper.startRestore(applicationContext, entry)
@@ -190,39 +186,39 @@ class BackupRestoreActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateBackupProgress(data: ProgressData?) {
-        if (data == null) {
-            binding.groupBackupProgress.visibility = View.INVISIBLE
-            binding.btnStartBackup.visibility = View.VISIBLE
-        }
-        else {
-            binding.groupBackupProgress.visibility = View.VISIBLE
-            binding.btnStartBackup.visibility = View.INVISIBLE
-            binding.backupProgressMessage.text = data.message
-            binding.backupProgressbar.apply {
-                isIndeterminate = data.max < 0 || data.current < 0
-                max = data.max
-                progress = data.current
-            }
-        }
-    }
+//    private fun updateBackupProgress(data: ProgressData?) {
+//        if (data == null) {
+//            binding.groupBackupProgress.visibility = View.INVISIBLE
+//            binding.btnStartBackup.visibility = View.VISIBLE
+//        }
+//        else {
+//            binding.groupBackupProgress.visibility = View.VISIBLE
+//            binding.btnStartBackup.visibility = View.INVISIBLE
+//            binding.backupProgressMessage.text = data.message
+//            binding.backupProgressbar.apply {
+//                isIndeterminate = data.max < 0 || data.current < 0
+//                max = data.max
+//                progress = data.current
+//            }
+//        }
+//    }
 
-    private fun updateRestoreProgress(data: ProgressData?) {
-        if (data == null) {
-            binding.groupRestoreProgress.visibility = View.INVISIBLE
-            binding.btnOpenRestoreLocal.visibility = View.VISIBLE
-        }
-        else {
-            binding.groupRestoreProgress.visibility = View.VISIBLE
-            binding.btnOpenRestoreLocal.visibility = View.INVISIBLE
-            binding.restoreProgressMessage.text = data.message
-            binding.restoreProgressbar.apply {
-                isIndeterminate = data.max < 0 || data.current < 0
-                max = data.max
-                progress = data.current
-            }
-        }
-    }
+//    private fun updateRestoreProgress(data: ProgressData?) {
+//        if (data == null) {
+//            binding.groupRestoreProgress.visibility = View.INVISIBLE
+//            binding.btnOpenRestoreLocal.visibility = View.VISIBLE
+//        }
+//        else {
+//            binding.groupRestoreProgress.visibility = View.VISIBLE
+//            binding.btnOpenRestoreLocal.visibility = View.INVISIBLE
+//            binding.restoreProgressMessage.text = data.message
+//            binding.restoreProgressbar.apply {
+//                isIndeterminate = data.max < 0 || data.current < 0
+//                max = data.max
+//                progress = data.current
+//            }
+//        }
+//    }
 
 
     // runtime permission related methods

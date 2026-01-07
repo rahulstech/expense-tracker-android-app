@@ -2,6 +2,7 @@ package rahulstech.android.expensetracker.backuprestore.worker.job.impl.backup
 
 import rahulstech.android.expensetracker.backuprestore.Constants
 import rahulstech.android.expensetracker.backuprestore.util.HistoryData
+import rahulstech.android.expensetracker.backuprestore.util.Progress
 import rahulstech.android.expensetracker.backuprestore.util.toHistoryData
 import rahulstech.android.expensetracker.backuprestore.worker.job.JsonBackupJob
 import rahulstech.android.expensetracker.domain.BackupRepository
@@ -10,7 +11,8 @@ import java.io.OutputStream
 class JsonBackupJobV8Impl(
     destination: OutputStream,
     val repo: BackupRepository,
-): JsonBackupJob(8,destination) {
+    progressCallback: (Progress)-> Unit = {}
+): JsonBackupJob(8,destination,progressCallback) {
 
     override fun doBackup() {
         backupAccounts()

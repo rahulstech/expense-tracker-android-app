@@ -1,12 +1,10 @@
 package rahulstech.android.expensetracker.backuprestore.worker.backup
 
-import android.app.Notification
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.os.Build
 import android.util.Log
-import androidx.annotation.StringRes
 import androidx.annotation.VisibleForTesting
 import androidx.work.ForegroundInfo
 import androidx.work.Worker
@@ -19,7 +17,6 @@ import rahulstech.android.expensetracker.backuprestore.Constants
 import rahulstech.android.expensetracker.backuprestore.R
 import rahulstech.android.expensetracker.backuprestore.receiver.WorkBroadcastReceiver
 import rahulstech.android.expensetracker.backuprestore.util.FileUtil
-import rahulstech.android.expensetracker.backuprestore.util.NotificationBuilder
 import rahulstech.android.expensetracker.backuprestore.util.NotificationConstants
 import rahulstech.android.expensetracker.backuprestore.util.createBackupNotification
 import rahulstech.android.expensetracker.backuprestore.util.formatDateTimeInFilename
@@ -35,17 +32,22 @@ class GZipBackupWorker(context: Context, parameters: WorkerParameters): Worker(c
         private const val PUBLIC_BACKUP_FILE_NAME = "backup_%s.tar.gz"
         private const val NAME_VERSION = "VERSION"
         private const val NAME_BACKUP_DATA = "backup.json"
+
         private const val MAX_PROGRESS = 2
     }
 
     override fun doWork(): Result {
-        val inputBackupFile = getInputBackupFile()
-        val backupFile: File
+        // for a long running work start foreground as soon as work starts
+        // also since Android 10 if the app is not foreground then many permission may be denied
+        // hence it is safe to use foreground work
+        startForeground()
 
-        updateProgress(0, R.string.message_backup_progress)
+        var inputFile: File? = null
         try {
+            inputFile = getInputBackupFile()
+
             // start gzip backup
-            backupFile = backup(inputBackupFile)
+            val backupFile = backup(inputFile)
 
             // copy archive file to public directory
             copyBackupFileToExternalPublicDirectory(backupFile)
@@ -53,18 +55,19 @@ class GZipBackupWorker(context: Context, parameters: WorkerParameters): Worker(c
             // update last backup time
             notifyBackupTime()
 
-            // delete unnecessary files
-            runCatching { inputBackupFile.delete() }
+            val resultData = workDataOf(
+                Constants.DATA_BACKUP_FILE to backupFile.canonicalPath
+            )
+            return Result.success(resultData)
         }
         catch (ex: Exception) {
             Log.e(TAG, "GZipBackupWork failed with exception", ex)
             return Result.failure()
         }
-
-        val resultData = workDataOf(
-            Constants.DATA_BACKUP_FILE to backupFile.canonicalPath
-        )
-        return Result.success(resultData)
+        finally {
+            // delete unnecessary files
+            runCatching { inputFile?.deleteRecursively() }
+        }
     }
 
     fun backup(inputBackupFile: File): File {
@@ -81,8 +84,6 @@ class GZipBackupWorker(context: Context, parameters: WorkerParameters): Worker(c
             // add backup.json file
             throwIfStopped()
             writeBackupFile(tarOS, inputBackupFile)
-
-            updateProgress(1, R.string.message_backup_progress_archiving)
         }
         finally {
             runCatching { tarOS.close() }
@@ -146,7 +147,6 @@ class GZipBackupWorker(context: Context, parameters: WorkerParameters): Worker(c
             privateBackupFile.inputStream().use { src ->
                 Log.i(TAG, "coping from $privateBackupFile to $publicBackupFileName in external public storage")
                 FileUtil.copy(src,dest)
-                updateProgress(2, R.string.message_backup_progress_copying)
             }
         }
     }
@@ -157,29 +157,32 @@ class GZipBackupWorker(context: Context, parameters: WorkerParameters): Worker(c
         })
     }
 
-    private fun updateProgress(current: Int, @StringRes messageId: Int) {
-        val progressMessage = applicationContext.getString(messageId)
-        setProgressAsync(
-            workDataOf(
-                Constants.DATA_PROGRESS_MAX to MAX_PROGRESS,
-                Constants.DATA_PROGRESS_CURRENT to current,
-                Constants.DATA_PROGRESS_MESSAGE to progressMessage
-            )
-        )
-        val builder = NotificationBuilder(applicationContext).apply {
-            message = progressMessage
-            setProgress(current, MAX_PROGRESS)
-        }
-        val notification = createBackupNotification(applicationContext, builder)
-        setForegroundAsync(createForegroundInfo(notification))
-    }
+//    private fun updateProgress(current: Int, @StringRes messageId: Int) {
+//        val progressMessage = applicationContext.getString(messageId)
+//        setProgressAsync(
+//            workDataOf(
+//                Constants.DATA_PROGRESS_MAX to MAX_PROGRESS,
+//                Constants.DATA_PROGRESS_CURRENT to current,
+//                Constants.DATA_PROGRESS_MESSAGE to progressMessage
+//            )
+//        )
+//        val builder = NotificationBuilder(applicationContext).apply {
+//            message = progressMessage
+//            setProgress(current, MAX_PROGRESS)
+//        }
+//        val notification = createBackupNotification(applicationContext, builder)
+//        setForegroundAsync(createForegroundInfo(notification))
+//    }
 
-    private fun createForegroundInfo(notification: Notification): ForegroundInfo {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+    private fun startForeground() {
+        val message = applicationContext.getString(R.string.notification_message_backup)
+        val notification = createBackupNotification(applicationContext,message)
+        val foregroundInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             ForegroundInfo(NotificationConstants.BACKUP_NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
         } else {
             ForegroundInfo(NotificationConstants.BACKUP_NOTIFICATION_ID, notification)
         }
+        setForegroundAsync(foregroundInfo)
     }
 
     private fun throwIfStopped() {

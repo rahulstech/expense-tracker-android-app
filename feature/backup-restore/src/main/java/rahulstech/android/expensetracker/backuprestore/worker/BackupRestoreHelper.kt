@@ -105,7 +105,11 @@ object BackupRestoreHelper {
         val request = PeriodicWorkRequestBuilder<BackupWorker>(days, TimeUnit.DAYS)
             .setInitialDelay(delayMillis, TimeUnit.MILLISECONDS)
             .build()
-        workManager.enqueueUniquePeriodicWork(Constants.TAG_PERIODIC_BACKUP_WORK, ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE, request)
+        workManager.enqueueUniquePeriodicWork(
+            Constants.TAG_PERIODIC_BACKUP_WORK,
+            ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
+            request
+        )
     }
 
     // restore related methods

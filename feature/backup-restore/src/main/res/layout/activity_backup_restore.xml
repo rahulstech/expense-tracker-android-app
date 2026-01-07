@@ -61,56 +61,56 @@
 
         <!-- BACKUP PROGRESS -->
 
-        <TextView
-            android:id="@+id/backup_progress_message"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-            tools:text="backup accounts in progress"
-            app:layout_constrainedWidth="true"
-            app:layout_constraintTop_toBottomOf="@id/label_last_local_backup"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/btn_cancel_backup"
-            app:layout_constraintHorizontal_bias="0"/>
+<!--        <TextView-->
+<!--            android:id="@+id/backup_progress_message"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginTop="18dp"-->
+<!--            android:textAppearance="@style/TextAppearance.Material3.BodySmall"-->
+<!--            tools:text="backup accounts in progress"-->
+<!--            app:layout_constrainedWidth="true"-->
+<!--            app:layout_constraintTop_toBottomOf="@id/label_last_local_backup"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintEnd_toStartOf="@id/btn_cancel_backup"-->
+<!--            app:layout_constraintHorizontal_bias="0"/>-->
 
-        <com.google.android.material.progressindicator.LinearProgressIndicator
-            android:id="@+id/backup_progressbar"
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:maxWidth="300dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
-            app:indicatorTrackGapSize="0dp"
-            app:trackColor="?attr/colorPrimaryContainer"
-            app:trackCornerRadius="24dp"
-            app:indicatorColor="?attr/colorPrimary"
-            app:layout_constraintTop_toBottomOf="@id/backup_progress_message"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/btn_cancel_backup"
-            tools:visibility="gone"/>
+<!--        <com.google.android.material.progressindicator.LinearProgressIndicator-->
+<!--            android:id="@+id/backup_progressbar"-->
+<!--            android:layout_width="200dp"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:maxWidth="300dp"-->
+<!--            android:layout_marginTop="8dp"-->
+<!--            android:layout_marginLeft="8dp"-->
+<!--            android:layout_marginRight="8dp"-->
+<!--            app:indicatorTrackGapSize="0dp"-->
+<!--            app:trackColor="?attr/colorPrimaryContainer"-->
+<!--            app:trackCornerRadius="24dp"-->
+<!--            app:indicatorColor="?attr/colorPrimary"-->
+<!--            app:layout_constraintTop_toBottomOf="@id/backup_progress_message"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintEnd_toStartOf="@id/btn_cancel_backup"-->
+<!--            tools:visibility="gone"/>-->
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_cancel_backup"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginStart="12dp"
-            style="@style/Widget.Material3.Button.IconButton"
-            app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.Full"
-            app:icon="@drawable/baseline_close"
-            app:iconSize="20dp"
-            app:iconTint="?attr/colorOnBackground"
-            app:layout_constraintTop_toTopOf="@id/backup_progressbar"
-            app:layout_constraintStart_toEndOf="@id/backup_progressbar"
-            app:layout_constraintBottom_toBottomOf="@id/backup_progressbar"/>
+<!--        <com.google.android.material.button.MaterialButton-->
+<!--            android:id="@+id/btn_cancel_backup"-->
+<!--            android:layout_width="48dp"-->
+<!--            android:layout_height="48dp"-->
+<!--            android:layout_marginStart="12dp"-->
+<!--            style="@style/Widget.Material3.Button.IconButton"-->
+<!--            app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.Full"-->
+<!--            app:icon="@drawable/baseline_close"-->
+<!--            app:iconSize="20dp"-->
+<!--            app:iconTint="?attr/colorOnBackground"-->
+<!--            app:layout_constraintTop_toTopOf="@id/backup_progressbar"-->
+<!--            app:layout_constraintStart_toEndOf="@id/backup_progressbar"-->
+<!--            app:layout_constraintBottom_toBottomOf="@id/backup_progressbar"/>-->
 
-        <androidx.constraintlayout.widget.Group
-            android:id="@+id/group_backup_progress"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="invisible"
-            app:constraint_referenced_ids="btn_cancel_backup,backup_progressbar,backup_progress_message"/>
+<!--        <androidx.constraintlayout.widget.Group-->
+<!--            android:id="@+id/group_backup_progress"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:visibility="invisible"-->
+<!--            app:constraint_referenced_ids="btn_cancel_backup,backup_progressbar,backup_progress_message"/>-->
 
         <!-- backup frequency -->
         <TextView
@@ -172,36 +172,36 @@
 
         <!-- RESTORE PROGRESS -->
 
-        <TextView
-            android:id="@+id/restore_progress_message"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-            app:layout_constrainedWidth="true"
-            app:layout_constraintTop_toBottomOf="@id/label_restore_settings"
-            app:layout_constraintStart_toStartOf="parent"
-            tools:text="restoring from backup.json"/>
+<!--        <TextView-->
+<!--            android:id="@+id/restore_progress_message"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginTop="18dp"-->
+<!--            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"-->
+<!--            app:layout_constrainedWidth="true"-->
+<!--            app:layout_constraintTop_toBottomOf="@id/label_restore_settings"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            tools:text="restoring from backup.json"/>-->
 
-        <com.google.android.material.progressindicator.LinearProgressIndicator
-            android:id="@+id/restore_progressbar"
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            app:indicatorTrackGapSize="0dp"
-            app:trackColor="?attr/colorPrimaryContainer"
-            app:trackCornerRadius="24dp"
-            app:indicatorColor="?attr/colorPrimary"
-            app:layout_constraintTop_toBottomOf="@id/restore_progress_message"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/btn_cancel_backup" />
+<!--        <com.google.android.material.progressindicator.LinearProgressIndicator-->
+<!--            android:id="@+id/restore_progressbar"-->
+<!--            android:layout_width="200dp"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginTop="8dp"-->
+<!--            app:indicatorTrackGapSize="0dp"-->
+<!--            app:trackColor="?attr/colorPrimaryContainer"-->
+<!--            app:trackCornerRadius="24dp"-->
+<!--            app:indicatorColor="?attr/colorPrimary"-->
+<!--            app:layout_constraintTop_toBottomOf="@id/restore_progress_message"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"/>-->
 
-        <androidx.constraintlayout.widget.Group
-            android:id="@+id/group_restore_progress"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:constraint_referenced_ids="restore_progressbar,restore_progress_message"
-            android:visibility="gone"/>
+<!--        <androidx.constraintlayout.widget.Group-->
+<!--            android:id="@+id/group_restore_progress"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            app:constraint_referenced_ids="restore_progressbar,restore_progress_message"-->
+<!--            android:visibility="gone"/>-->
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

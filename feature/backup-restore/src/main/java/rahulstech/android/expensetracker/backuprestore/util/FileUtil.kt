@@ -65,16 +65,7 @@ object FileUtil {
     }
 
     fun copy(src: InputStream, dest: OutputStream) {
-        val buffer = ByteArray(1024)
-        var readLength: Int
-        while (true) {
-            readLength = src.read(buffer)
-            if (readLength == -1) {
-                break
-            }
-            dest.write(buffer, 0, readLength)
-            dest.flush()
-        }
+        src.copyTo(dest)
     }
 
     private fun getPublicBackupDirectoryRelative(): String {

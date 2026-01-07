@@ -41,15 +41,19 @@ class JsonArrayChunkWriter<T>(val job: JsonBackupJob): Closeable {
 abstract class JsonBackupJob(
     val version: Int,
     val destination: OutputStream,
+    val progressCallback: (Progress) -> Unit = {}
 ): Closeable {
     companion object {
 
         private val TAG = JsonBackupJob::class.simpleName
 
-        fun create(version: Int, repo: BackupRepository, destFactory: ()->OutputStream): JsonBackupJob {
+        fun create(version: Int,
+                   repo: BackupRepository,
+                   destFactory: ()->OutputStream,
+                   progressCallback: (Progress)-> Unit = {}): JsonBackupJob {
             val destination = destFactory()
             return when (version) {
-                8 -> JsonBackupJobV8Impl(destination,repo)
+                8 -> JsonBackupJobV8Impl(destination,repo,progressCallback)
                 else -> throw VersionException("unknow JsonBackupJob version $version")
             }
         }
@@ -60,8 +64,6 @@ abstract class JsonBackupJob(
 
     private var terminated: Boolean = false
     private val lock = Any()
-
-    var progressCallback: ((JsonBackupJob, Progress)->Unit)? = null
 
     fun backup() {
         beginObject()
@@ -153,7 +155,7 @@ abstract class JsonBackupJob(
     }
 
     fun notifyProgress(progress: Progress) {
-        progressCallback?.invoke(this,progress)
+        progressCallback.invoke(progress)
     }
 
     override fun close() {

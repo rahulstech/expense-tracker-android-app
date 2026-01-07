@@ -7,6 +7,10 @@
     <string name="label_last_local_backup_time">Local Backup</string>
     <string name="label_last_local_backup_time_never">Never</string>
     <string name="notification_title_backup">Backup</string>
+    <string name="notification_message_backup">Backup in progress</string>
+    <string name="notification_title_restore">Restore</string>
+    <string name="notification_message_restore">Restore in progress</string>
+
     <string name="message_backup_start">Local backup start</string>
     <string name="message_backup_progress">Backup in progress</string>
     <string name="label_start_backup">Start Backup</string>
@@ -18,7 +22,7 @@
     <string name="description_restore_settings">Restore</string>
     <string name="label_open_restore_local">Restore Local</string>
     <string name="label_start_restore">Start Restore</string>
-    <string name="notification_title_restore">Restore</string>
+
     <string name="message_json_restore">Restoring</string>
     <string name="message_pick_backup_file_instruction">
         Go to the directory ExpenseTracker > backup and choose one of the .tar.gz file.

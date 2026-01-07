@@ -61,19 +61,22 @@ class JsonArrayChunkReader<T>(
 abstract class JsonRestoreJob(
     val version: Int,
     val source: InputStream,
+    val progressCallback: (Progress) -> Unit = {}
 ): Closeable {
 
     companion object {
 
         private val TAG = JsonRestoreJob::class.simpleName
 
-        fun create(repo: RestoreRepository, sourceFactory: ()->InputStream): JsonRestoreJob {
+        fun create(repo: RestoreRepository,
+                   sourceFactory: ()->InputStream,
+                   progressCallback: (Progress)-> Unit = {}): JsonRestoreJob {
             val version = sourceFactory().use { source ->
                 readVersion(source)
             }
             val source = sourceFactory()
             return when (version) {
-                8 -> JsonRestoreJobV8Impl(source, repo)
+                8 -> JsonRestoreJobV8Impl(source, repo, progressCallback)
                 else -> throw VersionException("can not create JsonRestoreJob for version $version")
             }
         }
@@ -92,8 +95,6 @@ abstract class JsonRestoreJob(
     // terminated will be set and get from different threads, always get and set this in threadsafe way
     private var terminated: Boolean = false
     private val lock = Any()
-
-    var progressCallback: ((JsonRestoreJob, Progress)-> Unit)? = null
 
     fun restore() {
         beginObject()
@@ -190,7 +191,7 @@ abstract class JsonRestoreJob(
     }
 
     fun notifyProgress(progress: Progress) {
-        progressCallback?.invoke(this,progress)
+        progressCallback.invoke(progress)
     }
 
     override fun close() {

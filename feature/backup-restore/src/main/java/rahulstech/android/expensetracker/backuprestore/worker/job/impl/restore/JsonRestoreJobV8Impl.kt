@@ -2,6 +2,7 @@ package rahulstech.android.expensetracker.backuprestore.worker.job.impl.restore
 
 import rahulstech.android.expensetracker.backuprestore.Constants
 import rahulstech.android.expensetracker.backuprestore.util.HistoryData
+import rahulstech.android.expensetracker.backuprestore.util.Progress
 import rahulstech.android.expensetracker.backuprestore.worker.job.JsonArrayChunkReader
 import rahulstech.android.expensetracker.backuprestore.worker.job.JsonRestoreJob
 import rahulstech.android.expensetracker.domain.RestoreRepository
@@ -12,7 +13,8 @@ import java.io.InputStream
 class JsonRestoreJobV8Impl(
     source: InputStream,
     val repo: RestoreRepository,
-): JsonRestoreJob(8,source) {
+    progressCallback: (Progress)-> Unit = {},
+): JsonRestoreJob(8,source, progressCallback) {
 
     override fun doRestore() {
         while (hasNext()) {

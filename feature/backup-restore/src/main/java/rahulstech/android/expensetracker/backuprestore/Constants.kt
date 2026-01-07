@@ -12,12 +12,18 @@ object Constants {
     const val DATA_BACKUP_FILE = "backup_file"
     const val DATA_BACKUP_FILE_NAME = "backup_file_name"
 
+    const val DATA_FILE_PATH = "file_path"
+
+    const val DATA_VERSION = "version"
+
     const val TAG_BACKUP_WORK = "backup_work"
     const val TAG_PERIODIC_BACKUP_WORK = "periodic_backup_work"
     const val TAG_JSON_BACKUP_WORK = "json_backup_work"
     const val TAG_GZIP_BACKUP_WORK = "gzip_backup_work"
     const val TAG_RESTORE_WORK = "restore_work"
+
     const val TAG_JSON_RESTORE_WORK = "json_restore_work"
+
     const val TAG_GZIP_RESTORE_WORK = "gzip_restore_work"
 
     const val REQUEST_CANCEL_BACKUP = 100
