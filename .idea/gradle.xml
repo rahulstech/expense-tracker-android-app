@@ -10,13 +10,13 @@
         <option name="gradleJvm" value="#GRADLE_LOCAL_JAVA_HOME" />
         <option name="modules">
           <set>
-            <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/core" />
-            <option value="$PROJECT_DIR$/database" />
-            <option value="$PROJECT_DIR$/domain" />
-            <option value="$PROJECT_DIR$/feature" />
-            <option value="$PROJECT_DIR$/feature/backup-restore" />
+            <option value="/mnt/hdd/AndroidStudioProjects/expense-tracker-android-app" />
+            <option value="/mnt/hdd/AndroidStudioProjects/expense-tracker-android-app/app" />
+            <option value="/mnt/hdd/AndroidStudioProjects/expense-tracker-android-app/core" />
+            <option value="/mnt/hdd/AndroidStudioProjects/expense-tracker-android-app/database" />
+            <option value="/mnt/hdd/AndroidStudioProjects/expense-tracker-android-app/domain" />
+            <option value="/mnt/hdd/AndroidStudioProjects/expense-tracker-android-app/feature" />
+            <option value="/mnt/hdd/AndroidStudioProjects/expense-tracker-android-app/feature/backup-restore" />
           </set>
         </option>
       </GradleProjectSettings>
