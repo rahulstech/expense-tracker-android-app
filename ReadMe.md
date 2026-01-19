@@ -27,6 +27,10 @@ A simple, clean, no-nonsense Android app for tracking daily credits, debits, bal
 
 Browse all images [here](./screenshots). Do check a working example on [Youtube](https://youtu.be/59j8cjbDphY)
 
+## Apk Download
+
+Download the latest **Expense Tracker** android app [here](./apk/app-latest.apk)
+
 ## ✨ Features
 
 **Core**
