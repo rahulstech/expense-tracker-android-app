@@ -116,14 +116,15 @@ class JsonRestoreJobTest {
     fun create_throwsVersionException() {
         val json = "{\"version\":10}"
         assertThrows(VersionException::class.java) {
-            JsonRestoreJob.create(FakeRestoreRepositoryImpl()) { json.asInputStream() }
+            JsonRestoreJob.create(
+                FakeRestoreRepositoryImpl(), sourceFactory =  { json.asInputStream() })
         }
     }
 
     @Test
     fun create() {
         val json = "{\"version\":8}"
-        val job = JsonRestoreJob.create(FakeRestoreRepositoryImpl()) { json.asInputStream() }
+        val job = JsonRestoreJob.create(FakeRestoreRepositoryImpl(), sourceFactory =  { json.asInputStream() })
         assertTrue(job is JsonRestoreJobV8Impl)
     }
 }

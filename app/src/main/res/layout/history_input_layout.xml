@@ -69,7 +69,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAppearance="@style/TextAppearance.AppCompat.Large"
-                android:inputType="numberSigned"
+                android:inputType="number|numberDecimal"
                 android:focusedByDefault="false"
                 tools:text="120.00"/>
 

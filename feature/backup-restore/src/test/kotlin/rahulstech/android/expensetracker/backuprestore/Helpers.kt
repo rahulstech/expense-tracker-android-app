@@ -44,7 +44,7 @@ class FakeBackupRepositoryImpl: BackupRepository {
 
     val groups = listOf(
         Group(id = 1, name = "Group 1", balance = 100f),
-        Group(id = 2, name = "Group 2", balance = 0f, isDefault = true),
+        Group(id = 2, name = "Group 2", balance = 0f),
     )
 
     val histories = listOf(
