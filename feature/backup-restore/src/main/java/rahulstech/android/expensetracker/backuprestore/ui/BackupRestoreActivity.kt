@@ -15,6 +15,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import dagger.hilt.android.AndroidEntryPoint
 import dreammaker.android.expensetracker.core.util.QuickMessages
 import rahulstech.android.expensetracker.backuprestore.Constants.BACKUP_FILE_MIME_TYPES
 import rahulstech.android.expensetracker.backuprestore.R
@@ -25,9 +26,11 @@ import rahulstech.android.expensetracker.backuprestore.util.FileEntry
 import rahulstech.android.expensetracker.backuprestore.util.FileUtil
 import rahulstech.android.expensetracker.backuprestore.worker.BackupRestoreHelper
 import java.time.format.DateTimeFormatter
+import javax.inject.Inject
 
 typealias PendingTask = () -> Unit
 
+@AndroidEntryPoint
 class BackupRestoreActivity : AppCompatActivity() {
 
     companion object {
@@ -35,11 +38,12 @@ class BackupRestoreActivity : AppCompatActivity() {
         private val DATETIME_FORMAT = DateTimeFormatter.ofPattern("EEE, dd-MMM-yyyy hh:mm a")
     }
 
+    @Inject
+    lateinit var settings: AgentSettingsProvider
+
     private lateinit var binding: ActivityBackupRestoreBinding
 
     private val viewModel: BackupRestoreViewModel by viewModels()
-
-    private lateinit var settings: AgentSettingsProvider
 
     private lateinit var permissionRequestLauncher: ActivityResultLauncher<Array<String>>
 
@@ -55,8 +59,6 @@ class BackupRestoreActivity : AppCompatActivity() {
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
-        settings = AgentSettingsProvider.get(this)
 
         permissionRequestLauncher = registerForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions(),this::onPermissionResult)

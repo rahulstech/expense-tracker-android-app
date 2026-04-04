@@ -6,8 +6,9 @@ import rahulstech.android.expensetracker.domain.RestoreRepository
 import rahulstech.android.expensetracker.domain.model.Account
 import rahulstech.android.expensetracker.domain.model.Group
 import rahulstech.android.expensetracker.domain.model.History
+import javax.inject.Inject
 
-internal class RestoreRepositoryImpl(
+class RestoreRepositoryImpl @Inject constructor(
     private val db: IExpenseDatabase,
     private val cache: LocalCache,
 ): RestoreRepository {

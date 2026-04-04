@@ -1,9 +1,9 @@
 package dreammaker.android.expensetracker.ui.account.viewaccount
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import dreammaker.android.expensetracker.ui.UIState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
@@ -12,15 +12,14 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
-import rahulstech.android.expensetracker.domain.ExpenseRepository
+import rahulstech.android.expensetracker.domain.AccountRepository
 import rahulstech.android.expensetracker.domain.model.Account
+import javax.inject.Inject
 
-class ViewAccountViewModel(
-   app: Application
-): AndroidViewModel(app) {
-
-    private val accountRepo = ExpenseRepository.getInstance(app).accountRepository
-
+@HiltViewModel
+class ViewAccountViewModel @Inject constructor(
+    private val accountRepo: AccountRepository
+): ViewModel() {
     private lateinit var account: LiveData<Account?>
 
     fun getStoredAccount(): Account? {

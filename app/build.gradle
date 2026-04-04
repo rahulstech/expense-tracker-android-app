@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.application)
     alias(libs.plugins.kotlin)
     alias(libs.plugins.kapt)
+    alias(libs.plugins.hilt.gradle.plugin)
 }
 
 android {
@@ -52,6 +53,10 @@ android {
     }
     kotlinOptions {
         jvmTarget = '17'
+        languageVersion = '2.0'
+    }
+    kapt {
+        correctErrorTypes true
     }
 }
 
@@ -84,6 +89,10 @@ dependencies {
 
     // facebook shimmer
     implementation libs.shimmereffect
+
+    // hilt
+    implementation libs.hilt.android
+    kapt libs.hilt.compiler
 
     // paging
     implementation libs.paging.runtime

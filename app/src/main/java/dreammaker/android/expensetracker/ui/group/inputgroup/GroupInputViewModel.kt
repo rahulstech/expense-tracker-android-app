@@ -1,9 +1,9 @@
 package dreammaker.android.expensetracker.ui.group.inputgroup
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import dreammaker.android.expensetracker.ui.UIState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
@@ -12,15 +12,14 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
-import rahulstech.android.expensetracker.domain.ExpenseRepository
+import rahulstech.android.expensetracker.domain.GroupRepository
 import rahulstech.android.expensetracker.domain.model.Group
+import javax.inject.Inject
 
-class GroupInputViewModel(
-    app: Application
-): AndroidViewModel(app) {
-
-    private val groupRepo = ExpenseRepository.getInstance(app).groupRepository
-
+@HiltViewModel
+class GroupInputViewModel @Inject constructor(
+    private val groupRepo: GroupRepository
+): ViewModel() {
     lateinit var groupsLiveData: LiveData<Group?>
 
     fun getStoredGroup(): Group? {

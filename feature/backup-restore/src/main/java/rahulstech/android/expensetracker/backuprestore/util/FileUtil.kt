@@ -93,10 +93,13 @@ object FileUtil {
         val dir = File(Environment.getExternalStorageDirectory(), getPublicBackupDirectoryRelative())
         val file = File(dir, filename)
         try {
+            if (!dir.exists()) {
+                dir.mkdirs()
+            }
             return file.outputStream()
         }
         catch (ex: IOException) {
-            throw IllegalStateException("unable to open OutputStream for backup file ${file.canonicalPath} because ${ex.message}")
+            throw IllegalStateException("unable to open OutputStream for backup file ${file.canonicalPath}", ex)
         }
     }
 

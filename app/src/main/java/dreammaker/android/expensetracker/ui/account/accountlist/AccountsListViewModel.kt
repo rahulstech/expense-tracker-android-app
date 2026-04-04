@@ -1,12 +1,12 @@
 package dreammaker.android.expensetracker.ui.account.accountlist
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import dreammaker.android.expensetracker.ui.UIState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
@@ -19,13 +19,15 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
-import rahulstech.android.expensetracker.domain.ExpenseRepository
+import rahulstech.android.expensetracker.domain.AccountRepository
 import rahulstech.android.expensetracker.domain.model.Account
+import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
 
-class AccountsListViewModel (app: Application): AndroidViewModel(app) {
-
-    private val accountRepo = ExpenseRepository.getInstance(app).accountRepository
+@HiltViewModel
+class AccountsListViewModel @Inject constructor(
+    private val accountRepo: AccountRepository
+): ViewModel() {
 
     private val searchTextState = MutableStateFlow<String?>(null)
     private var _accounts: LiveData<List<Account>>? = null

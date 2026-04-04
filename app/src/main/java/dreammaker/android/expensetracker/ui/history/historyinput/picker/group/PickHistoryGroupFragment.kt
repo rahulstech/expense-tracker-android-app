@@ -11,6 +11,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import dagger.hilt.android.AndroidEntryPoint
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.databinding.SingleGroupPickerListWithSearchLayoutBinding
 import dreammaker.android.expensetracker.ui.GroupListItem
@@ -21,6 +22,7 @@ import dreammaker.android.expensetracker.util.visibilityGone
 import dreammaker.android.expensetracker.util.visible
 import rahulstech.android.expensetracker.domain.model.Group
 
+@AndroidEntryPoint
 class PickHistoryGroupFragment : Fragment() {
 
     private lateinit var binding: SingleGroupPickerListWithSearchLayoutBinding

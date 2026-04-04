@@ -1,12 +1,13 @@
 package dreammaker.android.expensetracker.ui.history.historyinput.picker.account
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import android.content.Context
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.application
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dreammaker.android.expensetracker.Constants.DEFAULT_MAX_FREQUENTLY_USED_ITEM
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.ui.AccountListItem
@@ -14,15 +15,16 @@ import dreammaker.android.expensetracker.util.insertSeparator
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.debounce
-import rahulstech.android.expensetracker.domain.ExpenseRepository
+import rahulstech.android.expensetracker.domain.AccountRepository
+import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
 
-class AccountPickerViewModel(
-    app: Application
-): AndroidViewModel(app) {
-
-    private val accountRepo = ExpenseRepository.getInstance(app).accountRepository
-
+@HiltViewModel
+class AccountPickerViewModel @Inject constructor(
+    @ApplicationContext
+    private val applicationContext: Context,
+    private val accountRepo: AccountRepository
+): ViewModel() {
     private val searchTextState = MutableStateFlow<String?>(null)
     private var _accountListItems: LiveData<List<AccountListItem>>? = null
 
@@ -58,8 +60,8 @@ class AccountPickerViewModel(
                                 if (null == before) {
                                     return@insertSeparator AccountListItem.Header(
                                         when (after.rank) {
-                                            0 -> application.getString(R.string.label_header_others)
-                                            else -> application.getString(R.string.label_header_frequently_used)
+                                            0 -> applicationContext.getString(R.string.label_header_others)
+                                            else -> applicationContext.getString(R.string.label_header_frequently_used)
                                         }
                                     )
                                 }
@@ -68,7 +70,7 @@ class AccountPickerViewModel(
                                     (before.rank > 0 && before.rank < maxFrequentlyUsed && after.rank == 0) || (before.rank == maxFrequentlyUsed)
                                 if (startOthers) {
                                     return@insertSeparator AccountListItem.Header(
-                                        application.getString(
+                                        applicationContext.getString(
                                             R.string.label_header_others
                                         )
                                     )

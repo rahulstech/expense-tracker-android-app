@@ -1,15 +1,23 @@
 package rahulstech.android.expensetracker.backuprestore.ui
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import android.content.Context
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import rahulstech.android.expensetracker.backuprestore.settings.AgentSettingsProvider
 import rahulstech.android.expensetracker.backuprestore.worker.BackupRestoreHelper
 import rahulstech.android.expensetracker.backuprestore.worker.ProgressData
 import java.time.LocalDateTime
+import javax.inject.Inject
 
-class BackupRestoreViewModel(private val app: Application): AndroidViewModel(app) {
+@HiltViewModel
+class BackupRestoreViewModel @Inject constructor(
+    @ApplicationContext
+    private val applicationContext: Context,
+    private val agentSettingsProvider: AgentSettingsProvider,
+): ViewModel() {
 
     companion object {
         private const val TAG = "BackupRestoreViewModel"
@@ -21,14 +29,14 @@ class BackupRestoreViewModel(private val app: Application): AndroidViewModel(app
 
     fun getBackupProgressFlow(): Flow<ProgressData?> {
         if (null == backupProgress) {
-            backupProgress = BackupRestoreHelper.getBackupProgress(app.applicationContext)
+            backupProgress = BackupRestoreHelper.getBackupProgress(applicationContext)
         }
         return backupProgress!!
     }
 
     fun getRestoreProgressFlow(): Flow<ProgressData?> {
         if (null == restoreProgress) {
-            restoreProgress = BackupRestoreHelper.getRestoreProgress(app.applicationContext)
+            restoreProgress = BackupRestoreHelper.getRestoreProgress(applicationContext)
         }
         return restoreProgress!!
     }
@@ -37,7 +45,7 @@ class BackupRestoreViewModel(private val app: Application): AndroidViewModel(app
 
     fun getLastLocalBackupTime(): LiveData<LocalDateTime> {
         if (null == lastLocalBackupTime) {
-            lastLocalBackupTime = AgentSettingsProvider.get(app.applicationContext).getLastLocalBackupLocalDateTimeLiveData()
+            lastLocalBackupTime = agentSettingsProvider.getLastLocalBackupLocalDateTimeLiveData()
         }
         return lastLocalBackupTime!!
     }

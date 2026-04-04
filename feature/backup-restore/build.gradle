@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.library)
     alias(libs.plugins.kotlin)
+    alias(libs.plugins.kapt)
+    alias(libs.plugins.hilt.gradle.plugin)
 }
 
 android {
@@ -32,6 +34,10 @@ android {
     }
     kotlinOptions {
         jvmTarget = '17'
+        languageVersion = '2.0'
+    }
+    kapt {
+        correctErrorTypes true
     }
 }
 
@@ -48,9 +54,18 @@ dependencies {
     implementation libs.activity
 
     // work manager
-    implementation libs.workmanager.runtime
-    implementation libs.documentfile
+    api libs.workmanager.runtime
     androidTestImplementation libs.workmanager.test
+
+    // hilt
+    implementation libs.hilt.android
+    implementation libs.androidx.hilt.common
+    api libs.androidx.hilt.work
+    kapt libs.hilt.compiler
+    kapt libs.androidx.hilt.compiler
+
+    // archive file utility
+    implementation libs.documentfile
 
     // ui
     implementation libs.material

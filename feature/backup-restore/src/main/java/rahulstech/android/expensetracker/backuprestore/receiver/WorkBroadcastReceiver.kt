@@ -3,11 +3,16 @@ package rahulstech.android.expensetracker.backuprestore.receiver
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import dagger.hilt.android.AndroidEntryPoint
 import rahulstech.android.expensetracker.backuprestore.Constants
 import rahulstech.android.expensetracker.backuprestore.settings.AgentSettingsProvider
 import rahulstech.android.expensetracker.backuprestore.worker.BackupRestoreHelper
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class WorkBroadcastReceiver: BroadcastReceiver() {
+
+    @Inject lateinit var agentSettingsProvider: AgentSettingsProvider
 
     companion object {
         const val ACTION_CANCEL_WORK = "rahulstecch.android.expensetracker.action.CANCEL_WORK"
@@ -33,6 +38,6 @@ class WorkBroadcastReceiver: BroadcastReceiver() {
     }
 
     private fun updateLastBackupMillis(appContext: Context, intent: Intent) {
-        AgentSettingsProvider.get(appContext).setLastLocalBackupNow()
+        agentSettingsProvider.setLastLocalBackupNow()
     }
 }

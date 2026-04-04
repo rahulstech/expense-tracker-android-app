@@ -10,6 +10,7 @@ import android.widget.TextView
 import androidx.core.os.BundleCompat
 import androidx.core.os.bundleOf
 import androidx.lifecycle.lifecycleScope
+import dagger.hilt.android.AndroidEntryPoint
 import dreammaker.android.expensetracker.Constants
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.core.util.QuickMessages
@@ -26,6 +27,7 @@ import rahulstech.android.expensetracker.domain.model.Account
 import rahulstech.android.expensetracker.domain.model.Group
 import rahulstech.android.expensetracker.domain.model.History
 
+@AndroidEntryPoint
 class TransactionInputFragment : BaseHistoryInputFragment() {
 
     companion object {

@@ -16,6 +16,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.chip.Chip
+import dagger.hilt.android.AndroidEntryPoint
 import dreammaker.android.expensetracker.Constants
 import dreammaker.android.expensetracker.DATE_WITH_WEAKDAY_FORMAT
 import dreammaker.android.expensetracker.R
@@ -38,6 +39,7 @@ import kotlinx.coroutines.launch
 import rahulstech.android.expensetracker.domain.model.History
 import java.time.LocalDate
 
+@AndroidEntryPoint
 class ViewHistoryItemFragment: Fragment(), MenuProvider {
 
     companion object {

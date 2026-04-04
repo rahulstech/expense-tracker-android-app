@@ -4,6 +4,7 @@ package rahulstech.android.expensetracker.domain.impl
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.json.JSONObject
@@ -11,9 +12,10 @@ import rahulstech.android.expensetracker.domain.LocalCache
 import rahulstech.android.expensetracker.domain.model.Account
 import rahulstech.android.expensetracker.domain.model.Group
 import java.time.LocalDateTime
+import javax.inject.Inject
 
-internal class LocalCacheImpl(
-    context: Context
+class LocalCacheImpl @Inject constructor(
+    @ApplicationContext context: Context
 ): LocalCache {
     companion object {
         private const val SP_NAME = "rahulstech.android.expensetracker.domain.LocalCache"

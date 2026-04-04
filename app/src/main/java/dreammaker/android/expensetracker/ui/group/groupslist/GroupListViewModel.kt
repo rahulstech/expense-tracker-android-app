@@ -1,12 +1,12 @@
 package dreammaker.android.expensetracker.ui.group.groupslist
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import dreammaker.android.expensetracker.ui.UIState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
@@ -18,16 +18,15 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
-import rahulstech.android.expensetracker.domain.ExpenseRepository
+import rahulstech.android.expensetracker.domain.GroupRepository
 import rahulstech.android.expensetracker.domain.model.Group
+import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
 
-class GroupListViewModel(
-    app: Application
-): AndroidViewModel(app) {
-
-    private val groupRepo = ExpenseRepository.getInstance(app).groupRepository
-
+@HiltViewModel
+class GroupListViewModel @Inject constructor(
+    private val groupRepo: GroupRepository
+): ViewModel() {
     private val searchTextState = MutableStateFlow<String?>(null)
     private var _groups: LiveData<List<Group>>? = null
 

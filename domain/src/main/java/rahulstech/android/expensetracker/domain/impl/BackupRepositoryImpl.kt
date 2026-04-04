@@ -9,8 +9,9 @@ import rahulstech.android.expensetracker.domain.model.History
 import rahulstech.android.expensetracker.domain.model.toAccount
 import rahulstech.android.expensetracker.domain.model.toGroup
 import rahulstech.android.expensetracker.domain.model.toHistory
+import javax.inject.Inject
 
-internal class BackupRepositoryImpl(
+class BackupRepositoryImpl @Inject constructor(
     private val db: IExpenseDatabase,
     private val cache: LocalCache,
 ): BackupRepository {

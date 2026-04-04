@@ -4,8 +4,10 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
 import androidx.lifecycle.LiveData
+import dagger.hilt.android.qualifiers.ApplicationContext
 import rahulstech.android.expensetracker.backuprestore.R
 import java.time.LocalDateTime
+import javax.inject.Inject
 
 enum class BackupFrequency {
     NEVER,
@@ -22,7 +24,10 @@ enum class BackupFrequency {
     }
 }
 
-class AgentSettingsProvider private constructor(applicationContext: Context){
+class AgentSettingsProvider @Inject constructor(
+    @ApplicationContext
+    private val applicationContext: Context
+){
 
     private val sharedPreferences = applicationContext.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
 
@@ -67,16 +72,16 @@ class AgentSettingsProvider private constructor(applicationContext: Context){
         private const val KEY_BACKUP_FREQUENCY = "backup_frequency"
         private const val KEY_LAST_LOCAL_BACKUP_DATETIME = "last_local_backup_datetime"
 
-        @Volatile
-        private var instance: AgentSettingsProvider? = null
-
-        fun get(context: Context): AgentSettingsProvider {
-            return instance ?: synchronized(this) {
-                val tmp = AgentSettingsProvider(context.applicationContext)
-                instance = tmp
-                tmp
-            }
-        }
+//        @Volatile
+//        private var instance: AgentSettingsProvider? = null
+//
+//        fun get(context: Context): AgentSettingsProvider {
+//            return instance ?: synchronized(this) {
+//                val tmp = AgentSettingsProvider(context.applicationContext)
+//                instance = tmp
+//                tmp
+//            }
+//        }
     }
 
     private inner class SharedPreferenceLiveData<T>(val observeKey: String): LiveData<T>() {

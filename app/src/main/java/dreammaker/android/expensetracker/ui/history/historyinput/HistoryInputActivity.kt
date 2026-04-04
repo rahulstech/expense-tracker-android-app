@@ -4,10 +4,12 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
+import dagger.hilt.android.AndroidEntryPoint
 import dreammaker.android.expensetracker.Constants
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.databinding.ActivityHistoryInputBinding
 
+@AndroidEntryPoint
 class HistoryInputActivity: AppCompatActivity() {
 
     private lateinit var binding: ActivityHistoryInputBinding

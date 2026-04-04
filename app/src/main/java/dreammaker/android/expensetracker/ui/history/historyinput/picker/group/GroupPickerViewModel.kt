@@ -1,12 +1,13 @@
 package dreammaker.android.expensetracker.ui.history.historyinput.picker.group
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import android.content.Context
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.application
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dreammaker.android.expensetracker.Constants
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.ui.GroupListItem
@@ -14,14 +15,16 @@ import dreammaker.android.expensetracker.util.insertSeparator
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.debounce
-import rahulstech.android.expensetracker.domain.ExpenseRepository
+import rahulstech.android.expensetracker.domain.GroupRepository
+import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
 
-class GroupPickerViewModel(
-    app: Application
-): AndroidViewModel(app) {
-
-    private val groupRepo = ExpenseRepository.getInstance(app).groupRepository
+@HiltViewModel
+class GroupPickerViewModel @Inject constructor(
+    @ApplicationContext
+    private val applicationContext: Context,
+    private val groupRepo: GroupRepository
+): ViewModel() {
 
     private val searchTextState = MutableStateFlow<String?>(null)
     private lateinit var allGroups: LiveData<List<GroupListItem>>
@@ -60,8 +63,8 @@ class GroupPickerViewModel(
                                     if (null == before) {
                                         return@insertSeparator GroupListItem.Header(
                                             when(after.rank) {
-                                                0 -> application.getString(R.string.label_header_others)
-                                                else -> application.getString(R.string.label_header_frequently_used)
+                                                0 -> this@GroupPickerViewModel.applicationContext.getString(R.string.label_header_others)
+                                                else -> this@GroupPickerViewModel.applicationContext.getString(R.string.label_header_frequently_used)
                                             }
                                         )
                                     }
@@ -71,7 +74,7 @@ class GroupPickerViewModel(
                                     // no matter what is the next rank just add others headers
                                     val startOthers = (before.rank > 0 && before.rank < maxFrequentlyUsed && after.rank == 0) || (before.rank == maxFrequentlyUsed)
                                     if (startOthers) {
-                                        return@insertSeparator GroupListItem.Header(application.getString(R.string.label_header_others))
+                                        return@insertSeparator GroupListItem.Header(applicationContext.getString(R.string.label_header_others))
                                     }
                                 }
                                 null

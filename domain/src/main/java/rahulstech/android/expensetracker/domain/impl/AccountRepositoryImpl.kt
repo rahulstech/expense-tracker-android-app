@@ -18,8 +18,9 @@ import rahulstech.android.expensetracker.domain.LocalCache
 import rahulstech.android.expensetracker.domain.model.Account
 import rahulstech.android.expensetracker.domain.model.toAccount
 import java.time.LocalDateTime
+import javax.inject.Inject
 
-internal class AccountRepositoryImpl(
+class AccountRepositoryImpl @Inject constructor(
     db: IExpenseDatabase,
     private val cache: LocalCache
 ): AccountRepository {
