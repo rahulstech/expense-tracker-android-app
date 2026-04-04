@@ -12,7 +12,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class MigrationsTest {
+class Migration7To8Test {
 
     @get:Rule
     val helper: MigrationTestHelper = MigrationTestHelper(
