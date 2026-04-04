@@ -5,8 +5,8 @@ import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import dreammaker.android.expensetracker.database.ExpensesDatabase
-import dreammaker.android.expensetracker.database.FAKE_DATA_7
 import dreammaker.android.expensetracker.database.SQLiteStatementExecutorWrapperBuilder
+import dreammaker.android.expensetracker.database.fake.FakeData7
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -25,7 +25,7 @@ class MigrationsTest {
     fun testMigration7to8() {
         helper.createDatabase(ExpensesDatabase.DB_NAME, 7).use {
             val wrapper = SQLiteStatementExecutorWrapperBuilder().buildFromSupportSQLiteDatabase(it)
-            FAKE_DATA_7.addFakeData(wrapper)
+            FakeData7().addFakeData(wrapper)
         }
 
         helper.runMigrationsAndValidate(ExpensesDatabase.DB_NAME, 8, true, Migration7To8()).use { db ->
