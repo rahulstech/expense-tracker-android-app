@@ -58,6 +58,12 @@ android {
     kapt {
         correctErrorTypes true
     }
+
+    packaging {
+        resources {
+            excludes += "/META-INF/{LICENSE.md,LICENSE.txt,NOTICE.txt,LICENSE-notice.md}"
+        }
+    }
 }
 
 dependencies {
@@ -97,4 +103,10 @@ dependencies {
     // paging
     implementation libs.paging.runtime
     implementation libs.paging.runtime.ktx
+
+    // test
+    androidTestImplementation libs.coroutine.test
+    androidTestImplementation libs.junit.android
+    androidTestImplementation libs.espresso
+    androidTestImplementation libs.mockk
 }
