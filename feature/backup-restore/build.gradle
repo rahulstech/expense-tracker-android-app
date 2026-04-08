@@ -39,6 +39,9 @@ android {
     kapt {
         correctErrorTypes true
     }
+    lint {
+        disable += "NullSafeMutableLiveData"
+    }
 }
 
 dependencies {

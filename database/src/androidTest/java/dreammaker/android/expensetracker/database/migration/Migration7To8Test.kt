@@ -1,7 +1,6 @@
 package dreammaker.android.expensetracker.database.migration
 
 import androidx.room.testing.MigrationTestHelper
-import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import dreammaker.android.expensetracker.database.ExpensesDatabase
@@ -17,8 +16,7 @@ class Migration7To8Test {
     @get:Rule
     val helper: MigrationTestHelper = MigrationTestHelper(
         InstrumentationRegistry.getInstrumentation(),
-        ExpensesDatabase::class.java.canonicalName!!,
-        FrameworkSQLiteOpenHelperFactory()
+        ExpensesDatabase::class.java,
     )
 
     @Test

@@ -1,0 +1,37 @@
+name: Run JUnit Tests
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  unit_tests:
+    name: Unit Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin' # only temurin accepted
+          java-version: '17'
+
+      # cache gradle dependencies for faster build next time
+      - name: Cache gradle
+        uses: gradle/gradle-build-action@v2
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Begin unit tests
+        run: ./gradlew testDebugUnitTest
+
+      - name: Upload unit test reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit_test_repots
+          path: app/build/reports
