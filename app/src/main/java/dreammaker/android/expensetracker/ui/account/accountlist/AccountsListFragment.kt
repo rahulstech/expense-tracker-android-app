@@ -37,7 +37,7 @@ class AccountsListFragment : Fragment() {
         private val TAG = AccountsListFragment::class.simpleName
     }
 
-    private lateinit var binding: AccountsListBinding
+    internal lateinit var binding: AccountsListBinding
     private lateinit var adapter: AccountsAdapter
     private val viewModel: AccountsListViewModel by viewModels()
     private val navController: NavController by lazy { findNavController() }

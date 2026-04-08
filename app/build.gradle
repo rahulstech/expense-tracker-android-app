@@ -99,6 +99,9 @@ dependencies {
     // hilt
     implementation libs.hilt.android
     kapt libs.hilt.compiler
+    // hilt test
+    androidTestImplementation libs.hilt.android.testing
+    kaptAndroidTest libs.hilt.compiler
 
     // paging
     implementation libs.paging.runtime
@@ -107,6 +110,7 @@ dependencies {
     // test
     androidTestImplementation libs.coroutine.test
     androidTestImplementation libs.junit.android
-    androidTestImplementation libs.espresso
-    androidTestImplementation libs.mockk
+    androidTestImplementation libs.espresso.core
+    androidTestImplementation libs.espresso.contrib
+    debugImplementation libs.fragment.test // debugImplementation not androidTestImplementation
 }
