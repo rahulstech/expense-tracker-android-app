@@ -160,7 +160,6 @@ interface HistoryDao {
     fun insertHistory(history: HistoryEntity): Long
 
     @Insert
-    @Transaction
     fun insertHistories(histories: List<HistoryEntity>)
 
     @Query("SELECT * FROM `histories` WHERE `id` = :id")

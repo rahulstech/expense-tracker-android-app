@@ -2,7 +2,9 @@ package dreammaker.android.expensetracker.ui.history.historyinput
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import dreammaker.android.expensetracker.ui.UIState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
@@ -17,19 +19,20 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import rahulstech.android.expensetracker.domain.AccountRepository
 import rahulstech.android.expensetracker.domain.ExpenseRepository
+import rahulstech.android.expensetracker.domain.HistoryRepository
 import rahulstech.android.expensetracker.domain.model.Account
 import rahulstech.android.expensetracker.domain.model.Group
 import rahulstech.android.expensetracker.domain.model.History
 import java.time.LocalDate
+import javax.inject.Inject
 
-class HistoryInputViewModel (
-    app: Application
-) : AndroidViewModel(app) {
-
-    private val repos = ExpenseRepository.getInstance(app)
-    private val historyRepo = repos.historyRepository
-    private val accountRepo = repos.accountRepository
+@HiltViewModel
+class HistoryInputViewModel @Inject constructor(
+    private val historyRepo: HistoryRepository,
+    private val accountRepo: AccountRepository
+) : ViewModel() {
 
     private val _historyState = MutableStateFlow<UIState<History>>(UIState.UILoading())
     val historyState: Flow<UIState<History>?> = _historyState.shareIn(

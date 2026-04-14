@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
+import dagger.hilt.android.AndroidEntryPoint
 import dreammaker.android.expensetracker.Constants
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.databinding.HomeBinding
@@ -20,6 +21,7 @@ import dreammaker.android.expensetracker.util.visible
 import rahulstech.android.expensetracker.domain.model.Account
 import rahulstech.android.expensetracker.domain.model.Group
 
+@AndroidEntryPoint
 class HomeFragment: Fragment()  {
 
     private var _binding: HomeBinding? = null

@@ -13,6 +13,7 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI.setupActionBarWithNavController
 import androidx.navigation.ui.navigateUp
+import dagger.hilt.android.AndroidEntryPoint
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.databinding.MainBinding
 import dreammaker.android.expensetracker.util.visibilityGone
@@ -21,6 +22,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import rahulstech.android.expensetracker.backuprestore.ui.BackupRestoreActivity
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: MainBinding

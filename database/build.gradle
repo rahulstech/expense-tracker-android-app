@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.library)
     alias(libs.plugins.kotlin)
     alias(libs.plugins.kapt)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt.gradle.plugin)
 }
 
 android {
@@ -36,16 +38,21 @@ android {
     }
     kotlinOptions {
         jvmTarget = '17'
+        languageVersion = '2.0'
     }
 
     kapt {
-        arguments {
-            arg('room.schemaLocation', "$projectDir/schemas")
-        }
+        correctErrorTypes true
     }
 
     sourceSets {
         androidTest.assets.srcDirs += "$projectDir/schemas"
+    }
+
+    ksp {
+        arg("room.schemaLocation", "$projectDir/schemas")
+        arg("room.incremental", "true")
+        arg("room.expandProjection", "true")
     }
 }
 
@@ -61,11 +68,16 @@ dependencies {
     api libs.room.runtime
     implementation libs.room.ktx
     api libs.room.paging
-    kapt libs.room.compiler
+    ksp libs.room.compiler
     androidTestImplementation libs.room.test
+
+    // hilt
+    implementation libs.hilt.android
+    kapt libs.hilt.compiler
 
     // test
     testImplementation libs.junit
     androidTestImplementation libs.junit.android
     androidTestImplementation libs.android.runnner
+    androidTestImplementation libs.coroutine.test
 }

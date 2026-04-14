@@ -9,8 +9,9 @@ import rahulstech.android.expensetracker.domain.LocalCache
 import rahulstech.android.expensetracker.domain.model.Group
 import rahulstech.android.expensetracker.domain.model.toGroup
 import java.time.LocalDateTime
+import javax.inject.Inject
 
-internal class GroupRepositoryImpl(
+class GroupRepositoryImpl @Inject constructor(
     db: IExpenseDatabase,
     private val cache: LocalCache
 ): GroupRepository {

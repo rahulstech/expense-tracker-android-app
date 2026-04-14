@@ -15,8 +15,9 @@ import rahulstech.android.expensetracker.domain.HistoryRepository
 import rahulstech.android.expensetracker.domain.model.History
 import rahulstech.android.expensetracker.domain.model.HistoryTotalCreditTotalDebit
 import rahulstech.android.expensetracker.domain.model.toHistory
+import javax.inject.Inject
 
-internal class HistoryRepositoryImpl(
+class HistoryRepositoryImpl @Inject constructor(
     private val db: IExpenseDatabase,
     private val accountRepository: AccountRepository,
     private val groupRepository: GroupRepository,

@@ -1,10 +1,11 @@
 package dreammaker.android.expensetracker.database.dao
 
+import androidx.paging.PagingSource
+import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import dreammaker.android.expensetracker.database.ExpensesDatabase
-import dreammaker.android.expensetracker.database.FAKE_DATA_8
-import dreammaker.android.expensetracker.database.FakeDataCallback
 import dreammaker.android.expensetracker.database.createInMemoryDB
+import dreammaker.android.expensetracker.database.fake.FakeDataCallbacks
 import dreammaker.android.expensetracker.database.model.AccountIdName
 import dreammaker.android.expensetracker.database.model.GroupIdName
 import dreammaker.android.expensetracker.database.model.HistoryDetails
@@ -12,7 +13,9 @@ import dreammaker.android.expensetracker.database.model.HistoryEntity
 import dreammaker.android.expensetracker.database.model.HistoryType
 import dreammaker.android.expensetracker.database.runOnLiveDataResultReceived
 import junit.framework.TestCase.assertEquals
+import kotlinx.coroutines.test.runTest
 import org.junit.After
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -21,21 +24,19 @@ import java.time.LocalDate
 @RunWith(AndroidJUnit4::class)
 class HistoryDaoTest {
 
-    var db: ExpensesDatabase? = null
-    var _dao: HistoryDao? = null
+    lateinit var db: ExpensesDatabase
+    lateinit var dao: HistoryDao
 
-    val dao: HistoryDao get() = _dao!!
 
     @Before
     fun setUp() {
-        db = createInMemoryDB(ExpensesDatabase::class.java, FakeDataCallback(FAKE_DATA_8))
-        _dao = db?.historyDao
+        db = createInMemoryDB(FakeDataCallbacks.getCallbackForCurrentDBVersion())
+        dao = db.historyDao
     }
 
     @After
     fun tearDown() {
-        _dao = null
-        db?.close()
+        db.close()
     }
 
     // -------------------------------------------------------------
@@ -56,30 +57,17 @@ class HistoryDaoTest {
         )
 
         val id = dao.insertHistory(history)
-        assertEquals(6, id) // existing ids are 1..5
+
+        val actual = dao.findHistoryById(id)
+        val expected = history.copy(id=id)
+
+        assertTrue("id must be a positive number", id > 0)
+        assertEquals("inserted history not found by id", expected, actual?.history)
     }
 
     // -------------------------------------------------------------
     // FIND BY ID
     // -------------------------------------------------------------
-
-    @Test
-    fun findHistoryById() {
-        val actual = dao.findHistoryById(1)
-
-        val expected = HistoryEntity(
-            id = 1,
-            type = HistoryType.DEBIT,
-            primaryAccountId = 1,
-            secondaryAccountId = null,
-            groupId = 1,
-            amount = 50.0f,
-            date = LocalDate.of(2025, 2, 16),
-            note = "transaction 1"
-        )
-
-        assertEquals(expected, actual)
-    }
 
     @Test
     fun findHistoryByInvalidId() {
@@ -124,11 +112,36 @@ class HistoryDaoTest {
 
     @Test
     fun getHistoriesPagination() {
-        val list = dao.getHistories(0, 2)
+        val list = dao.getHistories(2, 0)
 
         assertEquals(2, list.size)
         assertEquals(1, list[0].id)
         assertEquals(2, list[1].id)
+    }
+
+    @Test
+    fun getPagedHistories_returnsCorrectData() = runTest {
+
+        // Raw query
+        val query = SimpleSQLiteQuery("SELECT * FROM histories WHERE `groupId` = ? ORDER BY `date` DESC", arrayOf(1))
+
+        val pagingSource = dao.getPagedHistories(query)
+
+        val result = pagingSource.load(
+            PagingSource.LoadParams.Refresh(
+                key = null,
+                loadSize = 10,
+                placeholdersEnabled = false
+            )
+        )
+
+        val data = (result as PagingSource.LoadResult.Page).data
+
+        assertEquals("fetch size mismatch",2, data.size)
+
+        val historyIds = data.map { it.history.id }
+
+        assertEquals("history ids mismatch",listOf<Long>(2,1), historyIds)
     }
 
     // -------------------------------------------------------------

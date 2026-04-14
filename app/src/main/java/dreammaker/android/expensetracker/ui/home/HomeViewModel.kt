@@ -1,19 +1,19 @@
 package dreammaker.android.expensetracker.ui.home
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import rahulstech.android.expensetracker.domain.ExpenseRepository
+import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
+import rahulstech.android.expensetracker.domain.AccountRepository
+import rahulstech.android.expensetracker.domain.GroupRepository
 import rahulstech.android.expensetracker.domain.model.Account
 import rahulstech.android.expensetracker.domain.model.Group
+import javax.inject.Inject
 
-class HomeViewModel (
-    app: Application
-): AndroidViewModel(app) {
-
-    private val repos = ExpenseRepository.getInstance(app)
-    private val accountRepo = repos.accountRepository
-    private val groupRepo = repos.groupRepository
+@HiltViewModel
+class HomeViewModel @Inject constructor(
+    private val accountRepo: AccountRepository,
+    private val groupRepo: GroupRepository
+): ViewModel() {
 
     private var liveRecentlyUsedAccounts: LiveData<List<Account>>? = null
 

@@ -1,15 +1,16 @@
+
 package dreammaker.android.expensetracker.ui.history.historieslist
 
-import android.app.Application
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.insertSeparators
 import androidx.paging.map
+import dagger.hilt.android.lifecycle.HiltViewModel
 import dreammaker.android.expensetracker.ui.HistoryListItem
 import dreammaker.android.expensetracker.ui.UIState
 import dreammaker.android.expensetracker.util.SortByDate
@@ -25,13 +26,13 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import rahulstech.android.expensetracker.domain.ExpenseRepository
 import rahulstech.android.expensetracker.domain.HistoryFilterParameters
 import rahulstech.android.expensetracker.domain.HistoryRepository
 import rahulstech.android.expensetracker.domain.model.History
 import rahulstech.android.expensetracker.domain.model.HistoryTotalCreditTotalDebit
 import java.time.LocalDate
 import java.util.Objects
+import javax.inject.Inject
 
 class LoadHistoryParameters {
 
@@ -113,15 +114,14 @@ class LoadHistoryParameters {
     }
 }
 
-class ViewHistoryViewModel(
-    app: Application
-): AndroidViewModel(app) {
+@HiltViewModel
+class ViewHistoryViewModel @Inject constructor(
+    private val historyRepo: HistoryRepository
+): ViewModel() {
 
     companion object {
         private val TAG = ViewHistoryViewModel::class.simpleName
     }
-
-    private val historyRepo = ExpenseRepository.getInstance(app).historyRepository
 
     private val loadHistoryParamsState = MutableStateFlow<LoadHistoryParameters?>(null)
 
