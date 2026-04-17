@@ -15,4 +15,8 @@ sealed interface HomeScreenEvent {
     data object AddHistory : HomeScreenEvent
     data class ClickAccount(val account: Account) : HomeScreenEvent
     data class ClickGroup(val group: Group) : HomeScreenEvent
+
+    data object AddNewAccount: HomeScreenEvent
+
+    data object AddNewGroup: HomeScreenEvent
 }

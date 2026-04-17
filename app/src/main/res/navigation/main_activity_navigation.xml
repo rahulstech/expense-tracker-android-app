@@ -42,6 +42,21 @@
             android:id="@+id/action_home_to_create_history"
             app:destination="@+id/create_history" />
 
+        <action
+            android:id="@+id/action_home_to_create_account"
+            app:destination="@+id/create_account"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:popEnterAnim="@anim/slide_in_right"
+            app:popExitAnim="@anim/slide_out_left"/>
+        <action
+            android:id="@+id/action_home_to_create_group"
+            app:destination="@+id/create_group"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:popEnterAnim="@anim/slide_in_right"
+            app:popExitAnim="@anim/slide_out_left"/>
+
     </fragment>
 
     <!-- Account -->

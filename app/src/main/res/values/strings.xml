@@ -125,7 +125,7 @@
 	<string name="label_history_item_source_account">From</string>
 	<string name="label_history_item_destination_account">In</string>
 	<string name="label_view_history">View History</string>
-	<string name="label_add_account">Add Account</string>
+	<string name="label_add_account">Create Account</string>
 	<string name="label_add_history">Add History</string>
 	<string name="label_create_credit">Add Credit</string>
 	<string name="label_create_debit">Add Debit</string>

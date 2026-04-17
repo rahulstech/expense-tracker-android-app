@@ -2,6 +2,7 @@ package dreammaker.android.expensetracker.ui.home
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -31,9 +33,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
@@ -46,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.core.ui.ExpenseTrackerTheme
 import dreammaker.android.expensetracker.core.ui.secondaryButtonColors
+import dreammaker.android.expensetracker.util.toCurrencyString
 import rahulstech.android.expensetracker.domain.model.Account
 import rahulstech.android.expensetracker.domain.model.Group
 
@@ -71,20 +76,22 @@ fun HomeScreen(
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
+            verticalArrangement = Arrangement.spacedBy(24.dp),
         ) {
             SectionTotalBalance(totalBalance = state.totalBalance)
 
             SectionRecentAccounts(
                 accounts = state.recentAccounts,
                 onViewAll = { onEvent(HomeScreenEvent.ViewAllAccounts) },
-                onAccountClick = { onEvent(HomeScreenEvent.ClickAccount(it)) }
+                onAccountClick = { onEvent(HomeScreenEvent.ClickAccount(it)) },
+                onAddNewAccount = { onEvent(HomeScreenEvent.AddNewAccount) }
             )
 
             SectionRecentGroups(
                 groups = state.recentGroups,
                 onViewAll = { onEvent(HomeScreenEvent.ViewAllGroups) },
-                onGroupClick = { onEvent(HomeScreenEvent.ClickGroup(it)) }
+                onGroupClick = { onEvent(HomeScreenEvent.ClickGroup(it)) },
+                onAddNewGroup = { onEvent(HomeScreenEvent.AddNewGroup) }
             )
         }
     }
@@ -155,7 +162,8 @@ fun SectionHeader(
 fun SectionRecentAccounts(
     accounts: List<Account>,
     onViewAll: () -> Unit,
-    onAccountClick: (Account) -> Unit
+    onAccountClick: (Account) -> Unit,
+    onAddNewAccount: ()-> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         SectionHeader(
@@ -169,15 +177,33 @@ fun SectionRecentAccounts(
             contentAlignment = Alignment.Center
         ) {
             if (accounts.isEmpty()) {
-                Text(
-                    text = stringResource(R.string.label_empty_recent_account_list),
-                    style = MaterialTheme.typography.bodyMedium,
-                    textAlign = TextAlign.Center
-                )
+
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = stringResource(R.string.label_empty_recent_account_list),
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Center
+                    )
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    TextButton(
+                        modifier = Modifier.height(32.dp),
+                        onClick = onAddNewAccount,
+                        shape = MaterialTheme.shapes.extraLarge
+                    ) {
+                        Text(
+                            stringResource(R.string.label_add_account),
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                    }
+                }
             } else {
                 LazyRow (
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Start
+                    horizontalArrangement = Arrangement.spacedBy(12.dp, alignment = Alignment.Start)
                 ) {
 
                     items(
@@ -187,7 +213,7 @@ fun SectionRecentAccounts(
                         RecentItemView(
                             icon = painterResource(R.drawable.ic_account_black),
                             title = account.name,
-                            subtitle = account.balance.toString(), // Simplified for now
+                            subtitle = account.balance.toCurrencyString(),
                             onClick = { onAccountClick(account) }
                         )
                     }
@@ -201,7 +227,8 @@ fun SectionRecentAccounts(
 fun SectionRecentGroups(
     groups: List<Group>,
     onViewAll: () -> Unit,
-    onGroupClick: (Group) -> Unit
+    onGroupClick: (Group) -> Unit,
+    onAddNewGroup: () -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         SectionHeader(
@@ -215,12 +242,29 @@ fun SectionRecentGroups(
             contentAlignment = Alignment.Center
         ) {
             if (groups.isEmpty()) {
-                Text(
-                    text = stringResource(R.string.label_empty_recent_group_list),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center
-                )
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = stringResource(R.string.label_empty_recent_group_list),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center
+                    )
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    TextButton(
+                        modifier = Modifier.height(32.dp),
+                        onClick = onAddNewGroup,
+                        shape = MaterialTheme.shapes.extraLarge
+                    ) {
+                        Text(
+                            stringResource(R.string.label_add_group),
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                    }
+                }
             } else {
                 LazyRow(
                     modifier = Modifier.fillMaxWidth(),
@@ -233,7 +277,7 @@ fun SectionRecentGroups(
                         RecentItemView(
                             icon = painterResource(R.drawable.ic_group_64),
                             title = group.name,
-                            subtitle = group.balance.toString(), // Simplified for now
+                            subtitle = group.balance.toCurrencyString(),
                             onClick = { onGroupClick(group) }
                         )
                     }
@@ -252,28 +296,42 @@ fun RecentItemView(
 ) {
     Column(
         modifier = Modifier
-            .width(100.dp)
+            .width(84.dp)
             .height(120.dp)
             .clickable(onClick = onClick)
-            .padding(8.dp),
+            .background(
+                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.20f),
+                shape = MaterialTheme.shapes.large
+            )
+            .padding(horizontal = 4.dp, vertical = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Image(
-            painter = icon,
-            contentDescription = null,
-            modifier = Modifier.size(36.dp),
-            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
-        )
+
+        Box(
+            modifier = Modifier
+                .clip(shape = RoundedCornerShape(percent = 50))
+                .background(color = MaterialTheme.colorScheme.primary)
+                .padding(8.dp)
+        ) {
+            Image(
+                painter = icon,
+                contentDescription = null,
+                modifier = Modifier.size(20.dp),
+                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimaryContainer)
+            )
+        }
+
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = title,
-            style = MaterialTheme.typography.labelMedium,
+            style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Bold,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
             textAlign = TextAlign.Center,
-            modifier = Modifier.height(38.dp)
+            modifier = Modifier.weight(1f),
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Spacer(modifier = Modifier.height(6.dp))
         Text(
@@ -293,7 +351,7 @@ fun HomeScreenPreview() {
             state = HomeScreenState(
                 totalBalance = "$35,369.35",
                 recentAccounts = listOf(
-                    Account(id = 1, name = "Savings", balance = 5000f),
+                    Account(id = 1, name = "Savings Bank Account", balance = 5000f),
                     Account(id = 2, name = "Checking", balance = 1200f)
                 ),
                 recentGroups = listOf(
