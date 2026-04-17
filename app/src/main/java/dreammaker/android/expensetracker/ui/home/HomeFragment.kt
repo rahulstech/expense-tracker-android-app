@@ -4,28 +4,22 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.res.ResourcesCompat
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import dreammaker.android.expensetracker.Constants
 import dreammaker.android.expensetracker.R
-import dreammaker.android.expensetracker.databinding.HomeBinding
-import dreammaker.android.expensetracker.databinding.RecentItemViewBinding
-import dreammaker.android.expensetracker.util.getBalanceText
-import dreammaker.android.expensetracker.util.toCurrencyString
-import dreammaker.android.expensetracker.util.visibilityGone
-import dreammaker.android.expensetracker.util.visible
-import rahulstech.android.expensetracker.domain.model.Account
-import rahulstech.android.expensetracker.domain.model.Group
+import dreammaker.android.expensetracker.core.ui.ExpenseTrackerTheme
 
 @AndroidEntryPoint
-class HomeFragment: Fragment()  {
-
-    private var _binding: HomeBinding? = null
-    private val binding get() = _binding!!
+class HomeFragment : Fragment() {
 
     private val navController: NavController by lazy { findNavController() }
     private val viewModel: HomeViewModel by viewModels()
@@ -35,81 +29,44 @@ class HomeFragment: Fragment()  {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = HomeBinding.inflate(inflater,container,false)
-        return binding.root
+        return ComposeView(requireActivity()).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                ExpenseTrackerTheme {
+                    val state by viewModel.uiState.collectAsStateWithLifecycle()
+
+                    HomeScreen(
+                        state = state,
+                        onEvent = { event ->
+                            handleHomeScreenEvent(event)
+                        }
+                    )
+                }
+            }
+        }
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        binding.btnViewAllAccounts.setOnClickListener {
-            navController.navigate(R.id.action_home_to_accounts_list)
+    private fun handleHomeScreenEvent(event: HomeScreenEvent) {
+        when (event) {
+            HomeScreenEvent.AddHistory -> navigateToCreateHistory()
+            HomeScreenEvent.ViewAllAccounts -> navController.navigate(R.id.action_home_to_accounts_list)
+            HomeScreenEvent.ViewAllGroups -> navController.navigate(R.id.action_home_to_groups_list)
+            is HomeScreenEvent.ClickAccount -> {
+                navController.navigate(R.id.action_home_to_view_account, bundleOf (
+                    Constants.ARG_ID to event.account.id
+                ))
+            }
+            is HomeScreenEvent.ClickGroup -> {
+                navController.navigate(R.id.action_home_to_view_group, Bundle().apply {
+                    putLong(Constants.ARG_ID, event.group.id)
+                })
+            }
         }
-        binding.btnViewAllGroups.setOnClickListener {
-            navController.navigate(R.id.action_home_to_groups_list)
-        }
-        binding.addHistory.setOnClickListener { navigateToCreateHistory() }
-
-        viewModel.getTotalBalance().observe(viewLifecycleOwner, this::onTotalBalanceLoaded)
-        viewModel.getRecentlyUsedThreeAccounts().observe(viewLifecycleOwner, this::onRecentlyUsedAccountsLoaded)
-        viewModel.getRecentlyUsedThreeGroups().observe(viewLifecycleOwner, this::onRecentlyUsedGroupsLoaded)
     }
 
     private fun navigateToCreateHistory() {
-        navController.navigate(R.id.action_home_to_create_history, Bundle().apply {
-            putString(Constants.ARG_ACTION, Constants.ACTION_CREATE)
-        })
-    }
-
-    private fun onTotalBalanceLoaded(totalBalance: Double) {
-        binding.totalBalance.text = totalBalance.toCurrencyString()
-    }
-
-    private fun onRecentlyUsedAccountsLoaded(accounts: List<Account>) {
-        addRecentlyUsedViews(binding.accounts, binding.emptyAccountsPlaceholder, accounts) { container, account,_ ->
-            val binding = RecentItemViewBinding.inflate(layoutInflater, container, false)
-            binding.apply {
-                icon.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_account_black, requireContext().theme))
-                text1.text = account.name
-                text2.text = account.getBalanceText(requireContext()) // TODO: apply countryCode and locale
-                root.setOnClickListener {
-                    navController.navigate(R.id.action_home_to_view_account, Bundle().apply {
-                        putLong(Constants.ARG_ID, account.id)
-                    })
-                }
-            }
-            binding.root
-        }
-    }
-
-    private fun onRecentlyUsedGroupsLoaded(groups: List<Group>) {
-        addRecentlyUsedViews(binding.groups, binding.emptyGroupsPlaceholder, groups) { container,group,_ ->
-            val binding = RecentItemViewBinding.inflate(layoutInflater, container, false)
-            binding.apply {
-                icon.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_group_64, requireContext().theme))
-                text1.text = group.name
-                text2.text = group.getBalanceText(requireContext()) // TODO: apply countryCode and locale
-                root.setOnClickListener {
-                    navController.navigate(R.id.action_home_to_view_group, Bundle().apply {
-                        putLong(Constants.ARG_ID, group.id)
-                    })
-                }
-            }
-            binding.root
-        }
-    }
-
-    private fun <T> addRecentlyUsedViews(container: ViewGroup, placeholder: View, data: List<T>, factory: (ViewGroup, T, Int)->View) {
-        container.removeAllViews()
-        if (data.isEmpty()) {
-            container.visibilityGone()
-            placeholder.visible()
-        }
-        else {
-            data.forEachIndexed { index, item ->
-                val view = factory(container,item, index)
-                container.addView(view)
-            }
-            placeholder.visibilityGone()
-            container.visible()
-        }
+        navController.navigate(R.id.action_home_to_create_history, bundleOf(
+            Constants.ARG_ACTION to Constants.ACTION_CREATE
+        ))
     }
 }

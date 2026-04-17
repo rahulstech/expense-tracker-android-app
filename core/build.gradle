@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.library)
     alias(libs.plugins.kotlin)
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
@@ -31,6 +32,9 @@ android {
     kotlinOptions {
         jvmTarget = '17'
     }
+    buildFeatures {
+        compose true
+    }
 }
 
 dependencies {
@@ -41,4 +45,12 @@ dependencies {
 
     // ui
     implementation libs.material
+
+    // compose
+    api platform(libs.androidx.compose.bom)
+    api libs.androidx.compose.ui
+    api libs.androidx.compose.ui.graphics
+    api libs.androidx.compose.ui.tooling.preview
+    api libs.androidx.compose.material3
+    debugApi libs.androidx.compose.ui.tooling
 }

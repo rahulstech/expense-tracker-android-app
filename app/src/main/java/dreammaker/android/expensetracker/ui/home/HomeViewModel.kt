@@ -1,44 +1,37 @@
 package dreammaker.android.expensetracker.ui.home
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asFlow
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dreammaker.android.expensetracker.util.toCurrencyString
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import rahulstech.android.expensetracker.domain.AccountRepository
 import rahulstech.android.expensetracker.domain.GroupRepository
-import rahulstech.android.expensetracker.domain.model.Account
-import rahulstech.android.expensetracker.domain.model.Group
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val accountRepo: AccountRepository,
     private val groupRepo: GroupRepository
-): ViewModel() {
+) : ViewModel() {
 
-    private var liveRecentlyUsedAccounts: LiveData<List<Account>>? = null
-
-    fun getRecentlyUsedThreeAccounts(): LiveData<List<Account>> {
-        if (null==liveRecentlyUsedGroups) {
-            liveRecentlyUsedAccounts = accountRepo.getLiveRecentlyUsedAccounts(3)
-        }
-        return liveRecentlyUsedAccounts!!
-    }
-
-    private var liveRecentlyUsedGroups: LiveData<List<Group>>? = null
-
-    fun getRecentlyUsedThreeGroups(): LiveData<List<Group>> {
-        if (null==liveRecentlyUsedGroups) {
-            liveRecentlyUsedGroups = groupRepo.getLiveRecentlyUsedGroups(3)
-        }
-        return liveRecentlyUsedGroups!!
-    }
-
-    private var liveTotalBalance: LiveData<Double>? = null
-
-    fun getTotalBalance(): LiveData<Double> {
-        if (null == liveTotalBalance) {
-            liveTotalBalance = accountRepo.getLiveTotalBalance()
-        }
-        return liveTotalBalance!!
-    }
+    val uiState: StateFlow<HomeScreenState> = combine(
+        accountRepo.getLiveTotalBalance().asFlow(),
+        accountRepo.getLiveRecentlyUsedAccounts(3).asFlow(),
+        groupRepo.getLiveRecentlyUsedGroups(3).asFlow()
+    ) { totalBalance, accounts, groups ->
+        HomeScreenState(
+            totalBalance = totalBalance.toCurrencyString(),
+            recentAccounts = accounts,
+            recentGroups = groups
+        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = HomeScreenState()
+    )
 }
