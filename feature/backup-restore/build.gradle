@@ -83,6 +83,6 @@ dependencies {
     testImplementation project(":domain")
     testImplementation libs.junit
     androidTestImplementation libs.junit.android
-    androidTestImplementation libs.android.runnner
+    androidTestImplementation libs.android.runner
     androidTestImplementation libs.android.rules
 }

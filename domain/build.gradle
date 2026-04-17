@@ -63,5 +63,5 @@ dependencies {
     testImplementation libs.coroutine.test
     testImplementation libs.mockk
     androidTestImplementation libs.junit.android
-    androidTestImplementation libs.android.runnner
+    androidTestImplementation libs.android.runner
 }

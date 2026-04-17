@@ -114,5 +114,13 @@ dependencies {
     androidTestImplementation libs.junit.android
     androidTestImplementation libs.espresso.core
     androidTestImplementation libs.espresso.contrib
+    
+    // compose test
+    androidTestImplementation libs.android.runner
+    androidTestImplementation libs.android.rules
+    androidTestImplementation platform(libs.androidx.compose.bom)
+    androidTestImplementation libs.androidx.compose.ui.test
+    androidTestImplementation libs.androidx.compose.ui.test.junit4
+    debugImplementation libs.androidx.compose.ui.test.manifest
     debugImplementation libs.fragment.test // debugImplementation not androidTestImplementation
 }

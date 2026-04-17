@@ -40,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -78,7 +79,7 @@ fun HomeScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp),
         ) {
-            SectionTotalBalance(totalBalance = state.totalBalance)
+            SectionTotalBalance(totalBalance = state.totalBalance.toCurrencyString())
 
             SectionRecentAccounts(
                 accounts = state.recentAccounts,
@@ -119,7 +120,8 @@ fun SectionTotalBalance(totalBalance: String) {
             Text(
                 text = totalBalance,
                 style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.testTag("tag_totalBalance_content")
             )
         }
     }
@@ -184,13 +186,15 @@ fun SectionRecentAccounts(
                     Text(
                         text = stringResource(R.string.label_empty_recent_account_list),
                         style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.testTag("tag_noRecentAccounts_label")
                     )
 
                     Spacer(modifier = Modifier.height(4.dp))
 
                     TextButton(
-                        modifier = Modifier.height(32.dp),
+                        modifier = Modifier.height(32.dp)
+                            .testTag("tag_createAccount_button"),
                         onClick = onAddNewAccount,
                         shape = MaterialTheme.shapes.extraLarge
                     ) {
@@ -202,7 +206,7 @@ fun SectionRecentAccounts(
                 }
             } else {
                 LazyRow (
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().testTag("tag_recentAccounts_list"),
                     horizontalArrangement = Arrangement.spacedBy(12.dp, alignment = Alignment.Start)
                 ) {
 
@@ -214,7 +218,8 @@ fun SectionRecentAccounts(
                             icon = painterResource(R.drawable.ic_account_black),
                             title = account.name,
                             subtitle = account.balance.toCurrencyString(),
-                            onClick = { onAccountClick(account) }
+                            onClick = { onAccountClick(account) },
+                            testTag = "account_${account.id}"
                         )
                     }
                 }
@@ -249,13 +254,14 @@ fun SectionRecentGroups(
                         text = stringResource(R.string.label_empty_recent_group_list),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.testTag("tag_noRecentGroups_label")
                     )
 
                     Spacer(modifier = Modifier.height(4.dp))
 
                     TextButton(
-                        modifier = Modifier.height(32.dp),
+                        modifier = Modifier.height(32.dp).testTag("tag_createGroup_button"),
                         onClick = onAddNewGroup,
                         shape = MaterialTheme.shapes.extraLarge
                     ) {
@@ -267,7 +273,7 @@ fun SectionRecentGroups(
                 }
             } else {
                 LazyRow(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().testTag("tag_recentGroups_list"),
                     horizontalArrangement = Arrangement.Start
                 ) {
                     items(
@@ -278,7 +284,8 @@ fun SectionRecentGroups(
                             icon = painterResource(R.drawable.ic_group_64),
                             title = group.name,
                             subtitle = group.balance.toCurrencyString(),
-                            onClick = { onGroupClick(group) }
+                            onClick = { onGroupClick(group) },
+                            testTag = "group_${group.id}"
                         )
                     }
                 }
@@ -292,18 +299,21 @@ fun RecentItemView(
     icon: Painter,
     title: String,
     subtitle: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    testTag: String? = null
 ) {
+    val modifier = Modifier
+        .width(84.dp)
+        .height(120.dp)
+        .clickable(onClick = onClick)
+        .background(
+            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.20f),
+            shape = MaterialTheme.shapes.large
+        )
+        .padding(horizontal = 4.dp, vertical = 8.dp)
+    
     Column(
-        modifier = Modifier
-            .width(84.dp)
-            .height(120.dp)
-            .clickable(onClick = onClick)
-            .background(
-                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.20f),
-                shape = MaterialTheme.shapes.large
-            )
-            .padding(horizontal = 4.dp, vertical = 8.dp),
+        modifier = if (testTag != null) modifier.testTag(testTag) else modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -330,7 +340,7 @@ fun RecentItemView(
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
             textAlign = TextAlign.Center,
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(1f).testTag("${testTag ?: "tag_recentItemView"}_title"),
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Spacer(modifier = Modifier.height(6.dp))
@@ -338,7 +348,8 @@ fun RecentItemView(
             text = subtitle,
             style = MaterialTheme.typography.labelSmall,
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.testTag("${testTag ?: "tag_recentItemView"}_subtitle")
         )
     }
 }
@@ -349,7 +360,7 @@ fun HomeScreenPreview() {
     ExpenseTrackerTheme {
         HomeScreen(
             state = HomeScreenState(
-                totalBalance = "$35,369.35",
+                totalBalance = 35369.35,
                 recentAccounts = listOf(
                     Account(id = 1, name = "Savings Bank Account", balance = 5000f),
                     Account(id = 2, name = "Checking", balance = 1200f)
@@ -369,7 +380,7 @@ fun HomeScreenEmptyPreview() {
     ExpenseTrackerTheme {
         HomeScreen(
             state = HomeScreenState(
-                totalBalance = "$0.00",
+                totalBalance = 0.0,
                 recentAccounts = emptyList(),
                 recentGroups = emptyList()
             ),

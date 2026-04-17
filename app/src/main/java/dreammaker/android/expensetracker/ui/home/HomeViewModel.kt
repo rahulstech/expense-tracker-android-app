@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dreammaker.android.expensetracker.util.toCurrencyString
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -25,7 +24,7 @@ class HomeViewModel @Inject constructor(
         groupRepo.getLiveRecentlyUsedGroups(3).asFlow()
     ) { totalBalance, accounts, groups ->
         HomeScreenState(
-            totalBalance = totalBalance.toCurrencyString(),
+            totalBalance = totalBalance,
             recentAccounts = accounts,
             recentGroups = groups
         )

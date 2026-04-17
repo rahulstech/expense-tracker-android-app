@@ -4,7 +4,7 @@ import rahulstech.android.expensetracker.domain.model.Account
 import rahulstech.android.expensetracker.domain.model.Group
 
 data class HomeScreenState(
-    val totalBalance: String = "",
+    val totalBalance: Double = 0.0,
     val recentAccounts: List<Account> = emptyList(),
     val recentGroups: List<Group> = emptyList()
 )
