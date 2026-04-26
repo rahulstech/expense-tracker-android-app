@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="error_invalid_balance_input">balance valid number</string>
+    <string name="error_empty_balance_input">balance must not empty</string>
+    <string name="error_invalid_balance_input">balance must be a decimal number</string>
     <string name="error_invalid_history_amount_input">invalid number</string>
     <string name="error_no_selection">nothing selected</string>
     <string name="error_empty_account_name_input">name must not empty</string>

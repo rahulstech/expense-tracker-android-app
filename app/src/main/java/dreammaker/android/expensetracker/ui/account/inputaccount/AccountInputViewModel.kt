@@ -1,72 +1,100 @@
 package dreammaker.android.expensetracker.ui.account.inputaccount
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dreammaker.android.expensetracker.ui.UIState
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import rahulstech.android.expensetracker.domain.AccountRepository
 import rahulstech.android.expensetracker.domain.model.Account
 import javax.inject.Inject
+
+
+data class AccountInputUIState(
+    val isLoadingAccount: Boolean = false,
+    val account: Account? = null,
+    val accountLoadError: Throwable? = null,
+    val isSaving: Boolean = false,
+    val isSaveSuccessful: Boolean = false,
+    val saveError: Throwable? = null
+)
+
+
 
 @HiltViewModel
 class AccountInputViewModel @Inject constructor(
     private val accountRepo: AccountRepository
 ): ViewModel() {
 
-    lateinit var accountLiveData: LiveData<Account?>
+    private var _uiState = MutableStateFlow(AccountInputUIState())
 
-    fun getStoredAccount(): Account? {
-        if (!::accountLiveData.isInitialized) {
-            return null
+    private val currentUIState: AccountInputUIState get() = _uiState.value
+
+    val uiState: StateFlow<AccountInputUIState> = _uiState.asStateFlow()
+
+    private var lastFoundAccId = 0L
+
+    fun findAccountById(id: Long) {
+        if (id == lastFoundAccId) {
+            return
         }
-        return accountLiveData.value
-    }
-
-    fun findAccountById(id: Long): LiveData<Account?> {
-        if (!::accountLiveData.isInitialized) {
-            accountLiveData = accountRepo.getLiveAccountById(id)
-        }
-        return accountLiveData
-    }
-
-    private val _saveAccountState = MutableSharedFlow<UIState<Account>>(
-        replay = 0,
-        extraBufferCapacity = 1,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
-    val saveAccountState: Flow<UIState<Account>?> get() = _saveAccountState
-
-    fun addAccount(account: Account) {
         viewModelScope.launch(Dispatchers.IO) {
-            flow {
-                _saveAccountState.tryEmit(UIState.UILoading())
-                val savedAccount = accountRepo.insertAccount(account)
-                emit(savedAccount)
+            updateLoadState(isLoadingAccount = true)
+            try {
+                val account = accountRepo.findAccountById(id)
+                updateLoadState(isLoadingAccount = false, account = account)
+                lastFoundAccId = id
             }
-                .catch { error -> _saveAccountState.tryEmit(UIState.UIError(error,account)) }
-                .collect {
-                    _saveAccountState.tryEmit(UIState.UISuccess(it))
+            catch (th: Throwable) {
+                updateLoadState(isLoadingAccount = false, account = null, accountLoadError = th)
+            }
+        }
+    }
+
+    fun saveAccount(account: Account, isEdit: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            updateSaveSate(isSaving = true)
+            try {
+                if (isEdit) {
+                    accountRepo.updateAccount(account)
                 }
+                else {
+                    accountRepo.insertAccount(account)
+                }
+                updateSaveSate(isSaving = false, isSaveSuccessful = true)
+            }
+            catch (th: Throwable) {
+                updateSaveSate(isSaving = false, isSaveSuccessful = false, saveError = th)
+            }
         }
     }
 
-    fun setAccount(account: Account) {
-        _saveAccountState.tryEmit(UIState.UILoading())
-        viewModelScope.launch(Dispatchers.IO) {
-            flow {
-                accountRepo.updateAccount(account)
-                emit(account)
-            }
-                .catch { error -> _saveAccountState.tryEmit(UIState.UIError(error)) }
-                .collect { _saveAccountState.tryEmit(UIState.UISuccess(it)) }
-        }
+    private fun updateLoadState(
+        isLoadingAccount: Boolean = currentUIState.isLoadingAccount,
+        account: Account? = currentUIState.account,
+        accountLoadError: Throwable? = currentUIState.accountLoadError,
+    ) {
+        _uiState.value = currentUIState.copy(
+            isLoadingAccount = isLoadingAccount,
+            account = account,
+            accountLoadError = accountLoadError
+        )
     }
+
+    private fun updateSaveSate(
+        isSaving: Boolean = currentUIState.isSaving,
+        isSaveSuccessful: Boolean = currentUIState.isSaveSuccessful,
+        saveError: Throwable? = currentUIState.saveError
+    ) {
+        _uiState.value = currentUIState.copy(
+            isSaving = isSaving,
+            isSaveSuccessful = isSaveSuccessful,
+            saveError = saveError
+        )
+    }
+
+
 }

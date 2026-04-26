@@ -106,13 +106,11 @@
 
     <fragment android:id="@+id/create_account"
         android:name="dreammaker.android.expensetracker.ui.account.inputaccount.AccountInputFragment"
-        android:label="@string/title_create_account"
-        tools:layout="@layout/input_account"/>
+        android:label="@string/title_create_account" />
 
     <fragment android:id="@+id/edit_account"
         android:name="dreammaker.android.expensetracker.ui.account.inputaccount.AccountInputFragment"
-        android:label="@string/title_edit_account"
-        tools:layout="@layout/input_account"/>
+        android:label="@string/title_edit_account"/>
 
 
     <!-- Group -->
