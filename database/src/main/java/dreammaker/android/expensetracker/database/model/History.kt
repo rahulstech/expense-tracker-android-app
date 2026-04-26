@@ -8,7 +8,6 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.Relation
 import androidx.room.TypeConverters
-import dreammaker.android.expensetracker.database.Converters
 import java.time.LocalDate
 
 enum class HistoryType {
@@ -60,7 +59,6 @@ data class HistoryEntity (
     val secondaryAccountId: Long?,
     val groupId: Long?,
     val amount: Float,
-    @TypeConverters(Converters::class)
     @ColumnInfo(typeAffinity = ColumnInfo.TEXT)
     val date: LocalDate,
     val note: String?,
