@@ -6,42 +6,82 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.view.View
-import android.widget.AdapterView
-import android.widget.AdapterView.OnItemSelectedListener
+import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuAnchorType
+import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
+import dreammaker.android.expensetracker.core.ui.ExpenseTrackerTheme
 import dreammaker.android.expensetracker.core.util.QuickMessages
 import rahulstech.android.expensetracker.backuprestore.Constants.BACKUP_FILE_MIME_TYPES
 import rahulstech.android.expensetracker.backuprestore.R
-import rahulstech.android.expensetracker.backuprestore.databinding.ActivityBackupRestoreBinding
 import rahulstech.android.expensetracker.backuprestore.settings.AgentSettingsProvider
 import rahulstech.android.expensetracker.backuprestore.settings.BackupFrequency
 import rahulstech.android.expensetracker.backuprestore.util.FileEntry
 import rahulstech.android.expensetracker.backuprestore.util.FileUtil
 import rahulstech.android.expensetracker.backuprestore.worker.BackupRestoreHelper
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 typealias PendingTask = () -> Unit
+
+private val DATETIME_FORMAT = DateTimeFormatter.ofPattern("EEE, dd-MMM-yyyy hh:mm a")
 
 @AndroidEntryPoint
 class BackupRestoreActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "BackupRestoreActivity"
-        private val DATETIME_FORMAT = DateTimeFormatter.ofPattern("EEE, dd-MMM-yyyy hh:mm a")
+
     }
 
     @Inject
     lateinit var settings: AgentSettingsProvider
-
-    private lateinit var binding: ActivityBackupRestoreBinding
 
     private val viewModel: BackupRestoreViewModel by viewModels()
 
@@ -49,59 +89,60 @@ class BackupRestoreActivity : AppCompatActivity() {
 
     private lateinit var openDocumentLauncher: ActivityResultLauncher<Array<String>>
 
-    private lateinit var adapterBackupFrequency: BackupFrequencyAdapter
-
     private var pendingTask: PendingTask? = null
 
+    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityBackupRestoreBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        setSupportActionBar(binding.toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         permissionRequestLauncher = registerForActivityResult(
-            ActivityResultContracts.RequestMultiplePermissions(),this::onPermissionResult)
+            ActivityResultContracts.RequestMultiplePermissions(), this::onPermissionResult
+        )
 
         openDocumentLauncher = registerForActivityResult(
-            ActivityResultContracts.OpenDocument(),this::onPickBackupFile)
+            ActivityResultContracts.OpenDocument(), this::onPickBackupFile
+        )
 
-        updateLastLocalBackupTime()
+        setContent {
+            ExpenseTrackerTheme {
+                Scaffold(
+                    topBar = {
+                        TopAppBar(
+                            title = { Text(stringResource(R.string.activity_title_backup_restore)) },
+                            navigationIcon = {
+                                IconButton(onClick = { finish() }) {
+                                    Icon(
+                                        Icons.AutoMirrored.Default.ArrowBack,
+                                        contentDescription = "Back"
+                                    )
+                                }
+                            },
+                            colors = TopAppBarDefaults.topAppBarColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                scrolledContainerColor = MaterialTheme.colorScheme.primary,
+                                titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                                navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
+                                actionIconContentColor = MaterialTheme.colorScheme.onPrimary
+                            )
+                        )
+                    }
+                ) { paddingValues ->
 
-        adapterBackupFrequency = BackupFrequencyAdapter()
-        binding.autoBackupFrequency.apply {
-            adapter = adapterBackupFrequency
-
-            setSelection(adapterBackupFrequency.getPosition(settings.getBackupFrequency()))
-
-            onItemSelectedListener = object: OnItemSelectedListener {
-                override fun onItemSelected(view: AdapterView<*>?, itemView: View?, position: Int, id: Long) {
-                    onBackupFrequencyUpdated(adapterBackupFrequency.getItem(position))
+                    Box(
+                        modifier = Modifier.padding(paddingValues)
+                    ) {
+                        BackupRestoreRoute(
+                            viewModel = viewModel,
+                            onStartBackup = { onClickStartBackup() },
+                            onRestoreLocal = { onClickPickBackupFile() },
+                        )
+                    }
                 }
-
-                override fun onNothingSelected(view: AdapterView<*>?) {}
             }
         }
-
-        binding.btnStartBackup.setOnClickListener { onClickStartBackup() }
-//        binding.btnCancelBackup.setOnClickListener { onClickCancelBackup() }
-        binding.btnOpenRestoreLocal.setOnClickListener { onClickPickBackupFile() }
-
-        viewModel.getLastLocalBackupTime().observe(this) { updateLastLocalBackupTime() }
-//        lifecycleScope.launch {
-//            viewModel.getBackupProgressFlow().collectLatest { updateBackupProgress(it) }
-//        }
-//        lifecycleScope.launch {
-//            viewModel.getRestoreProgressFlow().collectLatest { updateRestoreProgress(it) }
-//        }
     }
 
     // event handlers
-
-    private fun onBackupFrequencyUpdated(newFrequency: BackupFrequency) {
-        BackupRestoreHelper.rescheduleBackup(this, newFrequency)
-        settings.setBackupFrequency(newFrequency)
-    }
 
     private fun onClickStartBackup() {
         val permissions: Array<String> = when {
@@ -110,14 +151,11 @@ class BackupRestoreActivity : AppCompatActivity() {
             else -> emptyArray()
         }
         if (permissions.isNotEmpty()) {
-            runIfPermissionGranted(permissions){startBackup()}
-        }
-        else {
+            runIfPermissionGranted(permissions) { startBackup() }
+        } else {
             startBackup()
         }
     }
-
-//    private fun onClickCancelBackup() { cancelBackup() }
 
     private fun onClickPickBackupFile() {
         val permissions: Array<String> = when {
@@ -126,9 +164,8 @@ class BackupRestoreActivity : AppCompatActivity() {
             else -> emptyArray()
         }
         if (permissions.isNotEmpty()) {
-            runIfPermissionGranted(permissions){showPickBackupFileInstruction()}
-        }
-        else {
+            runIfPermissionGranted(permissions) { showPickBackupFileInstruction() }
+        } else {
             showPickBackupFileInstruction()
         }
     }
@@ -136,8 +173,8 @@ class BackupRestoreActivity : AppCompatActivity() {
     private fun showPickBackupFileInstruction() {
         QuickMessages.alertInformation(this,
             getString(R.string.message_pick_backup_file_instruction),
-            QuickMessages.AlertButton(getString(R.string.label_choose)){
-                openDocumentLauncher.launch(arrayOf("application/*","text/*"))
+            QuickMessages.AlertButton(getString(R.string.label_choose)) {
+                openDocumentLauncher.launch(arrayOf("application/*", "text/*"))
             },
             QuickMessages.AlertButton(getString(R.string.label_cancel))
         )
@@ -161,7 +198,7 @@ class BackupRestoreActivity : AppCompatActivity() {
     private fun showCancellableAlert(message: String) {
         MaterialAlertDialogBuilder(this)
             .setMessage(message)
-            .setPositiveButton(R.string.label_cancel,null)
+            .setPositiveButton(R.string.label_cancel, null)
             .show()
     }
 
@@ -171,72 +208,23 @@ class BackupRestoreActivity : AppCompatActivity() {
         BackupRestoreHelper.startBackup(applicationContext, settings.getBackupFrequency())
     }
 
-//    private fun cancelBackup() {
-//        BackupRestoreHelper.cancelBackup(applicationContext)
-//    }
-
     private fun startRestore(entry: FileEntry) {
         BackupRestoreHelper.startRestore(applicationContext, entry)
     }
-
-    private fun updateLastLocalBackupTime() {
-        val datetime = settings.getLastLocalBackupLocalDateTime()
-        binding.labelLastLocalBackup.text = buildString {
-            append(getString(R.string.label_last_local_backup_time))
-            append(": ")
-            append(datetime?.format(DATETIME_FORMAT) ?: getString(R.string.label_last_local_backup_time_never))
-        }
-    }
-
-//    private fun updateBackupProgress(data: ProgressData?) {
-//        if (data == null) {
-//            binding.groupBackupProgress.visibility = View.INVISIBLE
-//            binding.btnStartBackup.visibility = View.VISIBLE
-//        }
-//        else {
-//            binding.groupBackupProgress.visibility = View.VISIBLE
-//            binding.btnStartBackup.visibility = View.INVISIBLE
-//            binding.backupProgressMessage.text = data.message
-//            binding.backupProgressbar.apply {
-//                isIndeterminate = data.max < 0 || data.current < 0
-//                max = data.max
-//                progress = data.current
-//            }
-//        }
-//    }
-
-//    private fun updateRestoreProgress(data: ProgressData?) {
-//        if (data == null) {
-//            binding.groupRestoreProgress.visibility = View.INVISIBLE
-//            binding.btnOpenRestoreLocal.visibility = View.VISIBLE
-//        }
-//        else {
-//            binding.groupRestoreProgress.visibility = View.VISIBLE
-//            binding.btnOpenRestoreLocal.visibility = View.INVISIBLE
-//            binding.restoreProgressMessage.text = data.message
-//            binding.restoreProgressbar.apply {
-//                isIndeterminate = data.max < 0 || data.current < 0
-//                max = data.max
-//                progress = data.current
-//            }
-//        }
-//    }
-
 
     // runtime permission related methods
 
     private fun runIfPermissionGranted(permissions: Array<String>, task: PendingTask) {
         if (hasPermission(permissions)) {
             task()
-        }
-        else {
+        } else {
             pendingTask = task
             permissionRequestLauncher.launch(permissions)
         }
     }
 
     private fun hasPermission(permissions: Array<String>): Boolean =
-        permissions.all{ permission ->
+        permissions.all { permission ->
             PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(this, permission)
         }
 
@@ -247,10 +235,214 @@ class BackupRestoreActivity : AppCompatActivity() {
                 .map { it.key }
             if (notGranted.isEmpty()) {
                 task.invoke()
-            }
-            else {
-                runIfPermissionGranted(notGranted.toTypedArray()) { task.invoke() }
+                pendingTask = null
+            } else {
+                // If some permissions are not granted, we might want to inform the user or just not run the task.
+                // The original logic calls runIfPermissionGranted again, which might cause an infinite loop if user keeps denying.
+                // For now, let's just clear the pending task if any not granted.
+                pendingTask = null
             }
         }
+    }
+}
+
+@Composable
+fun BackupRestoreRoute(
+    viewModel: BackupRestoreViewModel,
+    onStartBackup: () -> Unit,
+    onRestoreLocal: () -> Unit,
+) {
+    val uiState by viewModel.uiState.collectAsState()
+
+    BackupRestoreScreen(
+        uiState = uiState,
+        onStartBackup = onStartBackup,
+        onRestoreLocal = onRestoreLocal,
+        onFrequencyChange = { viewModel.changeBackupFrequency(it) }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun BackupRestoreScreen(
+    uiState: BackupRestoreActivityUIState,
+    onStartBackup: () -> Unit,
+    onRestoreLocal: () -> Unit,
+    onFrequencyChange: (BackupFrequency) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxSize()
+    ) {
+        // Backup Section
+        SectionBackup(
+            lastLocalBackupTime = uiState.lastLocalBackupTime,
+            currentFrequency = uiState.backupFrequency,
+            onStartBackup = onStartBackup,
+            onFrequencyChange = onFrequencyChange
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Restore Section
+        SectionRestore(
+            onRestoreLocal = onRestoreLocal
+        )
+    }
+}
+
+
+@Composable
+fun SectionBackup(
+    lastLocalBackupTime: LocalDateTime?,
+    currentFrequency: BackupFrequency,
+    onStartBackup: () -> Unit,
+    onFrequencyChange: (BackupFrequency) -> Unit
+) {
+    val lastLocalBackupTimeText by remember(lastLocalBackupTime) {
+        derivedStateOf {
+            lastLocalBackupTime?.format(DATETIME_FORMAT)
+        }
+    }
+
+    SectionCard {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(16.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.description_backup_settings),
+                style = MaterialTheme.typography.bodyLarge
+            )
+
+            Text(
+                text = stringResource(
+                    R.string.label_last_local_backup_time,
+                    lastLocalBackupTimeText ?: stringResource(R.string.label_last_local_backup_time_never)
+                ),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 16.dp)
+            )
+
+            Spacer(modifier = Modifier.height(18.dp))
+
+            Button(onClick = onStartBackup) {
+                Text(stringResource(R.string.label_start_backup))
+            }
+
+            Spacer(modifier = Modifier.height(18.dp))
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.label_auto_backup),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                FrequencyDropdown(
+                    currentFrequency = currentFrequency,
+                    onFrequencyChange = onFrequencyChange
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun SectionRestore(
+    onRestoreLocal: ()-> Unit
+) {
+    SectionCard {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(16.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.description_restore_settings),
+                style = MaterialTheme.typography.bodyLarge
+            )
+
+            Spacer(modifier = Modifier.height(18.dp))
+
+            Button(onClick = onRestoreLocal) {
+                Text(stringResource(R.string.label_open_restore_local))
+            }
+        }
+    }
+}
+
+
+@Composable
+fun SectionCard(
+    modifier: Modifier = Modifier,
+    content: @Composable ()-> Unit
+) {
+    OutlinedCard (
+        modifier = modifier,
+        shape = MaterialTheme.shapes.large
+    ) {
+        content()
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun FrequencyDropdown(
+    currentFrequency: BackupFrequency,
+    onFrequencyChange: (BackupFrequency) -> Unit
+) {
+    val context = LocalContext.current
+    var expanded by remember { mutableStateOf(false) }
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded }
+    ) {
+        OutlinedTextField(
+            value = currentFrequency.getLabel(context),
+            onValueChange = {},
+            readOnly = true,
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, true),
+            textStyle = MaterialTheme.typography.bodyMedium,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.outline,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+            )
+        )
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            BackupFrequency.entries.forEach { frequency ->
+                DropdownMenuItem(
+                    text = { Text(frequency.getLabel(context)) },
+                    onClick = {
+                        onFrequencyChange(frequency)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun BackupRestoreScreenPreview() {
+    ExpenseTrackerTheme {
+        BackupRestoreScreen(
+            uiState = BackupRestoreActivityUIState(
+                lastLocalBackupTime = LocalDateTime.of(2026,2,3,13,55,0),
+                backupFrequency = BackupFrequency.DAILY
+            ),
+            onStartBackup = {},
+            onRestoreLocal = {},
+            onFrequencyChange = {}
+        )
     }
 }

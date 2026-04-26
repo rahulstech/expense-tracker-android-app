@@ -8,6 +8,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.Relation
 import androidx.room.TypeConverters
+import dreammaker.android.expensetracker.database.Converter
 import java.time.LocalDate
 
 enum class HistoryType {
@@ -53,7 +54,7 @@ fun List<HistoryType>.toNamesList(): List<String> = map{ it.name }
 data class HistoryEntity (
     @PrimaryKey(autoGenerate = true)
     val id: Long,
-    @TypeConverters(Converters::class)
+    @TypeConverters(Converter::class)
     val type: HistoryType,
     val primaryAccountId: Long?,
     val secondaryAccountId: Long?,

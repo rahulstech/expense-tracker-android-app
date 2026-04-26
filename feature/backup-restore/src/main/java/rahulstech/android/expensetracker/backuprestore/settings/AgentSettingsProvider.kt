@@ -3,11 +3,13 @@ package rahulstech.android.expensetracker.backuprestore.settings
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
-import androidx.lifecycle.LiveData
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import rahulstech.android.expensetracker.backuprestore.R
 import java.time.LocalDateTime
 import javax.inject.Inject
+import javax.inject.Singleton
 
 enum class BackupFrequency {
     NEVER,
@@ -24,26 +26,55 @@ enum class BackupFrequency {
     }
 }
 
+@Singleton
 class AgentSettingsProvider @Inject constructor(
     @ApplicationContext
     private val applicationContext: Context
 ){
+    companion object {
+
+        private const val TAG = "AgentSettingsProvider"
+        private const val SHARED_PREFERENCES_NAME = "rahulstech.android.expensetrcker.backuprestore.settings.agent"
+        private const val KEY_BACKUP_FREQUENCY = "backup_frequency"
+        private const val KEY_LAST_LOCAL_BACKUP_DATETIME = "last_local_backup_datetime"
+    }
 
     private val sharedPreferences = applicationContext.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
+
+    private val _backupFrequencyFlow = MutableStateFlow(getBackupFrequency())
+
+    private val _lastLocalBackupDateTimeFlow = MutableStateFlow(getLastLocalBackupLocalDateTime())
+
+    private val sharedPreferenceChangeListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+        when(key) {
+            KEY_BACKUP_FREQUENCY -> _backupFrequencyFlow.value = getBackupFrequency()
+            KEY_LAST_LOCAL_BACKUP_DATETIME -> _lastLocalBackupDateTimeFlow.value = getLastLocalBackupLocalDateTime()
+        }
+    }
+
+    init {
+        sharedPreferences.registerOnSharedPreferenceChangeListener(sharedPreferenceChangeListener)
+    }
+
+    //------------- Backup Frequency ----------------------
+
+    fun setBackupFrequency(frequency: BackupFrequency) {
+        edit {
+            putString(KEY_BACKUP_FREQUENCY, frequency.name)
+        }
+    }
 
     fun getBackupFrequency(): BackupFrequency {
         val name = sharedPreferences.getString(KEY_BACKUP_FREQUENCY, null)
         return name?.let{ BackupFrequency.valueOf(name) } ?: BackupFrequency.NEVER
     }
 
-    fun setBackupFrequency(frequency: BackupFrequency) {
-        sharedPreferences.edit(true) {
-            putString(KEY_BACKUP_FREQUENCY, frequency.name)
-        }
-    }
+    fun getBackupFrequencyFlow(): Flow<BackupFrequency> = _backupFrequencyFlow
+
+    //------------- Last Local Backup Date Time ----------------------
 
     fun setLastLocalBackupNow() {
-        sharedPreferences.edit(true) {
+        edit {
             putString(KEY_LAST_LOCAL_BACKUP_DATETIME, LocalDateTime.now().toString())
         }
     }
@@ -52,59 +83,11 @@ class AgentSettingsProvider @Inject constructor(
         sharedPreferences.getString(KEY_LAST_LOCAL_BACKUP_DATETIME, null)
             ?.let { value -> LocalDateTime.parse(value) }
 
+    fun getLastLocalBackupLocalDateTimeFlow(): Flow<LocalDateTime?> = _lastLocalBackupDateTimeFlow
 
-    fun getLastLocalBackupLocalDateTimeLiveData(): LiveData<LocalDateTime> =
-        SharedPreferenceLiveData(KEY_LAST_LOCAL_BACKUP_DATETIME)
+    //------------- Helpers ----------------------
 
-    @Suppress("UNCHECKED_CAST")
-    private fun <T> getValue(key: String): T? {
-        val value = when(key) {
-            KEY_BACKUP_FREQUENCY -> getBackupFrequency()
-            KEY_LAST_LOCAL_BACKUP_DATETIME -> getLastLocalBackupLocalDateTime()
-            else -> throw IllegalStateException("unknown key $key") // should never reach this branch
-        }
-        return value as T
-    }
-
-    companion object {
-
-        private const val SHARED_PREFERENCES_NAME = "rahulstech.android.expensetrcker.backuprestore.settings.agent"
-        private const val KEY_BACKUP_FREQUENCY = "backup_frequency"
-        private const val KEY_LAST_LOCAL_BACKUP_DATETIME = "last_local_backup_datetime"
-
-//        @Volatile
-//        private var instance: AgentSettingsProvider? = null
-//
-//        fun get(context: Context): AgentSettingsProvider {
-//            return instance ?: synchronized(this) {
-//                val tmp = AgentSettingsProvider(context.applicationContext)
-//                instance = tmp
-//                tmp
-//            }
-//        }
-    }
-
-    private inner class SharedPreferenceLiveData<T>(val observeKey: String): LiveData<T>() {
-
-
-        private val sharedPreferenceCallback: SharedPreferences.OnSharedPreferenceChangeListener
-        = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
-            if (observeKey == key) {
-                val value = getValue<T>(key)
-                postValue(value)
-            }
-        }
-
-        init {
-            value = getValue(observeKey)
-        }
-
-        override fun onActive() {
-            sharedPreferences.registerOnSharedPreferenceChangeListener(sharedPreferenceCallback)
-        }
-
-        override fun onInactive() {
-            sharedPreferences.unregisterOnSharedPreferenceChangeListener(sharedPreferenceCallback)
-        }
+    private fun edit(action: SharedPreferences.Editor.()-> Unit) {
+        sharedPreferences.edit(true,action)
     }
 }

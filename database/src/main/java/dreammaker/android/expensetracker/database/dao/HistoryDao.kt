@@ -11,6 +11,7 @@ import androidx.room.Transaction
 import androidx.room.Update
 import androidx.sqlite.db.SupportSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteQueryBuilder
+import dreammaker.android.expensetracker.database.Converter
 import dreammaker.android.expensetracker.database.model.AccountEntity
 import dreammaker.android.expensetracker.database.model.GroupEntity
 import dreammaker.android.expensetracker.database.model.HistoryDetails
@@ -101,8 +102,8 @@ class HistoryQueryBuilder {
         dateRange?.let {
             // NOTE: sqlite can not bind LocalDate, convert it to string
             val sqlArgs = BETWEEN("date",
-                Converters.localDateToString(it.first),
-                Converters.localDateToString(it.second))
+                Converter.localDateToString(it.first),
+                Converter.localDateToString(it.second))
             selection.append(" AND ").append(sqlArgs.first)
             selectionArgs.addAll(sqlArgs.second)
         }
@@ -143,7 +144,7 @@ class HistoryQueryBuilder {
         return sql to args
     }
 
-    private fun BETWEEN(column: String, start: Any, end: Any): SqlArgs {
+    private fun BETWEEN(column: String, start: String?, end: String?): SqlArgs {
         val sql = "`$column` BETWEEN ? AND ?"
         val args = listOf(start,end)
         return sql to args

@@ -8,11 +8,8 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.workDataOf
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import rahulstech.android.expensetracker.backuprestore.Constants
 import rahulstech.android.expensetracker.backuprestore.settings.BackupFrequency
 import rahulstech.android.expensetracker.backuprestore.util.FileEntry
@@ -63,25 +60,6 @@ object BackupRestoreHelper {
         backupOnce(getWorkManager(context))
     }
 
-    private fun getProgress(context: Context, uniqueWorkName: String): Flow<ProgressData?> {
-        val workManager = getWorkManager(context)
-        return workManager.getWorkInfosForUniqueWorkFlow(uniqueWorkName)
-            .map { infos ->
-                val runningWorkInfo = infos.find { info -> info.state == WorkInfo.State.RUNNING }
-                runningWorkInfo?.let { info ->
-                    val progress = info.progress
-                    if (progress.keyValueMap.isNotEmpty()) {
-                        return@let ProgressData(
-                            info.id,
-                            progress.getInt(Constants.DATA_PROGRESS_MAX, -1),
-                            progress.getInt(Constants.DATA_PROGRESS_CURRENT, -1),
-                            progress.getString(Constants.DATA_PROGRESS_MESSAGE) ?: ""
-                        )
-                    }
-                    null
-                }
-            }
-    }
 
     fun cancelBackup(context: Context) {
         getWorkManager(context).cancelUniqueWork(Constants.TAG_BACKUP_WORK)
@@ -117,8 +95,6 @@ object BackupRestoreHelper {
 
     // restore related methods
 
-    fun getRestoreProgress(context: Context): Flow<ProgressData?> = getProgress(context, Constants.TAG_RESTORE_WORK)
-
     fun startRestore(context: Context, file: FileEntry) {
         val workManager = getWorkManager(context)
         when(file.mimeType) {
@@ -145,19 +121,5 @@ object BackupRestoreHelper {
             .enqueue()
     }
 
-//    private fun startRestoreFromJson(workManager: WorkManager, backupFile: Uri, name: String) {
-//        val inputData = workDataOf(
-//            Constants.DATA_BACKUP_FILE to backupFile.toString(),
-//            Constants.DATA_BACKUP_FILE_NAME to name
-//        )
-//        val request = OneTimeWorkRequestBuilder<JsonRestoreWorker>()
-//            .addTag(Constants.TAG_JSON_RESTORE_WORK)
-//            .setInputData(inputData)
-//            .build()
-//        workManager.enqueueUniqueWork(Constants.TAG_RESTORE_WORK, ExistingWorkPolicy.REPLACE, request)
-//    }
-
     // helper method
-
-    fun getBackupProgress(context: Context): Flow<ProgressData?> = getProgress(context, Constants.TAG_BACKUP_WORK)
 }

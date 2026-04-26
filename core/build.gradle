@@ -52,5 +52,8 @@ dependencies {
     api libs.androidx.compose.ui.graphics
     api libs.androidx.compose.ui.tooling.preview
     api libs.androidx.compose.material3
+    api libs.androidx.activity.compose
+    api libs.androidx.lifecycle.runtime.compose
+    api libs.androidx.compose.runtime.livedata
     debugApi libs.androidx.compose.ui.tooling
 }

@@ -4,7 +4,7 @@
     <string name="activity_title_backup_restore">Backup Restore</string>
 
     <string name="description_backup_settings">Backup</string>
-    <string name="label_last_local_backup_time">Local Backup</string>
+    <string name="label_last_local_backup_time">Local Backup: %1$s</string>
     <string name="label_last_local_backup_time_never">Never</string>
     <string name="notification_title_backup">Backup</string>
     <string name="notification_message_backup">Backup in progress</string>

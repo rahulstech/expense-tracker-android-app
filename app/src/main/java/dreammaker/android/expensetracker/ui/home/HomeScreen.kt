@@ -274,7 +274,7 @@ fun SectionRecentGroups(
             } else {
                 LazyRow(
                     modifier = Modifier.fillMaxWidth().testTag("tag_recentGroups_list"),
-                    horizontalArrangement = Arrangement.Start
+                    horizontalArrangement = Arrangement.spacedBy(space = 12.dp, alignment = Alignment.Start)
                 ) {
                     items(
                         items = groups,
@@ -366,7 +366,8 @@ fun HomeScreenPreview() {
                     Account(id = 2, name = "Checking", balance = 1200f)
                 ),
                 recentGroups = listOf(
-                    Group(id = 1, name = "Household", balance = 450f)
+                    Group(id = 1, name = "Household", balance = 450f),
+                    Group(id = 2, name = "Medical", balance = 530f)
                 )
             ),
             onEvent = {}
