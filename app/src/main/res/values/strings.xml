@@ -206,5 +206,6 @@
 	<string name="description_empty_recent_account_list">add account histories to see latest used account.up to 3 latest used accounts will show here</string>
 	<string name="description_empty_recent_group_list">add group histories to see latest used group. up to 3 latest used groups will show here.</string>
 
+	<string name="add_more_account">Add more account?</string>
 
 </resources>

@@ -1,11 +1,16 @@
 package dreammaker.android.expensetracker.ui.account.inputaccount
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -19,21 +24,34 @@ data class AccountInputUIState(
     val account: Account? = null,
     val accountLoadError: Throwable? = null,
     val isSaving: Boolean = false,
-    val isSaveSuccessful: Boolean = false,
-    val saveError: Throwable? = null
 )
 
+
+sealed interface AccountInputUIEvent {
+
+    data class SaveSuccessful(val account: Account): AccountInputUIEvent
+
+    data class SaveError(val cause: Throwable): AccountInputUIEvent
+}
 
 @HiltViewModel
 class AccountInputViewModel @Inject constructor(
     private val accountRepo: AccountRepository
 ): ViewModel() {
 
+    companion object {
+        private const val TAG = "AccountInputViewModel"
+    }
+
     private var _uiState = MutableStateFlow(AccountInputUIState())
 
     private val currentUIState: AccountInputUIState get() = _uiState.value
 
     val uiState: StateFlow<AccountInputUIState> = _uiState.asStateFlow()
+
+    private val _uiEvent = MutableSharedFlow<AccountInputUIEvent>(replay = 0, extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.SUSPEND)
+
+    val uiEvent: SharedFlow<AccountInputUIEvent> = _uiEvent.asSharedFlow()
 
     private var lastFoundAccId = 0L
 
@@ -58,16 +76,21 @@ class AccountInputViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             updateSaveSate(isSaving = true)
             try {
-                if (isEdit) {
+                val savedAccount = if (isEdit) {
                     accountRepo.updateAccount(account)
+                    account
                 }
                 else {
                     accountRepo.insertAccount(account)
                 }
-                updateSaveSate(isSaving = false, isSaveSuccessful = true)
+                _uiEvent.tryEmit(AccountInputUIEvent.SaveSuccessful(savedAccount))
             }
             catch (th: Throwable) {
-                updateSaveSate(isSaving = false, isSaveSuccessful = false, saveError = th)
+                Log.e(TAG,"save account failed with error", th)
+                _uiEvent.tryEmit(AccountInputUIEvent.SaveError(th))
+            }
+            finally {
+                updateSaveSate(isSaving = false)
             }
         }
     }
@@ -88,17 +111,9 @@ class AccountInputViewModel @Inject constructor(
 
     private fun updateSaveSate(
         isSaving: Boolean = currentUIState.isSaving,
-        isSaveSuccessful: Boolean = currentUIState.isSaveSuccessful,
-        saveError: Throwable? = currentUIState.saveError
     ) {
         _uiState.update {
-            it.copy(
-                isSaving = isSaving,
-                isSaveSuccessful = isSaveSuccessful,
-                saveError = saveError
-            )
+            it.copy(isSaving = isSaving)
         }
     }
-
-
 }
