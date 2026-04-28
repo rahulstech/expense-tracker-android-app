@@ -49,6 +49,12 @@ fun AccountInputScreen(
         }
     }
 
+    LaunchedEffect(uiState.isSaving, uiState.isSaveSuccessful) {
+        if (!uiState.isSaving && uiState.isSaveSuccessful) {
+            onCancel()
+        }
+    }
+
     val context = LocalContext.current
 
     fun validateName() {

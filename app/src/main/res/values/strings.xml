@@ -206,4 +206,15 @@
 	<string name="description_empty_recent_account_list">add account histories to see latest used account.up to 3 latest used accounts will show here</string>
 	<string name="description_empty_recent_group_list">add group histories to see latest used group. up to 3 latest used groups will show here.</string>
 
+    <string name="error_empty_account_name_input">Account name cannot be empty</string>
+    <string name="error_empty_balance_input">Balance cannot be empty</string>
+    <string name="error_invalid_balance_input">Invalid balance amount</string>
+    <string name="message_success_save_account">Account saved successfully</string>
+    <string name="message_fail_save_account">Failed to save account</string>
+    <string name="message_account_not_found">Account not found</string>
+
+    <string name="title_add_another_account">Add another account?</string>
+    <string name="message_add_another_account">Account saved successfully. Do you want to add another one?</string>
+    <string name="label_add_more">Add More</string>
+
 </resources>

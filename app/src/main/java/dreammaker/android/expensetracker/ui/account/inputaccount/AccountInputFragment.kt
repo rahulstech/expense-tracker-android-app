@@ -67,12 +67,6 @@ class AccountInputFragment : Fragment() {
                         }
                     }
 
-                    LaunchedEffect(uiState.isSaving, uiState.isSaveSuccessful) {
-                        if (!uiState.isSaving && uiState.isSaveSuccessful) {
-                            navController.popBackStack()
-                        }
-                    }
-
                     AccountInputScreen(
                         uiState = uiState,
                         onSave = { account ->

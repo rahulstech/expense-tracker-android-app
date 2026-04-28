@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import rahulstech.android.expensetracker.domain.AccountRepository
 import rahulstech.android.expensetracker.domain.model.Account
@@ -21,7 +22,6 @@ data class AccountInputUIState(
     val isSaveSuccessful: Boolean = false,
     val saveError: Throwable? = null
 )
-
 
 
 @HiltViewModel
@@ -77,11 +77,13 @@ class AccountInputViewModel @Inject constructor(
         account: Account? = currentUIState.account,
         accountLoadError: Throwable? = currentUIState.accountLoadError,
     ) {
-        _uiState.value = currentUIState.copy(
-            isLoadingAccount = isLoadingAccount,
-            account = account,
-            accountLoadError = accountLoadError
-        )
+        _uiState.update {
+            it.copy(
+                isLoadingAccount = isLoadingAccount,
+                account = account,
+                accountLoadError = accountLoadError
+            )
+        }
     }
 
     private fun updateSaveSate(
@@ -89,11 +91,13 @@ class AccountInputViewModel @Inject constructor(
         isSaveSuccessful: Boolean = currentUIState.isSaveSuccessful,
         saveError: Throwable? = currentUIState.saveError
     ) {
-        _uiState.value = currentUIState.copy(
-            isSaving = isSaving,
-            isSaveSuccessful = isSaveSuccessful,
-            saveError = saveError
-        )
+        _uiState.update {
+            it.copy(
+                isSaving = isSaving,
+                isSaveSuccessful = isSaveSuccessful,
+                saveError = saveError
+            )
+        }
     }
 
 
