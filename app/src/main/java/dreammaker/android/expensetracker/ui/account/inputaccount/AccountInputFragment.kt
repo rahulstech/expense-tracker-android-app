@@ -49,7 +49,7 @@ class AccountInputFragment : Fragment() {
                     AccountInputScreen(
                         isEdit = isActionEdit(),
                         viewModel = viewModel,
-                        onExit = { navController.popBackStack() },
+                        exit = { navController.popBackStack() },
                     )
                 }
             }

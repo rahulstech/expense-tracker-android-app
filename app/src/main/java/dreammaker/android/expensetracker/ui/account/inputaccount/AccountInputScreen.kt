@@ -1,5 +1,6 @@
 package dreammaker.android.expensetracker.ui.account.inputaccount
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,9 +10,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -20,25 +22,33 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.core.ui.ExpenseTrackerTheme
+import dreammaker.android.expensetracker.core.util.QuickMessages
+import dreammaker.android.expensetracker.ui.component.ButtonWithProgressBar
 import dreammaker.android.expensetracker.ui.component.YesNoDialog
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import rahulstech.android.expensetracker.domain.model.Account
 
 @Composable
 fun AccountInputScreen(
     isEdit: Boolean,
     viewModel: AccountInputViewModel,
-    onExit: () -> Unit,
+    exit: () -> Unit,
 ) {
     val context = LocalContext.current
     var showAddMoreDialog by rememberSaveable { mutableStateOf(false) }
@@ -48,7 +58,7 @@ fun AccountInputScreen(
     var balanceError by rememberSaveable { mutableStateOf<String?>(null) }
     val uiState by viewModel.uiState.collectAsState()
 
-
+    // validation methods
     fun validateName(): Boolean {
         nameError = when {
             name.isBlank() -> context.getString(R.string.error_empty_account_name_input)
@@ -67,54 +77,86 @@ fun AccountInputScreen(
         return null == balanceError
     }
 
-
+    // handle ui events
     LaunchedEffect(Unit) {
         viewModel.uiEvent.collectLatest { event ->
             when(event) {
                 is AccountInputUIEvent.SaveError -> {
-
+                    QuickMessages.toastError(
+                        context,
+                        context.getString(R.string.account_save_unsuccessful),
+                        true
+                    )
                 }
                 is AccountInputUIEvent.SaveSuccessful -> {
                     showAddMoreDialog = true
                 }
+                is AccountInputUIEvent.LoadingError -> {
+                    QuickMessages.toastError(
+                        context,
+                        context.getString(R.string.message_account_not_found),
+                        true
+                    )
+                    exit()
+                }
             }
         }
     }
 
-    LaunchedEffect(uiState.account) {
-
+    // handle account loading
+    LaunchedEffect(uiState.account?.id) {
         if (isEdit) {
             if (!uiState.isLoadingAccount) {
+                // on loading complete if account found set
+                // the initial name and balance to the loaded account name and balance
+                // if not found show toast and exit
                 uiState.account?.let {
                     name = it.name
                     balance = it.balance.toString()
                 }
-                    ?: onExit()
             }
         }
     }
 
-    AccountInputForm(
-        isSaving = uiState.isSaving,
-        onCancel = onExit,
-        onSave = {
-            if (validateName() && validateBalance()) {
-                viewModel.saveAccount(it, isEdit)
-            }
-        },
-        name = name,
-        onNameChange = {
-            name = it
-            nameError = null
-        },
-        balance = balance,
-        onBalanceChange = {
-            balance = it
-            balanceError = null
-        },
-        nameError = nameError,
-        balanceError = balanceError
-    )
+    if (uiState.isLoadingAccount) {
+        FullScreenLoading()
+    }
+    else {
+        AccountInputForm(
+            isSaving = uiState.isSaving,
+            onCancel = exit,
+            onSave = {
+                if (validateName() && validateBalance()) {
+                    val amount = balance.toFloat()
+                    val account = if (isEdit) {
+                        Account(
+                            id = uiState.account?.id ?: 0,
+                            name = name,
+                            balance = amount
+                        )
+                    } else {
+                        Account(
+                            name = name,
+                            balance = amount
+                        )
+                    }
+                    viewModel.saveAccount(account, isEdit)
+                }
+            },
+            name = name,
+            onNameChange = {
+                name = it
+                nameError = null
+            },
+            balance = balance,
+            onBalanceChange = {
+                balance = it
+                balanceError = null
+            },
+            nameError = nameError,
+            balanceError = balanceError
+        )
+    }
 
     if (showAddMoreDialog) {
         YesNoDialog(
@@ -129,7 +171,7 @@ fun AccountInputScreen(
             },
             onNo = {
                 showAddMoreDialog = false
-                onExit()
+                exit()
             },
             dismissOnBackPressed = false,
             dismissOnClickOutside = false
@@ -137,8 +179,34 @@ fun AccountInputScreen(
     }
 }
 
+//-------- Full Screen Account Loading ---------
+@Composable
+fun FullScreenLoading() {
 
+    Box(
+        modifier = Modifier.fillMaxSize().padding(24.dp),
+        contentAlignment = Alignment.TopCenter,
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth(.85f),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = stringResource(R.string.loading_account),
+                style = MaterialTheme.typography.bodyLarge
+            )
 
+            Spacer(modifier = Modifier.height(16.dp))
+
+            LinearProgressIndicator(
+                modifier = Modifier.fillMaxWidth(),
+                trackColor = MaterialTheme.colorScheme.primaryContainer
+            )
+        }
+    }
+}
+
+//-------- Account Input Form -----------
 
 @Composable
 fun AccountInputForm(
@@ -148,7 +216,7 @@ fun AccountInputForm(
     onBalanceChange: (String)-> Unit,
     nameError: String?,
     balanceError: String?,
-    onSave: (Account) -> Unit,
+    onSave: () -> Unit,
     onCancel: () -> Unit,
     isSaving: Boolean = false
 ) {
@@ -189,45 +257,43 @@ fun AccountInputForm(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        Button(
-            onClick = {
-                val amount = balance.toFloatOrNull() ?: 0f
-                val account = Account(
-                    id = 0L,
-                    name = name,
-                    balance = amount
-                )
-                onSave(account)
-            },
-            enabled = !isSaving,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(stringResource(R.string.save))
-        }
+        ButtonWithProgressBar(
+            buttonText = stringResource(R.string.save),
+            onClick = onSave,
+            modifier = Modifier.fillMaxWidth(),
+            progressText = stringResource(R.string.saving),
+            showProgressBar = isSaving
+        )
 
         Spacer(modifier = Modifier.height(8.dp))
 
         TextButton(
             onClick = onCancel,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            enabled = !isSaving
         ) {
             Text(stringResource(R.string.cancel))
         }
     }
 }
 
-
-
-
-
-
-
-
+//--- Preview -----------------
 
 
 @Preview(showBackground = true)
 @Composable
+fun FullScreenLoadingPreview() {
+    ExpenseTrackerTheme {
+        FullScreenLoading()
+    }
+}
+
+@PreviewScreenSizes
+@Composable
 fun AccountInputFormPreview() {
+    var isSaving by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
+
     ExpenseTrackerTheme {
         AccountInputForm(
             name = "",
@@ -236,9 +302,15 @@ fun AccountInputFormPreview() {
             onBalanceChange = {},
             nameError = null,
             balanceError = null,
-            onSave = {},
+            onSave = {
+                coroutineScope.launch {
+                    isSaving = true
+                    delay(3000)
+                    isSaving = false
+                }
+            },
             onCancel = {},
-            isSaving = false
+            isSaving = isSaving
         )
     }
 }

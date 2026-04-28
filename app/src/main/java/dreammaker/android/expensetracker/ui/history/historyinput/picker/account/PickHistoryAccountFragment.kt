@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -62,6 +63,11 @@ class PickHistoryAccountFragment : Fragment() {
             }
         }
         binding.btnChoose.setOnClickListener { handlePickAccount() }
+        binding.btnAddAccount.setOnClickListener {
+            navController.navigate(R.id.action_pick_primary_account_to_create_account, bundleOf(
+                Constants.ARG_ACTION to Constants.ACTION_CREATE
+            ))
+        }
 
         adapter = AccountPickerListAdapter()
         binding.optionsList.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
@@ -92,11 +98,13 @@ class PickHistoryAccountFragment : Fragment() {
         adapter.submitList(accounts)
         if (accounts.isEmpty()) {
             binding.optionsList.visibilityGone()
+            binding.btnChoose.visibilityGone()
             binding.emptyPlaceholder.visible()
         }
         else {
             binding.emptyPlaceholder.visibilityGone()
             binding.optionsList.visible()
+            binding.btnChoose.visible()
         }
     }
 

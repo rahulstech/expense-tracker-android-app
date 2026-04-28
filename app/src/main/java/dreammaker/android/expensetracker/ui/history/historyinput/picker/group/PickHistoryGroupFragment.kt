@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -12,6 +13,7 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
+import dreammaker.android.expensetracker.Constants
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.databinding.SingleGroupPickerListWithSearchLayoutBinding
 import dreammaker.android.expensetracker.ui.GroupListItem
@@ -50,6 +52,11 @@ class PickHistoryGroupFragment : Fragment() {
             }
         }
         binding.btnChoose.setOnClickListener { handlePickGroup() }
+        binding.btnAddGroup.setOnClickListener {
+            navController.navigate(R.id.action_pick_history_group_to_create_group, bundleOf(
+                Constants.ARG_ACTION to Constants.ACTION_CREATE
+            ))
+        }
 
         adapter = GroupPickerListAdapter()
         binding.optionsList.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
@@ -79,10 +86,12 @@ class PickHistoryGroupFragment : Fragment() {
         adapter.submitList(groups)
         if (groups.isEmpty()) {
             binding.emptyPlaceholder.visibilityGone()
+            binding.btnChoose.visibilityGone()
             binding.emptyPlaceholder.visible()
         }
         else {
             binding.emptyPlaceholder.visibilityGone()
+            binding.btnChoose.visible()
             binding.optionsList.visible()
         }
     }

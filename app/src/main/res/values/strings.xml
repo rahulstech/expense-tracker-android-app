@@ -63,6 +63,7 @@
     <string name="error_empty_account_name">add an account name</string>
 	<string name="account_save_successful">account saved</string>
     <string name="account_save_unsuccessful">account not saved</string>
+	<string name="group_save_unsuccessful">group not saved</string>
 
 	<string name="error_empty_group_name">add a group name</string>
 	<string name="error_invalid_amount">invalid amount</string>
@@ -207,5 +208,24 @@
 	<string name="description_empty_recent_group_list">add group histories to see latest used group. up to 3 latest used groups will show here.</string>
 
 	<string name="add_more_account">Add more account?</string>
+	<string name="loading_account">Loading Account</string>
+	<string name="saving">Saving</string>
+
+    <string name="add_more_group">Add more group?</string>
+    <string name="loading_group">Loading Group</string>
+
+	<string name="error_invalid_history_amount_input">invalid number</string>
+	<string name="error_no_selection">nothing selected</string>
+	<string name="error_invalid_due_input">due is not a valid number</string>
+	<string name="error_invalid_group_balance_input">balance must be a number</string>
+	<string name="message_error">something error occurred</string>
+	<string name="message_fail_save_account">Account not saved</string>
+	<string name="message_success_save_account">Account saved</string>
+
+	<string name="error_empty_balance_input">balance must not empty</string>
+	<string name="error_invalid_balance_input">balance must be a decimal number</string>
+	<string name="error_empty_account_name_input">name must not empty</string>
+	<string name="message_account_not_found">account not found</string>
+	<string name="message_group_not_found">group not found</string>
 
 </resources>

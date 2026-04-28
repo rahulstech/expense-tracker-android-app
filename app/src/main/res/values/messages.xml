@@ -1,17 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="error_empty_balance_input">balance must not empty</string>
-    <string name="error_invalid_balance_input">balance must be a decimal number</string>
-    <string name="error_invalid_history_amount_input">invalid number</string>
-    <string name="error_no_selection">nothing selected</string>
-    <string name="error_empty_account_name_input">name must not empty</string>
-    <string name="error_invalid_due_input">due is not a valid number</string>
-    <string name="error_invalid_group_balance_input">balance must be a number</string>
-    <string name="message_error">something error occurred</string>
-    <string name="message_account_not_found">account not found</string>
-    <string name="message_fail_save_account">Account not saved</string>
-    <string name="message_success_save_account">Account saved</string>
-    <string name="message_group_not_found">group not found</string>
+
     <string name="message_success_save_group">Group saved</string>
     <string name="message_fail_save_group">Group not saved</string>
     <string name="message_history_not_found">history not found</string>

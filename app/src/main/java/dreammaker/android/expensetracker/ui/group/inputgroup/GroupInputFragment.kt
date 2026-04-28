@@ -4,20 +4,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.LocalContext
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import dreammaker.android.expensetracker.Constants
-import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.core.ui.ExpenseTrackerTheme
-import dreammaker.android.expensetracker.core.util.QuickMessages
 import dreammaker.android.expensetracker.util.getArgId
 import dreammaker.android.expensetracker.util.hasArgument
 
@@ -51,29 +45,10 @@ class GroupInputFragment : Fragment() {
         return ComposeView(requireContext()).apply {
             setContent {
                 ExpenseTrackerTheme {
-                    val uiState by viewModel.uiState.collectAsState()
-                    val context = LocalContext.current
-
-                    LaunchedEffect(uiState.isLoadingGroup, uiState.group) {
-                        if (isActionEdit() && !uiState.isLoadingGroup && null == uiState.group) {
-                            // group not found, exit with a message
-                            QuickMessages.toastError(
-                                context,
-                                context.getString(R.string.message_group_not_found),
-                                true
-                            )
-                            navController.popBackStack()
-                        }
-                    }
-
                     GroupInputScreen(
-                        uiState = uiState,
-                        onSave = { group ->
-                            viewModel.saveGroup(group, isActionEdit())
-                        },
-                        onCancel = {
-                            navController.popBackStack()
-                        },
+                        isEdit = isActionEdit(),
+                        viewModel = viewModel,
+                        exit = { navController.popBackStack() }
                     )
                 }
             }

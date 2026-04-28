@@ -22,7 +22,6 @@ import javax.inject.Inject
 data class AccountInputUIState(
     val isLoadingAccount: Boolean = false,
     val account: Account? = null,
-    val accountLoadError: Throwable? = null,
     val isSaving: Boolean = false,
 )
 
@@ -32,6 +31,8 @@ sealed interface AccountInputUIEvent {
     data class SaveSuccessful(val account: Account): AccountInputUIEvent
 
     data class SaveError(val cause: Throwable): AccountInputUIEvent
+
+    data class LoadingError(val cause: Throwable): AccountInputUIEvent
 }
 
 @HiltViewModel
@@ -67,14 +68,16 @@ class AccountInputViewModel @Inject constructor(
                 lastFoundAccId = id
             }
             catch (th: Throwable) {
-                updateLoadState(isLoadingAccount = false, account = null, accountLoadError = th)
+                Log.e(TAG,"can not find account for id $id", th)
+                updateLoadState(isLoadingAccount = false)
+                _uiEvent.emit(AccountInputUIEvent.LoadingError(th))
             }
         }
     }
 
     fun saveAccount(account: Account, isEdit: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
-            updateSaveSate(isSaving = true)
+            updateSaveState(isSaving = true)
             try {
                 val savedAccount = if (isEdit) {
                     accountRepo.updateAccount(account)
@@ -83,33 +86,31 @@ class AccountInputViewModel @Inject constructor(
                 else {
                     accountRepo.insertAccount(account)
                 }
-                _uiEvent.tryEmit(AccountInputUIEvent.SaveSuccessful(savedAccount))
+                _uiEvent.emit(AccountInputUIEvent.SaveSuccessful(savedAccount))
             }
             catch (th: Throwable) {
                 Log.e(TAG,"save account failed with error", th)
-                _uiEvent.tryEmit(AccountInputUIEvent.SaveError(th))
+                _uiEvent.emit(AccountInputUIEvent.SaveError(th))
             }
             finally {
-                updateSaveSate(isSaving = false)
+                updateSaveState(isSaving = false)
             }
         }
     }
 
     private fun updateLoadState(
         isLoadingAccount: Boolean = currentUIState.isLoadingAccount,
-        account: Account? = currentUIState.account,
-        accountLoadError: Throwable? = currentUIState.accountLoadError,
+        account: Account? = currentUIState.account
     ) {
         _uiState.update {
             it.copy(
                 isLoadingAccount = isLoadingAccount,
-                account = account,
-                accountLoadError = accountLoadError
+                account = account
             )
         }
     }
 
-    private fun updateSaveSate(
+    private fun updateSaveState(
         isSaving: Boolean = currentUIState.isSaving,
     ) {
         _uiState.update {

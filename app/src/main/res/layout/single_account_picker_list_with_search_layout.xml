@@ -20,18 +20,32 @@
         tools:itemCount="20"
         tools:visibility="visible"/>
 
-    <TextView
+    <LinearLayout
         android:id="@+id/empty_placeholder"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:padding="16dp"
-        android:drawablePadding="8dp"
-        app:drawableTopCompat="@drawable/ic_account_black_36"
-        app:drawableTint="?attr/colorOnBackground"
-        android:text="@string/no_account"
-        android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
-        android:textColor="?attr/colorOnBackground"/>
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:padding="16dp"
+            android:text="@string/no_account"
+            android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+            android:textColor="?attr/colorOnBackground"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAddAccount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/label_add_account"
+            style="@style/Widget.Material3.Button.TextButton"
+            app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.ExtraLarge"/>
+
+    </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btnChoose"
