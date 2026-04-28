@@ -1,69 +1,96 @@
 package dreammaker.android.expensetracker.ui.group.inputgroup
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dreammaker.android.expensetracker.ui.UIState
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import rahulstech.android.expensetracker.domain.GroupRepository
 import rahulstech.android.expensetracker.domain.model.Group
 import javax.inject.Inject
 
+data class GroupInputUIState(
+    val isLoadingGroup: Boolean = false,
+    val group: Group? = null,
+    val groupLoadError: Throwable? = null,
+    val isSaving: Boolean = false,
+    val isSaveSuccessful: Boolean = false,
+    val saveError: Throwable? = null
+)
+
 @HiltViewModel
 class GroupInputViewModel @Inject constructor(
     private val groupRepo: GroupRepository
 ): ViewModel() {
-    lateinit var groupsLiveData: LiveData<Group?>
 
-    fun getStoredGroup(): Group? {
-        if (!::groupsLiveData.isInitialized) {
-            return null
+    private val _uiState = MutableStateFlow(GroupInputUIState())
+    val uiState: StateFlow<GroupInputUIState> = _uiState.asStateFlow()
+
+    private val currentUIState: GroupInputUIState get() = _uiState.value
+
+    private var lastFoundGroupId = 0L
+
+    fun findGroupById(id: Long) {
+        if (id == lastFoundGroupId) {
+            return
         }
-        return groupsLiveData.value
-    }
-
-    fun findGroupById(id: Long): LiveData<Group?> {
-        if (!::groupsLiveData.isInitialized) {
-            groupsLiveData = groupRepo.getLiveGroupById(id)
-        }
-        return groupsLiveData
-    }
-
-    private val _saveGroupState = MutableSharedFlow<UIState<Group>>(
-        replay = 0,
-        extraBufferCapacity = 1,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
-    val saveGroupState: Flow<UIState<Group>> get() = _saveGroupState
-
-    fun addGroup(group: Group) {
-        viewModelScope.launch(Dispatchers.IO){
-            flow {
-                _saveGroupState.tryEmit(UIState.UILoading())
-                val savedGroup = groupRepo.insertGroup(group)
-                emit(savedGroup)
+        viewModelScope.launch(Dispatchers.IO) {
+            updateLoadState(isLoadingGroup = true)
+            try {
+                val group = groupRepo.findGroupById(id)
+                updateLoadState(isLoadingGroup = false, group = group)
+                lastFoundGroupId = id
+            } catch (th: Throwable) {
+                updateLoadState(isLoadingGroup = false, group = null, groupLoadError = th)
             }
-                .catch { error -> _saveGroupState.tryEmit(UIState.UIError(error)) }
-                .collect { _saveGroupState.tryEmit(UIState.UISuccess(it)) }
         }
     }
 
-    fun setGroup(group: Group) {
-        viewModelScope.launch(Dispatchers.IO){
-            flow {
-                _saveGroupState.tryEmit(UIState.UILoading())
-                groupRepo.updateGroup(group)
-                emit(group)
+    fun saveGroup(group: Group, isEdit: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            updateSaveState(isSaving = true)
+            try {
+                if (isEdit) {
+                    groupRepo.updateGroup(group)
+                } else {
+                    groupRepo.insertGroup(group)
+                }
+                updateSaveState(isSaving = false, isSaveSuccessful = true)
+            } catch (th: Throwable) {
+                updateSaveState(isSaving = false, isSaveSuccessful = false, saveError = th)
             }
-                .catch { error -> _saveGroupState.tryEmit(UIState.UIError(error)) }
-                .collect { _saveGroupState.tryEmit(UIState.UISuccess(it)) }
+        }
+    }
+
+    private fun updateLoadState(
+        isLoadingGroup: Boolean = currentUIState.isLoadingGroup,
+        group: Group? = currentUIState.group,
+        groupLoadError: Throwable? = currentUIState.groupLoadError,
+    ) {
+        _uiState.update {
+            it.copy(
+                isLoadingGroup = isLoadingGroup,
+                group = group,
+                groupLoadError = groupLoadError
+            )
+        }
+    }
+
+    private fun updateSaveState(
+        isSaving: Boolean = currentUIState.isSaving,
+        isSaveSuccessful: Boolean = currentUIState.isSaveSuccessful,
+        saveError: Throwable? = currentUIState.saveError
+    ) {
+        _uiState.update {
+            it.copy(
+                isSaving = isSaving,
+                isSaveSuccessful = isSaveSuccessful,
+                saveError = saveError
+            )
         }
     }
 }

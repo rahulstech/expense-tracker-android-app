@@ -60,11 +60,11 @@
 	<string name="notification_end_clear_all">App data cleared successfully</string>
 
 	<!-- messages related to define operation status -->
-    <string name="error_empty_account_name">no account name provided</string>
+    <string name="error_empty_account_name">add an account name</string>
 	<string name="account_save_successful">account saved</string>
     <string name="account_save_unsuccessful">account not saved</string>
 
-	<string name="error_empty_group_name">group must have a name</string>
+	<string name="error_empty_group_name">add a group name</string>
 	<string name="error_invalid_amount">invalid amount</string>
 	<string name="error_negative_amount">negative amount not allowed</string>
     <string name="error_same_account_money_transfer">can not transfer money between same accounts</string>
@@ -206,15 +206,5 @@
 	<string name="description_empty_recent_account_list">add account histories to see latest used account.up to 3 latest used accounts will show here</string>
 	<string name="description_empty_recent_group_list">add group histories to see latest used group. up to 3 latest used groups will show here.</string>
 
-    <string name="error_empty_account_name_input">Account name cannot be empty</string>
-    <string name="error_empty_balance_input">Balance cannot be empty</string>
-    <string name="error_invalid_balance_input">Invalid balance amount</string>
-    <string name="message_success_save_account">Account saved successfully</string>
-    <string name="message_fail_save_account">Failed to save account</string>
-    <string name="message_account_not_found">Account not found</string>
-
-    <string name="title_add_another_account">Add another account?</string>
-    <string name="message_add_another_account">Account saved successfully. Do you want to add another one?</string>
-    <string name="label_add_more">Add More</string>
 
 </resources>
