@@ -11,7 +11,7 @@ import androidx.paging.cachedIn
 import androidx.paging.insertSeparators
 import androidx.paging.map
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dreammaker.android.expensetracker.ui.HistoryListItem
+import dreammaker.android.expensetracker.ui.model.HistoryListItem
 import dreammaker.android.expensetracker.ui.UIState
 import dreammaker.android.expensetracker.util.SortByDate
 import kotlinx.coroutines.Dispatchers

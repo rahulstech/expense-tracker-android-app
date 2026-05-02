@@ -4,6 +4,117 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     app:startDestination="@id/home">
 
+
+    <!-- shared actions -->
+
+    <action android:id="@+id/navigate_to_create_account"
+        app:destination="@id/create_account"
+        app:enterAnim="@anim/slide_in_left"
+        app:exitAnim="@anim/slide_out_right"
+        app:popEnterAnim="@anim/slide_in_right"
+        app:popExitAnim="@anim/slide_out_left">
+        <argument android:name="arg_action"
+            app:argType="string"
+            android:defaultValue="action_create"
+            app:nullable="false"/>
+    </action>
+
+    <action android:id="@+id/navigate_to_edit_account"
+        app:destination="@id/edit_account"
+        app:enterAnim="@anim/slide_in_left"
+        app:exitAnim="@anim/slide_out_right"
+        app:popEnterAnim="@anim/slide_in_right"
+        app:popExitAnim="@anim/slide_out_left">
+        <argument android:name="arg_action"
+            app:argType="string"
+            android:defaultValue="action_edit"
+            app:nullable="false" />
+        <argument android:name="arg_id"
+            app:argType="long"
+            app:nullable="false"/>
+    </action>
+
+    <action android:id="@+id/navigate_to_create_group"
+        app:destination="@id/create_group"
+        app:enterAnim="@anim/slide_in_left"
+        app:exitAnim="@anim/slide_out_right"
+        app:popEnterAnim="@anim/slide_in_right"
+        app:popExitAnim="@anim/slide_out_left">
+        <argument android:name="arg_action"
+            app:argType="string"
+            android:defaultValue="action_create"
+            app:nullable="false" />
+    </action>
+
+    <action android:id="@+id/navigate_to_edit_group"
+        app:destination="@id/edit_group"
+        app:enterAnim="@anim/slide_in_left"
+        app:exitAnim="@anim/slide_out_right"
+        app:popEnterAnim="@anim/slide_in_right"
+        app:popExitAnim="@anim/slide_out_left">
+        <argument android:name="arg_action"
+            app:argType="string"
+            android:defaultValue="action_edit"
+            app:nullable="false" />
+        <argument android:name="arg_id"
+            app:argType="long"
+            app:nullable="false"/>
+    </action>
+
+    <action android:id="@+id/navigate_to_create_transaction"
+        app:destination="@id/create_transaction"
+        app:enterAnim="@anim/slide_in_left"
+        app:exitAnim="@anim/slide_out_right"
+        app:popEnterAnim="@anim/slide_in_right"
+        app:popExitAnim="@anim/slide_out_left">
+        <argument android:name="arg_action"
+            app:argType="string"
+            android:defaultValue="action_create"
+            app:nullable="false"/>
+    </action>
+
+    <action android:id="@+id/navigate_to_edit_transaction"
+        app:destination="@id/edit_transaction"
+        app:enterAnim="@anim/slide_in_left"
+        app:exitAnim="@anim/slide_out_right"
+        app:popEnterAnim="@anim/slide_in_right"
+        app:popExitAnim="@anim/slide_out_left">
+        <argument android:name="arg_action"
+            app:argType="string"
+            android:defaultValue="action_edit"
+            app:nullable="false"/>
+        <argument android:name="arg_id"
+            app:argType="long"
+            app:nullable="false" />
+    </action>
+
+    <action android:id="@+id/navigate_to_create_transfer"
+        app:destination="@id/create_transfer"
+        app:enterAnim="@anim/slide_in_left"
+        app:exitAnim="@anim/slide_out_right"
+        app:popEnterAnim="@anim/slide_in_right"
+        app:popExitAnim="@anim/slide_out_left">
+        <argument android:name="arg_action"
+            app:argType="string"
+            android:defaultValue="action_create"
+            app:nullable="false"/>
+    </action>
+
+    <action android:id="@+id/navigate_to_edit_transfer"
+        app:destination="@id/edit_transfer"
+        app:enterAnim="@anim/slide_in_left"
+        app:exitAnim="@anim/slide_out_right"
+        app:popEnterAnim="@anim/slide_in_right"
+        app:popExitAnim="@anim/slide_out_left">
+        <argument android:name="arg_action"
+            app:argType="string"
+            android:defaultValue="action_edit"
+            app:nullable="false"/>
+        <argument android:name="arg_id"
+            app:argType="long"
+            app:nullable="false" />
+    </action>
+
     <!-- Home -->
     <fragment
         android:id="@+id/home"
@@ -38,24 +149,6 @@
             app:exitAnim="@anim/slide_out_right"
             app:popEnterAnim="@anim/slide_in_right"
             app:popExitAnim="@anim/slide_out_left"/>
-        <action
-            android:id="@+id/action_home_to_create_history"
-            app:destination="@+id/create_history" />
-
-        <action
-            android:id="@+id/action_home_to_create_account"
-            app:destination="@+id/create_account"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right"
-            app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left"/>
-        <action
-            android:id="@+id/action_home_to_create_group"
-            app:destination="@+id/create_group"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right"
-            app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left"/>
 
     </fragment>
 
@@ -70,31 +163,12 @@
             app:exitAnim="@anim/slide_out_right"
             app:popEnterAnim="@anim/slide_in_right"
             app:popExitAnim="@anim/slide_out_left"/>
-        <action android:id="@+id/action_account_list_to_create_account"
-            app:destination="@id/create_account"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right"
-            app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left"/>
     </fragment>
 
     <fragment android:id="@+id/view_account"
         android:name="dreammaker.android.expensetracker.ui.account.viewaccount.ViewAccountFragment"
         android:label="@string/title_view_account"
         tools:layout="@layout/view_account_layout">
-
-        <action android:id="@+id/action_view_account_to_create_history"
-            app:destination="@id/create_history" />
-
-        <action android:id="@+id/action_view_account_to_create_transfer_history"
-            app:destination="@id/create_transfer_history"/>
-
-        <action android:id="@+id/action_view_account_to_edit_account"
-            app:destination="@id/edit_account"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right"
-            app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left"/>
 
         <action android:id="@+id/action_view_account_to_history_list"
             app:destination="@id/history_list"
@@ -106,12 +180,13 @@
 
     <fragment android:id="@+id/create_account"
         android:name="dreammaker.android.expensetracker.ui.account.inputaccount.AccountInputFragment"
-        android:label="@string/title_create_account" />
+        android:label="@string/title_create_account">
+    </fragment>
 
     <fragment android:id="@+id/edit_account"
         android:name="dreammaker.android.expensetracker.ui.account.inputaccount.AccountInputFragment"
-        android:label="@string/title_edit_account"/>
-
+        android:label="@string/title_edit_account">
+    </fragment>
 
     <!-- Group -->
 
@@ -119,13 +194,6 @@
         android:name="dreammaker.android.expensetracker.ui.group.groupslist.GroupListFragment"
         android:label="@string/title_groups_list"
         tools:layout="@layout/groups_list">
-
-        <action android:id="@+id/action_groups_list_to_create_group"
-            app:destination="@id/create_group"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right"
-            app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left"/>
 
         <action android:id="@+id/action_groups_list_to_view_group"
             app:destination="@id/view_group"
@@ -140,14 +208,7 @@
         android:name="dreammaker.android.expensetracker.ui.group.viewgroup.ViewGroupFragment"
         android:label="@string/title_view_group"
         tools:layout="@layout/view_group_layout">
-        <action android:id="@+id/action_view_group_to_edit_group"
-            app:destination="@id/edit_group"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right"
-            app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left"/>
-        <action android:id="@+id/action_view_group_to_add_history"
-            app:destination="@id/create_history"/>
+
         <action android:id="@+id/action_view_group_to_history_list"
             app:destination="@id/history_list"
             app:enterAnim="@anim/slide_in_left"
@@ -159,13 +220,13 @@
 
     <fragment android:id="@+id/create_group"
         android:name="dreammaker.android.expensetracker.ui.group.inputgroup.GroupInputFragment"
-        android:label="@string/title_create_group"
-        tools:layout="@layout/input_group"/>
+        android:label="@string/title_create_group">
+    </fragment>
 
     <fragment android:id="@+id/edit_group"
         android:name="dreammaker.android.expensetracker.ui.group.inputgroup.GroupInputFragment"
-        android:label="@string/title_edit_group"
-        tools:layout="@layout/input_group" />
+        android:label="@string/title_edit_group">
+    </fragment>
 
     <!-- History -->
 
@@ -173,9 +234,6 @@
         android:name="dreammaker.android.expensetracker.ui.history.historieslist.HistoryListFragment"
         android:label="@string/title_history_list"
         tools:layout="@layout/fragment_history_list">
-
-        <action android:id="@+id/action_history_list_to_create_history"
-            app:destination="@id/create_history"/>
 
         <action android:id="@+id/action_history_list_to_view_history"
             app:destination="@id/view_history"
@@ -203,56 +261,27 @@
             app:exitAnim="@anim/slide_out_right"
             app:popEnterAnim="@anim/slide_in_right"
             app:popExitAnim="@anim/slide_out_left"/>
-
-        <action android:id="@+id/action_view_history_to_edit_history"
-            app:destination="@id/edit_history" />
-
-        <action android:id="@+id/action_view_history_to_edit_transfer_history"
-            app:destination="@id/edit_transfer_history" />
     </fragment>
 
-    <activity
-        android:id="@+id/create_history"
-        android:name="dreammaker.android.expensetracker.ui.history.historyinput.HistoryInputActivity"
-        android:label="@string/title_input_history_create"
-        tools:layout="@layout/activity_history_input">
-        <argument android:name="arg_action"
-            android:defaultValue="action_create" />
-        <argument android:name="arg_history_input_type"
-            android:defaultValue="history_input_type_transaction"/>
-    </activity>
 
-    <activity
-        android:id="@+id/edit_history"
-        android:name="dreammaker.android.expensetracker.ui.history.historyinput.HistoryInputActivity"
-        android:label="@string/title_input_history_edit"
-        tools:layout="@layout/activity_history_input">
-        <argument android:name="arg_action"
-            android:defaultValue="action_edit" />
-        <argument android:name="arg_history_input_type"
-            android:defaultValue="history_input_type_transaction"/>
-    </activity>
+    <fragment android:id="@+id/create_transaction"
+        android:name="dreammaker.android.expensetracker.ui.history.historyinput.TransactionInputFragment"
+        android:label="@string/title_input_history_create">
+    </fragment>
 
-    <activity
-        android:id="@+id/create_transfer_history"
-        android:name="dreammaker.android.expensetracker.ui.history.historyinput.HistoryInputActivity"
-        android:label="@string/title_create_transfer_history"
-        tools:layout="@layout/transfer_history_input_layout">
-        <argument android:name="arg_action"
-            android:defaultValue="action_create" />
-        <argument android:name="arg_history_input_type"
-            android:defaultValue="history_input_type_money_transfer"/>
-    </activity>
+    <fragment android:id="@+id/edit_transaction"
+        android:name="dreammaker.android.expensetracker.ui.history.historyinput.TransactionInputFragment"
+        android:label="@string/title_input_history_edit">
+    </fragment>
 
-    <activity
-        android:id="@+id/edit_transfer_history"
-        android:name="dreammaker.android.expensetracker.ui.history.historyinput.HistoryInputActivity"
-        android:label="@string/title_edit_transfer_history"
-        tools:layout="@layout/transfer_history_input_layout">
-        <argument android:name="arg_action"
-            android:defaultValue="action_edit" />
-        <argument android:name="arg_history_input_type"
-            android:defaultValue="history_input_type_money_transfer"/>
-    </activity>
+    <fragment android:id="@+id/create_transfer"
+        android:name="dreammaker.android.expensetracker.ui.history.historyinput.TransferHistoryInputFragment"
+        android:label="@string/title_create_transfer_history">
+    </fragment>
+
+    <fragment android:id="@+id/edit_transfer"
+        android:name="dreammaker.android.expensetracker.ui.history.historyinput.TransferHistoryInputFragment"
+        android:label="@string/title_edit_transfer_history">
+    </fragment>
 
 </navigation>

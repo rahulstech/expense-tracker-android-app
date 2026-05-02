@@ -5,17 +5,19 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.window.DialogProperties
+import dreammaker.android.expensetracker.R
 
 @Composable
 fun YesNoDialog(
     header: String,
-    body: String,
-    yesText: String = "Yes",
-    noText: String = "No",
     onYes: ()-> Unit,
     onNo: ()-> Unit,
+    body: String = "",
+    yesText: String = stringResource(R.string.label_yes),
+    noText: String = stringResource(R.string.label_no),
     dismissOnBackPressed: Boolean = true,
     dismissOnClickOutside: Boolean = true,
 ) {

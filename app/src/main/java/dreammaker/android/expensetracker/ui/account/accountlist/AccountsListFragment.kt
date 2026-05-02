@@ -95,9 +95,7 @@ class AccountsListFragment : Fragment() {
             }
         }
         binding.add.setOnClickListener {
-            navController.navigate(R.id.action_account_list_to_create_account, Bundle().apply {
-                putString(Constants.ARG_ACTION, Constants.ACTION_CREATE)
-            })
+            navController.navigate(R.id.navigate_to_create_account)
         }
 
         adapter = AccountsAdapter()

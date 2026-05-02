@@ -7,6 +7,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
@@ -19,10 +20,10 @@ import dreammaker.android.expensetracker.Constants
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.core.util.QuickMessages
 import dreammaker.android.expensetracker.databinding.ViewGroupLayoutBinding
-import dreammaker.android.expensetracker.util.GroupParcelable
 import dreammaker.android.expensetracker.ui.UIState
-import dreammaker.android.expensetracker.util.getDueLabel
+import dreammaker.android.expensetracker.util.GroupParcelable
 import dreammaker.android.expensetracker.util.getBalanceText
+import dreammaker.android.expensetracker.util.getDueLabel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import rahulstech.android.expensetracker.domain.model.Group
@@ -95,8 +96,7 @@ class ViewGroupFragment: Fragment(), MenuProvider {
     private fun navigateToCreateHistory() {
         val group = viewModel.getStoredGroup()
         group?.let {
-            navController.navigate(R.id.action_view_group_to_add_history,Bundle().apply {
-                putString(Constants.ARG_ACTION, Constants.ACTION_CREATE)
+            navController.navigate(R.id.navigate_to_create_transaction,Bundle().apply {
                 putParcelable(Constants.ARG_GROUP, GroupParcelable(group))
             })
         }
@@ -123,10 +123,9 @@ class ViewGroupFragment: Fragment(), MenuProvider {
     }
 
     private fun onClickEdit() {
-        navController.navigate(R.id.action_view_group_to_edit_group, Bundle().apply {
-            putString(Constants.ARG_ACTION, Constants.ACTION_EDIT)
-            putLong(Constants.ARG_ID, getArgGroupId())
-        })
+        navController.navigate(R.id.navigate_to_edit_group, bundleOf(
+            Constants.ARG_ID to getArgGroupId()
+        ))
     }
 
     private fun onClickDelete() {

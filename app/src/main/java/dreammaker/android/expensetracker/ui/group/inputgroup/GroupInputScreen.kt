@@ -7,7 +7,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.Icon
@@ -16,7 +18,6 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -31,13 +32,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.core.ui.ExpenseTrackerTheme
 import dreammaker.android.expensetracker.core.util.QuickMessages
-import dreammaker.android.expensetracker.ui.component.ButtonWithProgressBar
+import dreammaker.android.expensetracker.ui.component.SaveCancelActionButtons
 import dreammaker.android.expensetracker.ui.component.YesNoDialog
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
@@ -192,7 +193,8 @@ fun FullScreenLoading() {
         ) {
             Text(
                 text = stringResource(R.string.loading_group),
-                style = MaterialTheme.typography.bodyLarge
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onBackground
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -219,15 +221,19 @@ fun GroupInputForm(
     onCancel: () -> Unit,
     isSaving: Boolean = false
 ) {
+    val nameLabel = stringResource(R.string.hint_group_name)
+    val balanceLabel = stringResource(R.string.hint_group_balance)
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
+            .verticalScroll(rememberScrollState())
     ) {
         OutlinedTextField(
             value = name,
             onValueChange = onNameChange,
-            label = { Text(stringResource(R.string.hint_group_name)) },
+            label = { Text(nameLabel) },
             modifier = Modifier.fillMaxWidth(),
             isError = nameError != null,
             supportingText = nameError?.let { { Text(it) } },
@@ -246,7 +252,7 @@ fun GroupInputForm(
         OutlinedTextField(
             value = balance,
             onValueChange = onBalanceChange,
-            label = { Text(stringResource(R.string.hint_group_balance)) },
+            label = { Text(balanceLabel) },
             modifier = Modifier.fillMaxWidth(),
             isError = balanceError != null,
             supportingText = balanceError?.let { { Text(it) } },
@@ -256,30 +262,17 @@ fun GroupInputForm(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        ButtonWithProgressBar(
-            buttonText = stringResource(R.string.save),
-            onClick = onSave,
-            modifier = Modifier.fillMaxWidth(),
-            progressText = stringResource(R.string.saving),
-            showProgressBar = isSaving
+        SaveCancelActionButtons(
+            isSaving = isSaving,
+            onCancel = onCancel,
+            onSave = onSave
         )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        TextButton(
-            onClick = onCancel,
-            modifier = Modifier.fillMaxWidth(),
-            enabled = !isSaving
-        ) {
-            Text(stringResource(R.string.cancel))
-        }
     }
 }
 
 //--- Preview -----------------
 
-
-@Preview(showBackground = true)
+@PreviewLightDark
 @Composable
 fun FullScreenLoadingPreview() {
     ExpenseTrackerTheme {
@@ -295,9 +288,9 @@ fun GroupInputFormPreview() {
 
     ExpenseTrackerTheme {
         GroupInputForm(
-            name = "",
+            name = "Food",
             onNameChange = {},
-            balance = "",
+            balance = "100.0",
             onBalanceChange = {},
             nameError = null,
             balanceError = null,

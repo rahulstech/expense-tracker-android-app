@@ -4,157 +4,67 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
-import android.widget.TextView
-import androidx.core.os.bundleOf
+import androidx.compose.ui.platform.ComposeView
+import androidx.core.os.BundleCompat
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.navigation.NavController
+import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import dreammaker.android.expensetracker.Constants
 import dreammaker.android.expensetracker.R
-import dreammaker.android.expensetracker.core.util.QuickMessages
-import dreammaker.android.expensetracker.databinding.TransferHistoryInputLayoutBinding
-import dreammaker.android.expensetracker.util.createInputChip
+import dreammaker.android.expensetracker.core.ui.ExpenseTrackerTheme
+import dreammaker.android.expensetracker.ui.history.historyinput.TransactionInputFragment.Companion.ARG_HISTORY_DATE
+import dreammaker.android.expensetracker.util.AccountParcelable
 import dreammaker.android.expensetracker.util.getArgId
+import dreammaker.android.expensetracker.util.getDate
 import dreammaker.android.expensetracker.util.isActionEdit
-import dreammaker.android.expensetracker.util.visibilityGone
-import dreammaker.android.expensetracker.util.visible
 import rahulstech.android.expensetracker.domain.model.Account
-import rahulstech.android.expensetracker.domain.model.History
+import java.time.LocalDate
 
 @AndroidEntryPoint
-class TransferHistoryInputFragment : BaseHistoryInputFragment() {
+class TransferHistoryInputFragment : Fragment() {
 
-    companion object {
-        private val TAG = TransferHistoryInputFragment::class.simpleName
-    }
+    private val viewModel: HistoryInputViewModel by viewModels()
 
-    private var _binding: TransferHistoryInputLayoutBinding? = null
-    private val binding get() = _binding!!
+    private val navController: NavController by lazy {  findNavController() }
 
-    override val dateTextView: TextView get() = binding.inputDate
-    override val amountInput: EditText get() = binding.inputAmount
-    override val noteInput: EditText get() = binding.inputNote
-    override val btnSave: View get() = binding.btnSave
-    override val btnCancel: View get() = binding.btnCancel
-    override val title: String
-        get() = if (isActionEdit()) {
-            getString(R.string.title_edit_transfer_history)
-        } else {
-            getString(R.string.title_create_transfer_history)
+    private fun getArgDate(): LocalDate = arguments?.getDate(ARG_HISTORY_DATE) ?: LocalDate.now()
+
+    private fun getArgAccount(): Account?
+            = arguments?.let { BundleCompat.getParcelable(it, Constants.ARG_ACCOUNT, AccountParcelable::class.java)?.toAccount() }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        if (savedInstanceState == null) {
+            viewModel.setIsTransfer(true)
+            viewModel.setDate(getArgDate())
+            viewModel.setAccountSelection(getArgAccount())
+
+            if (isActionEdit()) {
+                viewModel.findHistory(getArgId())
+            }
         }
-
-    /////////////////////////////////////////////////////////////////
-    ///                     Fragment Api                         ///
-    ///////////////////////////////////////////////////////////////
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = TransferHistoryInputLayoutBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        preparePrimaryAccount()
-        prepareSecondaryAccount()
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
-
-    override fun validateInput(history: History): Boolean {
-        binding.amountInputLayout.error = null
-        binding.errorSource.visibilityGone()
-        binding.errorDestination.visibilityGone()
-        var allValid = true
-        if (history.primaryAccountId==0L) {
-            allValid = false
-            binding.errorSource.visible()
+        return ComposeView(requireContext()).apply {
+            setContent {
+                ExpenseTrackerTheme {
+                    TransferInputScreen(
+                        viewModel = viewModel,
+                        isEdit = isActionEdit(),
+                        onAddNewAccount = {
+                            navController.navigate(R.id.navigate_to_create_account)
+                        },
+                        exit = { navController.popBackStack() }
+                    )
+                }
+            }
         }
-        if (history.secondaryAccountId==0L) {
-            allValid = false
-            binding.errorDestination.visible()
-        }
-        return allValid
-    }
-
-    override fun getInputHistory(): History {
-        val id = getArgId()
-        val date = viewModel.getDate()
-        val amountText = binding.inputAmount.text.toString()
-        val amount = if (amountText.isBlank()) 0f else amountText.toFloat()
-        val note = binding.inputNote.text.toString().takeUnless { it.isBlank() } ?: getString(R.string.label_history_type_transfer)
-        val srcAccount: Account? = if (isActionEdit()) viewModel.history?.primaryAccount else getArgAccount()
-        val destAccount: Account? = viewModel.getAccountSelection()
-        return History.TransferHistory(
-            id = id,
-            amount = amount,
-            date = date,
-            note = note,
-            primaryAccountId = srcAccount?.id ?: 0,
-            secondaryAccountId = destAccount?.id ?: 0
-        )
-    }
-
-    /////////////////////////////////////////////////////////////////
-    ///              Background Response Handlers                ///
-    ///////////////////////////////////////////////////////////////
-
-    override fun onHistoryFound(history: History) {
-        super.onHistoryFound(history)
-        updatePrimaryAccountChip(history.primaryAccount)
-        viewModel.setAccountSelection(history.secondaryAccount)
-    }
-
-    override fun onHistorySaved(history: History?) {
-        super.onHistorySaved(history)
-        QuickMessages.toastSuccess(requireContext(), getString(R.string.message_success_save_history))
-        popBack()
-    }
-
-    /////////////////////////////////////////////////////////////////
-    ///                     Prepare Methods                      ///
-    ///////////////////////////////////////////////////////////////
-
-    private fun preparePrimaryAccount() {
-        if (!isActionEdit()) {
-            updatePrimaryAccountChip(getArgAccount())
-        }
-    }
-
-    private fun prepareSecondaryAccount() {
-        binding.inputDestination.setOnClickListener {
-            navController.navigate(R.id.action_input_money_transfer_to_account_picker, bundleOf(
-                Constants.KEY_IS_PRIMARY to false,
-                Constants.ARG_DISABLED_ID to getArgAccount()?.id
-            ))
-        }
-    }
-
-    override fun onAccountSelectionChange(account: Account?) {
-        updateSecondaryAccountChip(account)
-    }
-
-    /////////////////////////////////////////////////////////////////
-    ///                     Update Methods                       ///
-    ///////////////////////////////////////////////////////////////
-
-    private fun updatePrimaryAccountChip(account: Account?) {
-        val container = binding.selectedSourceContainer
-        createChip(
-            container, account,{
-            createInputChip(container, it.name, false)
-        }, false)
-    }
-
-    private fun updateSecondaryAccountChip(account: Account?) {
-        val container = binding.selectedDestinationContainer
-        createChip(container,account, {
-            createInputChip(container, it.name, false)
-        }, false)
     }
 }

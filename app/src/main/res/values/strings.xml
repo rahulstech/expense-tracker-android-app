@@ -11,6 +11,10 @@
 	<string name="account_name">Account Name</string>
     <string name="amount">Amount</string>
     <string name="account">Account</string>
+
+	<string name="group_optional">Group (Optional)</string>
+	<string name="note_optional">Note (Optional)</string>
+
     <string name="person">Person</string>
     <string name="cancel">Cancel</string>
     <string name="save">Save</string>
@@ -161,6 +165,7 @@
 	<string name="label_november">Nov</string>
 	<string name="label_december">Dec</string>
 	<string name="label_view_all">View All</string>
+	<string name="label_select_date">SELECT DATE</string>
 	<string name="label_account">Account</string>
 	<string name="label_groups">Groups</string>
 	<string name="label_no_group">No Group</string>
@@ -213,6 +218,8 @@
 
     <string name="add_more_group">Add more group?</string>
     <string name="loading_group">Loading Group</string>
+    <string name="loading_history">Loading History</string>
+    <string name="loading_transfer">Loading Transfer</string>
 
 	<string name="error_invalid_history_amount_input">invalid number</string>
 	<string name="error_no_selection">nothing selected</string>

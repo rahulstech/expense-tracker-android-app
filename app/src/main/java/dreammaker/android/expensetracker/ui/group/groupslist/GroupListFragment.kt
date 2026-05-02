@@ -132,9 +132,7 @@ class GroupListFragment : Fragment() {
     }
 
     private fun handleClickAddAccount() {
-        navController.navigate(R.id.action_groups_list_to_create_group, bundleOf(
-            Constants.ARG_ACTION to Constants.ACTION_CREATE
-        ))
+        navController.navigate(R.id.navigate_to_create_group)
     }
 
     private fun onGroupsLoaded(groups: List<Group>) {

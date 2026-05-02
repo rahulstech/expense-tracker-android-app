@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -17,6 +18,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
@@ -27,14 +29,42 @@ fun ButtonWithProgressBar(
     buttonText: String,
     onClick: ()-> Unit,
     modifier: Modifier = Modifier,
-    progressText: String = "",
-    showProgressBar: Boolean = false,
     enabled: Boolean = true,
+    showProgressBar: Boolean = false,
+    progressText: String = "",
+    shape: Shape = ButtonDefaults.shape,
+) = ButtonWithProgressBar(
+        buttonText = {
+            Text(buttonText)
+        },
+        onClick = onClick,
+        modifier = modifier,
+        enabled = enabled,
+        showProgressBar = showProgressBar,
+        progressText = {
+            Text(
+                text = progressText,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        },
+        shape = shape
+    )
+
+@Composable
+fun ButtonWithProgressBar(
+    buttonText: @Composable ()-> Unit,
+    onClick: ()-> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    showProgressBar: Boolean = false,
+    progressText: (@Composable ()-> Unit)? = null,
+    shape: Shape = ButtonDefaults.shape,
 ) {
     Button(
         modifier = modifier,
         onClick = onClick,
-        enabled = enabled && !showProgressBar
+        enabled = enabled && !showProgressBar,
+        shape = shape
     ) {
         if (showProgressBar) {
             Row(
@@ -46,18 +76,14 @@ fun ButtonWithProgressBar(
                     trackColor = Color.Transparent
                 )
 
-                if (progressText.isNotBlank()) {
+                progressText?.let {
                     Spacer(modifier = Modifier.width(12.dp))
-
-                    Text(
-                        text = progressText,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
+                    it.invoke()
                 }
             }
         }
         else {
-            Text(buttonText)
+            buttonText()
         }
     }
 }
@@ -71,7 +97,9 @@ fun ButtonWithProgressBarPreview() {
     val coroutineScope = rememberCoroutineScope()
 
     ButtonWithProgressBar(
-        buttonText = "Click Me",
+        buttonText = {
+            Text("Click Me")
+        },
         onClick = {
             coroutineScope.launch {
                 progressText = "initializing"
@@ -88,7 +116,9 @@ fun ButtonWithProgressBarPreview() {
                 showProgressBar = false
             }
         },
-        progressText = progressText,
+        progressText = {
+            Text(progressText)
+        },
         showProgressBar = showProgressBar
     )
 }

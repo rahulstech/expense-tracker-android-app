@@ -77,8 +77,7 @@ class ViewAccountFragment: Fragment(), MenuProvider {
 
     private fun navigateToCreateHistory() {
         viewModel.getStoredAccount()?.let {
-            navController.navigate(R.id.action_view_account_to_create_history, Bundle().apply {
-                putString(Constants.ARG_ACTION, Constants.ACTION_CREATE)
+            navController.navigate(R.id.navigate_to_create_transaction, Bundle().apply {
                 putParcelable(Constants.ARG_ACCOUNT, AccountParcelable(it))
             })
         }
@@ -86,8 +85,7 @@ class ViewAccountFragment: Fragment(), MenuProvider {
 
     private fun navigateToCreateTransferHistory() {
         viewModel.getStoredAccount()?.let {
-            navController.navigate(R.id.action_view_account_to_create_transfer_history, Bundle().apply {
-                putString(Constants.ARG_ACTION, Constants.ACTION_CREATE)
+            navController.navigate(R.id.navigate_to_create_transfer, Bundle().apply {
                 putParcelable(Constants.ARG_ACCOUNT, AccountParcelable(it))
             })
         }
@@ -129,8 +127,7 @@ class ViewAccountFragment: Fragment(), MenuProvider {
     override fun onMenuItemSelected(item: MenuItem): Boolean {
         return when(item.itemId) {
             R.id.edit -> {
-                navController.navigate(R.id.action_view_account_to_edit_account, Bundle().apply {
-                    putString(Constants.ARG_ACTION, Constants.ACTION_EDIT)
+                navController.navigate(R.id.navigate_to_edit_account, Bundle().apply {
                     putLong(Constants.ARG_ID, getArgAccountId())
                 })
                 true

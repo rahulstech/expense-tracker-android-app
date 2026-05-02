@@ -63,27 +63,15 @@ class HomeFragment : Fragment() {
             }
 
             HomeScreenEvent.AddNewAccount -> {
-                navController.navigate(
-                    R.id.action_home_to_create_account,
-                    bundleOf(
-                        Constants.ARG_ACTION to Constants.ACTION_CREATE
-                    )
-                )
+                navController.navigate(R.id.navigate_to_edit_account)
             }
             HomeScreenEvent.AddNewGroup -> {
-                navController.navigate(
-                    R.id.action_home_to_create_group,
-                    bundleOf(
-                        Constants.ARG_ACTION to Constants.ACTION_CREATE
-                    )
-                )
+                navController.navigate(R.id.navigate_to_create_group)
             }
         }
     }
 
     private fun navigateToCreateHistory() {
-        navController.navigate(R.id.action_home_to_create_history, bundleOf(
-            Constants.ARG_ACTION to Constants.ACTION_CREATE
-        ))
+        navController.navigate(R.id.navigate_to_create_transaction)
     }
 }

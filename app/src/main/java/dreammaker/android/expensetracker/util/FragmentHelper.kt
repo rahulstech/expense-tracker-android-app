@@ -13,7 +13,11 @@ fun Fragment.setActivityTitle(@StringRes titleRes: Int) {
 }
 
 fun Fragment.setActivityTitle(title: CharSequence) {
-    activity?.let { it.title = title }
+    val activity = activity ?: return
+    if (activity is AppCompatActivity) {
+        activity.supportActionBar?.title = title
+    }
+    activity.title = title
 }
 
 fun Fragment.setActivitySubTitle(title: CharSequence?) {

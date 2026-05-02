@@ -208,14 +208,12 @@ class ViewHistoryItemFragment: Fragment(), MenuProvider {
         when(history) {
             null -> {}
             is History.TransferHistory -> {
-                navController.navigate(R.id.action_view_history_to_edit_transfer_history, Bundle().apply {
-                    putString(Constants.ARG_ACTION, Constants.ACTION_EDIT)
+                navController.navigate(R.id.navigate_to_edit_transfer, Bundle().apply {
                     putLong(Constants.ARG_ID, history.id)
                 })
             }
             else -> {
-                navController.navigate(R.id.action_view_history_to_edit_history, Bundle().apply {
-                    putString(Constants.ARG_ACTION, Constants.ACTION_EDIT)
+                navController.navigate(R.id.navigate_to_edit_transaction, Bundle().apply {
                     putLong(Constants.ARG_ID, history.id)
                 })
             }

@@ -12,7 +12,7 @@ import dreammaker.android.expensetracker.FULL_DATE_FORMAT
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.databinding.HistoryHeaderLayoutBinding
 import dreammaker.android.expensetracker.databinding.HistoryItemLayoutBinding
-import dreammaker.android.expensetracker.ui.HistoryListItem
+import dreammaker.android.expensetracker.ui.model.HistoryListItem
 import dreammaker.android.expensetracker.util.IClickableItemAdapter
 import dreammaker.android.expensetracker.util.ISelectableItemAdapter
 import dreammaker.android.expensetracker.util.ItemClickListener

@@ -23,7 +23,7 @@ import dreammaker.android.expensetracker.Constants
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.core.util.QuickMessages
 import dreammaker.android.expensetracker.databinding.FragmentHistoryListBinding
-import dreammaker.android.expensetracker.ui.HistoryListItem
+import dreammaker.android.expensetracker.ui.model.HistoryListItem
 import dreammaker.android.expensetracker.ui.UIState
 import dreammaker.android.expensetracker.util.AccountParcelable
 import dreammaker.android.expensetracker.util.AppLocalCache
@@ -334,13 +334,12 @@ class HistoryListFragment: Fragment(), MenuProvider {
         val entity = getArgHistoriesOf()
         Log.d(TAG,"navigateCreateHistory: entity = $entity")
         val args = Bundle().apply {
-            putString(Constants.ARG_ACTION, Constants.ACTION_CREATE)
             when(entity) {
                 is AccountParcelable -> putParcelable(Constants.ARG_ACCOUNT, entity)
                 is GroupParcelable -> putParcelable(Constants.ARG_GROUP,entity)
             }
         }
-        navController.navigate(R.id.action_history_list_to_create_history,args)
+        navController.navigate(R.id.navigate_to_create_transaction,args)
     }
 
     private fun prepareItemSelection() {
