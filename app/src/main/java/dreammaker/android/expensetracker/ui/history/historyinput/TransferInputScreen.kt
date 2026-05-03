@@ -43,9 +43,6 @@ import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.core.ui.ExpenseTrackerTheme
 import dreammaker.android.expensetracker.core.util.QuickMessages
 import dreammaker.android.expensetracker.ui.component.DatePicker
-import dreammaker.android.expensetracker.ui.component.SaveCancelActionButtons
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import rahulstech.android.expensetracker.domain.model.Account
 import java.time.LocalDate
 
@@ -96,14 +93,9 @@ fun TransferInputScreen(
             onAmountChange = { viewModel.onAmountChange(it) },
             notes = uiState.note,
             onNotesChange = { viewModel.onNoteChange(it) },
-            isSaving = uiState.isSaving,
             amountError = uiState.amountError?.let { stringResource(it) },
             sourceAccountError = uiState.accountError?.let { stringResource(it) },
-            destinationAccountError = uiState.destinationAccountError?.let { stringResource(it) },
-            onCancel = exit,
-            onSave = {
-                viewModel.saveHistory()
-            }
+            destinationAccountError = uiState.destinationAccountError?.let { stringResource(it) }
         )
     }
 }
@@ -123,9 +115,6 @@ fun TransferInputForm(
     onAmountChange: (String) -> Unit,
     notes: String,
     onNotesChange: (String) -> Unit,
-    isSaving: Boolean,
-    onCancel: () -> Unit,
-    onSave: () -> Unit,
     modifier: Modifier = Modifier,
     amountError: String? = null,
     sourceAccountError: String? = null,
@@ -150,6 +139,11 @@ fun TransferInputForm(
             error = amountError
         )
 
+        NotesSection(
+            notes = notes,
+            onNotesChange = onNotesChange
+        )
+
         AccountSelectionSection(
             selectedAccount = sourceAccount,
             onAccountSelected = onSourceAccountSelected,
@@ -168,17 +162,6 @@ fun TransferInputForm(
             onAddNewAccount = onAddNewAccount,
             error = destinationAccountError,
             label = stringResource(R.string.label_history_input_destination_account)
-        )
-
-        NotesSection(
-            notes = notes,
-            onNotesChange = onNotesChange
-        )
-
-        SaveCancelActionButtons(
-            onCancel = onCancel,
-            onSave = onSave,
-            isSaving = isSaving
         )
     }
 }
@@ -278,10 +261,8 @@ private fun AccountSelectionSection(
         error = error,
         addNewOptionContent = {
             Text(
-                text = stringResource(R.string.label_add_account),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Bold
+                text = stringResource(R.string.add_new_account),
+                style = MaterialTheme.typography.labelMedium,
             )
         },
         onAddNewOption = onAddNewAccount
@@ -350,16 +331,7 @@ fun TransferInputScreenPreview() {
             amount = amount,
             onAmountChange = { amount = it },
             notes = notes,
-            onNotesChange = { notes = it },
-            isSaving = isSaving,
-            onSave = {
-                coroutineScope.launch {
-                    isSaving = true
-                    delay(3000)
-                    isSaving = false
-                }
-            },
-            onCancel = {}
+            onNotesChange = { notes = it }
         )
     }
 }

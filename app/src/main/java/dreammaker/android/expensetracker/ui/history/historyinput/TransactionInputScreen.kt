@@ -53,10 +53,7 @@ import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.core.ui.ExpenseTrackerTheme
 import dreammaker.android.expensetracker.core.util.QuickMessages
 import dreammaker.android.expensetracker.ui.component.DatePicker
-import dreammaker.android.expensetracker.ui.component.SaveCancelActionButtons
 import dreammaker.android.expensetracker.ui.component.YesNoDialog
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import rahulstech.android.expensetracker.domain.model.Account
 import rahulstech.android.expensetracker.domain.model.Group
 import java.time.LocalDate
@@ -136,13 +133,8 @@ fun TransactionInputScreen(
             onTypeChange = { viewModel.onTypeChange(it) },
             notes = uiState.note,
             onNotesChange = { viewModel.onNoteChange(it) },
-            isSaving = uiState.isSaving,
             amountError = uiState.amountError?.let { stringResource(it) },
-            accountError = uiState.accountError?.let { stringResource(it) },
-            onCancel = exit,
-            onSave = {
-                viewModel.saveHistory()
-            }
+            accountError = uiState.accountError?.let { stringResource(it) }
         )
     }
 }
@@ -168,9 +160,6 @@ fun TransactionInputForm(
     onTypeChange: (Boolean) -> Unit,
     notes: String,
     onNotesChange: (String) -> Unit,
-    isSaving: Boolean,
-    onCancel: () -> Unit,
-    onSave: () -> Unit,
     modifier: Modifier = Modifier,
     amountError: String? = null,
     accountError: String? = null,
@@ -178,7 +167,7 @@ fun TransactionInputForm(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(MaterialTheme.colorScheme.surfaceContainer)
             .verticalScroll(rememberScrollState())
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp)
@@ -196,6 +185,11 @@ fun TransactionInputForm(
             error = amountError
         )
 
+        NotesSection(
+            notes = notes,
+            onNotesChange = onNotesChange
+        )
+
         AccountSelectionSection(
             selectedAccount = selectedAccount,
             onAccountSelected = onAccountSelected,
@@ -211,17 +205,6 @@ fun TransactionInputForm(
             groups = groups,
             recentGroups = recentGroups,
             onAddNewGroup = onAddNewGroup
-        )
-
-        NotesSection(
-            notes = notes,
-            onNotesChange = onNotesChange
-        )
-
-        SaveCancelActionButtons(
-            onCancel = onCancel,
-            onSave = onSave,
-            isSaving = isSaving
         )
     }
 }
@@ -388,10 +371,8 @@ private fun AccountSelectionSection(
         error = error,
         addNewOptionContent = {
             Text(
-                text = stringResource(R.string.label_add_account),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Bold
+                text = stringResource(R.string.add_new_account),
+                style = MaterialTheme.typography.labelMedium,
             )
         },
         onAddNewOption = onAddNewAccount
@@ -415,10 +396,8 @@ private fun GroupSelectionSection(
         labelProvider = { it.name },
         addNewOptionContent = {
             Text(
-                text = stringResource(R.string.label_add_group),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Bold
+                text = stringResource(R.string.add_new_group),
+                style = MaterialTheme.typography.labelMedium
             )
         },
         onAddNewOption = onAddNewGroup
@@ -499,16 +478,7 @@ fun TransactionInputScreenPreview() {
             isCredit = isCredit,
             onTypeChange = { isCredit = it },
             notes = notes,
-            onNotesChange = { notes = it },
-            isSaving = isSaving,
-            onSave = {
-                coroutineScope.launch {
-                    isSaving = true
-                    delay(3000)
-                    isSaving = false
-                }
-            },
-            onCancel = {}
+            onNotesChange = { notes = it }
         )
     }
 }
