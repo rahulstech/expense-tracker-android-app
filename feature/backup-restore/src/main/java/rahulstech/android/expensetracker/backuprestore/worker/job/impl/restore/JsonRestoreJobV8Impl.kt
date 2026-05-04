@@ -16,7 +16,7 @@ class JsonRestoreJobV8Impl(
     progressCallback: (Progress)-> Unit = {},
 ): JsonRestoreJob(8,source, progressCallback) {
 
-    override fun doRestore() {
+    override suspend fun doRestore() {
         while (hasNext()) {
             val name = readNextName()
             when(name) {
@@ -29,21 +29,21 @@ class JsonRestoreJobV8Impl(
         }
     }
 
-    private fun restoreAccounts(accounts: List<Account>) {
-        repo.insertMultipleAccounts(accounts)
+    private suspend fun restoreAccounts(accounts: List<Account>) {
+        repo.addAccounts(accounts)
     }
 
-    private fun restoreGroups(groups: List<Group>) {
-        repo.insertMultipleGroups(groups)
+    private suspend fun restoreGroups(groups: List<Group>) {
+        repo.addGroups(groups)
     }
 
-    private fun restoreHistories(reader: JsonArrayChunkReader<HistoryData>) {
+    private suspend fun restoreHistories(reader: JsonArrayChunkReader<HistoryData>) {
         while (reader.hasNext()) {
             val chunk = reader.readNextChunk()
                 .map {
                     it.toHistory()
                 }
-            repo.insertMultipleHistories(chunk)
+            repo.addHistories(chunk)
         }
     }
 }

@@ -1,6 +1,5 @@
 package rahulstech.android.expensetracker.domain
 
-import androidx.lifecycle.LiveData
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
@@ -42,8 +41,6 @@ class HistoryFilterParameters {
                 pageSize = 30
             ),
             pagingSourceFactory = {
-                // NOTE: must create new PagingSource everytime, can not return a cached source from this factory
-                //      otherwise it will throw error same PagingSource reused
                 val builder = getHistoryQueryBuilder()
                 dao.getPagedHistories(builder.build())
             }
@@ -59,8 +56,6 @@ class HistoryFilterParameters {
     }
 
     override fun equals(other: Any?): Boolean {
-        // NOTE: == is equivalent to calling .equals, so if i used == then infinite recursion may occur
-        // === is referential equality means if the object points to same memory then true otherwise false
         if (this === other) return true
         if (other is HistoryFilterParameters) {
             return accountIds == other.accountIds && groupIds == other.groupIds
@@ -83,19 +78,21 @@ class HistoryFilterParameters {
 
 interface HistoryRepository {
 
-    fun insertHistory(history: History): History
-
-    fun findHistoryById(id: Long): History?
-
-    fun getLiveHistoryById(id: Long): LiveData<History?>
-
     fun getPagedHistories(params: HistoryFilterParameters): Flow<PagingData<History>>
 
     fun getTotalCreditDebit(params: HistoryFilterParameters): Flow<HistoryTotalCreditTotalDebit>
 
-    fun updateHistory(history: History): Boolean
+    // --- New Coroutine and Flow based methods ---
 
-    fun deleteHistory(id: Long, reset: Boolean = true)
+    suspend fun createHistory(history: History): History
 
-    fun deleteMultipleHistories(ids: List<Long>, reset: Boolean = true)
+    suspend fun getHistory(id: Long): History?
+
+    fun getHistoryById(id: Long): Flow<History?>
+
+    suspend fun editHistory(history: History): Boolean
+
+    suspend fun removeHistory(id: Long, reset: Boolean = true)
+
+    suspend fun removeMultipleHistories(ids: List<Long>, reset: Boolean = true)
 }

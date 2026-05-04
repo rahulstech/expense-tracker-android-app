@@ -14,7 +14,7 @@ data class AccountEntity (
 
     val name: String,
 
-    val balance: Float,
+    val balance: Double,
 
     @TypeConverters(Converter::class)
     @ColumnInfo(typeAffinity = ColumnInfo.TEXT)
@@ -26,4 +26,10 @@ data class AccountEntity (
 data class AccountIdName(
     val id: Long,
     val name: String
+)
+
+data class AccountListModel(
+    val id: Long,
+    val name: String,
+    val balance: Double,
 )

@@ -6,9 +6,9 @@ import rahulstech.android.expensetracker.domain.model.History
 
 interface BackupRepository {
 
-    fun getMultipleAccounts(): List<Account>
+    suspend fun getAccounts(): List<Account>
 
-    fun getMultipleGroups(): List<Group>
+    suspend fun getGroups(): List<Group>
 
-    fun getMultipleHistories(size: Int, skip: Long = 0): List<History>
+    suspend fun getHistories(size: Int, skip: Long = 0): List<History>
 }

@@ -2,6 +2,7 @@ package dreammaker.android.expensetracker.ui.account.viewaccount
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dreammaker.android.expensetracker.ui.UIState
@@ -31,7 +32,7 @@ class ViewAccountViewModel @Inject constructor(
 
     fun findAccountById(id: Long): LiveData<Account?> {
         if (!::account.isInitialized) {
-            account = accountRepo.getLiveAccountById(id)
+            account = accountRepo.getAccountById(id).asLiveData(viewModelScope.coroutineContext + Dispatchers.IO)
         }
         return account
     }
@@ -47,7 +48,7 @@ class ViewAccountViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             flow {
                 _deleteAccountState.tryEmit(UIState.UILoading())
-                accountRepo.deleteAccount(account.id)
+                accountRepo.removeAccount(account.id)
                 emit(account)
             }
                 .catch { error -> _deleteAccountState.tryEmit(UIState.UIError(error,account)) }

@@ -96,14 +96,14 @@ abstract class JsonRestoreJob(
     private var terminated: Boolean = false
     private val lock = Any()
 
-    fun restore() {
+    suspend fun restore() {
         beginObject()
         ensureNotTerminated()
         doRestore()
         endObject()
     }
 
-    protected abstract fun doRestore()
+    protected abstract suspend fun doRestore()
 
     fun terminate() {
         synchronized(lock) {

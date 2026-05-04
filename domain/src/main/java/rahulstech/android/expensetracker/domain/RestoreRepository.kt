@@ -6,9 +6,9 @@ import rahulstech.android.expensetracker.domain.model.History
 
 interface RestoreRepository {
 
-    fun insertMultipleAccounts(accounts: List<Account>)
+    suspend fun addAccounts(accounts: List<Account>)
 
-    fun insertMultipleGroups(groups: List<Group>)
+    suspend fun addGroups(groups: List<Group>)
 
-    fun insertMultipleHistories(histories: List<History>)
+    suspend fun addHistories(histories: List<History>)
 }

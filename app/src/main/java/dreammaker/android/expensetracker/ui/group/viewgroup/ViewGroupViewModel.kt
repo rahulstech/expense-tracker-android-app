@@ -2,6 +2,7 @@ package dreammaker.android.expensetracker.ui.group.viewgroup
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dreammaker.android.expensetracker.ui.UIState
@@ -33,7 +34,7 @@ class ViewGroupViewModel @Inject constructor(
 
     fun findGroupById(id: Long): LiveData<Group?> {
         if (!::groupLiveData.isInitialized) {
-            groupLiveData = groupRepo.getLiveGroupById(id)
+            groupLiveData = groupRepo.getGroupById(id).asLiveData(viewModelScope.coroutineContext + Dispatchers.IO)
         }
         return groupLiveData
     }
@@ -50,7 +51,7 @@ class ViewGroupViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             flow {
                 _deleteGroupState.tryEmit(UIState.UILoading())
-                groupRepo.deleteGroup(group.id)
+                groupRepo.removeGroup(group.id)
                 emit(null)
             }
                 .catch { error -> _deleteGroupState.tryEmit(UIState.UIError(error,group)) }

@@ -1,7 +1,6 @@
 package dreammaker.android.expensetracker.ui.home
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -19,9 +18,9 @@ class HomeViewModel @Inject constructor(
 ) : ViewModel() {
 
     val uiState: StateFlow<HomeScreenState> = combine(
-        accountRepo.getLiveTotalBalance().asFlow(),
-        accountRepo.getLiveRecentlyUsedAccounts(3).asFlow(),
-        groupRepo.getLiveRecentlyUsedGroups(3).asFlow()
+        accountRepo.getTotalBalance(),
+        accountRepo.getRecentlyUsedAccounts(3),
+        groupRepo.getRecentlyUsedGroups(3)
     ) { totalBalance, accounts, groups ->
         HomeScreenState(
             totalBalance = totalBalance,

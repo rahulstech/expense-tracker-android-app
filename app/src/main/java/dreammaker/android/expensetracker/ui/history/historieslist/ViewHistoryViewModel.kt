@@ -157,7 +157,7 @@ class ViewHistoryViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             flow {
                 _deleteHistoriesState.tryEmit(UIState.UILoading())
-                historyRepo.deleteMultipleHistories(ids)
+                historyRepo.removeMultipleHistories(ids)
                 emit(null)
             }
                 .catch { error -> _deleteHistoriesState.tryEmit(UIState.UIError(error)) }

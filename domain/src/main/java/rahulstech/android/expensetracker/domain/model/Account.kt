@@ -2,11 +2,12 @@ package rahulstech.android.expensetracker.domain.model
 
 import dreammaker.android.expensetracker.database.model.AccountEntity
 import dreammaker.android.expensetracker.database.model.AccountIdName
+import dreammaker.android.expensetracker.database.model.AccountListModel
 import java.time.LocalDateTime
 
 data class Account(
     val name: String,
-    val balance: Float = 0f,
+    val balance: Double = 0.0,
     val id: Long = 0,
     val lastUsed: LocalDateTime? = null,
     val totalUsed: Long = 0,
@@ -21,3 +22,5 @@ fun AccountEntity.toAccount(isDefault: Boolean = false): Account =
     Account(name,balance,id,lastUsed,totalUsed ?: 0, isDefault)
 
 fun AccountIdName.toAccount(): Account = Account(name = name,id = id)
+
+fun AccountListModel.toAccount(): Account = Account(name = name, balance = balance, id = id)

@@ -1,27 +1,29 @@
 package rahulstech.android.expensetracker.domain
 
-import androidx.lifecycle.LiveData
+import kotlinx.coroutines.flow.Flow
 import rahulstech.android.expensetracker.domain.model.Group
 
 interface GroupRepository {
 
-    fun insertGroup(group: Group): Group
+    // --- New Coroutine and Flow based methods ---
 
-    fun findGroupById(id: Long): Group?
+    suspend fun createGroup(group: Group): Group
 
-    fun getLiveGroupById(id: Long): LiveData<Group?>
+    suspend fun getGroup(id: Long): Group?
 
-    fun getLiveAllGroups(): LiveData<List<Group>>
+    fun getGroupById(id: Long): Flow<Group?>
 
-    fun getLiveRecentlyUsedGroups(count: Int = 3): LiveData<List<Group>>
+    fun getAllGroups(): Flow<List<Group>>
 
-    fun updateGroup(group: Group): Boolean
+    fun getRecentlyUsedGroups(count: Int = 3): Flow<List<Group>>
 
-    fun creditDue(id: Long, amount: Number)
+    suspend fun editGroup(group: Group): Boolean
 
-    fun debitDue(id: Long, amount: Number)
+    suspend fun creditGroupDue(id: Long, amount: Number)
 
-    fun deleteGroup(id: Long)
+    suspend fun debitGroupDue(id: Long, amount: Number)
 
-    fun deleteMultipleGroups(ids: List<Long>)
+    suspend fun removeGroup(id: Long)
+
+    suspend fun removeMultipleGroups(ids: List<Long>)
 }

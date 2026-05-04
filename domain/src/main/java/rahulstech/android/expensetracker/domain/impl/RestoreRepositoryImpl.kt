@@ -13,25 +13,23 @@ class RestoreRepositoryImpl @Inject constructor(
     private val cache: LocalCache,
 ): RestoreRepository {
 
-    override fun insertMultipleAccounts(accounts: List<Account>) {
+    override suspend fun addAccounts(accounts: List<Account>) {
         if (accounts.isEmpty()) return
         val defaultAccount = accounts.find { it.isDefault }
-        val entities = accounts.map {
-            it.toAccountEntity()
-        }
-        db.accountDao.insertAccounts(entities)
+        val entities = accounts.map { it.toAccountEntity() }
+        db.accountDao.insertMultiple(entities)
         defaultAccount?.let { cache.setDefaultAccountId(it.id) }
     }
 
-    override fun insertMultipleGroups(groups: List<Group>) {
+    override suspend fun addGroups(groups: List<Group>) {
         if (groups.isEmpty()) return
         val entities = groups.map { it.toGroupEntity() }
-        db.groupDao.insertGroups(entities)
+        db.groupDao.insertMultiple(entities)
     }
 
-    override fun insertMultipleHistories(histories: List<History>) {
+    override suspend fun addHistories(histories: List<History>) {
         if (histories.isEmpty()) return
         val entities = histories.map { it.toHistoryEntity() }
-        db.historyDao.insertHistories(entities)
+        db.historyDao.insertMultiple(entities)
     }
 }

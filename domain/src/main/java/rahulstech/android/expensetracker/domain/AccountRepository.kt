@@ -1,33 +1,9 @@
 package rahulstech.android.expensetracker.domain
 
-import androidx.lifecycle.LiveData
 import kotlinx.coroutines.flow.Flow
 import rahulstech.android.expensetracker.domain.model.Account
 
 interface AccountRepository{
-
-    fun insertAccount(account: Account): Account
-
-    fun getLiveAccountById(id: Long): LiveData<Account?>
-
-    fun findAccountById(id: Long): Account?
-
-    fun getLiveAllAccounts(): LiveData<List<Account>>
-
-    fun getLiveRecentlyUsedAccounts(count: Int = 3): LiveData<List<Account>>
-
-    fun getLiveTotalBalance(): LiveData<Double>
-
-    fun updateAccount(account: Account): Boolean
-
-    fun creditBalance(id: Long, amount: Number)
-
-    fun debitBalance(id: Long, amount: Number)
-
-    fun deleteAccount(id: Long)
-
-    fun deleteMultipleAccounts(ids: List<Long>)
-
 
     fun getDefaultAccount(): Flow<Account?>
 
@@ -36,4 +12,26 @@ interface AccountRepository{
     fun setDefaultAccount(account: Account)
 
     fun removeDefaultAccount()
+
+    // --- New Coroutine and Flow based methods ---
+
+    suspend fun createAccount(account: Account): Account
+
+    fun getAccountById(id: Long): Flow<Account?>
+
+    fun getAllAccounts(): Flow<List<Account>>
+
+    fun getRecentlyUsedAccounts(count: Int = 3): Flow<List<Account>>
+
+    fun getTotalBalance(): Flow<Double>
+
+    suspend fun editAccount(account: Account): Boolean
+
+    suspend fun creditAccountBalance(id: Long, amount: Number)
+
+    suspend fun debitAccountBalance(id: Long, amount: Number)
+
+    suspend fun removeAccount(id: Long)
+
+    suspend fun removeMultipleAccounts(ids: List<Long>)
 }

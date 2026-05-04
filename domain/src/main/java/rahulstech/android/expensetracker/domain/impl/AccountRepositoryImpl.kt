@@ -1,18 +1,18 @@
 package rahulstech.android.expensetracker.domain.impl
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.asLiveData
-import androidx.lifecycle.map
 import dreammaker.android.expensetracker.database.IExpenseDatabase
 import dreammaker.android.expensetracker.database.dao.AccountDao
+import dreammaker.android.expensetracker.database.dao.AnalyticsDao
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import rahulstech.android.expensetracker.domain.AccountRepository
 import rahulstech.android.expensetracker.domain.LocalCache
 import rahulstech.android.expensetracker.domain.model.Account
@@ -26,69 +26,70 @@ class AccountRepositoryImpl @Inject constructor(
 ): AccountRepository {
 
     private val accountDao: AccountDao = db.accountDao
+    private val analyticsDao: AnalyticsDao = db.analyticsDao
 
-    override fun insertAccount(account: Account): Account {
+    // --- New Coroutine and Flow based methods ---
+
+    override suspend fun createAccount(account: Account): Account {
         val _account = account.copy(lastUsed = LocalDateTime.now(), totalUsed = 1)
-        val id = accountDao.insertAccount(_account.toAccountEntity())
-        cache.setAccountTotalUsed(account.id,1)
-        return _account.copy(id=id)
+        val id = accountDao.insert(_account.toAccountEntity())
+        cache.setAccountTotalUsed(id, 1)
+        return _account.copy(id = id)
     }
 
-    override fun findAccountById(id: Long): Account? =
-        accountDao.findAccountById(id)?.toAccount(isDefault = cache.getDefaultAccountId() == id)
+    override fun getAccountById(id: Long): Flow<Account?> {
+        return combine(accountDao.findAccountByIdFlow(id), cache.getDefaultAccountIdFlow()) { entity, defaultId ->
+            entity?.toAccount(isDefault = entity.id == defaultId)
+        }.flowOn(Dispatchers.IO)
+    }
 
-    override fun getLiveAccountById(id: Long): LiveData<Account?> {
-        return combine(accountDao.getFlowAccountById(id), cache.getDefaultAccountIdFlow()) { account, defaultId ->
-            account?.toAccount(isDefault = account.id == defaultId)
+    override fun getAllAccounts(): Flow<List<Account>> {
+        return accountDao.getAccountsFlow().map { entities ->
+            entities.map { it.toAccount() }
         }
-            .flowOn(Dispatchers.IO)
-            .asLiveData()
     }
 
-    override fun getLiveAllAccounts(): LiveData<List<Account>> =
-        accountDao.getLiveAllAccounts().map{ entities -> entities.map { it.toAccount() }}
-
-    override fun getLiveRecentlyUsedAccounts(count: Int): LiveData<List<Account>> =
-        accountDao.getLiveRecentlyUsedAccounts(count).map { entities -> entities.map { it.toAccount() } }
-
-    override fun getLiveTotalBalance(): LiveData<Double> =
-        accountDao.getLiveTotalBalance().map { totalBalance -> totalBalance ?: 0.toDouble() }
-
-    override fun updateAccount(account: Account): Boolean {
-        val _account = account.copy(lastUsed = LocalDateTime.now(), totalUsed = cache.getAccountTotalUsed(account.id)+1)
-        val changes = accountDao.updateAccount(_account.toAccountEntity())
-        if (changes == 1) {
-            cache.setAccountTotalUsed(account.id,_account.totalUsed)
-            return true
+    override fun getRecentlyUsedAccounts(count: Int): Flow<List<Account>> {
+        return accountDao.getLastUsedAccountsFlow(count).map { entities ->
+            entities.map { it.toAccount() }
         }
-        return false
     }
 
-    override fun creditBalance(id: Long, amount: Number) {
-        val account = accountDao.findAccountById(id)
+    override fun getTotalBalance(): Flow<Double> {
+        return analyticsDao.getTotalAccountBalance().flowOn(Dispatchers.IO)
+    }
+
+    override suspend fun editAccount(account: Account): Boolean {
+        val totalUsed = cache.getAccountTotalUsed(account.id)
+        val _account = account.copy(lastUsed = LocalDateTime.now(), totalUsed = totalUsed + 1)
+        accountDao.update(_account.toAccountEntity())
+        cache.setAccountTotalUsed(account.id, _account.totalUsed)
+        return true
+    }
+
+    override suspend fun creditAccountBalance(id: Long, amount: Number) {
+        val account = getAccountById(id).first()
         account?.let {
-            val account = it.toAccount()
-            val updatedAccount = account.copy(balance = account.balance + amount.toFloat())
-            updateAccount(updatedAccount)
+            val updatedAccount = it.copy(balance = it.balance + amount.toDouble())
+            editAccount(updatedAccount)
         }
     }
 
-    override fun debitBalance(id: Long, amount: Number) {
-        val account = accountDao.findAccountById(id)
+    override suspend fun debitAccountBalance(id: Long, amount: Number) {
+        val account = getAccountById(id).first()
         account?.let {
-            val account = it.toAccount()
-            val updatedAccount = account.copy(balance = account.balance - amount.toFloat())
-            updateAccount(updatedAccount)
+            val updatedAccount = it.copy(balance = it.balance - amount.toDouble())
+            editAccount(updatedAccount)
         }
     }
 
-    override fun deleteAccount(id: Long) {
-        accountDao.deleteAccount(id)
+    override suspend fun removeAccount(id: Long) {
+        accountDao.deleteById(id)
         cache.removeAccountTotalUsed(id)
     }
 
-    override fun deleteMultipleAccounts(ids: List<Long>) {
-        accountDao.deleteMultipleAccounts(ids)
+    override suspend fun removeMultipleAccounts(ids: List<Long>) {
+        accountDao.deleteMultipleByIds(ids)
         ids.forEach { cache.removeAccountTotalUsed(it) }
     }
 
@@ -98,7 +99,7 @@ class AccountRepositoryImpl @Inject constructor(
             emptyFlow()
         }
         else {
-            val account = findAccountById(id)
+            val account = getAccountById(id).first()
             flowOf(account)
         }
     }

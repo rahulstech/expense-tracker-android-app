@@ -12,7 +12,7 @@ data class GroupEntity (
 
     val name: String,
 
-    val balance: Float,
+    val balance: Double,
 
     @ColumnInfo(typeAffinity = ColumnInfo.TEXT)
     val lastUsed: LocalDateTime? = null,
@@ -23,4 +23,10 @@ data class GroupEntity (
 data class GroupIdName(
     val id: Long,
     val name: String
+)
+
+data class GroupListModel(
+    val id: Long,
+    val name: String,
+    val due: Double
 )

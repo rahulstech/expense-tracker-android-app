@@ -4,8 +4,8 @@ import android.content.Context
 import android.content.pm.ServiceInfo
 import android.os.Build
 import android.util.Log
+import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
-import androidx.work.Worker
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import rahulstech.android.expensetracker.backuprestore.Constants
@@ -18,7 +18,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
 
-class JsonBackupWorker(context: Context, params: WorkerParameters): Worker(context,params) {
+class JsonBackupWorker(context: Context, params: WorkerParameters): CoroutineWorker(context,params) {
 
     companion object {
         private val TAG = JsonBackupWorker::class.simpleName
@@ -29,7 +29,7 @@ class JsonBackupWorker(context: Context, params: WorkerParameters): Worker(conte
     private val repo = ExpenseRepository.getInstance(applicationContext).backupRepository
     private var job: JsonBackupJob? = null
 
-    override fun doWork(): Result {
+    override suspend fun doWork(): Result {
         startForeground()
         val backupFile: File = getBackupFile()
         try {
@@ -51,11 +51,9 @@ class JsonBackupWorker(context: Context, params: WorkerParameters): Worker(conte
             Log.e(TAG, "error during backup", ex)
             return Result.failure()
         }
-    }
-
-    override fun onStopped() {
-        super.onStopped()
-        job?.terminate()
+        finally {
+            job?.terminate()
+        }
     }
 
     private fun getBackupFile(): File {
@@ -73,23 +71,8 @@ class JsonBackupWorker(context: Context, params: WorkerParameters): Worker(conte
         return FileOutputStream(file)
     }
 
-//    private fun updateProgress(currentProgress: Progress) {
-//        val messageBody = applicationContext.getString(R.string.message_backup_progress)
-//        setProgressAsync(workDataOf(
-//            Constants.DATA_PROGRESS_MAX to currentProgress.max,
-//            Constants.DATA_PROGRESS_CURRENT to currentProgress.current,
-//            Constants.DATA_PROGRESS_MESSAGE to messageBody
-//        ))
-//        val builder = NotificationBuilder(applicationContext).apply {
-//            message = messageBody
-//            progress = currentProgress
-//        }
-//        val notification = createBackupNotification(applicationContext, builder)
-//        setForegroundAsync(createForegroundInfo(notification))
-//    }
-
-    private fun startForeground() {
-        setForegroundAsync(createForegroundInfo())
+    private suspend fun startForeground() {
+        setForeground(createForegroundInfo())
     }
 
     private fun createForegroundInfo(): ForegroundInfo {

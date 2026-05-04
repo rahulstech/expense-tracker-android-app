@@ -1,13 +1,15 @@
 package rahulstech.android.expensetracker.domain.impl
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.map
 import androidx.paging.PagingData
 import dreammaker.android.expensetracker.database.IExpenseDatabase
 import dreammaker.android.expensetracker.database.dao.HistoryDao
 import dreammaker.android.expensetracker.database.model.HistoryEntity
 import dreammaker.android.expensetracker.database.model.HistoryType
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import rahulstech.android.expensetracker.domain.AccountRepository
 import rahulstech.android.expensetracker.domain.GroupRepository
 import rahulstech.android.expensetracker.domain.HistoryFilterParameters
@@ -25,173 +27,121 @@ class HistoryRepositoryImpl @Inject constructor(
 
     private val historyDao: HistoryDao = db.historyDao
 
-    override fun insertHistory(history: History): History =
-        db.runInTransaction<History> {
-            // insert history
-            val entity = history.toHistoryEntity()
-            val id = historyDao.insertHistory(entity)
-
-            // update balance
-            updateAccountBalance(entity)
-            updateAccountBalance(entity,false)
-            updateGroupDue(entity)
-
-            history.id = id
-            history
-        }
-
-    override fun findHistoryById(id: Long): History? =
-        historyDao.findHistoryById(id)?.toHistory()
-
-    override fun getLiveHistoryById(id: Long): LiveData<History?> =
-        historyDao.getLiveHistoryById(id).map { it?.toHistory() }
-
     override fun getPagedHistories(params: HistoryFilterParameters): Flow<PagingData<History>> =
         params.getPagedHistories(historyDao)
 
     override fun getTotalCreditDebit(params: HistoryFilterParameters): Flow<HistoryTotalCreditTotalDebit> =
         params.getTotalCreditDebit(historyDao)
 
-    override fun updateHistory(history: History): Boolean =
-        db.runInTransaction<Boolean> {
-            val oldEntity = historyDao.findHistoryById(history.id)?.history
-            if (null == oldEntity) {
-                return@runInTransaction false
-            }
+    // --- New Coroutine and Flow based methods ---
+
+    override suspend fun createHistory(history: History): History {
+        return db.runInTransaction {
+            val entity = history.toHistoryEntity()
+            val id = historyDao.insert(entity)
+            
+            updateAccountBalanceSync(entity)
+            updateAccountBalanceSync(entity, false)
+            updateGroupDueSync(entity)
+            
+            history.id = id
+            history
+        }
+    }
+
+    override suspend fun getHistory(id: Long): History? {
+        return historyDao.findHistoryDetailsByIdFlow(id).first()?.toHistory()
+    }
+
+    override fun getHistoryById(id: Long): Flow<History?> {
+        return historyDao.findHistoryDetailsByIdFlow(id).map { it?.toHistory() }.flowOn(Dispatchers.IO)
+    }
+
+    override suspend fun editHistory(history: History): Boolean {
+        return db.runInTransaction {
+            val oldEntity = historyDao.findHistoryDetailsByIdFlow(history.id).first()?.history ?: return@runInTransaction false
 
             val newEntity = history.toHistoryEntity()
-            val changes = historyDao.updateHistory(newEntity)
+            val changes = historyDao.update(newEntity)
 
             if (changes == 1) {
-                resetAccountBalance(oldEntity)
-                resetAccountBalance(oldEntity,false)
-                resetGroupDue(oldEntity)
+                resetAccountBalanceSync(oldEntity)
+                resetAccountBalanceSync(oldEntity, false)
+                resetGroupDueSync(oldEntity)
 
-                updateAccountBalance(newEntity)
-                updateAccountBalance(newEntity,false)
-                updateGroupDue(newEntity)
+                updateAccountBalanceSync(newEntity)
+                updateAccountBalanceSync(newEntity, false)
+                updateGroupDueSync(newEntity)
 
                 return@runInTransaction true
             }
             false
         }
+    }
 
-    override fun deleteHistory(id: Long, reset: Boolean) {
+    override suspend fun removeHistory(id: Long, reset: Boolean) {
         db.runInTransaction {
             if (reset) {
-                val entity = historyDao.findHistoryById(id)?.history
-                if (null == entity) {
-                    return@runInTransaction
+                val entity = historyDao.findHistoryDetailsByIdFlow(id).first()?.history ?: return@runInTransaction
+                if (1 == historyDao.delete(id)) {
+                    resetAccountBalanceSync(entity)
+                    resetAccountBalanceSync(entity, false)
+                    resetGroupDueSync(entity)
                 }
-                if (1 == historyDao.deleteHistory(id)) {
-                    resetAccountBalance(entity)
-                    resetAccountBalance(entity,false)
-                    resetGroupDue(entity)
-                }
-            }
-            else {
-                historyDao.deleteHistory(id)
+            } else {
+                historyDao.delete(id)
             }
         }
     }
 
-    override fun deleteMultipleHistories(ids: List<Long>, reset: Boolean) {
+    override suspend fun removeMultipleHistories(ids: List<Long>, reset: Boolean) {
         if (reset) {
-            ids.forEach { id ->
-                deleteHistory(id,true)
-            }
-        }
-        else {
-            historyDao.deleteMultipleHistories(ids)
+            ids.forEach { removeHistory(it, true) }
+        } else {
+            historyDao.deleteMultiple(ids)
         }
     }
 
-    // utility methods
+    // utility methods (Sync versions for use inside Transactions)
 
-    private fun updateAccountBalance(history: HistoryEntity, primary: Boolean = true) {
+    private suspend fun updateAccountBalanceSync(history: HistoryEntity, primary: Boolean = true) {
         if (primary) {
             when(history.type) {
-                HistoryType.CREDIT -> {
-                    history.primaryAccountId?.let { id ->
-                        accountRepository.creditBalance(id,history.amount)
-                    }
-                }
-                HistoryType.DEBIT,
-                HistoryType.TRANSFER -> {
-                    history.primaryAccountId?.let{ id ->
-                        accountRepository.debitBalance(id,history.amount)
-                    }
-                }
+                HistoryType.CREDIT -> history.primaryAccountId?.let { accountRepository.creditAccountBalance(it, history.amount) }
+                HistoryType.DEBIT, HistoryType.TRANSFER -> history.primaryAccountId?.let { accountRepository.debitAccountBalance(it, history.amount) }
             }
-        }
-        else {
-            when(history.type) {
-                HistoryType.TRANSFER -> {
-                    history.secondaryAccountId?.let { id ->
-                        accountRepository.creditBalance(id,history.amount)
-                    }
-                }
-                else -> {}
+        } else {
+            if (history.type == HistoryType.TRANSFER) {
+                history.secondaryAccountId?.let { accountRepository.debitAccountBalance(it, history.amount) }
             }
         }
     }
 
-    private fun resetAccountBalance(history: HistoryEntity, primary: Boolean = true) {
+    private suspend fun resetAccountBalanceSync(history: HistoryEntity, primary: Boolean = true) {
         if (primary) {
             when(history.type) {
-                HistoryType.CREDIT -> {
-                    history.primaryAccountId?.let { id ->
-                        accountRepository.debitBalance(id,history.amount)
-                    }
-                }
-                HistoryType.DEBIT,
-                HistoryType.TRANSFER -> {
-                    history.primaryAccountId?.let{ id ->
-                        accountRepository.creditBalance(id,history.amount)
-                    }
-                }
+                HistoryType.CREDIT -> history.primaryAccountId?.let { accountRepository.debitAccountBalance(it, history.amount) }
+                HistoryType.DEBIT, HistoryType.TRANSFER -> history.primaryAccountId?.let { accountRepository.creditAccountBalance(it, history.amount) }
             }
-        }
-        else {
-            when(history.type) {
-                HistoryType.TRANSFER -> {
-                    history.secondaryAccountId?.let { id ->
-                        accountRepository.debitBalance(id,history.amount)
-                    }
-                }
-                else -> {}
+        } else {
+            if (history.type == HistoryType.TRANSFER) {
+                history.secondaryAccountId?.let { accountRepository.debitAccountBalance(it, history.amount) }
             }
         }
     }
 
-    private fun updateGroupDue(history: HistoryEntity) {
+    private suspend fun updateGroupDueSync(history: HistoryEntity) {
         when(history.type) {
-            HistoryType.CREDIT -> {
-                history.groupId?.let { id ->
-                    groupRepository.debitDue(id,history.amount)
-                }
-            }
-            HistoryType.DEBIT -> {
-                history.groupId?.let { id ->
-                    groupRepository.creditDue(id,history.amount)
-                }
-            }
+            HistoryType.CREDIT -> history.groupId?.let { groupRepository.debitGroupDue(it, history.amount) }
+            HistoryType.DEBIT -> history.groupId?.let { groupRepository.creditGroupDue(it, history.amount) }
             else -> {}
         }
     }
 
-    private fun resetGroupDue(history: HistoryEntity, ) {
+    private suspend fun resetGroupDueSync(history: HistoryEntity) {
         when(history.type) {
-            HistoryType.CREDIT -> {
-                history.groupId?.let { id ->
-                    groupRepository.creditDue(id,history.amount)
-                }
-            }
-            HistoryType.DEBIT -> {
-                history.groupId?.let { id ->
-                    groupRepository.debitDue(id,history.amount)
-                }
-            }
+            HistoryType.CREDIT -> history.groupId?.let { groupRepository.creditGroupDue(it, history.amount) }
+            HistoryType.DEBIT -> history.groupId?.let { groupRepository.debitGroupDue(it, history.amount) }
             else -> {}
         }
     }

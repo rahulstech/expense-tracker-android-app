@@ -362,12 +362,12 @@ fun HomeScreenPreview() {
             state = HomeScreenState(
                 totalBalance = 35369.35,
                 recentAccounts = listOf(
-                    Account(id = 1, name = "Savings Bank Account", balance = 5000f),
-                    Account(id = 2, name = "Checking", balance = 1200f)
+                    Account(id = 1, name = "Savings Bank Account", balance = 5000.0),
+                    Account(id = 2, name = "Checking", balance = 1200.0)
                 ),
                 recentGroups = listOf(
-                    Group(id = 1, name = "Household", balance = 450f),
-                    Group(id = 2, name = "Medical", balance = 530f)
+                    Group(id = 1, name = "Household", balance = 450.0),
+                    Group(id = 2, name = "Medical", balance = 530.0)
                 )
             ),
             onEvent = {}

@@ -1,7 +1,6 @@
 package dreammaker.android.expensetracker.database.dao
 
 import android.util.Log
-import androidx.lifecycle.LiveData
 import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Insert
@@ -66,11 +65,6 @@ class HistoryQueryBuilder {
         queryBuilder.columns(columns)
 
         where(queryBuilder)
-        // i want one row with two columns i.e. totalCredit and totalDebit
-        // but wil group by it will create two rows for two types
-//        queryBuilder
-//            .groupBy("`type`")
-//            .having("`type` IN('CREDIT','DEBIT')")
 
         val query = queryBuilder.create()
         Log.d(TAG,"buildTotalCreditDebit: query = ${query.sql}")
@@ -82,7 +76,6 @@ class HistoryQueryBuilder {
         val selectionArgs = mutableListOf<Any?>()
 
         if (historyTypes.isNotEmpty()) {
-            // NOTE: sqlite can not bind Enum, bind the enum name
             val sqlArgs = IN("type",historyTypes.toNamesList())
             selection.append(" AND ").append(sqlArgs.first)
             selectionArgs.addAll(sqlArgs.second)
@@ -100,7 +93,6 @@ class HistoryQueryBuilder {
             selectionArgs.addAll(sqlArgs.second)
         }
         dateRange?.let {
-            // NOTE: sqlite can not bind LocalDate, convert it to string
             val sqlArgs = BETWEEN("date",
                 Converter.localDateToString(it.first),
                 Converter.localDateToString(it.second))
@@ -156,38 +148,32 @@ class HistoryQueryBuilder {
 @Dao
 interface HistoryDao {
 
-    @Insert
-    fun insertHistory(history: HistoryEntity): Long
-
-    @Insert
-    fun insertHistories(histories: List<HistoryEntity>)
-
-    @Query("SELECT * FROM `histories` WHERE `id` = :id")
-    @Transaction
-    fun findHistoryById(id: Long): HistoryDetails?
-
-    @Query("SELECT * FROM `histories` WHERE `id` = :id")
-    @Transaction
-    fun getLiveHistoryById(id: Long): LiveData<HistoryDetails?>
-
-    @Query("SELECT * FROM `histories` LIMIT :size OFFSET :from")
-    fun getHistories(size: Int, from: Long = 0): List<HistoryEntity>
-
     @RawQuery(observedEntities = [HistoryEntity::class, AccountEntity::class, GroupEntity::class])
     @Transaction
     fun getPagedHistories(query: SupportSQLiteQuery): PagingSource<Int, HistoryDetails>
 
-    // NOTE: if for the given filter no history exists then TotalCreditDebit will be null
     @RawQuery(observedEntities = [HistoryEntity::class])
     fun getHistoryTotalCreditDebit(query: SupportSQLiteQuery): Flow<TotalCreditDebit?>
 
+    @Insert
+    suspend fun insert(history: HistoryEntity): Long
+
+    @Insert
+    suspend fun insertMultiple(histories: List<HistoryEntity>)
+
+    @Query("SELECT * FROM `histories` WHERE `id` = :id")
+    @Transaction
+    fun findHistoryDetailsByIdFlow(id: Long): Flow<HistoryDetails?>
+
+    @Query("SELECT * FROM `histories` LIMIT :size OFFSET :from")
+    suspend fun getHistories(size: Int, from: Long = 0): List<HistoryEntity>
+
     @Update
-    fun updateHistory(history: HistoryEntity): Int
+    suspend fun update(history: HistoryEntity): Int
 
     @Query("DELETE FROM `histories` WHERE id = :id")
-    fun deleteHistory(id: Long): Int
+    suspend fun delete(id: Long): Int
 
     @Query("DELETE FROM `histories` WHERE id IN(:ids)")
-    fun deleteMultipleHistories(ids: List<Long>): Int
+    suspend fun deleteMultiple(ids: List<Long>): Int
 }
-

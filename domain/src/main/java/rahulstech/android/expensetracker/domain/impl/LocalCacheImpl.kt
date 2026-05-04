@@ -130,7 +130,7 @@ internal fun SharedPreferences.getAccount(key: String): Account? = getString(key
         val obj = JSONObject(json)
         val id = obj.getLong("id")
         val name = obj.getString("name")
-        val balance = obj.getDouble("balance").toFloat()
+        val balance = obj.getDouble("balance")
         Account(name,balance,id)
     }
 
@@ -148,6 +148,6 @@ internal fun SharedPreferences.getGroup(key: String): Group? = getString(key,nul
     val obj = JSONObject(json)
     val id = obj.getLong("id")
     val name = obj.getString("name")
-    val due = obj.getDouble("due").toFloat()
+    val due = obj.getDouble("due")
     Group(name,due,id)
 }

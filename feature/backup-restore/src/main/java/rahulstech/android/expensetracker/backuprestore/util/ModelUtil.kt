@@ -7,7 +7,7 @@ import java.time.LocalDate
 data class HistoryData(
     val id: Long,
     val type: History.Type,
-    val amount: Float,
+    val amount: Double,
     val date: LocalDate,
     val primaryAccountId: Long?,
     val secondaryAccountId: Long? = null,

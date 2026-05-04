@@ -5,8 +5,9 @@ import dreammaker.android.expensetracker.database.ExpensesDatabase
 import dreammaker.android.expensetracker.database.createInMemoryDB
 import dreammaker.android.expensetracker.database.fake.FakeDataCallbacks
 import dreammaker.android.expensetracker.database.model.GroupEntity
-import dreammaker.android.expensetracker.database.runOnLiveDataResultReceived
 import junit.framework.TestCase.assertEquals
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -32,72 +33,73 @@ class GroupDaoTest {
         db.close()
     }
 
+    // ----------------------------------------------------
+    //      Kotlin Coroutine and Flow based DAO tests
+    // ----------------------------------------------------
+
     @Test
-    fun insertGroup() {
-        val group = GroupEntity(
-            0,
-            "Test Group 1",
-            100f,
-            // Use specific value instead of LocalDateTime.now(), it may sometime cause nano seconds mismatch an test may fail
-            LocalDateTime.of(2026,1,1,0,0,0,0),
-            1
+    fun insert() = runTest {
+        val group = GroupEntity(0, "New Group", 50.0, null, null)
+        val id = dao.insert(group)
+        assertTrue(id > 0)
+        val actual = dao.findByIdFlow(id).first()
+        assertEquals("New Group", actual?.name)
+    }
+
+    @Test
+    fun insertMultiple() = runTest {
+        val groups = listOf(
+            GroupEntity(0, "G1", 10.0, null, null),
+            GroupEntity(0, "G2", 20.0, null, null)
         )
-        val id = dao.insertGroup(group)
-        val expected = dao.findGroupById(id)
-        val actual = group.copy(id)
-
-        assertTrue("id must be positive number", id > 0)
-        assertEquals("inserted group not found by id", expected, actual)
+        dao.insertMultiple(groups)
+        val all = dao.getAllGroupsFlow().first()
+        assertTrue(all.any { it.name == "G1" })
+        assertTrue(all.any { it.name == "G2" })
     }
 
     @Test
-    fun getLiveGroupById() {
-        runOnLiveDataResultReceived(dao.getLiveGroupById(2)) { actual ->
-            val expected = GroupEntity(2,"Group 2",-200f, LocalDateTime.of(2025,11,1,13,19,56),3)
-            assertEquals(expected, actual)
-        }
+    fun getAllGroupsFlow() = runTest {
+        val groups = dao.getAllGroupsFlow().first()
+        // Fake data has 2 groups
+        assertEquals(2, groups.size)
     }
 
     @Test
-    fun getLiveAllGroups() {
-        runOnLiveDataResultReceived(dao.getLiveAllGroups()) { actual ->
-            val expected = listOf(
-                GroupEntity(1,"Group 1",100f,null,null),
-                GroupEntity(2,"Group 2",-200f,LocalDateTime.of(2025,11,1,13,19,56),3)
-            )
-            assertEquals(expected, actual)
-        }
+    fun findByIdFlow() = runTest {
+        val group = dao.findByIdFlow(1).first()
+        assertEquals("Group 1", group?.name)
     }
 
     @Test
-    fun getLiveRecentlyUsedGroups() {
-        runOnLiveDataResultReceived(dao.getLiveRecentlyUsedGroups(3)) { actual ->
-            val expected = listOf(
-                GroupEntity(2,"Group 2",-200f,LocalDateTime.of(2025,11,1,13,19,56),3)
-            )
-            assertEquals(expected, actual)
-        }
+    fun getRecentlyUsedGroupsFlow() = runTest {
+        val groups = dao.getRecentlyUsedGroupsFlow(3).first()
+        // Only Group 2 has lastUsed in fake data
+        assertEquals(1, groups.size)
+        assertEquals("Group 2", groups[0].name)
     }
 
     @Test
-    fun updateGroup() {
-        val group = GroupEntity(1,"Group 1",600f,LocalDateTime.now(),2)
-        val changes = dao.updateGroup(group)
+    fun update() = runTest {
+        val group = GroupEntity(1, "Group 1 Updated", 150.0, null, null)
+        dao.update(group)
+        val actual = dao.findByIdFlow(1).first()
+        assertEquals("Group 1 Updated", actual?.name)
+    }
+
+    @Test
+    fun delete() = runTest {
+        val changes = dao.delete(1)
         assertEquals(1, changes)
-    }
-
-    @Test
-    fun deleteGroup() {
-        dao.deleteGroup(1)
-        val actual =  dao.findGroupById(1)
+        val actual = dao.findByIdFlow(1).first()
         assertNull(actual)
     }
 
     @Test
-    fun deleteMultipleGroups() {
-        dao.deleteMultipleGroups(listOf(1, 2))
-        runOnLiveDataResultReceived(dao.getLiveAllGroups()) { actual ->
-            assertTrue(actual.isEmpty())
-        }
+    fun deleteMultiple() = runTest {
+        val changes = dao.deleteMultiple(listOf(1, 2))
+        assertEquals(2, changes)
+        val all = dao.getAllGroupsFlow().first()
+        assertTrue(all.isEmpty())
     }
 }

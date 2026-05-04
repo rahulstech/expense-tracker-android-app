@@ -4,8 +4,8 @@ import android.content.Context
 import android.content.pm.ServiceInfo
 import android.os.Build
 import android.util.Log
+import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
-import androidx.work.Worker
 import androidx.work.WorkerParameters
 import rahulstech.android.expensetracker.backuprestore.Constants
 import rahulstech.android.expensetracker.backuprestore.ParameterException
@@ -17,7 +17,7 @@ import rahulstech.android.expensetracker.domain.ExpenseRepository
 import java.io.File
 import java.io.InputStream
 
-class JsonRestoreWorker(context: Context, parameters: WorkerParameters): Worker(context, parameters) {
+class JsonRestoreWorker(context: Context, parameters: WorkerParameters): CoroutineWorker(context, parameters) {
 
     companion object {
         private val TAG = JsonRestoreWorker::class.simpleName
@@ -27,7 +27,7 @@ class JsonRestoreWorker(context: Context, parameters: WorkerParameters): Worker(
 
     private var job: JsonRestoreJob? = null
 
-    override fun doWork(): Result {
+    override suspend fun doWork(): Result {
         startForeground()
         var inputFile: File? = null
         try {
@@ -46,17 +46,11 @@ class JsonRestoreWorker(context: Context, parameters: WorkerParameters): Worker(
         }
         finally {
             runCatching { inputFile?.deleteRecursively() }
+            job?.terminate()
         }
     }
 
-    override fun onStopped() {
-        super.onStopped()
-        job?.terminate()
-    }
-
-    internal fun restore() {}
-
-    private fun startForeground() {
+    private suspend fun startForeground() {
         val message = applicationContext.getString(R.string.notification_message_restore)
         val notification = createRestoreNotification(applicationContext,message)
         val foregroundInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
@@ -64,7 +58,7 @@ class JsonRestoreWorker(context: Context, parameters: WorkerParameters): Worker(
         } else {
             ForegroundInfo(NotificationConstants.RESTORE_NOTIFICATION_ID, notification)
         }
-        setForegroundAsync(foregroundInfo)
+        setForeground(foregroundInfo)
     }
 
     private fun getInputVersion(): Int {
@@ -83,8 +77,4 @@ class JsonRestoreWorker(context: Context, parameters: WorkerParameters): Worker(
 
     private fun openInputBackupFile(file: File): InputStream =
         file.inputStream()
-
-    private fun deleteJsonFileSilently(jsonFile: File) {
-
-    }
 }

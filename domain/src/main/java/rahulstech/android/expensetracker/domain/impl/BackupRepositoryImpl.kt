@@ -12,34 +12,34 @@ import rahulstech.android.expensetracker.domain.model.toHistory
 import javax.inject.Inject
 
 class BackupRepositoryImpl @Inject constructor(
-    private val db: IExpenseDatabase,
+    db: IExpenseDatabase,
     private val cache: LocalCache,
 ): BackupRepository {
 
-    override fun getMultipleAccounts(): List<Account> {
+    private val accountDao = db.accountDao
+    private val groupDao = db.groupDao
+    private val historyDao = db.historyDao
+
+    override suspend fun getAccounts(): List<Account> {
         val defaultAccountId = cache.getDefaultAccountId()
-        return db.accountDao.getAllAccounts()
+        return accountDao.getAllAccounts()
             .map { entity ->
                 val account = entity.toAccount()
                 if (account.id == defaultAccountId) {
                     account.copy(isDefault = true)
-                }
-                else {
+                } else {
                     account
                 }
             }
     }
 
-    override fun getMultipleGroups(): List<Group> {
-        return db.groupDao.getAllGroups()
+    override suspend fun getGroups(): List<Group> {
+        return groupDao.getAllGroups()
             .map { entity -> entity.toGroup() }
     }
 
-    override fun getMultipleHistories(
-        size: Int,
-        skip: Long
-    ): List<History> {
-        return db.historyDao.getHistories(size,skip)
+    override suspend fun getHistories(size: Int, skip: Long): List<History> {
+        return historyDao.getHistories(size, skip)
             .map { entity -> entity.toHistory() }
     }
 }

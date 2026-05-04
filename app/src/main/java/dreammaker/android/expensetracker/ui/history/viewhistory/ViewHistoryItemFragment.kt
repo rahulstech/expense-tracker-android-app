@@ -118,7 +118,7 @@ class ViewHistoryItemFragment: Fragment(), MenuProvider {
 
     }
 
-    private fun prepareAmount(amount: Float) {
+    private fun prepareAmount(amount: Double) {
         binding.amount.text = amount.toCurrencyString()
     }
 

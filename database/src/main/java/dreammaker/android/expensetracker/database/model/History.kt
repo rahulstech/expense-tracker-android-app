@@ -59,7 +59,7 @@ data class HistoryEntity (
     val primaryAccountId: Long?,
     val secondaryAccountId: Long?,
     val groupId: Long?,
-    val amount: Float,
+    val amount: Double,
     @ColumnInfo(typeAffinity = ColumnInfo.TEXT)
     val date: LocalDate,
     val note: String?,

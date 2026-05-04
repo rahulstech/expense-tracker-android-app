@@ -3,12 +3,11 @@ package dreammaker.android.expensetracker.ui.account.accountlist
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
-import androidx.lifecycle.map
-import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dreammaker.android.expensetracker.ui.UIState
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
@@ -17,7 +16,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import rahulstech.android.expensetracker.domain.AccountRepository
 import rahulstech.android.expensetracker.domain.model.Account
@@ -38,13 +39,13 @@ class AccountsListViewModel @Inject constructor(
             searchTextState.value = value
         }
 
-    @OptIn(FlowPreview::class)
+    @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
     fun getAllAccounts(): LiveData<List<Account>> {
         if (null==_accounts) {
             _accounts = searchTextState
                 .debounce(150.milliseconds)
-                .asLiveData().switchMap { searchText->
-                    accountRepo.getLiveAllAccounts().map { accounts ->
+                .flatMapLatest { searchText ->
+                    accountRepo.getAllAccounts().map { accounts ->
                         if (searchText.isNullOrBlank()) {
                             accounts
                         }
@@ -53,6 +54,7 @@ class AccountsListViewModel @Inject constructor(
                         }
                     }
                 }
+                .asLiveData(viewModelScope.coroutineContext + Dispatchers.IO)
         }
         return _accounts!!
     }
@@ -69,7 +71,7 @@ class AccountsListViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             flow {
                 _deleteAccountsState.tryEmit(UIState.UILoading())
-                accountRepo.deleteMultipleAccounts(ids)
+                accountRepo.removeMultipleAccounts(ids)
                 emit(null)
             }
                 .catch { error ->

@@ -14,28 +14,28 @@ class JsonBackupJobV8Impl(
     progressCallback: (Progress)-> Unit = {}
 ): JsonBackupJob(8,destination,progressCallback) {
 
-    override fun doBackup() {
+    override suspend fun doBackup() {
         backupAccounts()
         backupGroups()
         backupHistories()
     }
 
-    fun backupAccounts() {
-        val accounts = repo.getMultipleAccounts()
+    suspend fun backupAccounts() {
+        val accounts = repo.getAccounts()
         writeArray(Constants.JSON_FIELD_ACCOUNTS, accounts)
     }
 
-    fun backupGroups() {
-        val groups = repo.getMultipleGroups()
+    suspend fun backupGroups() {
+        val groups = repo.getGroups()
         writeArray(Constants.JSON_FIELD_GROUPS, groups)
     }
 
-    fun backupHistories() {
+    suspend fun backupHistories() {
         writeArrayInChunk<HistoryData>(Constants.JSON_FIELD_HISTORIES).use { writer ->
             var skip: Long = 0
-            var chunk: List<HistoryData> = emptyList()
+            var chunk: List<HistoryData>
             do {
-                chunk = repo.getMultipleHistories(1000,skip)
+                chunk = repo.getHistories(1000,skip)
                     .map { it.toHistoryData() }
                 skip += chunk.size.toLong()
                 writer.writeNextChunk(chunk)

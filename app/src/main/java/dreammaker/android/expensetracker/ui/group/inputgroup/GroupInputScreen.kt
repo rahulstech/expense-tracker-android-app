@@ -25,7 +25,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,9 +40,7 @@ import dreammaker.android.expensetracker.core.util.QuickMessages
 import dreammaker.android.expensetracker.ui.component.SaveCancelActionButtons
 import dreammaker.android.expensetracker.ui.component.YesNoDialog
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import rahulstech.android.expensetracker.domain.model.Group
 
 @Composable
 fun GroupInputScreen(
@@ -52,70 +49,35 @@ fun GroupInputScreen(
     exit: () -> Unit,
 ) {
     val context = LocalContext.current
-    var showAddMoreDialog by rememberSaveable { mutableStateOf(false) }
-    var name by rememberSaveable { mutableStateOf("") }
-    var balance by rememberSaveable { mutableStateOf("") }
-    var nameError by rememberSaveable { mutableStateOf<String?>(null) }
-    var balanceError by rememberSaveable { mutableStateOf<String?>(null) }
     val uiState by viewModel.uiState.collectAsState()
 
-    // validation methods
-    fun validateName(): Boolean {
-        nameError = when {
-            name.isBlank() -> context.getString(R.string.error_empty_group_name)
-            else -> null
-        }
-        return null == nameError
-    }
-
-    fun validateBalance(): Boolean {
-        val amount = balance.toFloatOrNull()
-        balanceError = when {
-            balance.isBlank() -> context.getString(R.string.error_empty_balance_input)
-            amount == null -> context.getString(R.string.error_invalid_balance_input)
-            else -> null
-        }
-        return null == balanceError
-    }
-
-    // handle ui events
-    LaunchedEffect(Unit) {
-        viewModel.uiEvent.collectLatest { event ->
-            when (event) {
-                is GroupInputUIEvent.SaveError -> {
-                    QuickMessages.toastError(
-                        context,
-                        context.getString(R.string.group_save_unsuccessful),
-                        true
-                    )
-                }
-                is GroupInputUIEvent.SaveSuccessful -> {
-                    showAddMoreDialog = true
-                }
-                is GroupInputUIEvent.LoadingError -> {
-                    QuickMessages.toastError(
-                        context,
-                        context.getString(R.string.message_group_not_found),
-                        true
-                    )
-                    exit()
-                }
+    // handle saving events
+    LaunchedEffect(uiState.savingSuccess) {
+        if (uiState.savingSuccess) {
+            if (isEdit) {
+                exit()
+            } else {
+                viewModel.onShowAddMoreDialog(true)
             }
         }
     }
 
-    // handle group loading
-    LaunchedEffect(uiState.group?.id) {
-        if (isEdit) {
-            if (!uiState.isLoadingGroup) {
-                // on loading complete if group found set
-                // the initial name and balance to the loaded group name and balance
-                // if not found show toast and exit
-                uiState.group?.let {
-                    name = it.name
-                    balance = it.balance.toString()
-                }
-            }
+    // handle errors
+    LaunchedEffect(uiState.savingError, uiState.loadingError) {
+        uiState.savingError?.let {
+            QuickMessages.toastError(
+                context,
+                context.getString(R.string.group_save_unsuccessful),
+                true
+            )
+        }
+        uiState.loadingError?.let {
+            QuickMessages.toastError(
+                context,
+                context.getString(R.string.message_group_not_found),
+                true
+            )
+            exit()
         }
     }
 
@@ -126,51 +88,32 @@ fun GroupInputScreen(
             isSaving = uiState.isSaving,
             onCancel = exit,
             onSave = {
-                if (validateName() && validateBalance()) {
-                    val amount = balance.toFloat()
-                    val group = if (isEdit) {
-                        Group(
-                            id = uiState.group?.id ?: 0,
-                            name = name,
-                            balance = amount
-                        )
-                    } else {
-                        Group(
-                            name = name,
-                            balance = amount
-                        )
-                    }
-                    viewModel.saveGroup(group, isEdit)
-                }
+                viewModel.saveGroup()
             },
-            name = name,
+            name = uiState.name,
             onNameChange = {
-                name = it
-                nameError = null
+                viewModel.onNameChange(it)
             },
-            balance = balance,
+            balance = uiState.balance,
             onBalanceChange = {
-                balance = it
-                balanceError = null
+                viewModel.onBalanceChange(it)
             },
-            nameError = nameError,
-            balanceError = balanceError
+            nameError = uiState.nameError?.let { stringResource(it) },
+            balanceError = uiState.balanceError?.let { stringResource(it) }
         )
     }
 
-    if (showAddMoreDialog) {
+    if (uiState.showAddMoreDialog) {
         YesNoDialog(
             header = stringResource(R.string.add_more_group),
             body = "",
             yesText = stringResource(R.string.label_yes),
             noText = stringResource(R.string.label_no),
             onYes = {
-                showAddMoreDialog = false
-                name = ""
-                balance = ""
+                viewModel.resetInput()
             },
             onNo = {
-                showAddMoreDialog = false
+                viewModel.onShowAddMoreDialog(false)
                 exit()
             },
             dismissOnBackPressed = false,

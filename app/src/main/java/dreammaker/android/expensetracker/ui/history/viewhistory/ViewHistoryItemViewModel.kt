@@ -2,6 +2,7 @@ package dreammaker.android.expensetracker.ui.history.viewhistory
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dreammaker.android.expensetracker.ui.UIState
@@ -32,7 +33,7 @@ class ViewHistoryItemViewModel @Inject constructor(
 
     fun findHistory(id: Long): LiveData<History?> {
         if (!::historyLiveData.isInitialized) {
-            historyLiveData = historyRepo.getLiveHistoryById(id)
+            historyLiveData = historyRepo.getHistoryById(id).asLiveData(viewModelScope.coroutineContext + Dispatchers.IO)
         }
         return historyLiveData
     }
@@ -48,10 +49,10 @@ class ViewHistoryItemViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             flow {
                 _removeHistoryState.tryEmit(UIState.UILoading())
-                historyRepo.deleteHistory(history.id)
+                historyRepo.removeHistory(history.id)
                 emit(null)
             }
-                .catch { error -> _removeHistoryState.tryEmit(UIState.UIError(error,history)) }
+                .catch { error -> _removeHistoryState.tryEmit(UIState.UIError(error)) }
                 .collect { _removeHistoryState.tryEmit(UIState.UISuccess()) }
         }
     }

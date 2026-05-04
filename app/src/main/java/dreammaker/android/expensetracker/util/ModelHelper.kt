@@ -23,7 +23,7 @@ val UNKNOWN_ACCOUNT = Account("Unknown Account")
 
 val UNKNOWN_GROUP = Group("Unknown Group")
 
-class AccountParcelable(val id: Long, val name: String, val balance: Float): Parcelable {
+class AccountParcelable(val id: Long, val name: String, val balance: Double): Parcelable {
 
     constructor(account: Account): this(
         account.id,account.name,account.balance
@@ -32,7 +32,7 @@ class AccountParcelable(val id: Long, val name: String, val balance: Float): Par
     private constructor(parcel: Parcel): this(
         parcel.readLong(),
         parcel.readString() ?: "",
-        parcel.readFloat()
+        parcel.readDouble()
     )
 
     fun toAccount(): Account = Account(name,balance,id)
@@ -40,7 +40,7 @@ class AccountParcelable(val id: Long, val name: String, val balance: Float): Par
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeLong(id)
         parcel.writeString(name)
-        parcel.writeFloat(balance)
+        parcel.writeDouble(balance)
     }
 
     override fun describeContents(): Int = 0
@@ -56,7 +56,7 @@ class AccountParcelable(val id: Long, val name: String, val balance: Float): Par
     }
 }
 
-class GroupParcelable(val id: Long, val name: String, val balance: Float): Parcelable {
+class GroupParcelable(val id: Long, val name: String, val balance: Double): Parcelable {
 
     constructor(group: Group): this(
         group.id,
@@ -67,7 +67,7 @@ class GroupParcelable(val id: Long, val name: String, val balance: Float): Parce
     private constructor(parcel: Parcel) : this(
         parcel.readLong(),
         parcel.readString() ?: "",
-        parcel.readFloat()
+        parcel.readDouble()
     )
 
     fun toGroup(): Group = Group(name,balance,id)
@@ -75,7 +75,7 @@ class GroupParcelable(val id: Long, val name: String, val balance: Float): Parce
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeLong(id)
         parcel.writeString(name)
-        parcel.writeFloat(balance)
+        parcel.writeDouble(balance)
     }
 
     override fun describeContents(): Int = 0

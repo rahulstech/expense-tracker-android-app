@@ -4,13 +4,10 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dreammaker.android.expensetracker.R
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -19,19 +16,22 @@ import rahulstech.android.expensetracker.domain.model.Group
 import javax.inject.Inject
 
 data class GroupInputUIState(
+    val id: Long = 0,
+    val name: String = "",
+    val balance: String = "",
+
+    val nameError: Int? = null,
+    val balanceError: Int? = null,
+
     val isLoadingGroup: Boolean = false,
-    val group: Group? = null,
+    val loadingError: Throwable? = null,
+
     val isSaving: Boolean = false,
+    val savingError: Throwable? = null,
+    val savingSuccess: Boolean = false,
+
+    val showAddMoreDialog: Boolean = false
 )
-
-sealed interface GroupInputUIEvent {
-
-    data class SaveSuccessful(val group: Group): GroupInputUIEvent
-
-    data class SaveError(val cause: Throwable): GroupInputUIEvent
-
-    data class LoadingError(val cause: Throwable): GroupInputUIEvent
-}
 
 @HiltViewModel
 class GroupInputViewModel @Inject constructor(
@@ -45,72 +45,103 @@ class GroupInputViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(GroupInputUIState())
     val uiState: StateFlow<GroupInputUIState> = _uiState.asStateFlow()
 
-    private val currentUIState: GroupInputUIState get() = _uiState.value
+    fun onNameChange(name: String) {
+        _uiState.update { it.copy(name = name, nameError = null) }
+    }
 
-    private val _uiEvent = MutableSharedFlow<GroupInputUIEvent>(
-        replay = 0,
-        extraBufferCapacity = 1,
-        onBufferOverflow = BufferOverflow.SUSPEND
-    )
-    val uiEvent: SharedFlow<GroupInputUIEvent> = _uiEvent.asSharedFlow()
-
-    private var lastFoundGroupId = 0L
+    fun onBalanceChange(balance: String) {
+        _uiState.update { it.copy(balance = balance, balanceError = null) }
+    }
 
     fun findGroupById(id: Long) {
-        if (id == lastFoundGroupId) {
+        if (id == _uiState.value.id && id != 0L) {
             return
         }
         viewModelScope.launch(Dispatchers.IO) {
-            updateLoadState(isLoadingGroup = true)
+            _uiState.update { it.copy(isLoadingGroup = true, loadingError = null) }
             try {
-                val group = groupRepo.findGroupById(id)
-                updateLoadState(isLoadingGroup = false, group = group)
-                lastFoundGroupId = id
+                val group = groupRepo.getGroup(id)
+                if (group != null) {
+                    _uiState.update {
+                        it.copy(
+                            id = group.id,
+                            name = group.name,
+                            balance = group.balance.toString(),
+                            isLoadingGroup = false
+                        )
+                    }
+                } else {
+                    _uiState.update {
+                        it.copy(
+                            isLoadingGroup = false,
+                            loadingError = Exception("Group not found")
+                        )
+                    }
+                }
             } catch (th: Throwable) {
                 Log.e(TAG, "can not find group by id $id", th)
-                updateLoadState(isLoadingGroup = false)
-                _uiEvent.emit(GroupInputUIEvent.LoadingError(th))
+                _uiState.update { it.copy(isLoadingGroup = false, loadingError = th) }
             }
         }
     }
 
-    fun saveGroup(group: Group, isEdit: Boolean) {
+    fun saveGroup() {
+        val state = _uiState.value
+        val nameBlank = state.name.isBlank()
+        val balanceValue = state.balance.toDoubleOrNull()
+        val balanceBlank = state.balance.isBlank()
+
+        if (nameBlank || balanceBlank || balanceValue == null) {
+            _uiState.update {
+                it.copy(
+                    nameError = if (nameBlank) R.string.error_empty_group_name else null,
+                    balanceError = when {
+                        balanceBlank -> R.string.error_empty_balance_input
+                        balanceValue == null -> R.string.error_invalid_balance_input
+                        else -> null
+                    }
+                )
+            }
+            return
+        }
+
         viewModelScope.launch(Dispatchers.IO) {
-            updateSaveState(isSaving = true)
+            _uiState.update { it.copy(isSaving = true, savingError = null, savingSuccess = false) }
             try {
-                val savedGroup = if (isEdit) {
-                    groupRepo.updateGroup(group)
-                    group
+                val groupToSave = Group(
+                    id = state.id,
+                    name = state.name,
+                    balance = state.balance.toDouble()
+                )
+                if (groupToSave.id == 0L) {
+                    groupRepo.createGroup(groupToSave)
                 } else {
-                    groupRepo.insertGroup(group)
+                    groupRepo.editGroup(groupToSave)
                 }
-                _uiEvent.emit(GroupInputUIEvent.SaveSuccessful(savedGroup))
+                _uiState.update { it.copy(isSaving = false, savingSuccess = true) }
             } catch (th: Throwable) {
                 Log.e(TAG, "save group failed with error", th)
-                _uiEvent.emit(GroupInputUIEvent.SaveError(th))
-            } finally {
-                updateSaveState(isSaving = false)
+                _uiState.update { it.copy(isSaving = false, savingError = th) }
             }
         }
     }
 
-    private fun updateLoadState(
-        isLoadingGroup: Boolean = currentUIState.isLoadingGroup,
-        group: Group? = currentUIState.group
-    ) {
+    fun onShowAddMoreDialog(show: Boolean) {
+        _uiState.update { it.copy(showAddMoreDialog = show) }
+    }
+
+    fun resetInput() {
         _uiState.update {
             it.copy(
-                isLoadingGroup = isLoadingGroup,
-                group = group,
+                name = "",
+                balance = "",
+                savingSuccess = false,
+                showAddMoreDialog = false
             )
         }
     }
 
-    private fun updateSaveState(
-        isSaving: Boolean = currentUIState.isSaving,
-    ) {
-        _uiState.update {
-            it.copy(isSaving = isSaving)
-        }
+    fun clearSavingSuccess() {
+        _uiState.update { it.copy(savingSuccess = false) }
     }
 }

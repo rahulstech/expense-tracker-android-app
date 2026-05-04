@@ -65,14 +65,14 @@ abstract class JsonBackupJob(
     private var terminated: Boolean = false
     private val lock = Any()
 
-    fun backup() {
+    suspend fun backup() {
         beginObject()
         writeInt(Constants.JSON_FIELD_VERSION, version)
         doBackup()
         endObject()
     }
 
-    protected abstract fun doBackup()
+    protected abstract suspend fun doBackup()
 
     fun terminate() {
         synchronized(lock) {

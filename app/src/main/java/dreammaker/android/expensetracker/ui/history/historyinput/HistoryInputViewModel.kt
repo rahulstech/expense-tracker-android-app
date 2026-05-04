@@ -1,7 +1,6 @@
 package dreammaker.android.expensetracker.ui.history.historyinput
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dreammaker.android.expensetracker.R
@@ -63,9 +62,6 @@ class HistoryInputViewModel @Inject constructor(
     var history: History? = null
         private set
 
-    fun getAccountSelection(): Account? = _uiState.value.account
-    fun getGroup(): Group? = _uiState.value.group
-
     fun setDate(date: LocalDate) {
         _uiState.update { it.copy(date = date) }
     }
@@ -113,15 +109,15 @@ class HistoryInputViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.update { it.copy(isLoadingHistory = true, historyLoadingError = null) }
             try {
-                val foundHistory = historyRepo.findHistoryById(id)
-                if (foundHistory != null) {
-                    history = foundHistory
+                val history = historyRepo.getHistory(id)
+
+                history?.let { foundHistory ->
                     _uiState.update {
                         it.copy(
                             isLoadingHistory = false,
                             id = foundHistory.id,
                             date = foundHistory.date,
-                            amount = if (foundHistory.amount == 0f) "" else foundHistory.amount.toString(),
+                            amount = if (foundHistory.amount == 0.0) "" else foundHistory.amount.toString(),
                             isCredit = foundHistory is History.CreditHistory,
                             isTransfer = foundHistory is History.TransferHistory,
                             account = foundHistory.primaryAccount,
@@ -130,9 +126,8 @@ class HistoryInputViewModel @Inject constructor(
                             note = foundHistory.note ?: ""
                         )
                     }
-                } else {
-                    val error = Exception("History not found")
-                    _uiState.update { it.copy(isLoadingHistory = false, historyLoadingError = error) }
+                } ?: _uiState.update {
+                    it.copy(isLoadingHistory = false, historyLoadingError = Exception("History not found"))
                 }
             } catch (error: Throwable) {
                 _uiState.update { it.copy(isLoadingHistory = false, historyLoadingError = error) }
@@ -142,7 +137,7 @@ class HistoryInputViewModel @Inject constructor(
 
     fun saveHistory() {
         val state = _uiState.value
-        val amountValue = state.amount.toFloatOrNull()
+        val amountValue = state.amount.toDoubleOrNull()
         val amountBlank = state.amount.isBlank()
         val amountNegative = amountValue != null && amountValue < 0
         val accountNull = state.account == null
@@ -173,7 +168,7 @@ class HistoryInputViewModel @Inject constructor(
             val historyToSave = if (currentState.isTransfer) {
                 History.TransferHistory(
                     id = currentState.id,
-                    amount = currentState.amount.toFloatOrNull() ?: 0f,
+                    amount = currentState.amount.toDoubleOrNull() ?: 0.0,
                     date = currentState.date,
                     primaryAccountId = currentState.account?.id ?: 0,
                     secondaryAccountId = currentState.destinationAccount?.id ?: 0,
@@ -182,7 +177,7 @@ class HistoryInputViewModel @Inject constructor(
             } else if (currentState.isCredit) {
                 History.CreditHistory(
                     id = currentState.id,
-                    amount = currentState.amount.toFloatOrNull() ?: 0f,
+                    amount = currentState.amount.toDoubleOrNull() ?: 0.0,
                     date = currentState.date,
                     primaryAccountId = currentState.account?.id ?: 0,
                     groupId = currentState.group?.id,
@@ -191,7 +186,7 @@ class HistoryInputViewModel @Inject constructor(
             } else {
                 History.DebitHistory(
                     id = currentState.id,
-                    amount = currentState.amount.toFloatOrNull() ?: 0f,
+                    amount = currentState.amount.toDoubleOrNull() ?: 0.0,
                     date = currentState.date,
                     primaryAccountId = currentState.account?.id ?: 0,
                     groupId = currentState.group?.id,
@@ -202,9 +197,9 @@ class HistoryInputViewModel @Inject constructor(
             _uiState.update { it.copy(isSaving = true, savingError = null, savingSuccess = false) }
             try {
                 if (historyToSave.id == 0L) {
-                    historyRepo.insertHistory(historyToSave)
+                    historyRepo.createHistory(historyToSave)
                 } else {
-                    historyRepo.updateHistory(historyToSave)
+                    historyRepo.editHistory(historyToSave)
                 }
                 _uiState.update { it.copy(isSaving = false, savingSuccess = true) }
             } catch (error: Throwable) {
@@ -246,22 +241,18 @@ class HistoryInputViewModel @Inject constructor(
         )
 
     val allAccounts: Flow<List<Account>> by lazy {
-        accountRepo.getLiveAllAccounts()
-            .asFlow()
+        accountRepo.getAllAccounts()
     }
 
     val lastUsedAccounts: Flow<List<Account>> by lazy {
-        accountRepo.getLiveRecentlyUsedAccounts(3)
-            .asFlow()
+        accountRepo.getRecentlyUsedAccounts(3)
     }
 
     val allGroups: Flow<List<Group>> by lazy {
-        groupRepo.getLiveAllGroups()
-            .asFlow()
+        groupRepo.getAllGroups()
     }
 
     val lastUsedGroups: Flow<List<Group>> by lazy {
-        groupRepo.getLiveRecentlyUsedGroups(3)
-            .asFlow()
+        groupRepo.getRecentlyUsedGroups(3)
     }
 }

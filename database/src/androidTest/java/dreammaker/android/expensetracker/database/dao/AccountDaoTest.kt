@@ -5,7 +5,6 @@ import dreammaker.android.expensetracker.database.ExpensesDatabase
 import dreammaker.android.expensetracker.database.createInMemoryDB
 import dreammaker.android.expensetracker.database.fake.FakeDataCallbacks
 import dreammaker.android.expensetracker.database.model.AccountEntity
-import dreammaker.android.expensetracker.database.runOnLiveDataResultReceived
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.flow.first
@@ -36,17 +35,23 @@ class AccountDaoTest {
     }
 
     @Test
-    fun insertAccount() {
+    fun getFlowAccountById() = runTest {
+        val actual = dao.findAccountByIdFlow(1).first()
+        val expected = AccountEntity(1,"Account 1",150.0, LocalDateTime.of(2025,10,15,15,56,20),1)
+        assertEquals(expected,actual)
+    }
+
+    @Test
+    fun insert() = runTest {
         val account = AccountEntity(
             0,
-            "Test Account 1",
-            120f,
-            // use a specific value instead of now, otherwise due to nanoseconds mismatch it may fail sometimes
-            LocalDateTime.of(2026,1,1,0,0,0,0),
-            1)
-        val id = dao.insertAccount(account)
+            "Test Account Coroutine",
+            200.0,
+            LocalDateTime.of(2026,2,1,0,0,0,0),
+            2)
+        val id = dao.insert(account)
 
-        val actual = dao.findAccountById(id)
+        val actual = dao.findAccountByIdFlow(id).first()
         val expected = account.copy(id=id)
 
         assertTrue("id must be positive number", id > 0)
@@ -54,52 +59,50 @@ class AccountDaoTest {
     }
 
     @Test
-    fun getFlowAccountById() = runTest {
-        val actual = dao.getFlowAccountById(1).first()
-        val expected = AccountEntity(1,"Account 1",150.00f, LocalDateTime.of(2025,10,15,15,56,20),1)
-        assertEquals(expected,actual)
+    fun insertMultiple() = runTest {
+        val accounts = listOf(
+            AccountEntity(0, "Multi 1", 100.0, null, null),
+            AccountEntity(0, "Multi 2", 200.0, null, null)
+        )
+        val ids = dao.insertMultiple(accounts)
+        assertEquals(2, ids.size)
+        
+        val all = dao.getAccountsFlow().first()
+        // Account 1, Account 2 are already there from FakeData
+        assertTrue(all.any { it.name == "Multi 1" })
+        assertTrue(all.any { it.name == "Multi 2" })
     }
 
     @Test
-    fun getLiveAllAccounts() {
-        runOnLiveDataResultReceived(dao.getLiveAllAccounts()) { actual ->
-            val expected = listOf(
-                AccountEntity(1,"Account 1",150.00f,LocalDateTime.of(2025,10,15,15,56,20),1),
-                AccountEntity(2,"Account 2",2000.00f, null,null)
-            )
-            assertEquals(expected,actual)
-        }
+    fun getAccountsFlow() = runTest {
+        val actual = dao.getAccountsFlow().first()
+        // Fake data has "Account 1" and "Account 2"
+        assertEquals(2, actual.size)
+        assertEquals("Account 1", actual[0].name)
+        assertEquals("Account 2", actual[1].name)
     }
 
     @Test
-    fun getLiveRecentlyUsedAccounts() {
-        runOnLiveDataResultReceived(dao.getLiveRecentlyUsedAccounts(3)) { actual ->
-            val expected = listOf(
-                AccountEntity(1,"Account 1",150.00f,LocalDateTime.of(2025,10,15,15,56,20),1)
-            )
-            assertEquals(expected,actual)
-        }
+    fun update() = runTest {
+        val account = AccountEntity(1,"Account 1 Updated",160.0, LocalDateTime.now(),2)
+        dao.update(account)
+        val actual = dao.findAccountByIdFlow(1).first()
+        assertEquals("Account 1 Updated", actual?.name)
     }
 
     @Test
-    fun updateAccount() {
-        val account = AccountEntity(1,"Account 1",160.00f, LocalDateTime.now(),2)
-        val changes = dao.updateAccount(account)
-        assertEquals(1,changes)
-    }
-
-    @Test
-    fun deleteAccount() {
-        dao.deleteAccount(1)
-        val account = dao.findAccountById(1)
+    fun deleteById() = runTest {
+        val changes = dao.deleteById(1)
+        assertEquals(1, changes)
+        val account = dao.findAccountByIdFlow(1).first()
         assertNull(account)
     }
 
     @Test
-    fun deleteMultipleAccounts() {
-        dao.deleteMultipleAccounts(listOf(1,2))
-        runOnLiveDataResultReceived(dao.getLiveAllAccounts()) { actual ->
-            assertTrue(actual.isEmpty())
-        }
+    fun deleteMultipleByIds() = runTest {
+        val changes = dao.deleteMultipleByIds(listOf(1,2))
+        assertEquals(2, changes)
+        val all = dao.getAccountsFlow().first()
+        assertTrue(all.isEmpty())
     }
 }

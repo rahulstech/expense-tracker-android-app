@@ -11,7 +11,7 @@ sealed class History(
     open var id: Long,
     open val date: LocalDate,
     open val type: Type,
-    open val amount: Float,
+    open val amount: Double,
     open val primaryAccountId: Long?,
     open val secondaryAccountId: Long?,
     open val groupId: Long?,
@@ -40,7 +40,7 @@ sealed class History(
     data class CreditHistory(
         override var id: Long,
         override val date: LocalDate,
-        override val amount: Float,
+        override val amount: Double,
         override val primaryAccountId: Long,
         override val groupId: Long? = null,
         override val note: String? = null,
@@ -51,7 +51,7 @@ sealed class History(
     data class DebitHistory(
         override var id: Long,
         override val date: LocalDate,
-        override val amount: Float,
+        override val amount: Double,
         override val primaryAccountId: Long,
         override val groupId: Long? = null,
         override val note: String? = null,
@@ -62,7 +62,7 @@ sealed class History(
     data class TransferHistory(
         override var id: Long,
         override val date: LocalDate,
-        override val amount: Float,
+        override val amount: Double,
         override val primaryAccountId: Long,
         override val secondaryAccountId: Long,
         override val note: String? = null,

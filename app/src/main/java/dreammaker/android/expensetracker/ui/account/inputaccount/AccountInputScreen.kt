@@ -25,7 +25,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,9 +40,7 @@ import dreammaker.android.expensetracker.core.util.QuickMessages
 import dreammaker.android.expensetracker.ui.component.SaveCancelActionButtons
 import dreammaker.android.expensetracker.ui.component.YesNoDialog
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import rahulstech.android.expensetracker.domain.model.Account
 
 @Composable
 fun AccountInputScreen(
@@ -52,70 +49,35 @@ fun AccountInputScreen(
     exit: () -> Unit,
 ) {
     val context = LocalContext.current
-    var showAddMoreDialog by rememberSaveable { mutableStateOf(false) }
-    var name by rememberSaveable { mutableStateOf("") }
-    var balance by rememberSaveable { mutableStateOf("") }
-    var nameError by rememberSaveable { mutableStateOf<String?>(null) }
-    var balanceError by rememberSaveable { mutableStateOf<String?>(null) }
     val uiState by viewModel.uiState.collectAsState()
 
-    // validation methods
-    fun validateName(): Boolean {
-        nameError = when {
-            name.isBlank() -> context.getString(R.string.error_empty_account_name_input)
-            else -> null
-        }
-        return null == nameError
-    }
-
-    fun validateBalance(): Boolean {
-        val amount = balance.toFloatOrNull()
-        balanceError = when {
-            balance.isBlank() -> context.getString(R.string.error_empty_balance_input)
-            amount == null -> context.getString(R.string.error_invalid_balance_input)
-            else -> null
-        }
-        return null == balanceError
-    }
-
-    // handle ui events
-    LaunchedEffect(Unit) {
-        viewModel.uiEvent.collectLatest { event ->
-            when(event) {
-                is AccountInputUIEvent.SaveError -> {
-                    QuickMessages.toastError(
-                        context,
-                        context.getString(R.string.account_save_unsuccessful),
-                        true
-                    )
-                }
-                is AccountInputUIEvent.SaveSuccessful -> {
-                    showAddMoreDialog = true
-                }
-                is AccountInputUIEvent.LoadingError -> {
-                    QuickMessages.toastError(
-                        context,
-                        context.getString(R.string.message_account_not_found),
-                        true
-                    )
-                    exit()
-                }
+    // handle saving events
+    LaunchedEffect(uiState.savingSuccess) {
+        if (uiState.savingSuccess) {
+            if (isEdit) {
+                exit()
+            } else {
+                viewModel.onShowAddMoreDialog(true)
             }
         }
     }
 
-    // handle account loading
-    LaunchedEffect(uiState.account?.id) {
-        if (isEdit) {
-            if (!uiState.isLoadingAccount) {
-                // on loading complete if account found set
-                // the initial name and balance to the loaded account name and balance
-                // if not found show toast and exit
-                uiState.account?.let {
-                    name = it.name
-                    balance = it.balance.toString()
-                }
-            }
+    // handle errors
+    LaunchedEffect(uiState.savingError, uiState.loadingError) {
+        uiState.savingError?.let {
+            QuickMessages.toastError(
+                context,
+                context.getString(R.string.account_save_unsuccessful),
+                true
+            )
+        }
+        uiState.loadingError?.let {
+            QuickMessages.toastError(
+                context,
+                context.getString(R.string.message_account_not_found),
+                true
+            )
+            exit()
         }
     }
 
@@ -127,51 +89,32 @@ fun AccountInputScreen(
             isSaving = uiState.isSaving,
             onCancel = exit,
             onSave = {
-                if (validateName() && validateBalance()) {
-                    val amount = balance.toFloat()
-                    val account = if (isEdit) {
-                        Account(
-                            id = uiState.account?.id ?: 0,
-                            name = name,
-                            balance = amount
-                        )
-                    } else {
-                        Account(
-                            name = name,
-                            balance = amount
-                        )
-                    }
-                    viewModel.saveAccount(account, isEdit)
-                }
+                viewModel.saveAccount()
             },
-            name = name,
+            name = uiState.name,
             onNameChange = {
-                name = it
-                nameError = null
+                viewModel.onNameChange(it)
             },
-            balance = balance,
+            balance = uiState.balance,
             onBalanceChange = {
-                balance = it
-                balanceError = null
+                viewModel.onBalanceChange(it)
             },
-            nameError = nameError,
-            balanceError = balanceError
+            nameError = uiState.nameError?.let { stringResource(it) },
+            balanceError = uiState.balanceError?.let { stringResource(it) }
         )
     }
 
-    if (showAddMoreDialog) {
+    if (uiState.showAddMoreDialog) {
         YesNoDialog(
             header = stringResource(R.string.add_more_account),
             body = "",
             yesText = stringResource(R.string.label_yes),
             noText = stringResource(R.string.label_no),
             onYes = {
-                showAddMoreDialog = false
-                name = ""
-                balance = ""
+                viewModel.resetInput()
             },
             onNo = {
-                showAddMoreDialog = false
+                viewModel.onShowAddMoreDialog(false)
                 exit()
             },
             dismissOnBackPressed = false,
