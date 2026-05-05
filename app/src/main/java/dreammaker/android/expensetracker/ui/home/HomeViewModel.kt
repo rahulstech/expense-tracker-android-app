@@ -13,9 +13,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val accountRepo: AccountRepository,
-    private val groupRepo: GroupRepository
+    accountRepo: AccountRepository,
+    groupRepo: GroupRepository
 ) : ViewModel() {
+
+    companion object {
+        private const val TAG = "HomeViewModel"
+    }
 
     val uiState: StateFlow<HomeScreenState> = combine(
         accountRepo.getTotalBalance(),

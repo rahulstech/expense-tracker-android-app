@@ -1,7 +1,6 @@
 package dreammaker.android.expensetracker.ui.history.historyinput
 
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,16 +12,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.InputChip
+import androidx.compose.material3.InputChipDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.SuggestionChip
@@ -30,6 +29,7 @@ import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,14 +41,20 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
+
+@Immutable
+data class SelectionDropdownData<T>(
+    val options: List<T>,
+    val quickOptions: List<T>
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun <T> SelectionDropdown(
     label: String,
     selectedOption: T?,
     onOptionSelected: (T?) -> Unit,
-    options: List<T>,
-    recentOptions: List<T>,
+    data: SelectionDropdownData<T>,
     labelProvider: (T) -> String,
     modifier: Modifier = Modifier,
     error: String? = null,
@@ -83,14 +89,19 @@ fun <T> SelectionDropdown(
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
+                // NOTE: modifier apply left to right. therefore if fillMaxWidth apply first then weight will be ignored.
+                // in the following case since weight is used fillMaxWidth is totally unnecessary
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth()
+                        //.fillMaxWidth()
                         .padding(start = 12.dp, top = 8.dp, bottom = 8.dp, end = 6.dp)
                         .weight(1f)
                 ) {
                     if (selectedOption != null) {
-                        AssistChip(
+                        // InputChip is the right chose when chip has other clickable child.
+                        // in the following case it has trailing close button.
+                        InputChip(
+                            selected = true,
                             onClick = { },
                             label = {
                                 Text(
@@ -100,22 +111,28 @@ fun <T> SelectionDropdown(
                                 )
                             },
                             trailingIcon = {
-                                Icon(
-                                    imageVector = Icons.Default.Close,
-                                    contentDescription = "Remove",
-                                    modifier = Modifier
-                                        .size(18.dp)
-                                        .clickable { onOptionSelected(null) },
-                                    tint = MaterialTheme.colorScheme.onSecondaryContainer
-                                )
+                                // using IconButton over Icon with clickable Modifier is more appropriate
+                                // since chips are clickable therefore IconButton properly differentiate
+                                // the click event on chip or trailingIcon
+                                IconButton(
+                                    onClick = { onOptionSelected(null) },
+                                    modifier = Modifier.size(18.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Close,
+                                        contentDescription = "Remove",
+                                        modifier = Modifier.size(18.dp),
+                                        tint = MaterialTheme.colorScheme.onSecondaryContainer
+                                    )
+                                }
                             },
-                            shape = RoundedCornerShape(16.dp),
-                            colors = AssistChipDefaults.assistChipColors(
+                            shape = MaterialTheme.shapes.large,
+                            colors = InputChipDefaults.inputChipColors(
                                 containerColor = MaterialTheme.colorScheme.secondaryContainer,
                                 labelColor = MaterialTheme.colorScheme.onSecondaryContainer,
                             ),
                             border = null,
-                            modifier = Modifier.widthIn(max = 200.dp)
+                            modifier = Modifier.widthIn(max = 200.dp),
                         )
                     }
                 }
@@ -129,18 +146,21 @@ fun <T> SelectionDropdown(
                         .rotate(if (expanded) 180f else 0f)
                 )
             }
-            ExposedDropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                options.forEach { option ->
-                    DropdownMenuItem(
-                        text = { Text(labelProvider(option)) },
-                        onClick = {
-                            onOptionSelected(option)
-                            expanded = false
-                        }
-                    )
+
+            if (expanded) {
+                ExposedDropdownMenu(
+                    expanded = true,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    data.options.forEach { option ->
+                        DropdownMenuItem(
+                            text = { Text(labelProvider(option)) },
+                            onClick = {
+                                onOptionSelected(option)
+                                expanded = false
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -161,7 +181,7 @@ fun <T> SelectionDropdown(
                 .fillMaxWidth()
                 .horizontalScroll(rememberScrollState())
         ) {
-            recentOptions.forEach { option ->
+            data.quickOptions.forEach { option ->
                 SuggestionChip(
                     onClick = { onOptionSelected(option) },
                     label = {
@@ -205,8 +225,10 @@ private fun SelectionDropdownPreview() {
                 label = "Category",
                 selectedOption = "Entertainments & Travelling",
                 onOptionSelected = {},
-                options = listOf("Food", "Transport", "Shopping", "Entertainment"),
-                recentOptions = listOf("Food", "Transport"),
+                data = SelectionDropdownData(
+                    options = listOf("Food", "Transport", "Shopping", "Entertainment"),
+                    quickOptions = listOf("Food", "Transport"),
+                ),
                 labelProvider = { it }
             )
         }
@@ -222,8 +244,10 @@ private fun SelectionDropdownNoSelectionPreview() {
                 label = "Account",
                 selectedOption = null,
                 onOptionSelected = {},
-                options = listOf("State Bank Of India", "Cash", "Credit Card"),
-                recentOptions = listOf("State Bank Of India", "Cash"),
+                data = SelectionDropdownData(
+                    options = listOf("State Bank Of India", "Cash", "Credit Card"),
+                    quickOptions = listOf("State Bank Of India", "Cash"),
+                ),
                 labelProvider = { it },
                 addNewOptionContent = { Text("+ Add New Account") }
             )
@@ -240,8 +264,10 @@ private fun SelectionDropdownErrorPreview() {
                 label = "Account",
                 selectedOption = null,
                 onOptionSelected = {},
-                options = listOf("Bank", "Cash", "Credit Card"),
-                recentOptions = listOf("Bank", "Cash"),
+                data = SelectionDropdownData(
+                    options = listOf("Bank", "Cash", "Credit Card"),
+                    quickOptions = listOf("Bank", "Cash"),
+                ),
                 labelProvider = { it },
                 error = "Please select an account"
             )

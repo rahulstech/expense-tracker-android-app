@@ -1,5 +1,6 @@
 package dreammaker.android.expensetracker.ui.history.historyinput
 
+import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -10,6 +11,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -23,6 +26,7 @@ import java.time.LocalDate
 import javax.inject.Inject
 
 
+@Immutable
 data class HistoryInputUIState(
     val id: Long = 0,
     val date: LocalDate = LocalDate.now(),
@@ -45,7 +49,13 @@ data class HistoryInputUIState(
     val savingError: Throwable? = null,
     val savingSuccess: Boolean = false,
 
-    val showAddMoreDialog: Boolean = false
+    val showAddMoreDialog: Boolean = false,
+
+
+    val accounts: List<Account> = emptyList(),
+    val recentAccounts: List<Account> = emptyList(),
+    val groups: List<Group> = emptyList(),
+    val recentGroups: List<Group> = emptyList()
 )
 
 
@@ -239,6 +249,29 @@ class HistoryInputViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = null
         )
+
+
+    init {
+
+        viewModelScope.launch {
+            combine(
+                accountRepo.getAllAccounts(),
+                accountRepo.getRecentlyUsedAccounts(3),
+                groupRepo.getAllGroups(),
+                groupRepo.getRecentlyUsedGroups(3)
+            ) { accounts, recentAccounts, groups, recentGroups ->
+                _uiState.update { state ->
+                    state.copy(
+                        accounts = accounts,
+                        recentAccounts = recentAccounts,
+                        groups = groups,
+                        recentGroups = recentGroups
+                    )
+                }
+            }.collectLatest {  }
+        }
+    }
+
 
     val allAccounts: Flow<List<Account>> by lazy {
         accountRepo.getAllAccounts()

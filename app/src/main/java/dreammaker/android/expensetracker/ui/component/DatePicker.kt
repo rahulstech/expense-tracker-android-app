@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -118,10 +119,20 @@ fun DatePicker(
             (0 until selectedDate.lengthOfMonth()).map { firstDayOfMonth.plusDays(it.toLong()) }
         }
 
+        val listState = rememberLazyListState()
+
+        LaunchedEffect(selectedDate) {
+            val index = selectedDate.dayOfMonth - 1
+            if (index >= 0) {
+                listState.animateScrollToItem(index)
+            }
+        }
+
         // Added a fixed height to LazyRow to support intrinsic measurements if the parent
         // requires them (fixes "intrinsic measurements of SubcomposeLayout" error).
         // DateChip height (60dp) + vertical content padding (4dp * 2) = 68dp.
         LazyRow(
+            state = listState,
             modifier = Modifier.height(68.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             contentPadding = PaddingValues(vertical = 4.dp)
@@ -178,27 +189,29 @@ private fun <T> DropdownSelector(
                 modifier = Modifier.rotate(if (expanded) 180f else 0f)
             )
         }
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-            scrollState = scrollState,
-            modifier = Modifier.heightIn(max = 280.dp)
-        ) {
-            items.forEach { item ->
-                val isSelected = item == selectedItem
-                DropdownMenuItem(
-                    text = {
-                        Text(
-                            text = itemLabel(item),
-                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
-                        )
-                    },
-                    onClick = {
-                        onItemSelected(item)
-                        expanded = false
-                    }
-                )
+        if (expanded) {
+            DropdownMenu(
+                expanded = true,
+                onDismissRequest = { expanded = false },
+                scrollState = scrollState,
+                modifier = Modifier.heightIn(max = 280.dp)
+            ) {
+                items.forEach { item ->
+                    val isSelected = item == selectedItem
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = itemLabel(item),
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                            )
+                        },
+                        onClick = {
+                            onItemSelected(item)
+                            expanded = false
+                        }
+                    )
+                }
             }
         }
     }

@@ -7,7 +7,9 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.os.BundleCompat
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
@@ -27,6 +29,9 @@ import dreammaker.android.expensetracker.util.GroupParcelable
 import dreammaker.android.expensetracker.util.getArgId
 import dreammaker.android.expensetracker.util.getDate
 import dreammaker.android.expensetracker.util.isActionEdit
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import rahulstech.android.expensetracker.domain.model.Account
 import rahulstech.android.expensetracker.domain.model.Group
@@ -96,9 +101,12 @@ class TransactionInputFragment : Fragment() {
 
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.collect {
-                    requireActivity().invalidateOptionsMenu()
-                }
+                viewModel.uiState
+                    .map { it.isSaving }
+                    .distinctUntilChanged()
+                    .collectLatest {
+                        requireActivity().invalidateOptionsMenu()
+                    }
             }
         }
     }
@@ -109,14 +117,21 @@ class TransactionInputFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         return ComposeView(requireContext()).apply {
+
+            // TODO: why view composition strategy
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+
             setContent {
+                val onAddNewAccount = remember { { navController.navigate(R.id.navigate_to_create_account) } }
+                val onAddNewGroup = remember { { navController.navigate(R.id.navigate_to_create_group) } }
+                val exit = remember { { navController.popBackStack(); Unit } }
                 ExpenseTrackerTheme {
                     TransactionInputScreen(
                         viewModel = viewModel,
                         isEdit = isActionEdit(),
-                        onAddNewAccount = { navController.navigate(R.id.navigate_to_create_account) },
-                        onAddNewGroup = { navController.navigate(R.id.navigate_to_create_group) },
-                        exit = { navController.popBackStack() }
+                        onAddNewAccount = onAddNewAccount,
+                        onAddNewGroup = onAddNewGroup,
+                        exit = exit
                     )
                 }
             }

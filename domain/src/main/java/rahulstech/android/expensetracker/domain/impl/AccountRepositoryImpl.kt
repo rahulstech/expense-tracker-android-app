@@ -55,9 +55,7 @@ class AccountRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getTotalBalance(): Flow<Double> {
-        return analyticsDao.getTotalAccountBalance().flowOn(Dispatchers.IO)
-    }
+    override fun getTotalBalance(): Flow<Double> = analyticsDao.getTotalAccountBalance()
 
     override suspend fun editAccount(account: Account): Boolean {
         val totalUsed = cache.getAccountTotalUsed(account.id)

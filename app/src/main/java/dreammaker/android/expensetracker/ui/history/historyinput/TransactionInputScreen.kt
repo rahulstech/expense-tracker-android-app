@@ -10,12 +10,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Card
@@ -35,7 +36,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -69,10 +69,6 @@ fun TransactionInputScreen(
 ) {
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
-    val accounts by viewModel.allAccounts.collectAsState(emptyList())
-    val recentAccounts by viewModel.lastUsedAccounts.collectAsState(emptyList())
-    val groups by viewModel.allGroups.collectAsState(emptyList())
-    val recentGroups by viewModel.lastUsedGroups.collectAsState(emptyList())
 
     // Handle saving events
     LaunchedEffect(uiState.savingSuccess) {
@@ -115,26 +111,15 @@ fun TransactionInputScreen(
         FullScreenLoading()
     } else {
         TransactionInputForm(
-            selectedDate = uiState.date,
+            uiState = uiState,
             onDateChange = { viewModel.onDateChange(it) },
-            accounts = accounts,
-            recentAccounts = recentAccounts,
-            selectedAccount = uiState.account,
             onAccountSelected = { viewModel.onAccountSelected(it) },
             onAddNewAccount = onAddNewAccount,
-            groups = groups,
-            recentGroups = recentGroups,
-            selectedGroup = uiState.group,
             onGroupSelected = { viewModel.onGroupSelected(it) },
             onAddNewGroup = onAddNewGroup,
-            amount = uiState.amount,
             onAmountChange = { viewModel.onAmountChange(it) },
-            isCredit = uiState.isCredit,
             onTypeChange = { viewModel.onTypeChange(it) },
-            notes = uiState.note,
             onNotesChange = { viewModel.onNoteChange(it) },
-            amountError = uiState.amountError?.let { stringResource(it) },
-            accountError = uiState.accountError?.let { stringResource(it) }
         )
     }
 }
@@ -142,70 +127,76 @@ fun TransactionInputScreen(
 
 @Composable
 fun TransactionInputForm(
-    selectedDate: LocalDate,
+    uiState: HistoryInputUIState,
     onDateChange: (LocalDate)-> Unit,
-    accounts: List<Account>,
-    groups: List<Group>,
-    recentAccounts: List<Account>,
-    recentGroups: List<Group>,
-    selectedAccount: Account?,
     onAccountSelected: (Account?)-> Unit,
     onAddNewAccount: () -> Unit,
-    selectedGroup: Group?,
     onGroupSelected: (Group?)-> Unit,
     onAddNewGroup: () -> Unit,
-    amount: String,
     onAmountChange: (String) -> Unit,
-    isCredit: Boolean,
     onTypeChange: (Boolean) -> Unit,
-    notes: String,
     onNotesChange: (String) -> Unit,
     modifier: Modifier = Modifier,
-    amountError: String? = null,
-    accountError: String? = null,
 ) {
-    Column(
+    // TODO: explain why LazyColumn over Column
+    LazyColumn(
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surfaceContainer)
-            .verticalScroll(rememberScrollState())
+            .systemBarsPadding()
+            .imePadding()
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        DatePicker(
-            selectedDate = selectedDate,
-            onDateSelected = onDateChange
-        )
 
-        TransactionAmountSection(
-            amount = amount,
-            onAmountChange = onAmountChange,
-            isCredit = isCredit,
-            onTypeChange = onTypeChange,
-            error = amountError
-        )
+        item {
+            DatePicker(
+                selectedDate = uiState.date,
+                onDateSelected = onDateChange
+            )
+        }
 
-        NotesSection(
-            notes = notes,
-            onNotesChange = onNotesChange
-        )
+        item {
+            TransactionAmountSection(
+                amount = uiState.amount,
+                onAmountChange = onAmountChange,
+                isCredit = uiState.isCredit,
+                onTypeChange = onTypeChange,
+                error = uiState.amountError?.let{ stringResource(it) }
+            )
+        }
 
-        AccountSelectionSection(
-            selectedAccount = selectedAccount,
-            onAccountSelected = onAccountSelected,
-            accounts = accounts,
-            recentAccounts = recentAccounts,
-            onAddNewAccount = onAddNewAccount,
-            error = accountError
-        )
+        item {
+            NotesSection(
+                notes = uiState.note,
+                onNotesChange = onNotesChange
+            )
+        }
 
-        GroupSelectionSection(
-            selectedGroup = selectedGroup,
-            onGroupSelected = onGroupSelected,
-            groups = groups,
-            recentGroups = recentGroups,
-            onAddNewGroup = onAddNewGroup
-        )
+        item {
+            AccountSelectionSection(
+                data = SelectionDropdownData(
+                    options = uiState.accounts,
+                    quickOptions = uiState.recentAccounts
+                ),
+                selectedAccount = uiState.account,
+                onAccountSelected = onAccountSelected,
+                onAddNewAccount = onAddNewAccount,
+                error = uiState.accountError?.let { stringResource(it) }
+            )
+        }
+
+        item {
+            GroupSelectionSection(
+                data = SelectionDropdownData(
+                    options = uiState.groups,
+                    quickOptions = uiState.recentGroups
+                ),
+                selectedGroup = uiState.group,
+                onGroupSelected = onGroupSelected,
+                onAddNewGroup = onAddNewGroup
+            )
+        }
     }
 }
 
@@ -249,7 +240,7 @@ private fun TransactionAmountSection(
                     )
                 },
                 textStyle = MaterialTheme.typography.displayMedium.copy(
-                    color = if (isCredit) Color(0xFF4B7831) else Color(0xFFCC2929),
+                    color = if (isCredit) ExpenseTrackerTheme.appColor.credit else ExpenseTrackerTheme.appColor.debit,
                     fontWeight = FontWeight.Normal,
                     textAlign = TextAlign.Center
                 ),
@@ -353,20 +344,17 @@ private fun TransactionTypeChip(
 
 @Composable
 private fun AccountSelectionSection(
+    data: SelectionDropdownData<Account>,
     selectedAccount: Account?,
     onAccountSelected: (Account?) -> Unit,
-    accounts: List<Account>,
-    recentAccounts: List<Account>,
     onAddNewAccount: () -> Unit,
     error: String? = null,
-    label: String = stringResource(R.string.account)
 ) {
     SelectionDropdown(
-        label = label,
+        label = stringResource(R.string.account),
         selectedOption = selectedAccount,
         onOptionSelected = onAccountSelected,
-        options = accounts,
-        recentOptions = recentAccounts,
+        data = data,
         labelProvider = { it.name },
         error = error,
         addNewOptionContent = {
@@ -381,18 +369,16 @@ private fun AccountSelectionSection(
 
 @Composable
 private fun GroupSelectionSection(
+    data: SelectionDropdownData<Group>,
     selectedGroup: Group?,
     onGroupSelected: (Group?) -> Unit,
-    groups: List<Group>,
-    recentGroups: List<Group>,
     onAddNewGroup: () -> Unit
 ) {
     SelectionDropdown(
         label = stringResource(R.string.group_optional),
         selectedOption = selectedGroup,
         onOptionSelected = onGroupSelected,
-        options = groups,
-        recentOptions = recentGroups,
+        data = data,
         labelProvider = { it.name },
         addNewOptionContent = {
             Text(
@@ -443,42 +429,78 @@ fun TransactionInputScreenPreview() {
         Account(name = "Savings", id = 2),
         Account(name = "Credit Card", id = 3)
     )
-    val recentAccounts = listOf(accounts[0], accounts[2])
     val groups = listOf(
         Group(name = "Shopping", id = 1),
         Group(name = "Groceries", id = 2),
         Group(name = "Dining", id = 3)
     )
-    val recentGroups = listOf(groups[1],groups[2])
-    var selectedAccount by remember { mutableStateOf<Account?>(accounts[0]) }
-    var selectedGroup by remember { mutableStateOf<Group?>(groups[0]) }
-    var selectedDate by remember { mutableStateOf(LocalDate.now()) }
-    var amount by remember { mutableStateOf("") }
-    var isCredit by remember { mutableStateOf(false) }
-    var notes by remember { mutableStateOf("") }
-    var isSaving by remember { mutableStateOf(false) }
-    val coroutineScope = rememberCoroutineScope()
+
+    var uiState by remember {
+        mutableStateOf(
+            HistoryInputUIState(
+                date = LocalDate.now(),
+                group = groups[0],
+                account = accounts[0],
+                amount = "125.50",
+                isCredit = false,
+                note = "Grocery shopping at local market",
+                accounts = accounts,
+                recentAccounts = listOf(accounts[0], accounts[2]),
+                groups = groups,
+                recentGroups = listOf(groups[1], groups[2]),
+            )
+        )
+    }
 
     ExpenseTrackerTheme {
         TransactionInputForm(
-            selectedDate = selectedDate,
-            onDateChange = { selectedDate = it },
-            accounts = accounts,
-            recentAccounts = recentAccounts,
-            selectedAccount = selectedAccount,
-            onAccountSelected = { selectedAccount = it },
+            uiState = uiState,
+            onDateChange = { uiState = uiState.copy(date = it) },
+            onAccountSelected = { uiState = uiState.copy(account = it) },
             onAddNewAccount = {},
-            groups = groups,
-            recentGroups = recentGroups,
-            selectedGroup = selectedGroup,
-            onGroupSelected = { selectedGroup = it },
+            onGroupSelected = { uiState = uiState.copy(group = it) },
             onAddNewGroup = {},
-            amount = amount,
-            onAmountChange = { amount = it },
-            isCredit = isCredit,
-            onTypeChange = { isCredit = it },
-            notes = notes,
-            onNotesChange = { notes = it }
+            onAmountChange = { uiState = uiState.copy(amount = it) },
+            onTypeChange = { uiState = uiState.copy(isCredit = it) },
+            onNotesChange = { uiState = uiState.copy(note = it) }
+        )
+    }
+}
+
+@PreviewLightDark
+@Composable
+fun TransactionInputScreenLoadingPreview() {
+    ExpenseTrackerTheme {
+        FullScreenLoading()
+    }
+}
+
+@PreviewLightDark
+@Composable
+fun TransactionInputScreenErrorPreview() {
+    val accounts = listOf(
+        Account(name = "Main Checking (***4920)", id = 1),
+        Account(name = "Savings", id = 2),
+        Account(name = "Credit Card", id = 3)
+    )
+    val uiState = HistoryInputUIState(
+        amount = "abc",
+        amountError = R.string.error_invalid_amount,
+        account = null,
+        accountError = R.string.error_no_selection,
+        accounts = accounts
+    )
+    ExpenseTrackerTheme {
+        TransactionInputForm(
+            uiState = uiState,
+            onDateChange = {},
+            onAccountSelected = {},
+            onAddNewAccount = {},
+            onGroupSelected = {},
+            onAddNewGroup = {},
+            onAmountChange = {},
+            onTypeChange = {},
+            onNotesChange = {}
         )
     }
 }

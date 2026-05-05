@@ -8,11 +8,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.LinearProgressIndicator
@@ -26,7 +27,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,8 +55,8 @@ fun TransferInputScreen(
 ) {
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
-    val accounts by viewModel.allAccounts.collectAsState(emptyList())
-    val recentAccounts by viewModel.lastUsedAccounts.collectAsState(emptyList())
+//    val accounts by viewModel.allAccounts.collectAsState(emptyList())
+//    val recentAccounts by viewModel.lastUsedAccounts.collectAsState(emptyList())
 
     // Handle saving events
     LaunchedEffect(uiState.savingSuccess) {
@@ -80,89 +80,86 @@ fun TransferInputScreen(
         FullScreenLoading()
     } else {
         TransferInputForm(
-            selectedDate = uiState.date,
+            uiState = uiState,
             onDateChange = { viewModel.onDateChange(it) },
-            accounts = accounts,
-            recentAccounts = recentAccounts,
-            sourceAccount = uiState.account,
             onSourceAccountSelected = { viewModel.onAccountSelected(it) },
-            destinationAccount = uiState.destinationAccount,
             onDestinationAccountSelected = { viewModel.onDestinationAccountSelected(it) },
             onAddNewAccount = onAddNewAccount,
-            amount = uiState.amount,
             onAmountChange = { viewModel.onAmountChange(it) },
-            notes = uiState.note,
             onNotesChange = { viewModel.onNoteChange(it) },
-            amountError = uiState.amountError?.let { stringResource(it) },
-            sourceAccountError = uiState.accountError?.let { stringResource(it) },
-            destinationAccountError = uiState.destinationAccountError?.let { stringResource(it) }
         )
     }
 }
 
 @Composable
 fun TransferInputForm(
-    selectedDate: LocalDate,
+    uiState: HistoryInputUIState,
     onDateChange: (LocalDate) -> Unit,
-    accounts: List<Account>,
-    recentAccounts: List<Account>,
-    sourceAccount: Account?,
     onSourceAccountSelected: (Account?) -> Unit,
-    destinationAccount: Account?,
     onDestinationAccountSelected: (Account?) -> Unit,
     onAddNewAccount: () -> Unit,
-    amount: String,
     onAmountChange: (String) -> Unit,
-    notes: String,
     onNotesChange: (String) -> Unit,
     modifier: Modifier = Modifier,
-    amountError: String? = null,
-    sourceAccountError: String? = null,
-    destinationAccountError: String? = null,
 ) {
-    Column(
+    LazyColumn (
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .verticalScroll(rememberScrollState())
+            .systemBarsPadding()
+            .imePadding()
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        DatePicker(
-            selectedDate = selectedDate,
-            onDateSelected = onDateChange
-        )
+        item {
+            DatePicker(
+                selectedDate = uiState.date,
+                onDateSelected = onDateChange
+            )
+        }
 
-        TransferAmountSection(
-            amount = amount,
-            onAmountChange = onAmountChange,
-            error = amountError
-        )
+        item {
+            TransferAmountSection(
+                amount = uiState.amount,
+                onAmountChange = onAmountChange,
+                error = uiState.amountError?.let { stringResource(it) }
+            )
+        }
 
-        NotesSection(
-            notes = notes,
-            onNotesChange = onNotesChange
-        )
+        item {
+            NotesSection(
+                notes = uiState.note,
+                onNotesChange = onNotesChange
+            )
+        }
 
-        AccountSelectionSection(
-            selectedAccount = sourceAccount,
-            onAccountSelected = onSourceAccountSelected,
-            accounts = accounts,
-            recentAccounts = recentAccounts,
-            onAddNewAccount = onAddNewAccount,
-            error = sourceAccountError,
-            label = stringResource(R.string.label_history_input_source_account)
-        )
+        item {
+            AccountSelectionSection(
+                selectedAccount = uiState.account,
+                onAccountSelected = onSourceAccountSelected,
+                data = SelectionDropdownData(
+                    options = uiState.accounts,
+                    quickOptions = uiState.recentAccounts,
+                ),
+                onAddNewAccount = onAddNewAccount,
+                error = uiState.accountError?.let { stringResource(it) },
+                label = stringResource(R.string.label_history_input_source_account)
+            )
+        }
 
-        AccountSelectionSection(
-            selectedAccount = destinationAccount,
-            onAccountSelected = onDestinationAccountSelected,
-            accounts = accounts,
-            recentAccounts = recentAccounts,
-            onAddNewAccount = onAddNewAccount,
-            error = destinationAccountError,
-            label = stringResource(R.string.label_history_input_destination_account)
-        )
+        item {
+            AccountSelectionSection(
+                selectedAccount = uiState.destinationAccount,
+                onAccountSelected = onDestinationAccountSelected,
+                data = SelectionDropdownData(
+                    options = uiState.accounts,
+                    quickOptions = uiState.recentAccounts
+                ),
+                onAddNewAccount = onAddNewAccount,
+                error = uiState.destinationAccountError?.let{ stringResource(it) },
+                label = stringResource(R.string.label_history_input_destination_account)
+            )
+        }
     }
 }
 
@@ -243,20 +240,18 @@ fun TransferAmountSection(
 
 @Composable
 private fun AccountSelectionSection(
+    label: String,
     selectedAccount: Account?,
     onAccountSelected: (Account?) -> Unit,
-    accounts: List<Account>,
-    recentAccounts: List<Account>,
+    data: SelectionDropdownData<Account>,
     onAddNewAccount: () -> Unit,
     error: String? = null,
-    label: String = stringResource(R.string.account)
 ) {
     SelectionDropdown(
         label = label,
         selectedOption = selectedAccount,
         onOptionSelected = onAccountSelected,
-        options = accounts,
-        recentOptions = recentAccounts,
+        data = data,
         labelProvider = { it.name },
         error = error,
         addNewOptionContent = {
@@ -308,30 +303,68 @@ fun TransferInputScreenPreview() {
         Account(name = "Savings", id = 2),
         Account(name = "Credit Card", id = 3)
     )
-    val recentAccounts = listOf(accounts[0], accounts[2])
-    var sourceAccount by remember { mutableStateOf<Account?>(accounts[0]) }
-    var destinationAccount by remember { mutableStateOf<Account?>(accounts[1]) }
-    var selectedDate by remember { mutableStateOf(LocalDate.now()) }
-    var amount by remember { mutableStateOf("") }
-    var notes by remember { mutableStateOf("") }
-    var isSaving by remember { mutableStateOf(false) }
-    val coroutineScope = rememberCoroutineScope()
+
+    var uiState by remember {
+        mutableStateOf(
+            HistoryInputUIState(
+                date = LocalDate.now(),
+                account = accounts[0],
+                destinationAccount = accounts[1],
+                amount = "100.00",
+                note = "Transfer to savings",
+                accounts = accounts,
+                recentAccounts = listOf(accounts[0], accounts[2]),
+            )
+        )
+    }
 
     ExpenseTrackerTheme {
         TransferInputForm(
-            selectedDate = selectedDate,
-            onDateChange = { selectedDate = it },
-            accounts = accounts,
-            recentAccounts = recentAccounts,
-            sourceAccount = sourceAccount,
-            onSourceAccountSelected = { sourceAccount = it },
-            destinationAccount = destinationAccount,
-            onDestinationAccountSelected = { destinationAccount = it },
+            uiState = uiState,
+            onDateChange = { uiState = uiState.copy(date = it) },
+            onSourceAccountSelected = { uiState = uiState.copy(account = it) },
+            onDestinationAccountSelected = { uiState = uiState.copy(destinationAccount = it) },
             onAddNewAccount = {},
-            amount = amount,
-            onAmountChange = { amount = it },
-            notes = notes,
-            onNotesChange = { notes = it }
+            onAmountChange = { uiState = uiState.copy(amount = it) },
+            onNotesChange = { uiState = uiState.copy(note = it) }
+        )
+    }
+}
+
+@PreviewLightDark
+@Composable
+fun TransferInputScreenLoadingPreview() {
+    ExpenseTrackerTheme {
+        FullScreenLoading()
+    }
+}
+
+@PreviewLightDark
+@Composable
+fun TransferInputScreenErrorPreview() {
+    val accounts = listOf(
+        Account(name = "Main Checking (***4920)", id = 1),
+        Account(name = "Savings", id = 2),
+        Account(name = "Credit Card", id = 3)
+    )
+    val uiState = HistoryInputUIState(
+        amount = "abc",
+        amountError = R.string.error_invalid_amount,
+        account = null,
+        accountError = R.string.error_no_selection,
+        destinationAccount = null,
+        destinationAccountError = R.string.error_no_selection,
+        accounts = accounts
+    )
+    ExpenseTrackerTheme {
+        TransferInputForm(
+            uiState = uiState,
+            onDateChange = {},
+            onSourceAccountSelected = {},
+            onDestinationAccountSelected = {},
+            onAddNewAccount = {},
+            onAmountChange = {},
+            onNotesChange = {}
         )
     }
 }
