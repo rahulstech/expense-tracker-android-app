@@ -61,10 +61,3 @@ val NightScrim = Color(0xFF000000)
 val NightInverseSurface = Color(0xFFE0E2EA)
 val NightInverseOnSurface = Color(0xFF2D3136)
 val NightInversePrimary = Color(0xFF0060A8)
-
-// Other Colors
-val ColorCredit = Color(0xFF4B7831)
-val ColorDebit = Color(0xFFCC2929)
-val ColorTransfer = Color(0xFF7842C6)
-val ColorWhite = Color(0xFFFFFFFF)
-val ColorBlack = Color(0xFF000000)

@@ -79,6 +79,7 @@
     <string name="label_december">Dec</string>
     <string name="label_view_all">View All</string>
     <string name="label_select_date">SELECT DATE</string>
+    <string name="label_select_month">SELECT MONTH</string>
     <string name="label_account">Account</string>
     <string name="label_groups">Groups</string>
     <string name="label_total_credit">Total Credit</string>
