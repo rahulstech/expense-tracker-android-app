@@ -74,7 +74,7 @@ fun <T> SelectionDropdown(
         )
         ExposedDropdownMenuBox(
             expanded = expanded,
-            onExpandedChange = { expanded = !expanded }
+            onExpandedChange = { expanded = it }
         ) {
             Row(
                 modifier = Modifier
@@ -137,14 +137,18 @@ fun <T> SelectionDropdown(
                     }
                 }
 
-                Icon(
-                    imageVector = Icons.Default.ArrowDropDown,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier
-                        .padding(start = 6.dp, top = 8.dp, bottom = 8.dp, end = 12.dp)
-                        .rotate(if (expanded) 180f else 0f)
-                )
+                IconButton(
+                    onClick = {},
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowDropDown,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier
+                            .padding(start = 6.dp, top = 8.dp, bottom = 8.dp, end = 12.dp)
+                            .rotate(if (expanded) 180f else 0f)
+                    )
+                }
             }
 
             if (expanded) {

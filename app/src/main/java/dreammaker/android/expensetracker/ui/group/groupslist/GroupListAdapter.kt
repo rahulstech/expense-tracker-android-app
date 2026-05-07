@@ -7,10 +7,8 @@ import androidx.recyclerview.widget.RecyclerView
 import dreammaker.android.expensetracker.databinding.GroupListItemBinding
 import dreammaker.android.expensetracker.util.BaseSelectableItemListAdapter
 import dreammaker.android.expensetracker.util.SelectableViewHolder
-import dreammaker.android.expensetracker.util.getDueLabel
+import dreammaker.android.expensetracker.util.getBalanceLabelResource
 import dreammaker.android.expensetracker.util.getBalanceText
-import dreammaker.android.expensetracker.util.visibilityGone
-import dreammaker.android.expensetracker.util.visible
 import rahulstech.android.expensetracker.domain.model.Group
 
 class GroupsListViewHolder(
@@ -23,23 +21,18 @@ class GroupsListViewHolder(
 
     fun bind(group: Group?, selected: Boolean) {
         stableItemId = group?.id
-        if (null == group) {
-            binding.name.text = null
-            binding.due.text = null
-            binding.root.isActivated = false
-        }
-        else {
-            val label = group.getDueLabel(context)
-            binding.name.text = group.name
-            if (label.isBlank()) {
-                binding.labelBalance.visibilityGone()
+        binding.apply {
+            if (null == group) {
+                name.text = null
+                balance.text = null
+                root.isActivated = false
             }
             else {
-                binding.labelBalance.text = label
-                binding.labelBalance.visible()
+                name.text = group.name
+                labelBalance.text = context.getString(group.getBalanceLabelResource())
+                balance.text = group.getBalanceText(context) // TODO: add country code and locale
+                root.isActivated = selected
             }
-            binding.due.text = group.getBalanceText(context) // TODO: add country code and locale
-            binding.root.isActivated = selected
         }
     }
 }

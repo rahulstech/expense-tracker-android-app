@@ -23,13 +23,15 @@ interface AccountRepository{
 
     fun getRecentlyUsedAccounts(count: Int = 3): Flow<List<Account>>
 
+    fun getThreeFrequentlyUsedAccounts(): Flow<List<Account>>
+
     fun getTotalBalance(): Flow<Double>
 
     suspend fun editAccount(account: Account): Boolean
 
-    suspend fun creditAccountBalance(id: Long, amount: Number)
+    suspend fun creditAccountBalance(id: Long, amount: Double)
 
-    suspend fun debitAccountBalance(id: Long, amount: Number)
+    suspend fun debitAccountBalance(id: Long, amount: Double)
 
     suspend fun removeAccount(id: Long)
 

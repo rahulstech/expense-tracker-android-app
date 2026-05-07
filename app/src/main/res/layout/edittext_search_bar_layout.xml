@@ -13,16 +13,31 @@
     app:liftOnScroll="false"
     android:stateListAnimator="@null">
 
-    <EditText
-        android:id="@+id/search_input"
-        style="@style/Widget.AppTheme.EditTextSearch"
-        android:layout_width="@dimen/edittext_search_width"
-        android:layout_height="@dimen/edittext_search_height"
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="320dp"
+        android:layout_height="56dp"
         android:layout_gravity="center_horizontal"
-        android:autofillHints="@null"
-        android:focusedByDefault="false"
-        app:layout_scrollFlags="scroll|enterAlways"
-        tools:hint="Search"
-        tools:ignore="LabelFor" />
+        app:hintAnimationEnabled="false"
+        app:hintEnabled="false"
+        app:expandedHintEnabled="false"
+        app:endIconMode="clear_text"
+        app:startIconDrawable="@drawable/baseline_search"
+        app:startIconTint="?attr/colorOnSurfaceVariant"
+        app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.ExtraLarge"
+        app:boxStrokeColor="?attr/colorOutlineVariant"
+        app:boxStrokeErrorColor="?attr/colorOutlineVariant"
+        app:boxBackgroundColor="?attr/colorSurfaceContainer"
+        app:placeholderTextColor="?attr/colorOnSurface">
 
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/search_input"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:autofillHints="@null"
+            android:focusedByDefault="false"
+            app:layout_scrollFlags="scroll|enterAlways"
+            tools:hint="Search"
+            tools:ignore="LabelFor" />
+
+    </com.google.android.material.textfield.TextInputLayout>
 </com.google.android.material.appbar.AppBarLayout>

@@ -6,8 +6,8 @@ import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
+import androidx.annotation.StringRes
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.os.BundleCompat
 import androidx.core.text.buildSpannedString
 import androidx.core.text.color
 import dreammaker.android.expensetracker.R
@@ -15,9 +15,7 @@ import rahulstech.android.expensetracker.domain.model.Account
 import rahulstech.android.expensetracker.domain.model.Group
 import rahulstech.android.expensetracker.domain.model.History
 import java.time.LocalDate
-import java.time.YearMonth
 import java.util.Locale
-import kotlin.math.absoluteValue
 
 val UNKNOWN_ACCOUNT = Account("Unknown Account")
 
@@ -100,30 +98,7 @@ fun Bundle.getDate(key: String, defaultDate: LocalDate? = null): LocalDate? {
     return if (null == dateString) defaultDate else LocalDate.parse(dateString)
 }
 
-fun Bundle.putMonthYear(key: String, month: YearMonth?) {
-    putString(key, month?.toString())
-}
-
-fun Bundle.getMonthYear(key: String, defaultMonth: YearMonth? = null): YearMonth? =
-    getString(key, null)?.let {
-        YearMonth.parse(it)
-    } ?: defaultMonth
-
-fun Bundle.putAccountParcelable(key: String, account: AccountParcelable) {
-    putParcelable(key,account)
-}
-
-fun Bundle.getAccountParcelable(key: String): AccountParcelable? =
-    BundleCompat.getParcelable(this,key, AccountParcelable::class.java)
-
-fun Bundle.putGroupParcelable(key: String, group: GroupParcelable) {
-    putParcelable(key,group)
-}
-
-fun Bundle.getGroupParcelable(key: String): GroupParcelable? =
-    BundleCompat.getParcelable(this,key, GroupParcelable::class.java)
-
-fun Account.getBalanceText(context: Context, currencyCode: String = "USD", locale: Locale = Locale.ENGLISH): CharSequence {
+internal fun Account.getBalanceText(context: Context, currencyCode: String = "USD", locale: Locale = Locale.ENGLISH): CharSequence {
     val balance = this.balance
     val balanceText = balance.toCurrencyString(currencyCode,locale)
     return if (balance < 0) {
@@ -145,25 +120,35 @@ fun Account.getBalanceText(context: Context, currencyCode: String = "USD", local
  * Group Model Extension Methods
  */
 
-fun Group.getBalanceText(context: Context, currencyCode: String = "USD", locale: Locale = Locale.ENGLISH): CharSequence {
-    val balance = this.balance
-    val balanceText = balance.absoluteValue.toCurrencyString(currencyCode,locale)
-    return if (balance > 0) {
-        buildSpannedString {
-            color(ResourcesCompat.getColor(context.resources,dreammaker.android.expensetracker.core.R.color.colorDebit, context.theme)) { append(balanceText) }
-        }
-    }
-    else if (balance < 0) {
-        buildSpannedString {
-            color(ResourcesCompat.getColor(context.resources,dreammaker.android.expensetracker.core.R.color.colorCredit, context.theme)) { append(balanceText) }
-        }
-    }
-    else {
-        balanceText
-    }
+// TODO: fix Group.getBalanceLabelResource and Group.getBalanceText after db migration
+@StringRes
+internal fun Group.getBalanceLabelResource(): Int = if (balance < 0.0) {
+    R.string.extra_credit
+}
+else if (balance > 0.0) {
+    R.string.extra_debit
+}
+else {
+    R.string.balanced
 }
 
-fun Group.getDueLabel(context: Context): CharSequence = context.getString(R.string.balance)
+internal fun Group.getBalanceText(context: Context, currencyCode: String = "USD", locale: Locale = Locale.ENGLISH): CharSequence {
+    val balance = this.balance
+    val balanceText = balance.toCurrencyString(currencyCode,locale)
+    if (balance == 0.0) {
+        return balanceText
+    }
+    val colorRes = if (balance < 0.0) {
+        dreammaker.android.expensetracker.core.R.color.colorCredit
+    }
+    else {
+        dreammaker.android.expensetracker.core.R.color.colorDebit
+    }
+    val color = ResourcesCompat.getColor(context.resources, colorRes, context.theme)
+    return  buildSpannedString {
+            color(color) { append(balanceText) }
+        }
+}
 
 fun History.getTypeLabel(context: Context): String =
     when(this) {

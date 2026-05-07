@@ -15,8 +15,8 @@ android {
         minSdk 26
         //noinspection OldTargetApi
         targetSdk 35
-        versionCode 9
-        versionName "6.2.1"
+        versionCode 10
+        versionName "6.3.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
@@ -24,20 +24,32 @@ android {
     }
 
     // flavours
-    flavorDimensions += "env"
-    productFlavors {
-        dev {
-            dimension = "env"
-            applicationIdSuffix = ".dev"
-            versionNameSuffix = "-dev"
-        }
-        prod {
-            dimension = "env"
-        }
-    }
+//    flavorDimensions += "env"
+//    productFlavors {
+//        dev {
+//            dimension = "env"
+//            applicationIdSuffix = ".dev"
+//            versionNameSuffix = "-dev"
+//        }
+//        prod {
+//            dimension = "env"
+//        }
+//    }
 
 
     buildTypes {
+
+        debug {
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
+        }
+
+        qa {
+            debuggable(true)
+            applicationIdSuffix = ".qa"
+            versionNameSuffix = "-qa"
+        }
+
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -65,6 +77,10 @@ android {
         resources {
             excludes += "/META-INF/{LICENSE.md,LICENSE.txt,NOTICE.txt,LICENSE-notice.md}"
         }
+    }
+
+    lint {
+        disable "NullSafeMutableLiveData"
     }
 }
 

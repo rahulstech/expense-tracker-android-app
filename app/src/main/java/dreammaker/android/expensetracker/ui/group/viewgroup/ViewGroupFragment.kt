@@ -22,8 +22,8 @@ import dreammaker.android.expensetracker.core.util.QuickMessages
 import dreammaker.android.expensetracker.databinding.ViewGroupLayoutBinding
 import dreammaker.android.expensetracker.ui.UIState
 import dreammaker.android.expensetracker.util.GroupParcelable
+import dreammaker.android.expensetracker.util.getBalanceLabelResource
 import dreammaker.android.expensetracker.util.getBalanceText
-import dreammaker.android.expensetracker.util.getDueLabel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import rahulstech.android.expensetracker.domain.model.Group
@@ -31,7 +31,9 @@ import rahulstech.android.expensetracker.domain.model.Group
 @AndroidEntryPoint
 class ViewGroupFragment: Fragment(), MenuProvider {
 
-    private val TAG = ViewGroupFragment::class.simpleName
+    companion object {
+        private const val TAG = "ViewGroupFragment"
+    }
 
     private var _binding: ViewGroupLayoutBinding? = null
     private val binding get() = _binding!!
@@ -77,9 +79,11 @@ class ViewGroupFragment: Fragment(), MenuProvider {
             navController.popBackStack()
         }
         else {
-            binding.name.text = group.name
-            binding.due.text = group.getBalanceText(requireContext())
-            binding.balanceLabel.text = group.getDueLabel(requireContext())
+            binding.apply {
+                name.text = group.name
+                balanceLabel.text = getString(group.getBalanceLabelResource())
+                balance.text = group.getBalanceText(requireContext())
+            }
             requireActivity().invalidateOptionsMenu()
         }
     }

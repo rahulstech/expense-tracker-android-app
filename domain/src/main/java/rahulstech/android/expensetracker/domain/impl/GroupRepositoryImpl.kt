@@ -8,15 +8,13 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import rahulstech.android.expensetracker.domain.GroupRepository
-import rahulstech.android.expensetracker.domain.LocalCache
 import rahulstech.android.expensetracker.domain.model.Group
 import rahulstech.android.expensetracker.domain.model.toGroup
 import java.time.LocalDateTime
 import javax.inject.Inject
 
 class GroupRepositoryImpl @Inject constructor(
-    db: IExpenseDatabase,
-    private val cache: LocalCache
+    db: IExpenseDatabase
 ): GroupRepository {
 
     private val groupDao: GroupDao = db.groupDao
@@ -24,10 +22,9 @@ class GroupRepositoryImpl @Inject constructor(
     // --- New Coroutine and Flow based methods ---
 
     override suspend fun createGroup(group: Group): Group {
-        val _group = group.copy(lastUsed = LocalDateTime.now(), totalUsed = 1)
-        val id = groupDao.insert(_group.toGroupEntity())
-        cache.setGroupTotalCount(id, 1)
-        return _group.copy(id = id)
+        val newGroup = group.copy(lastUsed = LocalDateTime.now(), totalUsed = 1)
+        val id = groupDao.insert(newGroup.toGroupEntity())
+        return newGroup.copy(id = id)
     }
 
     override suspend fun getGroup(id: Long): Group? {
@@ -50,37 +47,47 @@ class GroupRepositoryImpl @Inject constructor(
         }.flowOn(Dispatchers.IO)
     }
 
+    override fun getThreeFrequentlyUsedGroups(): Flow<List<Group>> {
+        return groupDao.getFrequentlyUsedGroupsFlow(3).map { entities ->
+            entities.map { it.toGroup() }
+        }.flowOn(Dispatchers.IO)
+    }
+
     override suspend fun editGroup(group: Group): Boolean {
-        val cachedTotalUsed = cache.getGroupTotalCount(group.id)
-        val _group = group.copy(lastUsed = LocalDateTime.now(), totalUsed = cachedTotalUsed + 1)
-        groupDao.update(_group.toGroupEntity())
-        cache.setGroupTotalCount(group.id, _group.totalUsed)
+        val updatedGroup = group.copy(lastUsed = LocalDateTime.now())
+        groupDao.update(updatedGroup.toGroupEntity())
         return true
     }
 
-    override suspend fun creditGroupDue(id: Long, amount: Number) {
-        val group = getGroup(id)
-        group?.let {
-            val updatedGroup = it.copy(balance = it.balance + amount.toDouble())
-            editGroup(updatedGroup)
+    override suspend fun creditGroupDue(id: Long, amount: Double) {
+        val entity = groupDao.findByIdFlow(id).first()
+        entity?.let {
+            val updatedGroup = it.copy(
+                balance = it.balance + amount,
+                lastUsed = LocalDateTime.now(),
+                totalUsed = it.totalUsed?.let { totalUsed -> totalUsed+1 } ?: 1
+            )
+            groupDao.update(updatedGroup)
         }
     }
 
-    override suspend fun debitGroupDue(id: Long, amount: Number) {
-        val group = getGroup(id)
-        group?.let {
-            val updatedGroup = it.copy(balance = it.balance - amount.toDouble())
-            editGroup(updatedGroup)
+    override suspend fun debitGroupDue(id: Long, amount: Double) {
+        val entity = groupDao.findByIdFlow(id).first()
+        entity?.let {
+            val updatedGroup = it.copy(
+                balance = it.balance - amount,
+                lastUsed = LocalDateTime.now(),
+                totalUsed = it.totalUsed?.let { totalUsed -> totalUsed+1 } ?: 1
+            )
+            groupDao.update(updatedGroup)
         }
     }
 
     override suspend fun removeGroup(id: Long) {
         groupDao.delete(id)
-        cache.removeGroupTotalUsed(id)
     }
 
     override suspend fun removeMultipleGroups(ids: List<Long>) {
         groupDao.deleteMultiple(ids)
-        ids.forEach { cache.removeGroupTotalUsed(it) }
     }
 }

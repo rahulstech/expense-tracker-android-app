@@ -21,7 +21,6 @@ data class GroupInputUIState(
     val balance: String = "",
 
     val nameError: Int? = null,
-    val balanceError: Int? = null,
 
     val isLoadingGroup: Boolean = false,
     val loadingError: Throwable? = null,
@@ -47,10 +46,6 @@ class GroupInputViewModel @Inject constructor(
 
     fun onNameChange(name: String) {
         _uiState.update { it.copy(name = name, nameError = null) }
-    }
-
-    fun onBalanceChange(balance: String) {
-        _uiState.update { it.copy(balance = balance, balanceError = null) }
     }
 
     fun findGroupById(id: Long) {
@@ -88,18 +83,11 @@ class GroupInputViewModel @Inject constructor(
     fun saveGroup() {
         val state = _uiState.value
         val nameBlank = state.name.isBlank()
-        val balanceValue = state.balance.toDoubleOrNull()
-        val balanceBlank = state.balance.isBlank()
 
-        if (nameBlank || balanceBlank || balanceValue == null) {
+        if (nameBlank) {
             _uiState.update {
                 it.copy(
-                    nameError = if (nameBlank) R.string.error_empty_group_name else null,
-                    balanceError = when {
-                        balanceBlank -> R.string.error_empty_balance_input
-                        balanceValue == null -> R.string.error_invalid_balance_input
-                        else -> null
-                    }
+                    nameError = if (nameBlank) R.string.error_empty_group_name else null
                 )
             }
             return
@@ -111,7 +99,7 @@ class GroupInputViewModel @Inject constructor(
                 val groupToSave = Group(
                     id = state.id,
                     name = state.name,
-                    balance = state.balance.toDouble()
+                    balance = state.balance.toDoubleOrNull() ?: 0.0
                 )
                 if (groupToSave.id == 0L) {
                     groupRepo.createGroup(groupToSave)

@@ -28,5 +28,5 @@ data class GroupIdName(
 data class GroupListModel(
     val id: Long,
     val name: String,
-    val due: Double
+    val balance: Double
 )

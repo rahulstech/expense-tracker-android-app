@@ -53,9 +53,9 @@ data class HistoryInputUIState(
 
 
     val accounts: List<Account> = emptyList(),
-    val recentAccounts: List<Account> = emptyList(),
+    val frequentlyUsedAccounts: List<Account> = emptyList(),
     val groups: List<Group> = emptyList(),
-    val recentGroups: List<Group> = emptyList()
+    val frequentlyUsedGroups: List<Group> = emptyList()
 )
 
 
@@ -71,6 +71,10 @@ class HistoryInputViewModel @Inject constructor(
 
     var history: History? = null
         private set
+
+    fun setState(state: HistoryInputUIState) {
+        _uiState.update { state }
+    }
 
     fun setDate(date: LocalDate) {
         _uiState.update { it.copy(date = date) }
@@ -252,40 +256,22 @@ class HistoryInputViewModel @Inject constructor(
 
 
     init {
-
         viewModelScope.launch {
             combine(
                 accountRepo.getAllAccounts(),
-                accountRepo.getRecentlyUsedAccounts(3),
+                accountRepo.getThreeFrequentlyUsedAccounts(),
                 groupRepo.getAllGroups(),
-                groupRepo.getRecentlyUsedGroups(3)
-            ) { accounts, recentAccounts, groups, recentGroups ->
+                groupRepo.getThreeFrequentlyUsedGroups()
+            ) { accounts, frequentlyUsedAccounts, groups, frequentlyUsedGroups ->
                 _uiState.update { state ->
                     state.copy(
                         accounts = accounts,
-                        recentAccounts = recentAccounts,
+                        frequentlyUsedAccounts = frequentlyUsedAccounts,
                         groups = groups,
-                        recentGroups = recentGroups
+                        frequentlyUsedGroups = frequentlyUsedGroups
                     )
                 }
-            }.collectLatest {  }
+            }.collectLatest {}
         }
-    }
-
-
-    val allAccounts: Flow<List<Account>> by lazy {
-        accountRepo.getAllAccounts()
-    }
-
-    val lastUsedAccounts: Flow<List<Account>> by lazy {
-        accountRepo.getRecentlyUsedAccounts(3)
-    }
-
-    val allGroups: Flow<List<Group>> by lazy {
-        groupRepo.getAllGroups()
-    }
-
-    val lastUsedGroups: Flow<List<Group>> by lazy {
-        groupRepo.getRecentlyUsedGroups(3)
     }
 }

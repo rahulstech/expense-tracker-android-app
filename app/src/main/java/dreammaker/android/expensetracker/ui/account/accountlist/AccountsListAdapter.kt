@@ -14,7 +14,7 @@ class AccountViewHolder(
     val binding: AccountListItemBinding
 ): SelectableViewHolder<Long>(binding.root) {
 
-    // NOTE: without RecyclerView.Adapter.setHasStableId(true) RecyclerView.ViewHolder.itemId is always invalidd
+    // NOTE: without RecyclerView.Adapter.setHasStableId(true) RecyclerView.ViewHolder.itemId is always invalid
     private var stableItemId: Long? = null
 
     override fun getSelectionKey(): Long? = stableItemId
@@ -28,7 +28,7 @@ class AccountViewHolder(
         }
         else {
             binding.name.text = data.name
-            binding.balance.text = data.getBalanceText(context)
+            binding.balance.text = data.getBalanceText(context) // TODO: add country code and locale
             binding.root.isActivated = selected
         }
     }

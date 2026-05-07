@@ -17,11 +17,13 @@ interface GroupRepository {
 
     fun getRecentlyUsedGroups(count: Int = 3): Flow<List<Group>>
 
+    fun getThreeFrequentlyUsedGroups(): Flow<List<Group>>
+
     suspend fun editGroup(group: Group): Boolean
 
-    suspend fun creditGroupDue(id: Long, amount: Number)
+    suspend fun creditGroupDue(id: Long, amount: Double)
 
-    suspend fun debitGroupDue(id: Long, amount: Number)
+    suspend fun debitGroupDue(id: Long, amount: Double)
 
     suspend fun removeGroup(id: Long)
 

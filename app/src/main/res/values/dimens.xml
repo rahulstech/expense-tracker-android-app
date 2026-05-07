@@ -9,4 +9,5 @@
     <dimen name="margin_horizontal_small">6dp</dimen>
     <dimen name="padding_horizontal_small">8dp</dimen>
     <dimen name="padding_vertical_extra_small">4dp</dimen>
+    <dimen name="selection_stoke_width">2dp</dimen>
 </resources>

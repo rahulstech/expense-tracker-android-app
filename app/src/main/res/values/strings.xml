@@ -2,21 +2,19 @@
 <resources>
 
     <string name="app_name">Expense Tracker</string>
-
     <string name="label_accounts">Accounts</string>
-
     <string name="label_total_balance">Total Balance</string>
-
     <string name="account_name">Account Name</string>
     <string name="amount">Amount</string>
     <string name="account">Account</string>
-
     <string name="group_optional">Group (Optional)</string>
     <string name="note_optional">Note (Optional)</string>
-
     <string name="save">Save</string>
 	<string name="cancel">Cancel</string>
     <string name="balance">Balance</string>
+    <string name="extra_debit">Extra Debit</string>
+    <string name="extra_credit">Extra Credit</string>
+    <string name="balanced">Balanced</string>
     <string name="credit">Credit</string>
     <string name="debit">Debit</string>
     <string name="label_today">Today</string>
@@ -45,8 +43,10 @@
 
     <!-- labels -->
 
-    <string name="label_history_list_item_source_account">From</string>
-    <string name="label_history_list_item_destination_account">In</string>
+    <string name="from">From</string>
+    <string name="to">To</string>
+<!--    <string name="label_history_list_item_source_account">From</string>-->
+<!--    <string name="label_history_list_item_destination_account">In</string>-->
     <string name="label_empty_history_list">No History</string>
     <string name="label_view">View</string>
     <string name="label_history_type_credit">Credit</string>

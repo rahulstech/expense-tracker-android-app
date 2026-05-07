@@ -28,7 +28,7 @@ class ExpenseRepository private constructor(private val appContext: Context): IE
 
     override val accountRepository: AccountRepository by lazy { AccountRepositoryImpl(db,cache) }
 
-    override val groupRepository: GroupRepository by lazy { GroupRepositoryImpl(db,cache) }
+    override val groupRepository: GroupRepository by lazy { GroupRepositoryImpl(db) }
 
     override val historyRepository: HistoryRepository by lazy { HistoryRepositoryImpl(db,accountRepository,groupRepository) }
 

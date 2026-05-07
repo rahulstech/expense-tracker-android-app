@@ -29,14 +29,18 @@ interface AccountDao {
     @Query("SELECT `id`,`name`,`balance` FROM `accounts` ORDER BY `name` ASC")
     fun getAccountsFlow(): Flow<List<AccountListModel>>
 
+    @Deprecated("user findByIdFlow")
     @Query("SELECT * FROM `accounts` WHERE `id` = :id")
     fun findAccountByIdFlow(id: Long): Flow<AccountEntity?>
 
     @Query("SELECT * FROM `accounts` WHERE `id` = :id")
     fun findByIdFlow(id: Long): Flow<AccountEntity?>
 
-    @Query("SELECT * FROM `accounts` WHERE `lastUsed` IS NOT NULL ORDER BY `lastUsed` DESC LIMIT :count")
-    fun getLastUsedAccountsFlow(count: Int = 3): Flow<List<AccountEntity>>
+    @Query("SELECT `id`,`name`,`balance` FROM `accounts` WHERE `lastUsed` IS NOT NULL ORDER BY `lastUsed` DESC LIMIT :count")
+    fun getLastUsedAccountsFlow(count: Int = 3): Flow<List<AccountListModel>>
+
+    @Query("SELECT `id`, `name`, `balance` FROM `accounts` ORDER BY `totalUsed` DESC LIMIT :count")
+    fun getFrequentlyUserAccountsFlow(count: Int = 3): Flow<List<AccountListModel>>
 
     @Update
     suspend fun update(entity: AccountEntity)

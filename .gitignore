@@ -16,3 +16,4 @@ app-signing/
 app/dev/
 app/prod
 .artifacts
+*.log

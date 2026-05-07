@@ -32,7 +32,6 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,6 +48,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.core.ui.ExpenseTrackerTheme
 import dreammaker.android.expensetracker.core.util.QuickMessages
@@ -57,7 +57,6 @@ import dreammaker.android.expensetracker.ui.component.YesNoDialog
 import rahulstech.android.expensetracker.domain.model.Account
 import rahulstech.android.expensetracker.domain.model.Group
 import java.time.LocalDate
-
 
 @Composable
 fun TransactionInputScreen(
@@ -68,7 +67,7 @@ fun TransactionInputScreen(
     exit: ()-> Unit,
 ) {
     val context = LocalContext.current
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     // Handle saving events
     LaunchedEffect(uiState.savingSuccess) {
@@ -143,9 +142,9 @@ fun TransactionInputForm(
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surfaceContainer)
+            .padding(16.dp)
             .systemBarsPadding()
-            .imePadding()
-            .padding(16.dp),
+            .imePadding(),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
 
@@ -177,7 +176,7 @@ fun TransactionInputForm(
             AccountSelectionSection(
                 data = SelectionDropdownData(
                     options = uiState.accounts,
-                    quickOptions = uiState.recentAccounts
+                    quickOptions = uiState.frequentlyUsedAccounts
                 ),
                 selectedAccount = uiState.account,
                 onAccountSelected = onAccountSelected,
@@ -190,7 +189,7 @@ fun TransactionInputForm(
             GroupSelectionSection(
                 data = SelectionDropdownData(
                     options = uiState.groups,
-                    quickOptions = uiState.recentGroups
+                    quickOptions = uiState.frequentlyUsedGroups
                 ),
                 selectedGroup = uiState.group,
                 onGroupSelected = onGroupSelected,
@@ -445,9 +444,9 @@ fun TransactionInputScreenPreview() {
                 isCredit = false,
                 note = "Grocery shopping at local market",
                 accounts = accounts,
-                recentAccounts = listOf(accounts[0], accounts[2]),
+                frequentlyUsedAccounts = listOf(accounts[0], accounts[2]),
                 groups = groups,
-                recentGroups = listOf(groups[1], groups[2]),
+                frequentlyUsedGroups = listOf(groups[1], groups[2]),
             )
         )
     }

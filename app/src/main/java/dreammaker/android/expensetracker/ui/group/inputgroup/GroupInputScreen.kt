@@ -6,9 +6,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
@@ -30,7 +31,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
@@ -94,12 +94,7 @@ fun GroupInputScreen(
             onNameChange = {
                 viewModel.onNameChange(it)
             },
-            balance = uiState.balance,
-            onBalanceChange = {
-                viewModel.onBalanceChange(it)
-            },
-            nameError = uiState.nameError?.let { stringResource(it) },
-            balanceError = uiState.balanceError?.let { stringResource(it) }
+            nameError = uiState.nameError?.let { stringResource(it) }
         )
     }
 
@@ -156,22 +151,20 @@ fun FullScreenLoading() {
 fun GroupInputForm(
     name: String,
     onNameChange: (String) -> Unit,
-    balance: String,
-    onBalanceChange: (String) -> Unit,
     nameError: String?,
-    balanceError: String?,
     onSave: () -> Unit,
     onCancel: () -> Unit,
     isSaving: Boolean = false
 ) {
     val nameLabel = stringResource(R.string.hint_group_name)
-    val balanceLabel = stringResource(R.string.hint_group_balance)
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
             .verticalScroll(rememberScrollState())
+            .systemBarsPadding()
+            .imePadding()
     ) {
         OutlinedTextField(
             value = name,
@@ -187,19 +180,6 @@ fun GroupInputForm(
                     }
                 }
             },
-            singleLine = true
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        OutlinedTextField(
-            value = balance,
-            onValueChange = onBalanceChange,
-            label = { Text(balanceLabel) },
-            modifier = Modifier.fillMaxWidth(),
-            isError = balanceError != null,
-            supportingText = balanceError?.let { { Text(it) } },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
             singleLine = true
         )
 
@@ -233,10 +213,7 @@ fun GroupInputFormPreview() {
         GroupInputForm(
             name = "Food",
             onNameChange = {},
-            balance = "100.0",
-            onBalanceChange = {},
             nameError = null,
-            balanceError = null,
             onSave = {
                 coroutineScope.launch {
                     isSaving = true

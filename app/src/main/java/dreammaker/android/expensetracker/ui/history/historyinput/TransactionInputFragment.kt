@@ -59,10 +59,19 @@ class TransactionInputFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (savedInstanceState == null) {
-            viewModel.setIsTransfer(false)
-            viewModel.setDate(getArgDate())
-            viewModel.setAccountSelection(getArgAccount())
-            viewModel.setGroup(getArgGroup())
+//            viewModel.setIsTransfer(false)
+//            viewModel.setDate(getArgDate())
+//            viewModel.setAccountSelection(getArgAccount())
+//            viewModel.setGroup(getArgGroup())
+
+            viewModel.setState(
+                HistoryInputUIState(
+                    isTransfer = false,
+                    date = getArgDate(),
+                    account = getArgAccount(),
+                    group = getArgGroup()
+                )
+            )
             
             if (isActionEdit()) {
                 viewModel.findHistory(getArgId())
@@ -73,7 +82,7 @@ class TransactionInputFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val menuHost: MenuHost = requireActivity()
-        menuHost.addMenuProvider(object : MenuProvider {
+        val menuProvider = object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                 menuInflater.inflate(R.menu.history_input_menu, menu)
             }
@@ -97,7 +106,8 @@ class TransactionInputFragment : Fragment() {
                     else -> false
                 }
             }
-        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
+        }
+        menuHost.addMenuProvider(menuProvider, viewLifecycleOwner, Lifecycle.State.STARTED)
 
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {

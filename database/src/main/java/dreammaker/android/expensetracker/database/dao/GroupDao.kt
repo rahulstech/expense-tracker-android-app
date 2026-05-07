@@ -24,7 +24,7 @@ interface GroupDao {
     @Transaction
     suspend fun insertMultiple(groups: List<GroupEntity>)
 
-    @Query("SELECT id, name, balance AS due FROM `groups` ORDER BY `name` ASC")
+    @Query("SELECT `id`, `name`, `balance` FROM `groups` ORDER BY `name` ASC")
     fun getAllGroupsFlow(): Flow<List<GroupListModel>>
 
     @Query("SELECT * FROM `groups`")
@@ -37,8 +37,11 @@ interface GroupDao {
     @Query("SELECT * FROM `groups` WHERE `id` = :id")
     fun findByIdFlow(id: Long): Flow<GroupEntity?>
 
-    @Query("SELECT id, name, due FROM (SELECT id, name, balance AS due FROM `groups` WHERE `lastUsed` IS NOT NULL ORDER BY `lastUsed` DESC LIMIT :count) ORDER BY `name` ASC")
+    @Query("SELECT `id`, `name`, `balance` FROM `groups` WHERE `lastUsed` IS NOT NULL ORDER BY `lastUsed` DESC LIMIT :count")
     fun getRecentlyUsedGroupsFlow(count: Int = 3): Flow<List<GroupListModel>>
+
+    @Query("SELECT `id`, `name`, `balance` FROM `groups` ORDER BY `totalUsed` DESC LIMIT :count")
+    fun getFrequentlyUsedGroupsFlow(count: Int = 3): Flow<List<GroupListModel>>
 
     @Deprecated("Use update instead", ReplaceWith("update(group)"))
     @Update

@@ -31,14 +31,13 @@ class AccountRepositoryImpl @Inject constructor(
     // --- New Coroutine and Flow based methods ---
 
     override suspend fun createAccount(account: Account): Account {
-        val _account = account.copy(lastUsed = LocalDateTime.now(), totalUsed = 1)
-        val id = accountDao.insert(_account.toAccountEntity())
-        cache.setAccountTotalUsed(id, 1)
-        return _account.copy(id = id)
+        val newAccount = account.copy(lastUsed = LocalDateTime.now(), totalUsed = 1)
+        val id = accountDao.insert(newAccount.toAccountEntity())
+        return newAccount.copy(id = id)
     }
 
     override fun getAccountById(id: Long): Flow<Account?> {
-        return combine(accountDao.findAccountByIdFlow(id), cache.getDefaultAccountIdFlow()) { entity, defaultId ->
+        return combine(accountDao.findByIdFlow(id), cache.getDefaultAccountIdFlow()) { entity, defaultId ->
             entity?.toAccount(isDefault = entity.id == defaultId)
         }.flowOn(Dispatchers.IO)
     }
@@ -55,29 +54,41 @@ class AccountRepositoryImpl @Inject constructor(
         }
     }
 
+    override fun getThreeFrequentlyUsedAccounts(): Flow<List<Account>> {
+        return accountDao.getFrequentlyUserAccountsFlow(3).map { entities ->
+            entities.map { it.toAccount() }
+        }.flowOn(Dispatchers.IO)
+    }
+
     override fun getTotalBalance(): Flow<Double> = analyticsDao.getTotalAccountBalance()
 
     override suspend fun editAccount(account: Account): Boolean {
-        val totalUsed = cache.getAccountTotalUsed(account.id)
-        val _account = account.copy(lastUsed = LocalDateTime.now(), totalUsed = totalUsed + 1)
-        accountDao.update(_account.toAccountEntity())
-        cache.setAccountTotalUsed(account.id, _account.totalUsed)
+        val updatedAccount = account.copy(lastUsed = LocalDateTime.now())
+        accountDao.update(updatedAccount.toAccountEntity())
         return true
     }
 
-    override suspend fun creditAccountBalance(id: Long, amount: Number) {
-        val account = getAccountById(id).first()
-        account?.let {
-            val updatedAccount = it.copy(balance = it.balance + amount.toDouble())
-            editAccount(updatedAccount)
+    override suspend fun creditAccountBalance(id: Long, amount: Double) {
+        val entity = accountDao.findByIdFlow(id).first()
+        entity?.let {
+            val updatedAccount = it.copy(
+                balance = it.balance + amount,
+                lastUsed = LocalDateTime.now(),
+                totalUsed = it.totalUsed?.let { totalUsed -> totalUsed+1 } ?: 1
+            )
+            accountDao.update(updatedAccount)
         }
     }
 
-    override suspend fun debitAccountBalance(id: Long, amount: Number) {
-        val account = getAccountById(id).first()
-        account?.let {
-            val updatedAccount = it.copy(balance = it.balance - amount.toDouble())
-            editAccount(updatedAccount)
+    override suspend fun debitAccountBalance(id: Long, amount: Double) {
+        val entity = accountDao.findByIdFlow(id).first()
+        entity?.let {
+            val updatedAccount = it.copy(
+                balance = it.balance - amount,
+                lastUsed = LocalDateTime.now(),
+                totalUsed = it.totalUsed?.let { totalUsed -> totalUsed+1 } ?: 1
+            )
+            accountDao.update(updatedAccount)
         }
     }
 

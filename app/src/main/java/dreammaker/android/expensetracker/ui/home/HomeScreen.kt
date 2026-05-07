@@ -23,7 +23,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -47,10 +46,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.core.ui.ExpenseTrackerTheme
-import dreammaker.android.expensetracker.core.ui.secondaryButtonColors
 import dreammaker.android.expensetracker.util.toCurrencyString
 import rahulstech.android.expensetracker.domain.model.Account
 import rahulstech.android.expensetracker.domain.model.Group
@@ -146,11 +145,10 @@ fun SectionHeader(
                 .padding(horizontal = 12.dp),
             color = MaterialTheme.colorScheme.outlineVariant
         )
-        Button(
+        TextButton(
             onClick = onViewAll,
             contentPadding = PaddingValues(horizontal = 8.dp),
             modifier = Modifier.height(28.dp),
-            colors = secondaryButtonColors()
         ) {
             Text(
                 text = stringResource(R.string.label_view_all),
@@ -307,7 +305,7 @@ fun RecentItemView(
         .height(120.dp)
         .clickable(onClick = onClick)
         .background(
-            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.20f),
+            color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.40f),
             shape = MaterialTheme.shapes.large
         )
         .padding(horizontal = 4.dp, vertical = 8.dp)
@@ -315,46 +313,51 @@ fun RecentItemView(
     Column(
         modifier = if (testTag != null) modifier.testTag(testTag) else modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
     ) {
 
         Box(
             modifier = Modifier
                 .clip(shape = RoundedCornerShape(percent = 50))
-                .background(color = MaterialTheme.colorScheme.primary)
+                .background(color = MaterialTheme.colorScheme.secondary)
                 .padding(8.dp)
         ) {
             Image(
                 painter = icon,
                 contentDescription = null,
                 modifier = Modifier.size(20.dp),
-                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimaryContainer)
+                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSecondary)
             )
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = title,
-            style = MaterialTheme.typography.labelSmall,
-            fontWeight = FontWeight.Bold,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.weight(1f).testTag("${testTag ?: "tag_recentItemView"}_title"),
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Spacer(modifier = Modifier.height(6.dp))
-        Text(
-            text = subtitle,
-            style = MaterialTheme.typography.labelSmall,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.testTag("${testTag ?: "tag_recentItemView"}_subtitle")
-        )
+        Column(
+            modifier = Modifier.weight(1f),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Bold,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.testTag("${testTag ?: "tag_recentItemView"}_title"),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.labelSmall,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.testTag("${testTag ?: "tag_recentItemView"}_subtitle")
+            )
+        }
     }
 }
 
-@Preview(showBackground = true)
+@PreviewLightDark
 @Composable
 fun HomeScreenPreview() {
     ExpenseTrackerTheme {

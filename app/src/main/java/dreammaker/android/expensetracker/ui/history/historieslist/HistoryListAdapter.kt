@@ -3,9 +3,6 @@ package dreammaker.android.expensetracker.ui.history.historieslist
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.StringRes
-import androidx.core.text.bold
-import androidx.core.text.buildSpannedString
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import dreammaker.android.expensetracker.FULL_DATE_FORMAT
@@ -68,14 +65,16 @@ sealed class HistoryViewHolder(itemView: View): SelectableViewHolder<Long>(itemV
                 val destAccount = history.secondaryAccount
                 val historyGroup = history.group
 
-                source.text = boldFieldText(R.string.label_history_list_item_source_account,srcAccount.name)
+                source.text = srcAccount.name
                 source.visible()
 
                 if (null != destAccount) {
-                    destination.text = boldFieldText(R.string.label_history_list_item_destination_account,destAccount.name)
+                    destination.text = destAccount.name
+                    labelDestination.visible()
                     destination.visible()
                 }
                 else {
+                    labelDestination.visibilityGone()
                     destination.visibilityGone()
                     destination.text = null
                 }
@@ -104,18 +103,6 @@ sealed class HistoryViewHolder(itemView: View): SelectableViewHolder<Long>(itemV
         : HistoryViewHolder(
         inflater.inflate(R.layout.history_placeholder_layout,parent,false)
         )
-
-    fun boldFieldText(@StringRes labelResId: Int, text: String?): CharSequence = boldFieldText(getString(labelResId),text)
-
-    fun boldFieldText(label: String?, text: String?): CharSequence {
-        return buildSpannedString {
-            append(label ?: "")
-            append(" ")
-            if (!text.isNullOrBlank()) {
-                bold { append(text) }
-            }
-        }
-    }
 }
 
 internal val DIFF_CALLBACK = object: DiffUtil.ItemCallback<HistoryListItem>() {

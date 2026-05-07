@@ -55,8 +55,6 @@ fun TransferInputScreen(
 ) {
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
-//    val accounts by viewModel.allAccounts.collectAsState(emptyList())
-//    val recentAccounts by viewModel.lastUsedAccounts.collectAsState(emptyList())
 
     // Handle saving events
     LaunchedEffect(uiState.savingSuccess) {
@@ -106,9 +104,9 @@ fun TransferInputForm(
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
+            .padding(16.dp)
             .systemBarsPadding()
-            .imePadding()
-            .padding(16.dp),
+            .imePadding(),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         item {
@@ -139,7 +137,7 @@ fun TransferInputForm(
                 onAccountSelected = onSourceAccountSelected,
                 data = SelectionDropdownData(
                     options = uiState.accounts,
-                    quickOptions = uiState.recentAccounts,
+                    quickOptions = uiState.frequentlyUsedAccounts,
                 ),
                 onAddNewAccount = onAddNewAccount,
                 error = uiState.accountError?.let { stringResource(it) },
@@ -153,7 +151,7 @@ fun TransferInputForm(
                 onAccountSelected = onDestinationAccountSelected,
                 data = SelectionDropdownData(
                     options = uiState.accounts,
-                    quickOptions = uiState.recentAccounts
+                    quickOptions = uiState.frequentlyUsedAccounts
                 ),
                 onAddNewAccount = onAddNewAccount,
                 error = uiState.destinationAccountError?.let{ stringResource(it) },
@@ -313,7 +311,7 @@ fun TransferInputScreenPreview() {
                 amount = "100.00",
                 note = "Transfer to savings",
                 accounts = accounts,
-                recentAccounts = listOf(accounts[0], accounts[2]),
+                frequentlyUsedAccounts = listOf(accounts[0], accounts[2]),
             )
         )
     }

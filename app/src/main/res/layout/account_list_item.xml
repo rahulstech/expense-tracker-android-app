@@ -3,17 +3,16 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
+	android:paddingStart="12dp"
+	android:paddingEnd="12dp"
+	android:paddingTop="16dp"
 	android:background="@drawable/selectable_item_drawable">
 
 	<TextView
 		android:id="@+id/name"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:layout_marginTop="8dp"
-		android:paddingLeft="16dp"
-		android:paddingRight="16dp"
 		android:singleLine="true"
-		android:textAppearance="@style/TextAppearance.AppTheme.BodyLarge"
 		android:textStyle="bold"
 		app:layout_constraintTop_toTopOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
@@ -21,28 +20,37 @@
 		tools:text="A VERY LARGE NAME OF AN ACCOUNT TO CHECK IF IT FITS THE AREA OR NOT CORRECTLY" />
 
 	<TextView
-		android:id="@+id/balance"
-		android:layout_width="match_parent"
+		android:id="@+id/label_balance"
+		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_marginTop="8dp"
-		android:paddingLeft="16dp"
-		android:paddingRight="16dp"
+		android:layout_marginTop="12dp"
 		android:singleLine="true"
-		android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+		android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@id/name"
+		android:text="@string/balance"/>
+
+	<TextView
+		android:id="@+id/balance"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="12dp"
+		android:singleLine="true"
+		app:layout_constraintStart_toEndOf="@id/label_balance"
+		app:layout_constraintTop_toTopOf="@id/label_balance"
+		app:layout_constraintBottom_toBottomOf="@id/label_balance"
 		app:layout_constraintEnd_toEndOf="parent"
 		tools:text="$200.00" />
 
-<!--	<com.google.android.material.divider.MaterialDivider-->
-<!--		android:id="@+id/divider"-->
-<!--		android:layout_width="0dp"-->
-<!--		android:layout_height="wrap_content"-->
-<!--		android:layout_marginTop="12dp"-->
-<!--		app:lastItemDecorated="false"-->
-<!--		app:layout_constraintStart_toStartOf="parent"-->
-<!--		app:layout_constraintEnd_toEndOf="parent"-->
-<!--		app:layout_constraintTop_toBottomOf="@id/balance" />-->
+	<com.google.android.material.divider.MaterialDivider
+		android:id="@+id/divider"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="16dp"
+		app:lastItemDecorated="false"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintTop_toBottomOf="@id/balance" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 
