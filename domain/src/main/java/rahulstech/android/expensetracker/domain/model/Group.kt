@@ -21,6 +21,10 @@ data class Group(
     val lastUsed: LocalDateTime? = null,
     val totalUsed: Long = 0,
 ) {
+
+    companion object {
+        val UNKNOWN = Group(name = "Unknown", balance = 0.0, id = -1L)
+    }
     internal fun toGroupEntity(): GroupEntity = GroupEntity(id,name,balance,lastUsed,totalUsed)
 
     fun isUsedAfterCreate(): Boolean = totalUsed > 1

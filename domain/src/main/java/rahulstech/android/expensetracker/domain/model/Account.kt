@@ -13,6 +13,13 @@ data class Account(
     val totalUsed: Long = 0,
     val isDefault: Boolean = false,
 ) {
+
+
+    companion object {
+
+        val UNKNOWN = Account("Unknown", 0.0, -1L)
+    }
+
     internal fun toAccountEntity(): AccountEntity = AccountEntity(id,name, balance,lastUsed,totalUsed)
 
     fun isUsedAfterCreate(): Boolean = totalUsed > 1
