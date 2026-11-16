@@ -1,4 +1,10 @@
 package dreammaker.android.expensetracker.ui.navigation
 
-interface NavigationEvent {
+sealed interface NavigationEvent {
+
+    data object Up: NavigationEvent
+
+    data class To(val destination: AppDestination): NavigationEvent
+
+    data object Exit: NavigationEvent
 }

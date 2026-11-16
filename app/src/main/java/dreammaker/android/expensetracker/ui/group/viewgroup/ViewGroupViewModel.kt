@@ -1,61 +1,157 @@
 package dreammaker.android.expensetracker.ui.group.viewgroup
 
-import androidx.lifecycle.LiveData
+import android.util.Log
+import androidx.compose.runtime.Immutable
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dreammaker.android.expensetracker.ui.UIState
+import dreammaker.android.expensetracker.ui.navigation.AppDestination
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import rahulstech.android.expensetracker.domain.GroupRepository
 import rahulstech.android.expensetracker.domain.model.Group
 import javax.inject.Inject
 
+
+sealed interface ViewGroupDialog {
+
+    data object None: ViewGroupDialog
+
+    data object ConfirmDelete: ViewGroupDialog
+
+    data class DeleteError(val cause: Throwable): ViewGroupDialog
+
+    data object PendingDelete: ViewGroupDialog
+}
+@Immutable
+data class ViewGroupUiState(
+    val isLoading: Boolean = false,
+    val group: Group = Group.UNKNOWN,
+    val isPendingGroupDelete: Boolean = false,
+    val showDialog: ViewGroupDialog = ViewGroupDialog.None
+)
+
+sealed interface ViewGroupUiEvent {
+
+    data object SetDefaultGroup: ViewGroupUiEvent
+
+    data object DeleteGroup: ViewGroupUiEvent
+
+    data object ConfirmDeleteGroup: ViewGroupUiEvent
+
+    data object DismissDialog: ViewGroupUiEvent
+}
+
+sealed interface ViewGroupUiEffect {
+
+    data object ShowGroupNotFoundAndExit: ViewGroupUiEffect
+
+    data class ShowGroupLoadErrorAndExit(val cause: Throwable): ViewGroupUiEffect
+
+    data class ShowDeleteGroupSuccessfulAndExit(val group: Group): ViewGroupUiEffect
+}
+
 @HiltViewModel
 class ViewGroupViewModel @Inject constructor(
+    private val savedState: SavedStateHandle,
     private val groupRepo: GroupRepository
 ): ViewModel() {
 
-    private lateinit var groupLiveData: LiveData<Group?>
-
-    fun getStoredGroup(): Group? {
-        if (!::groupLiveData.isInitialized) {
-            return null
-        }
-        return groupLiveData.value
+    companion object {
+        val TAG = ViewGroupViewModel::class.simpleName
     }
 
-    fun findGroupById(id: Long): LiveData<Group?> {
-        if (!::groupLiveData.isInitialized) {
-            groupLiveData = groupRepo.getGroupById(id).asLiveData(viewModelScope.coroutineContext + Dispatchers.IO)
-        }
-        return groupLiveData
+    private val _uiState = MutableStateFlow(ViewGroupUiState())
+
+    val uiState: StateFlow<ViewGroupUiState> = _uiState.asStateFlow()
+
+    private val _uiEffect = Channel<ViewGroupUiEffect>()
+
+    val uiEffect: Flow<ViewGroupUiEffect> = _uiEffect.receiveAsFlow()
+
+
+    init {
+        val route = savedState.toRoute<AppDestination.ViewGroup>()
+        loadGroupById(route.groupId)
     }
 
-    private val _deleteGroupState = MutableSharedFlow<UIState<Nothing>>(
-        replay = 0,
-        extraBufferCapacity = 1,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
-    val deleteGroupState: Flow<UIState<Nothing>> get() = _deleteGroupState.asSharedFlow()
+    private fun loadGroupById(id: Long) {
+        viewModelScope.launch {
+            groupRepo.getGroupById(id)
+                .catch { cause ->
+                    _uiEffect.send(ViewGroupUiEffect.ShowGroupLoadErrorAndExit(cause))
+                }
+                .onEach {
+                    _uiState.update {
+                        it.copy(isLoading = true)
+                    }
+                    delay(1000)
+                }
+                .collectLatest { group ->
+                    group?.let { foundGroup ->
+                        _uiState.update {
+                            it.copy(isLoading = false, group = foundGroup)
+                        }
+                    } ?: _uiEffect.send(ViewGroupUiEffect.ShowGroupNotFoundAndExit)
+                }
+        }
+    }
 
-    fun removeGroup(group: Group) {
+    fun handleUiEvent(event: ViewGroupUiEvent) {
+        when(event) {
+            is ViewGroupUiEvent.SetDefaultGroup -> {}
 
-        viewModelScope.launch(Dispatchers.IO) {
-            flow {
-                _deleteGroupState.tryEmit(UIState.UILoading())
-                groupRepo.removeGroup(group.id)
-                emit(null)
+            is ViewGroupUiEvent.DeleteGroup -> {
+                _uiState.update {
+                    it.copy(showDialog = ViewGroupDialog.ConfirmDelete)
+                }
             }
-                .catch { error -> _deleteGroupState.tryEmit(UIState.UIError(error,group)) }
-                .collect { _deleteGroupState.tryEmit(UIState.UISuccess()) }
+
+            is ViewGroupUiEvent.ConfirmDeleteGroup -> {
+                deleteGroup(uiState.value.group)
+            }
+
+            is ViewGroupUiEvent.DismissDialog -> {
+                _uiState.update {
+                    it.copy(showDialog = ViewGroupDialog.None)
+                }
+            }
+        }
+    }
+
+
+    private fun deleteGroup(group: Group) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _uiState.update {
+                it.copy(isPendingGroupDelete = true, showDialog = ViewGroupDialog.PendingDelete)
+            }
+
+            try {
+                groupRepo.removeGroup(group.id)
+                _uiState.update {
+                    it.copy(isPendingGroupDelete = false, showDialog = ViewGroupDialog.None)
+                }
+                _uiEffect.send(ViewGroupUiEffect.ShowDeleteGroupSuccessfulAndExit(group.copy()))
+            }
+            catch (cause: Throwable) {
+                Log.e(TAG, "delete group error", cause)
+                _uiState.update {
+                    it.copy(isPendingGroupDelete = false, showDialog = ViewGroupDialog.DeleteError(cause))
+                }
+            }
         }
     }
 }

@@ -1,4 +1,4 @@
-package dreammaker.android.expensetracker.ui.helper
+package dreammaker.android.expensetracker.core.ui.helper
 
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat

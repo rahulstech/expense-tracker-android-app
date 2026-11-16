@@ -1,4 +1,4 @@
-package dreammaker.android.expensetracker.core.ui.component
+package dreammaker.android.expensetracker.ui.component
 
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll

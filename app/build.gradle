@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kapt)
     alias(libs.plugins.hilt.gradle.plugin)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -42,12 +43,6 @@ android {
         debug {
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
-        }
-
-        qa {
-            debuggable(true)
-            applicationIdSuffix = ".qa"
-            versionNameSuffix = "-qa"
         }
 
         release {
@@ -124,6 +119,12 @@ dependencies {
     // paging
     implementation libs.paging.runtime
     implementation libs.paging.runtime.ktx
+
+    // compose
+    implementation libs.androidx.compose.navigation
+    implementation libs.androidx.hilt.navigation.compose
+    implementation libs.androidx.compose.paging
+    implementation libs.kotlinx.serializer
 
     // test
     androidTestImplementation libs.coroutine.test

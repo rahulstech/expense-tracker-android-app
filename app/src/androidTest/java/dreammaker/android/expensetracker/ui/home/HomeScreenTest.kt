@@ -20,8 +20,8 @@ class HomeScreenTest {
         composeTestRule.setContent {
             ExpenseTrackerTheme {
                 HomeScreen(
-                    state = HomeScreenState(totalBalance = 1000.0),
-                    onEvent = {}
+                    uiState = HomeUiState(totalAccountBalance = 1000.0),
+                    onUiEvent = {}
                 )
             }
         }
@@ -36,8 +36,8 @@ class HomeScreenTest {
         composeTestRule.setContent {
             ExpenseTrackerTheme {
                 HomeScreen(
-                    state = HomeScreenState(recentAccounts = emptyList()),
-                    onEvent = {}
+                    uiState = HomeUiState(accounts = emptyList()),
+                    onUiEvent = {}
                 )
             }
         }
@@ -59,8 +59,8 @@ class HomeScreenTest {
         composeTestRule.setContent {
             ExpenseTrackerTheme {
                 HomeScreen(
-                    state = HomeScreenState(recentAccounts = accounts),
-                    onEvent = {}
+                    uiState = HomeUiState(accounts = accounts),
+                    onUiEvent = {}
                 )
             }
         }
@@ -80,8 +80,8 @@ class HomeScreenTest {
         composeTestRule.setContent {
             ExpenseTrackerTheme {
                 HomeScreen(
-                    state = HomeScreenState(recentGroups = emptyList()),
-                    onEvent = {}
+                    uiState = HomeUiState(groups = emptyList()),
+                    onUiEvent = {}
                 )
             }
         }
@@ -103,8 +103,8 @@ class HomeScreenTest {
         composeTestRule.setContent {
             ExpenseTrackerTheme {
                 HomeScreen(
-                    state = HomeScreenState(recentGroups = groups),
-                    onEvent = {}
+                    uiState = HomeUiState(groups = groups),
+                    onUiEvent = {}
                 )
             }
         }

@@ -1,43 +1,82 @@
 package dreammaker.android.expensetracker.ui.account.inputaccount
 
 import android.util.Log
+import androidx.annotation.StringRes
+import androidx.compose.runtime.Immutable
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dreammaker.android.expensetracker.R
+import dreammaker.android.expensetracker.ui.navigation.AppDestination
+import dreammaker.android.expensetracker.util.isNumber
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import rahulstech.android.expensetracker.domain.AccountRepository
 import rahulstech.android.expensetracker.domain.model.Account
 import javax.inject.Inject
 
+sealed interface AccountInputDialog {
 
-data class AccountInputUIState(
+
+    data object None: AccountInputDialog
+
+    data object PendingSave: AccountInputDialog
+
+    data class SaveError(val cause: Throwable): AccountInputDialog
+
+    data object AddMore: AccountInputDialog
+}
+
+
+@Immutable
+data class AccountInputUiState(
+    val isEditing: Boolean = false,
+    val isLoading: Boolean = false,
     val id: Long = 0,
     val name: String = "",
     val balance: String = "",
-
-    val nameError: Int? = null,
-    val balanceError: Int? = null,
-
-    val isLoadingAccount: Boolean = false,
-    val loadingError: Throwable? = null,
-
+    @param:StringRes val nameError: Int? = null,
+    @param:StringRes val balanceError: Int? = null,
     val isSaving: Boolean = false,
-    val savingError: Throwable? = null,
-    val savingSuccess: Boolean = false,
-
-    val showAddMoreDialog: Boolean = false
+    val showDialog: AccountInputDialog = AccountInputDialog.None
 )
 
+sealed interface AccountInputUiEvent {
+
+    data object SaveAccount: AccountInputUiEvent
+
+    data class NameChange(val name: String): AccountInputUiEvent
+
+    data class BalanceChange(val balance: String): AccountInputUiEvent
+
+    data object AddMoreAccount: AccountInputUiEvent
+
+    data object DismissDialog: AccountInputUiEvent
+}
+
+sealed interface AccountInputUiEffect {
+
+    data class ShowAccountLoadErrorAndExit(val cause: Throwable): AccountInputUiEffect
+
+    data object ShowAccountNotFoundAndExit: AccountInputUiEffect
+
+    data class ShowSaveSuccessful(val exit: Boolean): AccountInputUiEffect
+}
 
 @HiltViewModel
 class AccountInputViewModel @Inject constructor(
+    private val savedState: SavedStateHandle,
     private val accountRepo: AccountRepository
 ): ViewModel() {
 
@@ -45,102 +84,127 @@ class AccountInputViewModel @Inject constructor(
         private const val TAG = "AccountInputViewModel"
     }
 
-    private var _uiState = MutableStateFlow(AccountInputUIState())
-    val uiState: StateFlow<AccountInputUIState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(AccountInputUiState())
 
-    fun onNameChange(name: String) {
-        _uiState.update { it.copy(name = name, nameError = null) }
-    }
+    val uiState: StateFlow<AccountInputUiState> = _uiState.asStateFlow()
 
-    fun onBalanceChange(balance: String) {
-        _uiState.update { it.copy(balance = balance, balanceError = null) }
-    }
+    private val _uiEffect = Channel<AccountInputUiEffect>()
 
-    fun findAccountById(id: Long) {
-        if (id == _uiState.value.id && id != 0L) {
-            return
+    val uiEffect: Flow<AccountInputUiEffect> = _uiEffect.receiveAsFlow()
+
+    init {
+        runCatching {
+            val route = savedState.toRoute(AppDestination.EditAccount::class)
+            loadAccountById(route.accountId)
         }
-        viewModelScope.launch(Dispatchers.IO) {
-            _uiState.update { it.copy(isLoadingAccount = true, loadingError = null) }
-            try {
-                val foundAccount = accountRepo.getAccountById(id).first()
-                foundAccount?.let { account ->
-                    _uiState.update {
-                        it.copy(
-                            id = account.id,
-                            name = account.name,
-                            balance = account.balance.toString(),
-                            isLoadingAccount = false
-                        )
-                    }
-                } ?: _uiState.update {
+    }
+
+
+    fun handleUiEvent(event: AccountInputUiEvent) {
+        when(event) {
+            is AccountInputUiEvent.NameChange -> {
+                _uiState.update {
+                    it.copy(name = event.name, nameError = null)
+                }
+            }
+            is AccountInputUiEvent.BalanceChange -> {
+                _uiState.update {
+                    it.copy(balance = event.balance, balanceError = null)
+                }
+            }
+            is AccountInputUiEvent.SaveAccount -> {
+                saveAccount()
+            }
+            is AccountInputUiEvent.AddMoreAccount -> {
+                _uiState.update {
                     it.copy(
-                        isLoadingAccount = false,
-                        loadingError = Exception("Account not found")
+                        name = "", balance = "",
+                        nameError = null, balanceError = null,
+                        showDialog = AccountInputDialog.None
                     )
                 }
             }
-            catch (th: Throwable) {
-                Log.e(TAG,"can not find account for id $id", th)
-                _uiState.update { it.copy(isLoadingAccount = false, loadingError = th) }
+            is AccountInputUiEvent.DismissDialog -> {
+                _uiState.update {
+                    it.copy(showDialog = AccountInputDialog.None)
+                }
             }
         }
     }
 
-    fun saveAccount() {
-        val state = _uiState.value
-        val nameBlank = state.name.isBlank()
-        val balanceValue = state.balance.toDoubleOrNull()
-        val balanceBlank = state.balance.isBlank()
+    fun loadAccountById(id: Long) {
+        viewModelScope.launch {
+            accountRepo.getAccountById(id)
+                .catch { cause ->
+                    _uiEffect.send(AccountInputUiEffect.ShowAccountLoadErrorAndExit(cause))
+                }
+                .collectLatest {
+                    it?.let { account ->
+                        _uiState.update { state ->
+                            state.copy(
+                                isEditing = true,
+                                id = account.id,
+                                name = account.name,
+                                balance = account.balance.toString(),
+                                isLoading = false
+                            )
+                        }
+                    } ?: _uiEffect.send(AccountInputUiEffect.ShowAccountNotFoundAndExit)
+                }
+        }
+    }
 
-        if (nameBlank || balanceBlank || balanceValue == null) {
+    private fun saveAccount() {
+        val state = _uiState.value
+        val id = state.id
+        val nameInput = state.name
+        val balanceInput = state.balance
+        var nameError: Int? = null
+        var balanceError: Int? = null
+
+        if (nameInput.isBlank()) {
+           nameError = R.string.error_empty_account_name_input
+        }
+        if (balanceInput.isNotBlank() && balanceInput.isNumber()) {
+            balanceError = R.string.error_non_numeric_balance_input
+        }
+        if (arrayOf(nameError,balanceError).any{ it != null }) {
             _uiState.update {
                 it.copy(
-                    nameError = if (nameBlank) R.string.error_empty_account_name_input else null,
-                    balanceError = when {
-                        balanceBlank -> R.string.error_empty_balance_input
-                        balanceValue == null -> R.string.error_invalid_balance_input
-                        else -> null
-                    }
+                    nameError = nameError, balanceError = balanceError
                 )
             }
             return
         }
 
         viewModelScope.launch(Dispatchers.IO) {
-            _uiState.update { it.copy(isSaving = true, savingError = null, savingSuccess = false) }
+            _uiState.update { it.copy(isSaving = true, showDialog = AccountInputDialog.PendingSave) }
+
             try {
-                val accountToSave = Account(
-                    id = state.id,
-                    name = state.name,
-                    balance = state.balance.toDouble(),
-                )
-                if (accountToSave.id == 0L) {
-                    accountRepo.createAccount(accountToSave)
-                } else {
-                    accountRepo.editAccount(accountToSave)
+                Account(
+                    id = id,
+                    name = nameInput,
+                    balance = balanceInput.toDoubleOrNull() ?: 0.0,
+                ).let { account ->
+                    if (state.isEditing) {
+                        accountRepo.editAccount(account)
+
+                    } else {
+                        accountRepo.createAccount(account)
+                    }
                 }
-                _uiState.update { it.copy(isSaving = false, savingSuccess = true) }
-            }
-            catch (th: Throwable) {
-                Log.e(TAG,"save account failed with error", th)
-                _uiState.update { it.copy(isSaving = false, savingError = th) }
-            }
-        }
-    }
 
-    fun onShowAddMoreDialog(show: Boolean) {
-        _uiState.update { it.copy(showAddMoreDialog = show) }
-    }
-
-    fun resetInput() {
-        _uiState.update {
-            it.copy(
-                name = "",
-                balance = "",
-                savingSuccess = false,
-                showAddMoreDialog = false
-            )
+                _uiState.update {
+                    it.copy(
+                        isSaving = false,
+                        showDialog = if (state.isEditing) AccountInputDialog.None else AccountInputDialog.AddMore
+                    )
+                }
+            }
+            catch (cause: Throwable) {
+                Log.e(TAG,"account save error", cause)
+                _uiState.update { it.copy(isSaving = false, showDialog = AccountInputDialog.SaveError(cause)) }
+            }
         }
     }
 }

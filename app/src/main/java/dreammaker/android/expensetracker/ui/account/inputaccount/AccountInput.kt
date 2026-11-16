@@ -18,6 +18,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -28,6 +30,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.PreviewLightDark
@@ -40,35 +43,56 @@ import dreammaker.android.expensetracker.core.ui.component.NavigationUpIcon
 import dreammaker.android.expensetracker.core.ui.component.ScreenScaffold
 import dreammaker.android.expensetracker.core.ui.component.TopBarIconAction
 import dreammaker.android.expensetracker.core.ui.component.TopBarTitle
+import dreammaker.android.expensetracker.ui.component.MessageDialog
+import dreammaker.android.expensetracker.ui.component.ProgressDialog
 import dreammaker.android.expensetracker.ui.component.YesNoDialog
 import dreammaker.android.expensetracker.ui.navigation.NavigationEvent
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+
 @Composable
-fun AddAccountRoute(
+fun AccountInputRoute(
+    snackBarHostState: SnackbarHostState,
     onNavigate: (NavigationEvent)-> Unit,
     viewModel: AccountInputViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        viewModel.uiEffect.collect { effect ->
+            when(effect) {
+                is AccountInputUiEffect.ShowAccountLoadErrorAndExit -> {
+                    snackBarHostState.showSnackbar(
+                        message = context.getString(R.string.message_load_error),
+                        withDismissAction = true,
+                        duration = SnackbarDuration.Long
+                    )
+                }
+
+                is AccountInputUiEffect.ShowAccountNotFoundAndExit -> {
+                    snackBarHostState.showSnackbar(
+                        message = context.getString(R.string.message_account_not_found),
+                        withDismissAction = true,
+                        duration = SnackbarDuration.Long
+                    )
+                }
+
+                is AccountInputUiEffect.ShowSaveSuccessful -> {
+                    snackBarHostState.showSnackbar(
+                        message = context.getString(R.string.message_save_successful),
+                        duration = SnackbarDuration.Short
+                    )
+                }
+            }
+        }
+    }
 
     AccountInputScreen(
         uiState = uiState,
-        onNavigate = onNavigate,
-        onUiEvent = { viewModel.handleUiEvent(it) }
-    )
-}
-
-@Composable
-fun EditAccountRoute(
-    onNavigate: (NavigationEvent)-> Unit,
-    viewModel: AccountInputViewModel = hiltViewModel()
-) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-
-    AccountInputScreen(
-        uiState = uiState,
-        onNavigate = onNavigate,
+        onNavUp = { onNavigate(NavigationEvent.Up) },
+        onExit = { onNavigate(NavigationEvent.Exit) },
         onUiEvent = { viewModel.handleUiEvent(it) }
     )
 }
@@ -76,11 +100,10 @@ fun EditAccountRoute(
 @Composable
 fun AccountInputScreen(
     uiState: AccountInputUiState,
-    onNavigate: (NavigationEvent) -> Unit,
+    onNavUp: ()-> Unit,
+    onExit: ()-> Unit,
     onUiEvent: (AccountInputUiEvent)-> Unit
 ) {
-    val isSaveAndCancelActionEnabled = !uiState.isLoadingAccount && !uiState.isSaving
-
     ScreenScaffold(
         title = {
             if (uiState.isEditing) {
@@ -91,24 +114,25 @@ fun AccountInputScreen(
             }
         },
         actions = {
-            TopBarIconAction(Icons.Default.Done,
-                title = stringResource(R.string.save),
-                enabled = isSaveAndCancelActionEnabled
-            ) {
-                onUiEvent(AccountInputUiEvent.SaveAccount)
+            if (!uiState.isLoading) {
+                TopBarIconAction(
+                    Icons.Default.Done,
+                    title = stringResource(R.string.save),
+                    enabled = !uiState.isSaving
+                ) {
+                    onUiEvent(AccountInputUiEvent.SaveAccount)
+                }
             }
         },
         navigationIcon = {
-            NavigationUpIcon {
-                onNavigate(NavigationEvent.Up)
-            }
+            NavigationUpIcon(onClick = onNavUp)
         },
     ) {
-        if (uiState.isLoadingAccount) {
-            FullScreenLoading()
+        if (uiState.isLoading) {
+            FullScreenLoadingComponent()
         }
         else {
-            AccountInputForm(
+            AccountInputFormComponent(
                 name = uiState.name,
                 onNameChange = { name ->
                     onUiEvent(AccountInputUiEvent.NameChange(name))
@@ -122,25 +146,34 @@ fun AccountInputScreen(
             )
         }
 
-        if (uiState.showAddMoreDialog) {
-            YesNoDialog(
-                header = stringResource(R.string.add_more_account),
-                yesText = stringResource(R.string.label_yes),
-                onYes = {
-                    onUiEvent(AccountInputUiEvent.AddMoreAccount)
-                },
-                noText = stringResource(R.string.label_no),
-                onNo = { onNavigate(NavigationEvent.Exit) },
-                dismissOnBackPressed = false,
-                dismissOnClickOutside = false
-            )
+        when (uiState.showDialog) {
+
+            is AccountInputDialog.PendingSave -> {
+                PendingSaveDialogComponent()
+            }
+
+            is AccountInputDialog.SaveError -> {
+                SaveErrorDialogComponent(
+                    cause = uiState.showDialog.cause,
+                    onDismiss = { onUiEvent(AccountInputUiEvent.DismissDialog) },
+                )
+            }
+
+            is AccountInputDialog.AddMore -> {
+                AddMoreDialogComponent(
+                    onAddMore = { onUiEvent(AccountInputUiEvent.AddMoreAccount) },
+                    onDiscard = { onExit() }
+                )
+            }
+
+            else -> {}
         }
     }
 }
 
 
 @Composable
-fun FullScreenLoading() {
+fun FullScreenLoadingComponent() {
     Box(
         modifier = Modifier.fillMaxSize()
             .padding(16.dp),
@@ -168,7 +201,7 @@ fun FullScreenLoading() {
 
 
 @Composable
-fun AccountInputForm(
+fun AccountInputFormComponent(
     name: String,
     onNameChange: (String)-> Unit,
     balance: String,
@@ -217,18 +250,49 @@ fun AccountInputForm(
     }
 }
 
+
+@Composable
+fun PendingSaveDialogComponent() {
+    ProgressDialog(body = stringResource(R.string.message_saving_progress))
+}
+
+@Composable
+fun SaveErrorDialogComponent(
+    cause: Throwable,
+    onDismiss: ()-> Unit
+) {
+    MessageDialog(
+        body = stringResource(R.string.message_account_save_unsuccessful),
+        onDismiss = onDismiss,
+        dismissText = stringResource(dreammaker.android.expensetracker.core.R.string.label_ok),
+    )
+}
+
+@Composable
+fun AddMoreDialogComponent(
+    onAddMore: ()-> Unit,
+    onDiscard: ()-> Unit,
+) {
+    YesNoDialog(
+        body = stringResource(R.string.message_add_more_account),
+        onYes = onAddMore,
+        onNo = onDiscard,
+        onDismissRequest = onDiscard
+    )
+}
+
 @PreviewLightDark
 @Composable
 fun AccountInputScreenPreview() {
 
     val scope = rememberCoroutineScope()
-    var uiState by remember { mutableStateOf(AccountInputUiState(isEditing = true, isLoadingAccount = true)) }
+    var uiState by remember { mutableStateOf(AccountInputUiState(isEditing = true, isLoading = true)) }
 
     LaunchedEffect(Unit) {
         scope.launch {
             delay(2000)
             uiState = uiState.copy(
-                isLoadingAccount = false,
+                isLoading = false,
                 name = "Wallet",
                 balance = "2000.00"
             )
@@ -238,7 +302,8 @@ fun AccountInputScreenPreview() {
     ExpenseTrackerTheme {
         AccountInputScreen(
             uiState = uiState,
-            onNavigate = {},
+            onNavUp = {},
+            onExit = {},
             onUiEvent = {}
         )
     }

@@ -47,6 +47,7 @@ mockk-version="1.13.10"
 espresso ="3.6.1" # 3.6.1
 
 compose-bom = "2024.09.00"
+compose-navigation = "2.9.6"
 
 [libraries]
 coroutine-core={ module='org.jetbrains.kotlinx:kotlinx-coroutines-core', version.ref='coroutine' }
@@ -62,6 +63,10 @@ livedata={ module='androidx.lifecycle:lifecycle-livedata-ktx', version.ref='life
 navigation-fragment={ module='androidx.navigation:navigation-fragment-ktx', version.ref='navigation' }
 navigation-ui={ module='androidx.navigation:navigation-ui-ktx', version.ref='navigation' }
 
+
+
+
+
 splashscreen={ module='androidx.core:core-splashscreen', version.ref='splashscreen'}
 
 material={ module='com.google.android.material:material', version.ref='material' }
@@ -71,15 +76,19 @@ recyclerview={ module='androidx.recyclerview:recyclerview', version.ref='recycle
 cardview={ module='androidx.cardview:cardview', version.ref='cardview' }
 shimmereffect={ module='com.github.rahulstech:shimmer-android', version.ref='shimmereffect' }
 
+# room
 room-runtime={ module='androidx.room:room-runtime', version.ref='room' }
 room-compiler={ module='androidx.room:room-compiler', version.ref='room' }
 room-ktx={ module='androidx.room:room-ktx', version.ref='room' }
 room-paging={ module='androidx.room:room-paging', version.ref='room' }
 room-test={ module='androidx.room:room-testing', version.ref='room' }
 
+# paging
 paging-runtime={ module='androidx.paging:paging-runtime', version.ref='paging' }
 paging-runtime-ktx={ module='androidx.paging:paging-runtime-ktx', version.ref='paging' }
 
+
+# work manager
 workmanager-runtime={ module='androidx.work:work-runtime-ktx', version.ref='workmanager' }
 workmanager-test={ module='androidx.work:work-testing', version.ref='workmanager' }
 
@@ -88,7 +97,6 @@ gson={ module='com.google.code.gson:gson', version.ref='gson' }
 documentfile = { module="androidx.documentfile:documentfile", version.ref = "documentfile" }
 
 # hilt
-
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
 hilt-android-testing = { group = "com.google.dagger", name = "hilt-android-testing", version.ref = "hilt" }
@@ -110,8 +118,10 @@ androidx-compose-material3 = { group = "androidx.compose.material3", name = "mat
 androidx-compose-runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity-ktx" }
 androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycle" }
-androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigation" }
+androidx-compose-navigation = { group = "androidx.navigation", name = "navigation-compose", version.ref = "compose-navigation" }
+androidx-compose-paging = { group = "androidx.paging", name = "paging-compose", version.ref = "paging" }
 
+# test
 junit={ module='junit:junit', version.ref='junit' }
 junit-android={ module='androidx.test.ext:junit', version.ref='junit-android'}
 android-runner ={ module='androidx.test:runner', version.ref='android-test' }
@@ -121,6 +131,9 @@ espresso-contrib={ group="androidx.test.espresso", name="espresso-contrib", vers
 fragment-test={ group = "androidx.fragment", name = "fragment-testing", version.ref = "fragment" }
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk-version" }
 
+# kotlinx searializer
+kotlinx-serializer = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version = "1.7.3" }
+
 [plugins]
 application={ id='com.android.application', version.ref='agp' }
 library={ id='com.android.library', version.ref='agp' }
@@ -129,3 +142,4 @@ kapt={ id='kotlin-kapt' }
 hilt-gradle-plugin = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 ksp = { id = "com.google.devtools.ksp", version = "2.0.21-1.0.25" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version = "2.0.0" }

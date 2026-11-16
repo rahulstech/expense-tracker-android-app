@@ -9,7 +9,7 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name=".ui.main.MainActivity"
+            android:name=".ui.activity.MainActivity"
             android:exported="true"
             android:theme="@style/AppTheme.SplashScreen">
             <intent-filter>
@@ -23,9 +23,9 @@
         <activity android:name="rahulstech.android.expensetracker.backuprestore.ui.BackupRestoreActivity"
             android:exported="false"
             android:label="@string/activity_title_backup_restore"
-            android:parentActivityName=".ui.main.MainActivity">
+            android:parentActivityName=".ui.activity.MainActivity">
             <meta-data android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.main.MainActivity" />
+                android:value=".ui.activity.MainActivity" />
         </activity>
 
         <!-- required for WorkManager with Hilt DI -->

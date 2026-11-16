@@ -18,11 +18,12 @@
     <string name="credit">Credit</string>
     <string name="debit">Debit</string>
     <string name="label_today">Today</string>
+    <string name="delete">Delete</string>
 
     <!-- messages related to define operation status -->
     <string name="error_empty_account_name">add an account name</string>
-    <string name="account_save_unsuccessful">account not saved</string>
-    <string name="group_save_unsuccessful">group not saved</string>
+    <string name="message_account_save_unsuccessful">account not saved</string>
+    <string name="message_group_save_unsuccessful">group not saved</string>
 
     <string name="error_empty_group_name">add a group name</string>
     <string name="error_invalid_amount">invalid amount</string>
@@ -45,8 +46,6 @@
 
     <string name="from">From</string>
     <string name="to">To</string>
-<!--    <string name="label_history_list_item_source_account">From</string>-->
-<!--    <string name="label_history_list_item_destination_account">In</string>-->
     <string name="label_empty_history_list">No History</string>
     <string name="label_view">View</string>
     <string name="label_history_type_credit">Credit</string>
@@ -88,9 +87,13 @@
     <string name="label_empty_recent_group_list">No Recent Group</string>
     <string name="label_search_account_name">Search Account Name</string>
     <string name="label_search_group_name">Search Group Name</string>
+    <string name="label_choose_one">Choose One</string>
 
-    <string name="hint_group_name">Group Name</string>
-    <string name="hint_group_balance">Balance</string>
+    <string name="label_group_name">Group Name</string>
+    <string name="label_group_balance">Balance</string>
+
+
+    <string name="label_exit_selection">exit selection</string>
 
 
     <string name="title_history_list">History</string>
@@ -110,22 +113,26 @@
     <string name="title_edit_transfer_history">Edit Transfer</string>
     <string name="title_create_transfer_history">Send Money</string>
 
-    <string name="add_more_account">Add more account?</string>
+
     <string name="loading_account">Loading Account</string>
 
-    <string name="add_more_group">Add more group?</string>
+
+
+
+    <string name="placeholder_zero">0.00</string>
+
+
     <string name="loading_group">Loading Group</string>
     <string name="loading_history">Loading History</string>
     <string name="loading_transfer">Loading Transfer</string>
 
-    <string name="error_empty_balance_input">balance must not empty</string>
-    <string name="error_invalid_balance_input">balance must be a decimal number</string>
+    <string name="error_non_numeric_balance_input">it must be a decimal number</string>
     <string name="error_empty_account_name_input">name must not empty</string>
     <string name="message_account_not_found">account not found</string>
     <string name="message_group_not_found">group not found</string>
 
-    <string name="add_new_account">+ Add New Account</string>
-    <string name="add_new_group">+ Add New Group</string>
+    <string name="add_new_account">Add New Account</string>
+    <string name="add_new_group">Add New Group</string>
 
     <!-- Merged from messages.xml -->
     <string name="message_history_not_found">history not found</string>
@@ -147,4 +154,47 @@
     <string name="message_warning_delete_multiple">Do you want to delete %1$d items permanently?</string>
 	<string name="error_no_selection">nothing selected</string>
 
+
+    <string name="message_save_successful">Saved</string>
+    <plurals name="message_account_delete_successful">
+        <item quantity="one">%1$s deleted</item>
+        <item quantity="many">accounts deleted</item>
+    </plurals>
+    <plurals name="message_group_delete_successful">
+        <item quantity="one">%1$s deleted</item>
+        <item quantity="many">groups deleted</item>
+    </plurals>
+    <string name="message_load_error">error in loading</string>
+    <string name="message_saving_progress">Saving...</string>
+    <string name="message_add_more_group">Want to add group?</string>
+    <string name="message_add_more_account">Want to add more account?</string>
+    <plurals name="message_account_delete_progress">
+        <item quantity="one">Deleting account</item>
+        <item quantity="many">Deleting accounts</item>
+    </plurals>
+    <plurals name="message_group_delete_progress">
+        <item quantity="one">Deleting group</item>
+        <item quantity="many">Deleting groups</item>
+    </plurals>
+    <plurals name="message_account_delete_unsuccessful">
+        <item quantity="one">account not deleted</item>
+        <item quantity="many">accounts not deleted</item>
+    </plurals>
+    <plurals name="message_group_delete_unsuccessful">
+        <item quantity="one">group not deleted</item>
+        <item quantity="many">groups not deleted</item>
+    </plurals>
+
+
+    <plurals name="message_warning_delete_account">
+        <item quantity="one">
+            Account %1$s will be deleted permanently.
+            Once deleted you can never restore this account and its histories.
+            Do you still want to proceed?
+        </item>
+        <item quantity="many">
+            %1$d account(s) will be deleted permanently. You can never restore any of these account or its histories.
+            Do you still want to proceed?
+        </item>
+    </plurals>
 </resources>

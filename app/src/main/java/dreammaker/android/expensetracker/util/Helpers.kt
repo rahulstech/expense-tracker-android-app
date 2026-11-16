@@ -1,12 +1,14 @@
 package dreammaker.android.expensetracker.util
 
 import android.content.Context
+import android.icu.util.Currency
 import androidx.annotation.ColorRes
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.text.buildSpannedString
 import androidx.core.text.color
+import java.math.RoundingMode
+import java.text.DecimalFormat
 import java.text.NumberFormat
-import java.util.Currency
 import java.util.Locale
 
 fun buildLabeledColoredAmountText(
@@ -24,11 +26,29 @@ fun buildLabeledColoredAmountText(
     }
 }
 
-fun Number.toCurrencyString(currencyCode: String = "USD", textLocale: Locale = Locale.ENGLISH): String {
-    val format = NumberFormat.getCurrencyInstance(textLocale)
-    format.currency = Currency.getInstance(currencyCode)
-    return format.format(toDouble())
+
+fun Number.toCurrencyString(
+    currencyCode: String = "INR",
+    textLocale: Locale = Locale.forLanguageTag("en-IN")
+): String {
+    val bigDecimal = toString().toBigDecimal()
+    val currency = Currency.getInstance(currencyCode)
+    val formatter = NumberFormat.getNumberInstance(textLocale) as DecimalFormat
+
+    formatter.apply {
+        minimumFractionDigits = 2
+        maximumFractionDigits = 2
+        isGroupingUsed = true
+        roundingMode = RoundingMode.HALF_UP
+    }
+
+    val sign = if (bigDecimal.signum() < 0) "-" else ""
+    val currencySymbol = currency.getSymbol(textLocale)
+    val formattedNumber = formatter.format(bigDecimal.abs())
+
+    return "$currencySymbol$sign$formattedNumber"
 }
+
 
 fun <T : R, R : Any> List<T>.insertSeparator(
     generator: (before: T?, after: T?) -> R?
@@ -46,3 +66,6 @@ fun <T : R, R : Any> List<T>.insertSeparator(
 
     return output
 }
+
+fun String.isNumber(): Boolean =
+    this.matches(Regex("(-)?\\d+(\\.\\d+)?"))

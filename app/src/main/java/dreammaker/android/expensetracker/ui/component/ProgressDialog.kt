@@ -1,4 +1,4 @@
-package dreammaker.android.expensetracker.core.ui.component
+package dreammaker.android.expensetracker.ui.component
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,21 +25,23 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
-
+import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.core.ui.ExpenseTrackerTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProgressDialog(
-    text: String,
+    body: String,
     onAction: (()-> Unit)? = null,
-    actionText: String = stringResource(android.R.string.cancel)
+    actionText: String? = null,
+    dismissOnBackPress: Boolean = true,
+    dismissOnClickOutside: Boolean = true
 ) {
     BasicAlertDialog(
         onDismissRequest = {},
         properties = DialogProperties(
-            dismissOnBackPress = false,
-            dismissOnClickOutside = false,
+            dismissOnBackPress = dismissOnBackPress,
+            dismissOnClickOutside = dismissOnClickOutside,
         )
     ) {
         Card(
@@ -50,7 +52,7 @@ fun ProgressDialog(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text,
+                    body,
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.bodyMedium
@@ -71,7 +73,10 @@ fun ProgressDialog(
                         horizontalArrangement = Arrangement.End
                     ) {
                         TextButton(onClick = action) {
-                            Text(actionText, style = MaterialTheme.typography.labelMedium)
+                            Text(
+                                actionText ?: stringResource(R.string.cancel),
+                                style = MaterialTheme.typography.labelMedium
+                            )
                         }
                     }
                 }
@@ -90,7 +95,7 @@ fun ProgressDialogPreview() {
                 .padding(innerPadding)
             ) {
                 ProgressDialog(
-                    text = "Work in progress",
+                    body = "Work in progress",
                     actionText = "Cancel",
                     onAction = {}
                 )
