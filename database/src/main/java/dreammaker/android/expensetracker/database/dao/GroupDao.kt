@@ -15,10 +15,6 @@ interface GroupDao {
     @Insert
     suspend fun insert(group: GroupEntity): Long
 
-    @Deprecated("Use insertMultiple instead", ReplaceWith("insertMultiple(groups)"))
-    @Insert
-    @Transaction
-    fun insertGroups(groups: List<GroupEntity>)
 
     @Insert
     @Transaction
@@ -30,10 +26,6 @@ interface GroupDao {
     @Query("SELECT * FROM `groups`")
     suspend fun getAllGroups(): List<GroupEntity>
 
-    @Deprecated("Use findByIdFlow instead")
-    @Query("SELECT * FROM `groups` WHERE `id` = :id")
-    fun findGroupById(id: Long): GroupEntity?
-
     @Query("SELECT * FROM `groups` WHERE `id` = :id")
     fun findByIdFlow(id: Long): Flow<GroupEntity?>
 
@@ -42,10 +34,6 @@ interface GroupDao {
 
     @Query("SELECT `id`, `name`, `balance` FROM `groups` ORDER BY `totalUsed` DESC LIMIT :count")
     fun getFrequentlyUsedGroupsFlow(count: Int = 3): Flow<List<GroupListModel>>
-
-    @Deprecated("Use update instead", ReplaceWith("update(group)"))
-    @Update
-    fun updateGroup(group: GroupEntity): Int
 
     @Update
     suspend fun update(group: GroupEntity): Int

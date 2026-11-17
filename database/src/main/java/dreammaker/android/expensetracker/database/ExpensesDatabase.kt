@@ -12,6 +12,7 @@ import dreammaker.android.expensetracker.database.dao.AnalyticsDao
 import dreammaker.android.expensetracker.database.dao.GroupDao
 import dreammaker.android.expensetracker.database.dao.HistoryDao
 import dreammaker.android.expensetracker.database.migration.Migration7To8
+import dreammaker.android.expensetracker.database.migration.Migration8To9
 import dreammaker.android.expensetracker.database.model.AccountEntity
 import dreammaker.android.expensetracker.database.model.GroupEntity
 import dreammaker.android.expensetracker.database.model.HistoryEntity
@@ -19,7 +20,8 @@ import kotlinx.coroutines.runBlocking
 
 @Database(
     entities = [AccountEntity::class, GroupEntity::class, HistoryEntity::class],
-    version = ExpensesDatabase.DB_VERSION
+    version = ExpensesDatabase.DB_VERSION,
+    exportSchema = true
 )
 @TypeConverters(Converter::class)
 abstract class ExpensesDatabase : RoomDatabase(), IExpenseDatabase {
@@ -43,15 +45,10 @@ abstract class ExpensesDatabase : RoomDatabase(), IExpenseDatabase {
     companion object {
 
         const val DB_NAME = "expenses.db3"
-        const val DB_VERSION = 8
+        const val DB_VERSION = 9
 
-        @Volatile
-        private var INSTANCE: ExpensesDatabase? = null
-
-        @JvmStatic
         fun getInstance(context: Context): ExpensesDatabase {
-            return INSTANCE ?: synchronized(this) {
-                INSTANCE ?: Room.databaseBuilder(
+            return Room.databaseBuilder(
                     context.applicationContext,
                     ExpensesDatabase::class.java,
                     DB_NAME
@@ -61,10 +58,9 @@ abstract class ExpensesDatabase : RoomDatabase(), IExpenseDatabase {
                         db.setForeignKeyConstraintsEnabled(true)
                     }
                 }).addMigrations(
-                    Migrations.MIGRATION_6_7,
-                    Migration7To8()
-                ).build().also { INSTANCE = it }
-            }
+                    Migration7To8(),
+                    Migration8To9()
+                ).build()
         }
     }
 }

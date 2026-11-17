@@ -8,16 +8,17 @@ import androidx.room.Update
 import dreammaker.android.expensetracker.database.model.AccountEntity
 import dreammaker.android.expensetracker.database.model.AccountListModel
 import kotlinx.coroutines.flow.Flow
+import java.math.BigDecimal
 
 @Dao
 interface AccountDao {
 
-    @Query("SELECT * FROM `accounts`")
-    suspend fun getAllAccounts(): List<AccountEntity>
-
     //----------------------------------------------------
     //      Kotlin Coroutine and Flow based DAO methods
     //----------------------------------------------------
+
+    @Query("SELECT * FROM `accounts`")
+    suspend fun getAllAccounts(): List<AccountEntity>
 
     @Insert
     suspend fun insert(entity: AccountEntity): Long
@@ -29,10 +30,6 @@ interface AccountDao {
     @Query("SELECT `id`,`name`,`balance` FROM `accounts` ORDER BY `name` ASC")
     fun getAccountsFlow(): Flow<List<AccountListModel>>
 
-    @Deprecated("user findByIdFlow")
-    @Query("SELECT * FROM `accounts` WHERE `id` = :id")
-    fun findAccountByIdFlow(id: Long): Flow<AccountEntity?>
-
     @Query("SELECT * FROM `accounts` WHERE `id` = :id")
     fun findByIdFlow(id: Long): Flow<AccountEntity?>
 
@@ -41,6 +38,9 @@ interface AccountDao {
 
     @Query("SELECT `id`, `name`, `balance` FROM `accounts` ORDER BY `totalUsed` DESC LIMIT :count")
     fun getFrequentlyUserAccountsFlow(count: Int = 3): Flow<List<AccountListModel>>
+
+    @Query("SELECT COALESCE(SUM(`balance`), 0) AS `total_balance` FROM `accounts`")
+    fun getTotalBalanceOfAllAccounts(): Flow<BigDecimal>
 
     @Update
     suspend fun update(entity: AccountEntity)

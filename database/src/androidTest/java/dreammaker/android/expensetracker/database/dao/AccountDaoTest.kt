@@ -14,6 +14,7 @@ import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.math.BigDecimal
 import java.time.LocalDateTime
 
 @RunWith(AndroidJUnit4::class)
@@ -36,8 +37,8 @@ class AccountDaoTest {
 
     @Test
     fun getFlowAccountById() = runTest {
-        val actual = dao.findAccountByIdFlow(1).first()
-        val expected = AccountEntity(1,"Account 1",150.0, LocalDateTime.of(2025,10,15,15,56,20),1)
+        val actual = dao.findByIdFlow(1).first()
+        val expected = AccountEntity(1,"Account 1", BigDecimal("150.00"), LocalDateTime.of(2026,10,15,15,56,20),1)
         assertEquals(expected,actual)
     }
 
@@ -46,12 +47,12 @@ class AccountDaoTest {
         val account = AccountEntity(
             0,
             "Test Account Coroutine",
-            200.0,
+            BigDecimal("200.00"),
             LocalDateTime.of(2026,2,1,0,0,0,0),
             2)
         val id = dao.insert(account)
 
-        val actual = dao.findAccountByIdFlow(id).first()
+        val actual = dao.findByIdFlow(id).first()
         val expected = account.copy(id=id)
 
         assertTrue("id must be positive number", id > 0)
@@ -61,8 +62,8 @@ class AccountDaoTest {
     @Test
     fun insertMultiple() = runTest {
         val accounts = listOf(
-            AccountEntity(0, "Multi 1", 100.0, null, null),
-            AccountEntity(0, "Multi 2", 200.0, null, null)
+            AccountEntity(0, "Multi 1", BigDecimal("100.00"), null, null),
+            AccountEntity(0, "Multi 2", BigDecimal("200.00"), null, null)
         )
         val ids = dao.insertMultiple(accounts)
         assertEquals(2, ids.size)
@@ -84,9 +85,9 @@ class AccountDaoTest {
 
     @Test
     fun update() = runTest {
-        val account = AccountEntity(1,"Account 1 Updated",160.0, LocalDateTime.now(),2)
+        val account = AccountEntity(1,"Account 1 Updated",BigDecimal("160.00"), LocalDateTime.now(),2)
         dao.update(account)
-        val actual = dao.findAccountByIdFlow(1).first()
+        val actual = dao.findByIdFlow(1).first()
         assertEquals("Account 1 Updated", actual?.name)
     }
 
@@ -94,7 +95,7 @@ class AccountDaoTest {
     fun deleteById() = runTest {
         val changes = dao.deleteById(1)
         assertEquals(1, changes)
-        val account = dao.findAccountByIdFlow(1).first()
+        val account = dao.findByIdFlow(1).first()
         assertNull(account)
     }
 
@@ -104,5 +105,11 @@ class AccountDaoTest {
         assertEquals(2, changes)
         val all = dao.getAccountsFlow().first()
         assertTrue(all.isEmpty())
+    }
+
+    @Test
+    fun getTotalBalanceOfAllAccount() = runTest {
+        val totalBalance = dao.getTotalBalanceOfAllAccounts().first()
+        assertEquals(BigDecimal("2150"), totalBalance)
     }
 }

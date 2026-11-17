@@ -126,7 +126,7 @@ fun TransactionInputScreen(
 
 @Composable
 fun TransactionInputForm(
-    uiState: HistoryInputUIState,
+    uiState: HistoryInputUiState,
     onDateChange: (LocalDate)-> Unit,
     onAccountSelected: (Account?)-> Unit,
     onAddNewAccount: () -> Unit,
@@ -436,7 +436,7 @@ fun TransactionInputScreenPreview() {
 
     var uiState by remember {
         mutableStateOf(
-            HistoryInputUIState(
+            HistoryInputUiState(
                 date = LocalDate.now(),
                 group = groups[0],
                 account = accounts[0],
@@ -482,7 +482,7 @@ fun TransactionInputScreenErrorPreview() {
         Account(name = "Savings", id = 2),
         Account(name = "Credit Card", id = 3)
     )
-    val uiState = HistoryInputUIState(
+    val uiState = HistoryInputUiState(
         amount = "abc",
         amountError = R.string.error_invalid_amount,
         account = null,

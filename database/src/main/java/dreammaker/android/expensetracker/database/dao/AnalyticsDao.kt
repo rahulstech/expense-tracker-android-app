@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface AnalyticsDao {
 
+    @Deprecated(message = "use AccountDao.getTotalBalanceOfAllAccount")
     @Query("SELECT COALESCE(SUM(`balance`), 0) AS `total_balance` FROM `accounts`")
     fun getTotalAccountBalance(): Flow<Double>
 }

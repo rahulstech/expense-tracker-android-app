@@ -14,7 +14,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.time.LocalDateTime
+import java.math.BigDecimal
 
 @RunWith(AndroidJUnit4::class)
 class GroupDaoTest {
@@ -39,7 +39,7 @@ class GroupDaoTest {
 
     @Test
     fun insert() = runTest {
-        val group = GroupEntity(0, "New Group", 50.0, null, null)
+        val group = GroupEntity(0, "New Group", BigDecimal("50.00"), null, null)
         val id = dao.insert(group)
         assertTrue(id > 0)
         val actual = dao.findByIdFlow(id).first()
@@ -49,8 +49,8 @@ class GroupDaoTest {
     @Test
     fun insertMultiple() = runTest {
         val groups = listOf(
-            GroupEntity(0, "G1", 10.0, null, null),
-            GroupEntity(0, "G2", 20.0, null, null)
+            GroupEntity(0, "G1", BigDecimal("10.00"), null, null),
+            GroupEntity(0, "G2", BigDecimal("20.00"), null, null)
         )
         dao.insertMultiple(groups)
         val all = dao.getAllGroupsFlow().first()
@@ -81,7 +81,7 @@ class GroupDaoTest {
 
     @Test
     fun update() = runTest {
-        val group = GroupEntity(1, "Group 1 Updated", 150.0, null, null)
+        val group = GroupEntity(1, "Group 1 Updated", BigDecimal("150.00"), null, null)
         dao.update(group)
         val actual = dao.findByIdFlow(1).first()
         assertEquals("Group 1 Updated", actual?.name)

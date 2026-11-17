@@ -1,6 +1,8 @@
 package dreammaker.android.expensetracker.database
 
 import androidx.room.TypeConverter
+import java.math.BigDecimal
+import java.math.MathContext
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -30,4 +32,12 @@ object Converter {
 
     @TypeConverter
     fun localDateTimeToStringTime(datetime: LocalDateTime?): String? = datetime?.format(DATETIME_PATTERN)
+
+
+    @TypeConverter
+    fun bigDecimalToString(value: BigDecimal): String = value.toPlainString()
+
+    @TypeConverter
+    fun stringToBigDecimal(value: String): BigDecimal =
+        BigDecimal(value, MathContext.DECIMAL64)
 }

@@ -1,6 +1,5 @@
 package dreammaker.android.expensetracker.database.dao
 
-import android.util.Log
 import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Insert
@@ -9,141 +8,15 @@ import androidx.room.RawQuery
 import androidx.room.Transaction
 import androidx.room.Update
 import androidx.sqlite.db.SupportSQLiteQuery
-import androidx.sqlite.db.SupportSQLiteQueryBuilder
-import dreammaker.android.expensetracker.database.Converter
 import dreammaker.android.expensetracker.database.model.AccountEntity
 import dreammaker.android.expensetracker.database.model.GroupEntity
 import dreammaker.android.expensetracker.database.model.HistoryDetails
 import dreammaker.android.expensetracker.database.model.HistoryEntity
-import dreammaker.android.expensetracker.database.model.HistoryType
 import dreammaker.android.expensetracker.database.model.TotalCreditDebit
-import dreammaker.android.expensetracker.database.model.toNamesList
+import dreammaker.android.expensetracker.database.model.TypeTotal
 import kotlinx.coroutines.flow.Flow
-import java.time.LocalDate
 
 internal typealias SqlArgs = Pair<String,List<Any?>>
-
-class HistoryQueryBuilder {
-
-    private val TAG = HistoryQueryBuilder::class.simpleName
-
-    var historyTypes: List<HistoryType> = emptyList()
-    var accounts: List<Long> = emptyList()
-    var groups: List<Long> = emptyList()
-    var dateRange: Pair<LocalDate, LocalDate>? = null
-    var oldestFirst = true
-
-    fun build(): SupportSQLiteQuery {
-
-        val table = "`histories` LEFT JOIN `accounts` ON `histories`.`id` = `accounts`.`id` " +
-                "LEFT JOIN `groups` ON `histories`.`id` = `groups`.`id`"
-
-        val queryBuilder = SupportSQLiteQueryBuilder.builder(table)
-
-        val columns = arrayOf(
-            "`histories`.*",
-            "`accounts`.`id`","`accounts`.`name`",
-            "`groups`.`id`","`groups`.`name`"
-        )
-        queryBuilder.columns(columns)
-
-        where(queryBuilder)
-        orderBy(queryBuilder)
-
-        val query = queryBuilder.create()
-        Log.d(TAG,"build: query = ${query.sql}")
-        return query
-    }
-
-    fun buildTotalCreditDebit(): SupportSQLiteQuery {
-        val queryBuilder = SupportSQLiteQueryBuilder.builder("`histories`")
-
-        val columns = arrayOf(
-            "SUM(CASE `type` WHEN 'CREDIT' THEN `amount` ELSE 0 END) AS `totalCredit`",
-            "SUM(CASE `type` WHEN 'DEBIT' THEN `amount` ELSE 0 END) AS `totalDebit`",
-        )
-        queryBuilder.columns(columns)
-
-        where(queryBuilder)
-
-        val query = queryBuilder.create()
-        Log.d(TAG,"buildTotalCreditDebit: query = ${query.sql}")
-        return query
-    }
-
-    private fun where(builder: SupportSQLiteQueryBuilder) {
-        val selection = StringBuilder("1 = 1")
-        val selectionArgs = mutableListOf<Any?>()
-
-        if (historyTypes.isNotEmpty()) {
-            val sqlArgs = IN("type",historyTypes.toNamesList())
-            selection.append(" AND ").append(sqlArgs.first)
-            selectionArgs.addAll(sqlArgs.second)
-        }
-        if (accounts.isNotEmpty()) {
-            val first = IN("primaryAccountId",accounts)
-            val second = IN("secondaryAccountId", accounts)
-            val sqlArgs = OR(first,second)
-            selection.append(" AND ").append(sqlArgs.first)
-            selectionArgs.addAll(sqlArgs.second)
-        }
-        if (groups.isNotEmpty()) {
-            val sqlArgs = IN("groupId", groups)
-            selection.append(" AND ").append(sqlArgs.first)
-            selectionArgs.addAll(sqlArgs.second)
-        }
-        dateRange?.let {
-            val sqlArgs = BETWEEN("date",
-                Converter.localDateToString(it.first),
-                Converter.localDateToString(it.second))
-            selection.append(" AND ").append(sqlArgs.first)
-            selectionArgs.addAll(sqlArgs.second)
-        }
-
-        builder.selection(selection.toString(), selectionArgs.toTypedArray())
-    }
-
-    private fun orderBy(builder: SupportSQLiteQueryBuilder) {
-        if (oldestFirst) {
-            builder.orderBy("`date` ASC")
-        }
-        else {
-            builder.orderBy("`date` DESC")
-        }
-    }
-
-    private fun IN(column: String, values: List<Any?>): SqlArgs {
-        val valuesSet = values.toSet()
-        val sql = buildString {
-            append("`$column` IN(")
-            append(placeholders(valuesSet.size))
-            append(")")
-        }
-        return sql to valuesSet.toList()
-    }
-
-    private fun OR(first: SqlArgs, second: SqlArgs): SqlArgs {
-        val sql = buildString {
-            append("(")
-            append(first.first)
-            append(" OR ")
-            append(second.first)
-            append(")")
-        }
-        val args = mutableListOf<Any?>()
-        args.addAll(first.second.toSet())
-        args.addAll(second.second.toSet())
-        return sql to args
-    }
-
-    private fun BETWEEN(column: String, start: String?, end: String?): SqlArgs {
-        val sql = "`$column` BETWEEN ? AND ?"
-        val args = listOf(start,end)
-        return sql to args
-    }
-
-    private fun placeholders(size: Int): String = (1..size).joinToString(separator = ",") { "?" }
-}
 
 @Dao
 interface HistoryDao {
@@ -152,8 +25,12 @@ interface HistoryDao {
     @Transaction
     fun getPagedHistories(query: SupportSQLiteQuery): PagingSource<Int, HistoryDetails>
 
+    @Deprecated(message = "use getTypeTotals")
     @RawQuery(observedEntities = [HistoryEntity::class])
-    fun getHistoryTotalCreditDebit(query: SupportSQLiteQuery): Flow<TotalCreditDebit?>
+    fun getHistoryTotalCreditDebit(query: SupportSQLiteQuery): Flow<TotalCreditDebit>
+
+    @RawQuery(observedEntities = [HistoryEntity::class])
+    fun getHistoryTypeTotals(query: SupportSQLiteQuery): Flow<List<TypeTotal>>
 
     @Insert
     suspend fun insert(history: HistoryEntity): Long

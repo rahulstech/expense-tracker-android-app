@@ -3,6 +3,7 @@ package dreammaker.android.expensetracker.database.model
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.math.BigDecimal
 import java.time.LocalDateTime
 
 @Entity(tableName = "groups")
@@ -12,7 +13,7 @@ data class GroupEntity (
 
     val name: String,
 
-    val balance: Double,
+    val balance: BigDecimal,
 
     @ColumnInfo(typeAffinity = ColumnInfo.TEXT)
     val lastUsed: LocalDateTime? = null,
@@ -28,5 +29,5 @@ data class GroupIdName(
 data class GroupListModel(
     val id: Long,
     val name: String,
-    val balance: Double
+    val balance: BigDecimal
 )

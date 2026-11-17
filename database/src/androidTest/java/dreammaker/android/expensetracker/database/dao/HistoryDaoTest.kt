@@ -1,13 +1,12 @@
 package dreammaker.android.expensetracker.database.dao
 
 import androidx.paging.PagingSource
-import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import dreammaker.android.expensetracker.database.ExpensesDatabase
 import dreammaker.android.expensetracker.database.createInMemoryDB
 import dreammaker.android.expensetracker.database.fake.FakeDataCallbacks
 import dreammaker.android.expensetracker.database.model.HistoryEntity
-import dreammaker.android.expensetracker.database.model.HistoryType
+import dreammaker.android.expensetracker.database.model.TypeTotal
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -17,6 +16,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.math.BigDecimal
 import java.time.LocalDate
 
 @RunWith(AndroidJUnit4::class)
@@ -45,8 +45,9 @@ class HistoryDaoTest {
     fun getPagedHistories_returnsCorrectData() = runTest {
 
         // Raw query
-        val query = SimpleSQLiteQuery("SELECT * FROM histories WHERE `groupId` = ? ORDER BY `date` DESC", arrayOf(1))
-
+        val query = HistoryQueryBuilder().apply {
+            groups = listOf(1)
+        }.build()
         val pagingSource = dao.getPagedHistories(query)
 
         val result = pagingSource.load(
@@ -63,7 +64,7 @@ class HistoryDaoTest {
 
         val historyIds = data.map { it.history.id }
 
-        assertEquals("history ids mismatch",listOf<Long>(2,1), historyIds)
+        assertEquals("history ids mismatch",listOf<Long>(1,2), historyIds)
     }
 
     // -------------------------------------------------------------
@@ -74,25 +75,25 @@ class HistoryDaoTest {
     fun insert() = runTest {
         val history = HistoryEntity(
             id = 0,
-            type = HistoryType.DEBIT,
+            type = "DEBIT",
             primaryAccountId = 1,
             secondaryAccountId = null,
             groupId = 1,
-            amount = 100.0,
-            date = LocalDate.of(2025, 5, 1),
+            amount = BigDecimal("100.00"),
+            date = LocalDate.of(2026, 5, 1),
             note = "coroutine insert"
         )
         val id = dao.insert(history)
         assertTrue(id > 0)
         val actual = dao.findHistoryDetailsByIdFlow(id).first()
-        assertEquals(100.0, actual?.history?.amount)
+        assertEquals(BigDecimal("100.00"), actual?.history?.amount)
     }
 
     @Test
     fun insertMultiple() = runTest {
         val histories = listOf(
-            HistoryEntity(0, HistoryType.DEBIT, 1, null, 1, 10.0, LocalDate.now(), ""),
-            HistoryEntity(0, HistoryType.CREDIT, 1, null, 1, 20.0, LocalDate.now(), "")
+            HistoryEntity(0, "DEBIT", 1, null, 1, BigDecimal("10.00"), LocalDate.now(), ""),
+            HistoryEntity(0, "CREDIT", 1, null, 1, BigDecimal("20.00"), LocalDate.now(), "")
         )
         dao.insertMultiple(histories)
     }
@@ -130,5 +131,22 @@ class HistoryDaoTest {
     fun deleteMultiple() = runTest {
         val changes = dao.deleteMultiple(listOf(1, 2))
         assertEquals(2, changes)
+    }
+
+
+    @Test
+    fun getTypeTotals() = runTest {
+        val builder = HistoryQueryBuilder().apply {
+            historyTypes = listOf("DEBIT", "CREDIT")
+            dateRange = LocalDate.of(2026,1,1) to LocalDate.of(2026,2,28)
+        }
+        val query = builder.buildTypeTotals()
+        val typeTotals = dao.getHistoryTypeTotals(query).first()
+
+        assertEquals(listOf(
+            TypeTotal("CREDIT", BigDecimal("201.56")),
+            TypeTotal("DEBIT", BigDecimal("190.00"))),
+            typeTotals
+        )
     }
 }

@@ -7,18 +7,9 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.Relation
-import androidx.room.TypeConverters
-import dreammaker.android.expensetracker.database.Converter
+import java.math.BigDecimal
 import java.time.LocalDate
 
-enum class HistoryType {
-    CREDIT,
-    DEBIT,
-    TRANSFER,
-    ;
-}
-
-fun List<HistoryType>.toNamesList(): List<String> = map{ it.name }
 
 @Entity(
     tableName = "histories",
@@ -48,18 +39,19 @@ fun List<HistoryType>.toNamesList(): List<String> = map{ it.name }
     indices = [
         Index("primaryAccountId", name = "index_histories_primaryAccountId"),
         Index("secondaryAccountId", name = "index_histories_secondaryAccountId"),
-        Index("groupId", name = "index_histories_groupId")
+        Index("groupId", name = "index_histories_groupId"),
+        Index("type", name = "index_histories_type")
     ]
 )
 data class HistoryEntity (
     @PrimaryKey(autoGenerate = true)
     val id: Long,
-    @TypeConverters(Converter::class)
-    val type: HistoryType,
+    val type: String,
     val primaryAccountId: Long?,
     val secondaryAccountId: Long?,
     val groupId: Long?,
-    val amount: Double,
+    @ColumnInfo(typeAffinity = ColumnInfo.TEXT)
+    val amount: BigDecimal,
     @ColumnInfo(typeAffinity = ColumnInfo.TEXT)
     val date: LocalDate,
     val note: String?,
@@ -94,7 +86,13 @@ data class HistoryDetails(
     val group: GroupIdName?
 )
 
+@Deprecated(message = "use TypeTotal")
 data class TotalCreditDebit(
     val totalCredit: Double,
     val totalDebit: Double,
+)
+
+data class TypeTotal(
+    val type: String,
+    val total: BigDecimal
 )
