@@ -1,33 +1,26 @@
 package rahulstech.android.expensetracker.domain.model
 
 import dreammaker.android.expensetracker.database.model.AccountEntity
-import dreammaker.android.expensetracker.database.model.AccountIdName
-import dreammaker.android.expensetracker.database.model.AccountListModel
+import java.math.BigDecimal
 import java.time.LocalDateTime
 
 data class Account(
     val name: String,
-    val balance: Double = 0.0,
+    val balance: BigDecimal = BigDecimal.ZERO,
     val id: Long = 0,
     val lastUsed: LocalDateTime? = null,
     val totalUsed: Long = 0,
     val isDefault: Boolean = false,
 ) {
-
-
     companion object {
 
-        val UNKNOWN = Account("Unknown", 0.0, -1L)
+        val UNKNOWN = Account(id = -1L, name = "Unknown")
+
+        val DELECTED = Account(id = -2L, name = "Deleted Account")
     }
 
-    internal fun toAccountEntity(): AccountEntity = AccountEntity(id,name, balance,lastUsed,totalUsed)
+    internal fun toAccountEntity(): AccountEntity = AccountEntity(id,name, balance, lastUsed, totalUsed)
 
     fun isUsedAfterCreate(): Boolean = totalUsed > 1
 }
 
-fun AccountEntity.toAccount(isDefault: Boolean = false): Account =
-    Account(name,balance,id,lastUsed,totalUsed ?: 0, isDefault)
-
-fun AccountIdName.toAccount(): Account = Account(name = name,id = id)
-
-fun AccountListModel.toAccount(): Account = Account(name = name, balance = balance, id = id)

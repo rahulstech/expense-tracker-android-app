@@ -2,6 +2,7 @@ package rahulstech.android.expensetracker.domain
 
 import kotlinx.coroutines.flow.Flow
 import rahulstech.android.expensetracker.domain.model.Group
+import java.math.BigDecimal
 
 interface GroupRepository {
 
@@ -17,13 +18,13 @@ interface GroupRepository {
 
     fun getRecentlyUsedGroups(count: Int = 3): Flow<List<Group>>
 
-    fun getThreeFrequentlyUsedGroups(): Flow<List<Group>>
+    fun getFrequentlyUsedGroups(count: Int = 3): Flow<List<Group>>
 
     suspend fun editGroup(group: Group): Boolean
 
-    suspend fun creditGroupDue(id: Long, amount: Double)
+    suspend fun creditGroupDue(id: Long, amount: BigDecimal)
 
-    suspend fun debitGroupDue(id: Long, amount: Double)
+    suspend fun debitGroupDue(id: Long, amount: BigDecimal)
 
     suspend fun removeGroup(id: Long)
 

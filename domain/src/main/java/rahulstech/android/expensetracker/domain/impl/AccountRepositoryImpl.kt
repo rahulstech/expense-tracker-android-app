@@ -1,8 +1,6 @@
 package rahulstech.android.expensetracker.domain.impl
 
-import dreammaker.android.expensetracker.database.IExpenseDatabase
 import dreammaker.android.expensetracker.database.dao.AccountDao
-import dreammaker.android.expensetracker.database.dao.AnalyticsDao
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -17,16 +15,14 @@ import rahulstech.android.expensetracker.domain.AccountRepository
 import rahulstech.android.expensetracker.domain.LocalCache
 import rahulstech.android.expensetracker.domain.model.Account
 import rahulstech.android.expensetracker.domain.model.toAccount
+import java.math.BigDecimal
 import java.time.LocalDateTime
 import javax.inject.Inject
 
 class AccountRepositoryImpl @Inject constructor(
-    db: IExpenseDatabase,
-    private val cache: LocalCache
+    private val cache: LocalCache,
+    private val accountDao: AccountDao
 ): AccountRepository {
-
-    private val accountDao: AccountDao = db.accountDao
-    private val analyticsDao: AnalyticsDao = db.analyticsDao
 
     // --- New Coroutine and Flow based methods ---
 
@@ -54,13 +50,14 @@ class AccountRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getThreeFrequentlyUsedAccounts(): Flow<List<Account>> {
-        return accountDao.getFrequentlyUserAccountsFlow(3).map { entities ->
+    override fun getFrequentlyUsedAccounts(count: Int): Flow<List<Account>> {
+        return accountDao.getFrequentlyUserAccountsFlow(count).map { entities ->
             entities.map { it.toAccount() }
         }.flowOn(Dispatchers.IO)
     }
 
-    override fun getTotalBalance(): Flow<Double> = analyticsDao.getTotalAccountBalance()
+    override fun getTotalBalanceOfAllAccount(): Flow<BigDecimal> =
+        accountDao.getTotalBalanceOfAllAccounts()
 
     override suspend fun editAccount(account: Account): Boolean {
         val updatedAccount = account.copy(lastUsed = LocalDateTime.now())
@@ -68,9 +65,8 @@ class AccountRepositoryImpl @Inject constructor(
         return true
     }
 
-    override suspend fun creditAccountBalance(id: Long, amount: Double) {
-        val entity = accountDao.findByIdFlow(id).first()
-        entity?.let {
+    override suspend fun creditAccountBalance(id: Long, amount: BigDecimal) {
+        accountDao.findByIdFlow(id).first()?.let {
             val updatedAccount = it.copy(
                 balance = it.balance + amount,
                 lastUsed = LocalDateTime.now(),
@@ -80,9 +76,8 @@ class AccountRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun debitAccountBalance(id: Long, amount: Double) {
-        val entity = accountDao.findByIdFlow(id).first()
-        entity?.let {
+    override suspend fun debitAccountBalance(id: Long, amount: BigDecimal) {
+        accountDao.findByIdFlow(id).first()?.let {
             val updatedAccount = it.copy(
                 balance = it.balance - amount,
                 lastUsed = LocalDateTime.now(),

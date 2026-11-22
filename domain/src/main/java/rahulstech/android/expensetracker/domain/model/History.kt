@@ -1,101 +1,140 @@
 package rahulstech.android.expensetracker.domain.model
 
-import dreammaker.android.expensetracker.database.model.HistoryDetails
 import dreammaker.android.expensetracker.database.model.HistoryEntity
-import dreammaker.android.expensetracker.database.model.HistoryType
+import java.math.BigDecimal
 import java.time.LocalDate
 
-internal fun List<History.Type>.toHistoryTypesList(): List<HistoryType> = map { it.toHistoryType() }
-
 sealed class History(
-    open var id: Long,
+    open val id: Long,
     open val date: LocalDate,
-    open val type: Type,
-    open val amount: Double,
+
+    internal open val type: HistoryType,
+    open val amount: BigDecimal,
     open val primaryAccountId: Long?,
     open val secondaryAccountId: Long?,
     open val groupId: Long?,
     open val note: String?,
     open val primaryAccount: Account?,
     open val secondaryAccount: Account?,
-    open val group: Group?,
+    open val group: Group?
 ) {
 
-    enum class Type {
-        CREDIT,
-        DEBIT,
-        TRANSFER,
-        ;
-
-        internal fun toHistoryType(): HistoryType = when(this) {
-            CREDIT -> HistoryType.CREDIT
-            DEBIT -> HistoryType.DEBIT
-            TRANSFER -> HistoryType.TRANSFER
-        }
-    }
+    internal abstract fun copyId(id: Long): History
 
     internal fun toHistoryEntity(): HistoryEntity =
-        HistoryEntity(id,type.toHistoryType(),primaryAccountId,secondaryAccountId,groupId, amount,date,note)
+        HistoryEntity(id,type.name,primaryAccountId,secondaryAccountId,groupId,amount,date,note)
 
     data class CreditHistory(
-        override var id: Long,
+        override val id: Long,
         override val date: LocalDate,
-        override val amount: Double,
+        override val amount: BigDecimal,
         override val primaryAccountId: Long,
         override val groupId: Long? = null,
         override val note: String? = null,
         override val primaryAccount: Account? = null,
         override val group: Group? = null,
-    ): History(id,date,Type.CREDIT,amount,primaryAccountId,null,groupId,note,primaryAccount,null,group)
+    ): History(
+        id = id,
+        date = date,
+        type = HistoryType.CREDIT,
+        amount = amount,
+        primaryAccountId = primaryAccountId,
+        secondaryAccountId = null,
+        groupId = groupId,
+        note = note,
+        primaryAccount = primaryAccount,
+        secondaryAccount = null,
+        group = group,
+    ) {
+        override fun copyId(id: Long): History = this.copy(id=id)
+    }
 
     data class DebitHistory(
         override var id: Long,
         override val date: LocalDate,
-        override val amount: Double,
+        override val amount: BigDecimal,
         override val primaryAccountId: Long,
         override val groupId: Long? = null,
         override val note: String? = null,
         override val primaryAccount: Account? = null,
         override val group: Group? = null,
-    ): History(id,date,Type.DEBIT,amount,primaryAccountId,null,groupId,note,primaryAccount,null,group)
+    ): History(
+        id = id,
+        date = date,
+        type = HistoryType.DEBIT,
+        amount = amount,
+        primaryAccountId = primaryAccountId,
+        secondaryAccountId = null,
+        groupId = groupId,
+        note = note,
+        primaryAccount = primaryAccount,
+        secondaryAccount = null,
+        group = group
+    ) {
+        override fun copyId(id: Long): History = this.copy(id=id)
+    }
+
+
+    data class CreditIncomeHistory(
+        override val id: Long,
+        override val date: LocalDate,
+        override val amount: BigDecimal,
+        override val primaryAccountId: Long,
+        override val note: String? = null,
+        override val primaryAccount: Account? = null,
+    ): History(id,date,HistoryType.CREDIT,amount,primaryAccountId,null,null,note,primaryAccount,null,null) {
+
+        override fun copyId(id: Long): History = this.copy(id=id)
+    }
+
+    data class DebitExpenseHistory(
+        override var id: Long,
+        override val date: LocalDate,
+        override val amount: BigDecimal,
+        override val primaryAccountId: Long,
+        override val note: String? = null,
+        override val primaryAccount: Account? = null,
+    ): History(
+        id = id,
+        date = date,
+        type = HistoryType.DEBIT,
+        amount = amount,
+        primaryAccountId = primaryAccountId,
+        secondaryAccountId = null,
+        groupId = null,
+        note = note,
+        primaryAccount = primaryAccount,
+        secondaryAccount = null,
+        group = null
+    ) {
+        override fun copyId(id: Long): History = this.copy(id=id)
+    }
+
+
 
     data class TransferHistory(
         override var id: Long,
         override val date: LocalDate,
-        override val amount: Double,
+        override val amount: BigDecimal,
         override val primaryAccountId: Long,
         override val secondaryAccountId: Long,
         override val note: String? = null,
         override val primaryAccount: Account? = null,
         override val secondaryAccount: Account? = null,
-    ): History(id,date,Type.TRANSFER,amount,primaryAccountId,secondaryAccountId,null,note,primaryAccount,secondaryAccount,null)
+    ): History(
+        id = id,
+        date = date,
+        type = HistoryType.TRANSFER,
+        amount = amount,
+        primaryAccountId = primaryAccountId,
+        secondaryAccountId = secondaryAccountId,
+        groupId = null,
+        note = note,
+        primaryAccount = primaryAccount,
+        secondaryAccount = secondaryAccount,
+        group = null
+    ) {
+        override fun copyId(id: Long): History = this.copy(id=id)
+    }
 }
 
-fun HistoryEntity.toHistory(): History =
-    when(type) {
-        HistoryType.CREDIT -> {
-            History.CreditHistory(id,date, amount,primaryAccountId!!,groupId,note)
-        }
-        HistoryType.DEBIT -> {
-            History.DebitHistory(id,date,amount,primaryAccountId!!,groupId,note)
-        }
-        HistoryType.TRANSFER -> {
-            History.TransferHistory(id,date,amount,primaryAccountId!!,secondaryAccountId!!,note)
-        }
-    }
-
-fun HistoryDetails.toHistory(): History =
-    when(history.type) {
-        HistoryType.CREDIT -> {
-            History.CreditHistory(history.id,history.date, history.amount,history.primaryAccountId!!,history.groupId, history.note,
-                primaryAccount?.toAccount(),group?.toGroup())
-        }
-        HistoryType.DEBIT -> {
-            History.DebitHistory(history.id,history.date, history.amount,history.primaryAccountId!!,history.groupId, history.note,
-                primaryAccount?.toAccount(),group?.toGroup())
-        }
-        HistoryType.TRANSFER -> {
-            History.TransferHistory(history.id,history.date, history.amount,history.primaryAccountId!!,history.secondaryAccountId!!, history.note,
-                primaryAccount?.toAccount(),secondaryAccount?.toAccount())
-        }
-    }

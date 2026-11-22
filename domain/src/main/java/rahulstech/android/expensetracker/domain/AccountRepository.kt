@@ -2,6 +2,7 @@ package rahulstech.android.expensetracker.domain
 
 import kotlinx.coroutines.flow.Flow
 import rahulstech.android.expensetracker.domain.model.Account
+import java.math.BigDecimal
 
 interface AccountRepository{
 
@@ -23,15 +24,15 @@ interface AccountRepository{
 
     fun getRecentlyUsedAccounts(count: Int = 3): Flow<List<Account>>
 
-    fun getThreeFrequentlyUsedAccounts(): Flow<List<Account>>
+    fun getFrequentlyUsedAccounts(count: Int = 3): Flow<List<Account>>
 
-    fun getTotalBalance(): Flow<Double>
+    fun getTotalBalanceOfAllAccount(): Flow<BigDecimal>
 
     suspend fun editAccount(account: Account): Boolean
 
-    suspend fun creditAccountBalance(id: Long, amount: Double)
+    suspend fun creditAccountBalance(id: Long, amount: BigDecimal)
 
-    suspend fun debitAccountBalance(id: Long, amount: Double)
+    suspend fun debitAccountBalance(id: Long, amount: BigDecimal)
 
     suspend fun removeAccount(id: Long)
 

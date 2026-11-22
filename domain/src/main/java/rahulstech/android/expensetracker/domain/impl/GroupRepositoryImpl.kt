@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.map
 import rahulstech.android.expensetracker.domain.GroupRepository
 import rahulstech.android.expensetracker.domain.model.Group
 import rahulstech.android.expensetracker.domain.model.toGroup
+import java.math.BigDecimal
 import java.time.LocalDateTime
 import javax.inject.Inject
 
@@ -47,8 +48,8 @@ class GroupRepositoryImpl @Inject constructor(
         }.flowOn(Dispatchers.IO)
     }
 
-    override fun getThreeFrequentlyUsedGroups(): Flow<List<Group>> {
-        return groupDao.getFrequentlyUsedGroupsFlow(3).map { entities ->
+    override fun getFrequentlyUsedGroups(count: Int): Flow<List<Group>> {
+        return groupDao.getFrequentlyUsedGroupsFlow(count).map { entities ->
             entities.map { it.toGroup() }
         }.flowOn(Dispatchers.IO)
     }
@@ -59,7 +60,7 @@ class GroupRepositoryImpl @Inject constructor(
         return true
     }
 
-    override suspend fun creditGroupDue(id: Long, amount: Double) {
+    override suspend fun creditGroupDue(id: Long, amount: BigDecimal) {
         val entity = groupDao.findByIdFlow(id).first()
         entity?.let {
             val updatedGroup = it.copy(
@@ -71,7 +72,7 @@ class GroupRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun debitGroupDue(id: Long, amount: Double) {
+    override suspend fun debitGroupDue(id: Long, amount: BigDecimal) {
         val entity = groupDao.findByIdFlow(id).first()
         entity?.let {
             val updatedGroup = it.copy(

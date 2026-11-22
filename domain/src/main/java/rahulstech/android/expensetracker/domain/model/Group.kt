@@ -1,8 +1,7 @@
 package rahulstech.android.expensetracker.domain.model
 
 import dreammaker.android.expensetracker.database.model.GroupEntity
-import dreammaker.android.expensetracker.database.model.GroupIdName
-import dreammaker.android.expensetracker.database.model.GroupListModel
+import java.math.BigDecimal
 import java.time.LocalDateTime
 
 /**
@@ -13,25 +12,20 @@ import java.time.LocalDateTime
  * this change is not migrated in db layer, and will be done later.
  * therefore balance from GroupEntity or any model from database module is reversed here with - (minus)
  */
-// TODO: change the group balance calculation after db migration
 data class Group(
     val name: String,
-    val balance: Double = 0.0,
+    val balance: BigDecimal = BigDecimal.ZERO,
     val id: Long = 0,
     val lastUsed: LocalDateTime? = null,
     val totalUsed: Long = 0,
 ) {
 
     companion object {
-        val UNKNOWN = Group(name = "Unknown", balance = 0.0, id = -1L)
+        val UNKNOWN = Group(id = -1L, name = "Unknown")
+
+        val DELETED = Group(id = -2L, name = "Deleted")
     }
     internal fun toGroupEntity(): GroupEntity = GroupEntity(id,name,balance,lastUsed,totalUsed)
 
     fun isUsedAfterCreate(): Boolean = totalUsed > 1
 }
-
-fun GroupEntity.toGroup(): Group = Group(name,-balance,id,lastUsed,totalUsed ?: 0)
-
-fun GroupIdName.toGroup(): Group = Group(name, 0.0, id)
-
-fun GroupListModel.toGroup(): Group = Group(name = name, balance = balance, id = id)
