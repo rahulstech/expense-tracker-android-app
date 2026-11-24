@@ -14,29 +14,34 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class ExpenseRepositoryHiltModule {
+interface ExpenseRepositoryHiltModule {
 
     @Binds
     @Singleton
-    abstract fun accountRepository(impl: AccountRepositoryImpl): AccountRepository
+    fun expenseRepository(impl: ExpenseRepository): IExpenseRepository
+
 
     @Binds
     @Singleton
-    abstract fun groupRepository(impl: GroupRepositoryImpl): GroupRepository
+    fun accountRepository(impl: AccountRepositoryImpl): AccountRepository
 
     @Binds
     @Singleton
-    abstract fun historyRepository(impl: HistoryRepositoryImpl): HistoryRepository
+    fun groupRepository(impl: GroupRepositoryImpl): GroupRepository
 
     @Binds
     @Singleton
-    abstract fun localCache(impl: LocalCacheImpl): LocalCache
+    fun historyRepository(impl: HistoryRepositoryImpl): HistoryRepository
 
     @Binds
     @Singleton
-    abstract fun backupRepository(impl: BackupRepositoryImpl): BackupRepository
+    fun localCache(impl: LocalCacheImpl): LocalCache
 
     @Binds
     @Singleton
-    abstract fun restoreRepository(impl: RestoreRepositoryImpl): RestoreRepository
+    fun backupRepository(impl: BackupRepositoryImpl): BackupRepository
+
+    @Binds
+    @Singleton
+    fun restoreRepository(impl: RestoreRepositoryImpl): RestoreRepository
 }

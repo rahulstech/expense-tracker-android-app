@@ -28,11 +28,10 @@ import javax.inject.Inject
 
 class HistoryRepositoryImpl @Inject constructor(
     private val db: IExpenseDatabase,
+    private val historyDao: HistoryDao,
     private val accountRepository: AccountRepository,
     private val groupRepository: GroupRepository,
 ): HistoryRepository {
-
-    private val historyDao: HistoryDao = db.historyDao
 
     override fun getPagedHistories(params: HistoryFilterParameters): Flow<PagingData<History>> {
         return Pager(

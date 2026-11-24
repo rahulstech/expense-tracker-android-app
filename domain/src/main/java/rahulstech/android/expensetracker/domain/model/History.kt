@@ -8,7 +8,7 @@ sealed class History(
     open val id: Long,
     open val date: LocalDate,
 
-    internal open val type: HistoryType,
+    open val type: HistoryType,
     open val amount: BigDecimal,
     open val primaryAccountId: Long?,
     open val secondaryAccountId: Long?,

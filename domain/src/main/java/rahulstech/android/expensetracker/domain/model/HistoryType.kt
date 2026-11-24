@@ -1,6 +1,6 @@
 package rahulstech.android.expensetracker.domain.model
 
-internal enum class HistoryType {
+enum class HistoryType {
     CREDIT,
 
     DEBIT,

@@ -9,7 +9,6 @@ import dreammaker.android.expensetracker.database.model.GroupListModel
 import dreammaker.android.expensetracker.database.model.HistoryDetails
 import dreammaker.android.expensetracker.database.model.HistoryEntity
 import java.math.BigDecimal
-import kotlin.reflect.KClass
 
 fun AccountEntity.toAccount(isDefault: Boolean = false): Account =
     Account(name,balance,id,lastUsed,totalUsed ?: 0, isDefault)
@@ -140,24 +139,3 @@ fun HistoryDetails.toHistory(): History {
         }
     }
 }
-
-internal fun List<KClass<History>>.toHistoryTypes(): List<HistoryType> =
-    this.map {
-        when(it) {
-            History.CreditHistory::class -> {
-                HistoryType.CREDIT
-            }
-            History.DebitHistory::class -> {
-                HistoryType.DEBIT
-            }
-            History.CreditIncomeHistory::class -> {
-                HistoryType.CREDIT_INCOME
-            }
-            History.DebitExpenseHistory::class -> {
-                HistoryType.DEBIT_EXPENSE
-            }
-            History.TransferHistory::class -> {
-                HistoryType.TRANSFER
-            }
-        }
-    }

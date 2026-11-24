@@ -41,7 +41,7 @@ class AccountRepositoryImpl @Inject constructor(
     override fun getAllAccounts(): Flow<List<Account>> {
         return accountDao.getAccountsFlow().map { entities ->
             entities.map { it.toAccount() }
-        }
+        }.flowOn(Dispatchers.IO)
     }
 
     override fun getRecentlyUsedAccounts(count: Int): Flow<List<Account>> {
