@@ -27,8 +27,8 @@ interface AccountDao {
     @Transaction
     suspend fun insertMultiple(entities: List<AccountEntity>): List<Long>
 
-    @Query("SELECT `id`,`name`,`balance` FROM `accounts` ORDER BY `name` ASC")
-    fun getAccountsFlow(): Flow<List<AccountListModel>>
+    @Query("SELECT * FROM `accounts` ORDER BY `name` ASC")
+    fun getAccountsFlow(): Flow<List<AccountEntity>>
 
     @Query("SELECT * FROM `accounts` WHERE `id` = :id")
     fun findByIdFlow(id: Long): Flow<AccountEntity?>

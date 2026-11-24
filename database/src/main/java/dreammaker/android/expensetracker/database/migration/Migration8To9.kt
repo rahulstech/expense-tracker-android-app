@@ -34,10 +34,13 @@ class Migration8To9: Migration(8,9) {
             `lastUsed` TEXT, 
             `totalUsed` INTEGER);
         """)
+
+        // TODO: why balance multiplied by -1
         db.execSQL("""
             INSERT INTO `groups` (`id`, `name`, `balance`, `lastUsed`, `totalUsed`) 
-            SELECT `id`, `name`, CAST(`balance` AS TEXT) as `balance`, `lastUsed`, `totalUsed` FROM `groups_old`
+            SELECT `id`, `name`, CAST(-1 * `balance` AS TEXT) as `balance`, `lastUsed`, `totalUsed` FROM `groups_old`
         """)
+
         db.execSQL("DROP TABLE `groups_old`;")
 
 

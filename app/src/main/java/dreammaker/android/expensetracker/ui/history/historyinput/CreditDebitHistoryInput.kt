@@ -48,15 +48,30 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.core.ui.ExpenseTrackerTheme
 import dreammaker.android.expensetracker.core.util.QuickMessages
 import dreammaker.android.expensetracker.ui.component.DatePicker
+import dreammaker.android.expensetracker.ui.component.SnackBarCallback
 import dreammaker.android.expensetracker.ui.component.YesNoDialog
+import dreammaker.android.expensetracker.ui.navigation.NavigationEvent
 import rahulstech.android.expensetracker.domain.model.Account
 import rahulstech.android.expensetracker.domain.model.Group
 import java.time.LocalDate
+
+
+@Composable
+fun TransactionInputRoute(
+    snackBarCallback: SnackBarCallback,
+    onNavigation: (NavigationEvent)-> Unit,
+    viewModel: HistoryInputViewModel = hiltViewModel()
+) {
+
+}
+
+
 
 @Composable
 fun TransactionInputScreen(

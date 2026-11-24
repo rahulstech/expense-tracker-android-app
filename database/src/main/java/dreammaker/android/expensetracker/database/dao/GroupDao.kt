@@ -20,8 +20,8 @@ interface GroupDao {
     @Transaction
     suspend fun insertMultiple(groups: List<GroupEntity>)
 
-    @Query("SELECT `id`, `name`, `balance` FROM `groups` ORDER BY `name` ASC")
-    fun getAllGroupsFlow(): Flow<List<GroupListModel>>
+    @Query("SELECT * FROM `groups` ORDER BY `name` ASC")
+    fun getAllGroupsFlow(): Flow<List<GroupEntity>>
 
     @Query("SELECT * FROM `groups`")
     suspend fun getAllGroups(): List<GroupEntity>

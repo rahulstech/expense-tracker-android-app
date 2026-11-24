@@ -29,5 +29,7 @@ data class AccountIdName(
 data class AccountListModel(
     val id: Long,
     val name: String,
-    val balance: BigDecimal
+    val balance: BigDecimal,
+    val lastUsed: LocalDateTime? = null,
+    val totalUsed: Long? = null,
 )

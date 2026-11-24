@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
@@ -30,22 +31,28 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import dreammaker.android.expensetracker.core.ui.ExpenseTrackerTheme
+import dreammaker.android.expensetracker.core.ui.helper.shimmer
+import kotlinx.coroutines.delay
 
 
 @Immutable
 data class SelectionDropdownData<T>(
     val options: List<T>,
-    val quickOptions: List<T>
+    val quickOptions: List<T>,
+    val isLoading: Boolean = false,
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -93,7 +100,6 @@ fun <T> SelectionDropdown(
                 // in the following case since weight is used fillMaxWidth is totally unnecessary
                 Box(
                     modifier = Modifier
-                        //.fillMaxWidth()
                         .padding(start = 12.dp, top = 8.dp, bottom = 8.dp, end = 6.dp)
                         .weight(1f)
                 ) {
@@ -102,7 +108,7 @@ fun <T> SelectionDropdown(
                         // in the following case it has trailing close button.
                         InputChip(
                             selected = true,
-                            onClick = { },
+                            onClick = {},
                             label = {
                                 Text(
                                     text = labelProvider(selectedOption),
@@ -126,7 +132,7 @@ fun <T> SelectionDropdown(
                                     )
                                 }
                             },
-                            shape = MaterialTheme.shapes.large,
+                            shape = MaterialTheme.shapes.extraLarge,
                             colors = InputChipDefaults.inputChipColors(
                                 containerColor = MaterialTheme.colorScheme.secondaryContainer,
                                 labelColor = MaterialTheme.colorScheme.onSecondaryContainer,
@@ -137,9 +143,7 @@ fun <T> SelectionDropdown(
                     }
                 }
 
-                IconButton(
-                    onClick = {},
-                ) {
+                IconButton(onClick = {}) {
                     Icon(
                         imageVector = Icons.Default.ArrowDropDown,
                         contentDescription = null,
@@ -185,66 +189,96 @@ fun <T> SelectionDropdown(
                 .fillMaxWidth()
                 .horizontalScroll(rememberScrollState())
         ) {
-            data.quickOptions.forEach { option ->
-                SuggestionChip(
-                    onClick = { onOptionSelected(option) },
-                    label = {
-                        Text(
-                            text = labelProvider(option),
-                            style = MaterialTheme.typography.labelSmall,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    },
-                    shape = MaterialTheme.shapes.extraLarge,
-                    colors = SuggestionChipDefaults.suggestionChipColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
-                    ),
-                    border = null,
-                    modifier = Modifier.widthIn(max = 120.dp)
-                )
-            }
 
-            addNewOptionContent?.let { content ->
-                SuggestionChip(
-                    onClick = { onAddNewOption?.invoke() },
-                    label = { content() },
-                    shape = MaterialTheme.shapes.extraLarge,
-                    colors = SuggestionChipDefaults.suggestionChipColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
-                    ),
-                    border = null
-                )
+            if (data.isLoading) {
+                (1..3).forEach { _ ->
+                    Box(
+                        modifier = Modifier.width(56.dp).height(32.dp)
+                            .clip(MaterialTheme.shapes.extraLarge)
+                            .shimmer(color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = .4f))
+                    )
+                }
+            }
+            else {
+                data.quickOptions.forEach { option ->
+                    SuggestionChip(
+                        onClick = { onOptionSelected(option) },
+                        label = {
+                            Text(
+                                text = labelProvider(option),
+                                style = MaterialTheme.typography.labelSmall,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        },
+                        shape = MaterialTheme.shapes.extraLarge,
+                        colors = SuggestionChipDefaults.suggestionChipColors(
+                            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                            labelColor = MaterialTheme.colorScheme.onTertiaryContainer
+                        ),
+                        border = null,
+                        modifier = Modifier.widthIn(max = 120.dp)
+                    )
+                }
+
+                addNewOptionContent?.let { content ->
+                    SuggestionChip(
+                        onClick = { onAddNewOption?.invoke() },
+                        label = { content() },
+                        shape = MaterialTheme.shapes.extraLarge,
+                        colors = SuggestionChipDefaults.suggestionChipColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant
+                        ),
+                        border = null
+                    )
+                }
             }
         }
     }
 }
 
-@Preview(showBackground = true)
+@PreviewLightDark
 @Composable
 private fun SelectionDropdownPreview() {
-    MaterialTheme {
-        Surface(modifier = Modifier.padding(16.dp)) {
+
+    var data by remember { mutableStateOf(
+        SelectionDropdownData<String>(
+            options = emptyList(),
+            quickOptions = emptyList(),
+            isLoading = true
+        )
+    ) }
+
+    LaunchedEffect(Unit) {
+        delay(3500)
+        data = data.copy(
+            isLoading = false,
+            options = listOf("Food", "Transport", "Shopping", "Entertainment"),
+            quickOptions = listOf("Food", "Transport"),
+        )
+    }
+
+    ExpenseTrackerTheme {
+        Surface {
             SelectionDropdown(
+                modifier = Modifier.padding(16.dp),
                 label = "Category",
                 selectedOption = "Entertainments & Travelling",
                 onOptionSelected = {},
-                data = SelectionDropdownData(
-                    options = listOf("Food", "Transport", "Shopping", "Entertainment"),
-                    quickOptions = listOf("Food", "Transport"),
-                ),
+                data = data,
                 labelProvider = { it }
             )
         }
     }
 }
 
-@Preview(showBackground = true)
+@PreviewLightDark
 @Composable
 private fun SelectionDropdownNoSelectionPreview() {
     MaterialTheme {
-        Surface(modifier = Modifier.padding(16.dp)) {
+        Surface(modifier = Modifier.fillMaxWidth()) {
             SelectionDropdown(
+                modifier = Modifier.padding(16.dp),
                 label = "Account",
                 selectedOption = null,
                 onOptionSelected = {},
@@ -259,12 +293,13 @@ private fun SelectionDropdownNoSelectionPreview() {
     }
 }
 
-@Preview(showBackground = true)
+@PreviewLightDark
 @Composable
 private fun SelectionDropdownErrorPreview() {
-    MaterialTheme {
-        Surface(modifier = Modifier.padding(16.dp)) {
+    ExpenseTrackerTheme {
+        Surface(modifier = Modifier.fillMaxWidth()) {
             SelectionDropdown(
+                modifier = Modifier.padding(16.dp),
                 label = "Account",
                 selectedOption = null,
                 onOptionSelected = {},
