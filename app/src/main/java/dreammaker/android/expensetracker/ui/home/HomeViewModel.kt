@@ -19,12 +19,13 @@ import rahulstech.android.expensetracker.domain.AccountRepository
 import rahulstech.android.expensetracker.domain.GroupRepository
 import rahulstech.android.expensetracker.domain.model.Account
 import rahulstech.android.expensetracker.domain.model.Group
+import java.math.BigDecimal
 import javax.inject.Inject
 
 @Immutable
 data class HomeUiState(
     val isTotalAccountBalanceLoading: Boolean = false,
-    val totalAccountBalance: Double = 0.0,
+    val totalAccountBalance: BigDecimal = BigDecimal.ZERO,
     val isAccountsLoading: Boolean = false,
     val accounts: List<Account> = emptyList(),
     val isGroupsLoading: Boolean = false,
@@ -54,7 +55,7 @@ class HomeViewModel @Inject constructor(
 
     private fun loadTotalAccountBalance() {
         viewModelScope.launch {
-            accountRepo.getTotalBalance()
+            accountRepo.getTotalBalanceOfAllAccount()
                 .onStart {
                     _uiState.update {
                         it.copy(isTotalAccountBalanceLoading = true)
@@ -63,7 +64,7 @@ class HomeViewModel @Inject constructor(
                 .catch { cause ->
                     Log.e(TAG, "total account balance loading error", cause)
                     _uiState.update {
-                        it.copy(isTotalAccountBalanceLoading = false, totalAccountBalance = 0.0)
+                        it.copy(isTotalAccountBalanceLoading = false, totalAccountBalance = BigDecimal.ZERO)
                     }
                 }
                 .onEach {
@@ -82,7 +83,7 @@ class HomeViewModel @Inject constructor(
 
     private fun loadRecentAccounts() {
         viewModelScope.launch {
-            accountRepo.getThreeFrequentlyUsedAccounts()
+            accountRepo.getFrequentlyUsedAccounts(3)
                 .onStart {
                     _uiState.update {
                         it.copy(isAccountsLoading = true)
@@ -111,7 +112,7 @@ class HomeViewModel @Inject constructor(
 
     private fun loadRecentGroups() {
         viewModelScope.launch {
-            groupRepo.getThreeFrequentlyUsedGroups()
+            groupRepo.getFrequentlyUsedGroups(3)
                 .onStart {
                     _uiState.update {
                         it.copy(isGroupsLoading = true)

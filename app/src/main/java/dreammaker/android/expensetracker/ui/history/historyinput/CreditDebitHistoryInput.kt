@@ -1,430 +1,241 @@
 package dreammaker.android.expensetracker.ui.history.historyinput
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.core.ui.ExpenseTrackerTheme
-import dreammaker.android.expensetracker.core.util.QuickMessages
+import dreammaker.android.expensetracker.core.ui.LocalAppColor
+import dreammaker.android.expensetracker.core.ui.component.NavigationUpIcon
+import dreammaker.android.expensetracker.core.ui.component.ScreenScaffold
+import dreammaker.android.expensetracker.core.ui.component.TopBarIconAction
+import dreammaker.android.expensetracker.core.ui.helper.PreviewScreen
 import dreammaker.android.expensetracker.ui.component.DatePicker
+import dreammaker.android.expensetracker.ui.component.FullScreenLoading
+import dreammaker.android.expensetracker.ui.component.HistoryTypeChooser
+import dreammaker.android.expensetracker.ui.component.HistoryTypeChooserItem
 import dreammaker.android.expensetracker.ui.component.SnackBarCallback
-import dreammaker.android.expensetracker.ui.component.YesNoDialog
+import dreammaker.android.expensetracker.ui.component.SnackBarVisualsImpl
+import dreammaker.android.expensetracker.ui.navigation.AppDestination
 import dreammaker.android.expensetracker.ui.navigation.NavigationEvent
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import rahulstech.android.expensetracker.domain.model.Account
 import rahulstech.android.expensetracker.domain.model.Group
+import rahulstech.android.expensetracker.domain.model.HistoryType
 import java.time.LocalDate
 
 
 @Composable
-fun TransactionInputRoute(
+fun CreditDebitInputRoute(
     snackBarCallback: SnackBarCallback,
     onNavigation: (NavigationEvent)-> Unit,
-    viewModel: HistoryInputViewModel = hiltViewModel()
-) {
-
-}
-
-
-
-@Composable
-fun TransactionInputScreen(
-    viewModel: HistoryInputViewModel,
-    isEdit: Boolean,
-    onAddNewAccount: () -> Unit,
-    onAddNewGroup: () -> Unit,
-    exit: ()-> Unit,
+    viewModel: CreditDebitViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    // Handle saving events
-    LaunchedEffect(uiState.savingSuccess) {
-        if (uiState.savingSuccess) {
-            if (isEdit) {
-                QuickMessages.toastSuccess(context, context.getString(R.string.message_success_save_history))
-                exit()
-            } else {
-                viewModel.onShowAddMoreDialog(true)
+    LaunchedEffect(Unit) {
+        viewModel.uiEffect.collectLatest { effect ->
+            when(effect) {
+                is HistoryInputUiEffect.ShowLoadErrorAndExit -> {
+                    snackBarCallback(
+                        SnackBarVisualsImpl(context.getString(R.string.message_load_error), withDismissAction = true),
+                        null, null
+                    )
+                    onNavigation(NavigationEvent.Exit)
+                }
+                is HistoryInputUiEffect.ShowNotFoundAndExit -> {
+                    snackBarCallback(
+                        SnackBarVisualsImpl(context.getString(R.string.message_history_not_found), withDismissAction = true),
+                        null, null
+                    )
+                    onNavigation(NavigationEvent.Exit)
+                }
+                is HistoryInputUiEffect.ShowSaveSuccessful -> {
+                    snackBarCallback(
+                        SnackBarVisualsImpl(context.getString(R.string.message_save_successful)),
+                        null, null
+                    )
+                    if (effect.exit) {
+                        onNavigation(NavigationEvent.Exit)
+                    }
+                }
             }
         }
     }
 
-    // Handle errors
-    LaunchedEffect(uiState.savingError, uiState.historyLoadingError) {
-        uiState.savingError?.let {
-            QuickMessages.toastError(context, context.getString(R.string.message_error_save_history))
-        }
-        uiState.historyLoadingError?.let {
-            QuickMessages.toastError(context, context.getString(R.string.message_history_not_found))
-        }
-    }
+    CreditDebitInputScreen(
+        uiState = uiState,
+        onNavUp = { onNavigation(NavigationEvent.Up) },
+        onExit = { onNavigation(NavigationEvent.Exit) },
+        onAddNewAccount = { onNavigation(NavigationEvent.To(AppDestination.AddAccount)) },
+        onAddNewGroup = { onNavigation(NavigationEvent.To(AppDestination.AddGroup)) },
+        onUiEvent = { viewModel.handleUiEvent(it) }
+    )
+}
 
-    if (uiState.showAddMoreDialog) {
-        YesNoDialog(
-            header = stringResource(R.string.message_success_save_history_ask_add_more),
-            onYes = {
-                viewModel.resetInput()
-            },
-            onNo = {
-                viewModel.onShowAddMoreDialog(false)
-                exit()
-            },
-            dismissOnBackPressed = false,
-            dismissOnClickOutside = false
-        )
-    }
+@Composable
+private fun CreditDebitInputScreen(
+    uiState: HistoryInputUiState,
+    onNavUp: ()-> Unit,
+    onExit: ()-> Unit,
+    onAddNewAccount: () -> Unit,
+    onAddNewGroup: () -> Unit,
+    onUiEvent: (HistoryInputUiEvent)-> Unit,
+) {
+    ScreenScaffold(
+        navigationIcon = {
+            NavigationUpIcon(onClick = onNavUp)
+        },
 
-    if (uiState.isLoadingHistory) {
-        FullScreenLoading()
-    } else {
-        TransactionInputForm(
-            uiState = uiState,
-            onDateChange = { viewModel.onDateChange(it) },
-            onAccountSelected = { viewModel.onAccountSelected(it) },
-            onAddNewAccount = onAddNewAccount,
-            onGroupSelected = { viewModel.onGroupSelected(it) },
-            onAddNewGroup = onAddNewGroup,
-            onAmountChange = { viewModel.onAmountChange(it) },
-            onTypeChange = { viewModel.onTypeChange(it) },
-            onNotesChange = { viewModel.onNoteChange(it) },
+        actions = {
+            if (!uiState.isLoading) {
+                TopBarIconAction(
+                    Icons.Default.Check,
+                    enabled = !uiState.isSaving,
+                    onClick = { onUiEvent(HistoryInputUiEvent.Save) }
+                )
+            }
+        }
+    ) {
+        if (uiState.isLoading) {
+            FullScreenLoading(
+                stringResource(R.string.loading_history),
+                modifier = Modifier.fillMaxSize()
+                    .padding(24.dp)
+            )
+        } else {
+            CreditDebitInputForm(
+                uiState = uiState,
+                onUiEvent = onUiEvent,
+                onAddNewAccount = onAddNewAccount,
+                onAddNewGroup = onAddNewGroup
+            )
+        }
+
+        HistoryInputDialogComponent(
+            dialog = uiState.dialog,
+            onDismiss =  { exit ->
+                onUiEvent(HistoryInputUiEvent.DismissDialog)
+                if (exit) onExit()
+            },
+            onAddMore = {
+                onUiEvent(HistoryInputUiEvent.AddMore)
+            }
         )
     }
 }
 
 
 @Composable
-fun TransactionInputForm(
+private fun CreditDebitInputForm(
     uiState: HistoryInputUiState,
-    onDateChange: (LocalDate)-> Unit,
-    onAccountSelected: (Account?)-> Unit,
+    onUiEvent: (HistoryInputUiEvent) -> Unit,
     onAddNewAccount: () -> Unit,
-    onGroupSelected: (Group?)-> Unit,
     onAddNewGroup: () -> Unit,
-    onAmountChange: (String) -> Unit,
-    onTypeChange: (Boolean) -> Unit,
-    onNotesChange: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    // TODO: explain why LazyColumn over Column
     LazyColumn(
-        modifier = modifier
-            .fillMaxSize()
+        modifier = modifier.fillMaxSize()
             .background(MaterialTheme.colorScheme.surfaceContainer)
-            .padding(16.dp)
-            .systemBarsPadding()
-            .imePadding(),
+            .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
 
         item {
             DatePicker(
                 selectedDate = uiState.date,
-                onDateSelected = onDateChange
+                onDateSelected = { onUiEvent(HistoryInputUiEvent.DateChange(it)) }
             )
         }
 
         item {
-            TransactionAmountSection(
+            AmountSection(
                 amount = uiState.amount,
-                onAmountChange = onAmountChange,
-                isCredit = uiState.isCredit,
-                onTypeChange = onTypeChange,
-                error = uiState.amountError?.let{ stringResource(it) }
+                onAmountChange = { onUiEvent(HistoryInputUiEvent.AmountChange(it)) },
+                amountError = uiState.amountError?.let{ stringResource(it) },
+                typeChooser = {
+                    HistoryTypeChooser(
+                        items = listOf(
+                            HistoryTypeChooserItem(
+                                type = HistoryType.CREDIT,
+                                label = stringResource(R.string.credit),
+                                selected = uiState.type == HistoryType.CREDIT,
+                                selectedContentColor = LocalAppColor.current.onCredit,
+                                selectedContainerColor = LocalAppColor.current.credit,
+                                unselectedContentColor = LocalAppColor.current.credit,
+                                unselectedContainerColor = Color.Transparent,
+                            ),
+                            HistoryTypeChooserItem(
+                                type = HistoryType.DEBIT,
+                                label = stringResource(R.string.debit),
+                                selected = uiState.type == HistoryType.DEBIT,
+                                selectedContentColor = LocalAppColor.current.onDebit,
+                                selectedContainerColor = LocalAppColor.current.debit,
+                                unselectedContentColor = LocalAppColor.current.debit,
+                                unselectedContainerColor = Color.Transparent,
+                            )
+                        ),
+                        onSelect = {
+                            onUiEvent(HistoryInputUiEvent.HistoryTypeChange(it))
+                        }
+                    )
+                }
             )
         }
 
         item {
             NotesSection(
                 notes = uiState.note,
-                onNotesChange = onNotesChange
+                onNotesChange = { onUiEvent(HistoryInputUiEvent.NoteChange(it)) }
             )
         }
 
         item {
             AccountSelectionSection(
+                labelText = stringResource(R.string.label_account),
                 data = SelectionDropdownData(
-                    options = uiState.accounts,
-                    quickOptions = uiState.frequentlyUsedAccounts
+                    isLoading = uiState.isLoading,
+                    options = uiState.allAccounts,
+                    quickOptions = uiState.recentAccounts
                 ),
-                selectedAccount = uiState.account,
-                onAccountSelected = onAccountSelected,
+                selectedAccount = uiState.sourceAccount,
+                onAccountSelected = { onUiEvent(HistoryInputUiEvent.SourceAccountChange(it)) },
                 onAddNewAccount = onAddNewAccount,
-                error = uiState.accountError?.let { stringResource(it) }
+                errorText = uiState.sourceAccountError?.let { stringResource(it) }
             )
         }
 
         item {
             GroupSelectionSection(
                 data = SelectionDropdownData(
-                    options = uiState.groups,
-                    quickOptions = uiState.frequentlyUsedGroups
+                    isLoading = uiState.isLoading,
+                    options = uiState.allGroups,
+                    quickOptions = uiState.recentGroups
                 ),
                 selectedGroup = uiState.group,
-                onGroupSelected = onGroupSelected,
+                onGroupSelected = { onUiEvent(HistoryInputUiEvent.GroupChange(it)) },
                 onAddNewGroup = onAddNewGroup
-            )
-        }
-    }
-}
-
-@Composable
-private fun TransactionAmountSection(
-    amount: String,
-    onAmountChange: (String) -> Unit,
-    isCredit: Boolean,
-    onTypeChange: (Boolean) -> Unit,
-    error: String? = null
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        shape = RoundedCornerShape(20.dp)
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Text(
-                text = stringResource(R.string.amount),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                letterSpacing = 1.sp
-            )
-            
-            OutlinedTextField(
-                value = amount,
-                onValueChange = onAmountChange,
-                modifier = Modifier.fillMaxWidth(),
-                placeholder = {
-                    Text(
-                        "0.00",
-                        style = MaterialTheme.typography.displaySmall,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth(),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                },
-                textStyle = MaterialTheme.typography.displayMedium.copy(
-                    color = if (isCredit) ExpenseTrackerTheme.appColor.credit else ExpenseTrackerTheme.appColor.debit,
-                    fontWeight = FontWeight.Normal,
-                    textAlign = TextAlign.Center
-                ),
-                prefix = {
-                    Text(
-                        text = "$",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontWeight = FontWeight.Bold
-                    )
-                },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color.Transparent,
-                    unfocusedBorderColor = Color.Transparent,
-                    errorBorderColor = Color.Transparent,
-                    focusedContainerColor = Color.Transparent,
-                    unfocusedContainerColor = Color.Transparent,
-
-                ),
-                isError = error != null,
-                supportingText = error?.let {
-                    {
-                        Text(
-                            text = it,
-                            modifier = Modifier.fillMaxWidth(),
-                            textAlign = TextAlign.Center,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                    }
-                },
-                singleLine = true
-            )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                TransactionTypeChip(
-                    text = stringResource(R.string.credit),
-                    selected = isCredit,
-                    onClick = { onTypeChange(true) },
-                    selectedContainerColor = colorResource(dreammaker.android.expensetracker.core.R.color.colorCredit),
-                    selectedContentColor = colorResource(dreammaker.android.expensetracker.core.R.color.colorOnCredit)
-                )
-                TransactionTypeChip(
-                    text = stringResource(R.string.debit),
-                    selected = !isCredit,
-                    onClick = { onTypeChange(false) },
-                    selectedContainerColor = colorResource(dreammaker.android.expensetracker.core.R.color.colorDebit),
-                    selectedContentColor = colorResource(dreammaker.android.expensetracker.core.R.color.colorOnDebit)
-                )
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun TransactionTypeChip(
-    text: String,
-    selected: Boolean,
-    onClick: () -> Unit,
-    selectedContainerColor: Color,
-    selectedContentColor: Color,
-) {
-    FilterChip(
-        selected = selected,
-        onClick = onClick,
-        label = {
-            Text(
-                text = text,
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium
-            )
-        },
-        leadingIcon = if (selected) {
-            {
-                Icon(
-                    imageVector = Icons.Default.Check,
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp)
-                )
-            }
-        } else null,
-        shape = RoundedCornerShape(24.dp),
-        colors = FilterChipDefaults.filterChipColors(
-            selectedContainerColor = selectedContainerColor,
-            selectedLabelColor = selectedContentColor,
-            selectedLeadingIconColor = selectedContentColor,
-            containerColor = Color.Transparent,
-            labelColor = MaterialTheme.colorScheme.onSurfaceVariant
-        ),
-        border = if (!selected) {
-            BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
-        }
-        else null
-    )
-}
-
-@Composable
-private fun AccountSelectionSection(
-    data: SelectionDropdownData<Account>,
-    selectedAccount: Account?,
-    onAccountSelected: (Account?) -> Unit,
-    onAddNewAccount: () -> Unit,
-    error: String? = null,
-) {
-    SelectionDropdown(
-        label = stringResource(R.string.account),
-        selectedOption = selectedAccount,
-        onOptionSelected = onAccountSelected,
-        data = data,
-        labelProvider = { it.name },
-        error = error,
-        addNewOptionContent = {
-            Text(
-                text = stringResource(R.string.add_new_account),
-                style = MaterialTheme.typography.labelMedium,
-            )
-        },
-        onAddNewOption = onAddNewAccount
-    )
-}
-
-@Composable
-private fun GroupSelectionSection(
-    data: SelectionDropdownData<Group>,
-    selectedGroup: Group?,
-    onGroupSelected: (Group?) -> Unit,
-    onAddNewGroup: () -> Unit
-) {
-    SelectionDropdown(
-        label = stringResource(R.string.group_optional),
-        selectedOption = selectedGroup,
-        onOptionSelected = onGroupSelected,
-        data = data,
-        labelProvider = { it.name },
-        addNewOptionContent = {
-            Text(
-                text = stringResource(R.string.add_new_group),
-                style = MaterialTheme.typography.labelMedium
-            )
-        },
-        onAddNewOption = onAddNewGroup
-    )
-}
-
-@Composable
-private fun FullScreenLoading() {
-    Box(
-        modifier = Modifier.fillMaxSize().padding(24.dp),
-        contentAlignment = Alignment.TopCenter,
-    ) {
-        Column(
-            modifier = Modifier.fillMaxWidth(.85f),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = stringResource(R.string.loading_history),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            LinearProgressIndicator(
-                modifier = Modifier.fillMaxWidth(),
-                trackColor = MaterialTheme.colorScheme.primaryContainer
             )
         }
     }
@@ -435,9 +246,9 @@ private fun FullScreenLoading() {
 //  Preview
 //---------------------------
 
-@PreviewLightDark
+@PreviewScreen
 @Composable
-fun TransactionInputScreenPreview() {
+fun CreditDebitInputScreenPreview() {
     val accounts = listOf(
         Account(name = "Main Checking (***4920)", id = 1),
         Account(name = "Savings", id = 2),
@@ -452,69 +263,83 @@ fun TransactionInputScreenPreview() {
     var uiState by remember {
         mutableStateOf(
             HistoryInputUiState(
+                isEditing = true,
+                isLoading = true,
+                id = 0L,
                 date = LocalDate.now(),
-                group = groups[0],
-                account = accounts[0],
-                amount = "125.50",
-                isCredit = false,
-                note = "Grocery shopping at local market",
-                accounts = accounts,
-                frequentlyUsedAccounts = listOf(accounts[0], accounts[2]),
-                groups = groups,
-                frequentlyUsedGroups = listOf(groups[1], groups[2]),
+                group = null,
+                sourceAccount = null,
+                amount = "",
+                type = HistoryType.DEBIT,
+                note = "",
             )
         )
     }
 
-    ExpenseTrackerTheme {
-        TransactionInputForm(
-            uiState = uiState,
-            onDateChange = { uiState = uiState.copy(date = it) },
-            onAccountSelected = { uiState = uiState.copy(account = it) },
-            onAddNewAccount = {},
-            onGroupSelected = { uiState = uiState.copy(group = it) },
-            onAddNewGroup = {},
-            onAmountChange = { uiState = uiState.copy(amount = it) },
-            onTypeChange = { uiState = uiState.copy(isCredit = it) },
-            onNotesChange = { uiState = uiState.copy(note = it) }
-        )
-    }
-}
+    LaunchedEffect(Unit) {
+        launch {
+            delay(2000)
+            uiState = uiState.copy(
+                isLoading = false,
+                id = 1L,
+                date = LocalDate.now(),
+                group = groups[0],
+                sourceAccount = accounts[0],
+                amount = "125.50",
+                type = HistoryType.DEBIT,
+                note = "Grocery shopping at local market",
+            )
+        }
 
-@PreviewLightDark
-@Composable
-fun TransactionInputScreenLoadingPreview() {
-    ExpenseTrackerTheme {
-        FullScreenLoading()
-    }
-}
+        launch {
+            delay(5000)
+            uiState = uiState.copy(
+                isLoading = false,
+                recentAccounts = listOf(accounts[0],accounts[2]),
+                allAccounts = accounts
+            )
+        }
 
-@PreviewLightDark
-@Composable
-fun TransactionInputScreenErrorPreview() {
-    val accounts = listOf(
-        Account(name = "Main Checking (***4920)", id = 1),
-        Account(name = "Savings", id = 2),
-        Account(name = "Credit Card", id = 3)
-    )
-    val uiState = HistoryInputUiState(
-        amount = "abc",
-        amountError = R.string.error_invalid_amount,
-        account = null,
-        accountError = R.string.error_no_selection,
-        accounts = accounts
-    )
+        launch {
+            delay(3500)
+            uiState = uiState.copy(
+                isLoading = false,
+                recentGroups = listOf(groups[1],groups[2]),
+                allGroups = groups
+            )
+        }
+    }
+
     ExpenseTrackerTheme {
-        TransactionInputForm(
+        CreditDebitInputScreen(
             uiState = uiState,
-            onDateChange = {},
-            onAccountSelected = {},
+            onNavUp = {},
+            onExit = {},
+            onUiEvent = {
+                when(it) {
+                    is HistoryInputUiEvent.DateChange -> {
+                        uiState = uiState.copy(date = it.date)
+                    }
+                    is HistoryInputUiEvent.AmountChange -> {
+                        uiState = uiState.copy(amount = it.amount)
+                    }
+                    is HistoryInputUiEvent.SourceAccountChange -> {
+                        uiState = uiState.copy(sourceAccount = it.account)
+                    }
+                    is HistoryInputUiEvent.DestinationAccountChange -> {
+                        uiState = uiState.copy(destinationAccount = it.account)
+                    }
+                    is HistoryInputUiEvent.GroupChange -> {
+                        uiState = uiState.copy(group = it.group)
+                    }
+                    is HistoryInputUiEvent.NoteChange -> {
+                        uiState = uiState.copy(note = it.note)
+                    }
+                    else -> {}
+                }
+            },
             onAddNewAccount = {},
-            onGroupSelected = {},
-            onAddNewGroup = {},
-            onAmountChange = {},
-            onTypeChange = {},
-            onNotesChange = {}
+            onAddNewGroup = {}
         )
     }
 }

@@ -1,9 +1,8 @@
 package dreammaker.android.expensetracker.ui.navigation
 
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
@@ -12,19 +11,23 @@ import androidx.navigation.compose.rememberNavController
 import dreammaker.android.expensetracker.ui.account.accountlist.AccountListRoute
 import dreammaker.android.expensetracker.ui.account.inputaccount.AccountInputRoute
 import dreammaker.android.expensetracker.ui.account.viewaccount.ViewAccountRoute
+import dreammaker.android.expensetracker.ui.component.SnackBarCallback
 import dreammaker.android.expensetracker.ui.group.groupslist.GroupListRoute
 import dreammaker.android.expensetracker.ui.group.inputgroup.GroupInputRoute
 import dreammaker.android.expensetracker.ui.group.viewgroup.ViewGroupRoute
+import dreammaker.android.expensetracker.ui.history.historyinput.CreditDebitInputRoute
+import dreammaker.android.expensetracker.ui.history.historyinput.IncomeExpenseInputRoute
+import dreammaker.android.expensetracker.ui.history.historyinput.TransferInputRoute
 import dreammaker.android.expensetracker.ui.home.HomeRoute
 
 @Composable
 fun AppNavigation(
-    snackBarHostState: SnackbarHostState,
+    snackBarCallback: SnackBarCallback,
     modifier: Modifier = Modifier,
 ) {
     val navController = rememberNavController()
 
-    val navigationHandler: (NavigationEvent)-> Unit = { event ->
+    val navigationHandler: (NavigationEvent)-> Unit = remember {{ event ->
         when(event) {
             is NavigationEvent.Up -> {
                 navController.navigateUp()
@@ -38,13 +41,12 @@ fun AppNavigation(
                 navController.navigate(event.destination)
             }
         }
-    }
+    }}
 
     NavHost(
         navController,
         startDestination = AppDestination.Home,
         modifier = Modifier.fillMaxSize()
-            .systemBarsPadding()
             .then(modifier),
         contentAlignment = Alignment.Center
     ) {
@@ -57,28 +59,28 @@ fun AppNavigation(
 
         composable<AppDestination.AddAccount> {
             AccountInputRoute(
-                snackBarHostState = snackBarHostState,
+                snackBarCallback = snackBarCallback,
                 onNavigate = navigationHandler
             )
         }
 
         composable<AppDestination.EditAccount> {
             AccountInputRoute(
-                snackBarHostState = snackBarHostState,
+                snackBarCallback = snackBarCallback,
                 onNavigate = navigationHandler
             )
         }
 
         composable<AppDestination.AccountList> {
             AccountListRoute(
-                snackBarHostState = snackBarHostState,
+                snackBarCallback = snackBarCallback,
                 onNavigate = navigationHandler,
             )
         }
 
         composable<AppDestination.ViewAccount> {
             ViewAccountRoute(
-                snackBarHostState = snackBarHostState,
+                snackBarCallback = snackBarCallback,
                 onNavigate = navigationHandler
             )
         }
@@ -87,41 +89,79 @@ fun AppNavigation(
 
         composable<AppDestination.AddGroup> {
             GroupInputRoute(
-                snackBarHostState = snackBarHostState,
+                snackBarCallback = snackBarCallback,
                 onNavigate = navigationHandler
             )
         }
 
         composable<AppDestination.EditGroup> {
             GroupInputRoute(
-                snackBarHostState = snackBarHostState,
+                snackBarCallback = snackBarCallback,
                 onNavigate = navigationHandler
             )
         }
 
         composable<AppDestination.GroupList> {
             GroupListRoute(
-                snackBarHostState = snackBarHostState,
+                snackBarCallback = snackBarCallback,
                 onNavigation = navigationHandler
             )
         }
 
         composable<AppDestination.ViewGroup> {
             ViewGroupRoute(
-                snackBarHostState = snackBarHostState,
+                snackBarCallback = snackBarCallback,
                 onNavigate = navigationHandler
             )
         }
 
         // routes of history
 
-        composable<AppDestination.AddHistory> {  }
+        composable<AppDestination.AddCreditDebit> {
+            CreditDebitInputRoute(
+                snackBarCallback = snackBarCallback,
+                onNavigation = navigationHandler
+            )
+        }
+
+        composable<AppDestination.EditCreditDebit> {
+            CreditDebitInputRoute(
+                snackBarCallback = snackBarCallback,
+                onNavigation = navigationHandler
+            )
+        }
+
+        composable<AppDestination.AddTransfer> {
+            TransferInputRoute(
+                snackBarCallback = snackBarCallback,
+                onNavigation = navigationHandler
+            )
+        }
+
+        composable<AppDestination.EditTransfer> {
+            TransferInputRoute(
+                snackBarCallback = snackBarCallback,
+                onNavigation = navigationHandler
+            )
+        }
+
+        composable<AppDestination.AddIncomeExpense> {
+            IncomeExpenseInputRoute(
+                snackBarCallback = snackBarCallback,
+                onNavigation = navigationHandler
+            )
+        }
+
+        composable<AppDestination.EditIncomeExpense> {
+            IncomeExpenseInputRoute(
+                snackBarCallback = snackBarCallback,
+                onNavigation = navigationHandler
+            )
+        }
 
         composable<AppDestination.ViewAccountHistory> {  }
 
         composable<AppDestination.ViewGroupHistory> { }
-
-        composable<AppDestination.EditHistory> { }
 
         composable<AppDestination.ViewHistoryDetails> { }
     }

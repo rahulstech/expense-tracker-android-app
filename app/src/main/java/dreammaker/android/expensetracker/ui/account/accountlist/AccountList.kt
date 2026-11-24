@@ -26,7 +26,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -53,6 +52,8 @@ import dreammaker.android.expensetracker.core.ui.helper.PreviewScreen
 import dreammaker.android.expensetracker.core.ui.helper.shimmer
 import dreammaker.android.expensetracker.ui.component.ETSearchField
 import dreammaker.android.expensetracker.ui.component.MessageDialog
+import dreammaker.android.expensetracker.ui.component.SnackBarCallback
+import dreammaker.android.expensetracker.ui.component.SnackBarVisualsImpl
 import dreammaker.android.expensetracker.ui.component.YesNoDialog
 import dreammaker.android.expensetracker.ui.navigation.AppDestination
 import dreammaker.android.expensetracker.ui.navigation.NavigationEvent
@@ -60,10 +61,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import rahulstech.android.expensetracker.domain.model.Account
+import java.math.BigDecimal
 
 @Composable
 fun AccountListRoute(
-    snackBarHostState: SnackbarHostState,
+    snackBarCallback: SnackBarCallback,
     onNavigate: (NavigationEvent)-> Unit,
     viewModel: AccountsListViewModel = hiltViewModel()
 ) {
@@ -74,10 +76,13 @@ fun AccountListRoute(
         viewModel.uiEffect.collect { effect ->
             when(effect) {
                 is AccountListUiEffect.ShowDeleteAccountsSuccessful -> {
-                    snackBarHostState.showSnackbar(
-                        message = context.resources.getQuantityString(R.plurals.message_account_delete_successful,Int.MAX_VALUE),
-                        withDismissAction = true,
-                        duration = SnackbarDuration.Short
+                    snackBarCallback(
+                        SnackBarVisualsImpl(
+                            message = context.resources.getQuantityString(R.plurals.message_account_delete_successful,Int.MAX_VALUE),
+                            withDismissAction = true,
+                            duration = SnackbarDuration.Long
+                        ),
+                        null, null
                     )
                 }
             }
@@ -344,21 +349,19 @@ fun DeleteErrorDialogComponent(
 fun AccountListScreenPreview() {
 
     val allAccount = remember { listOf(
-        Account(name = "Wallet", balance = 1500.00, id = 1L ),
-        Account(name = "Savings Bank Account", balance = 39560.83, id = 2L),
-        Account(name = "CA Account", balance = 150362.00, id = 3L)
+        Account(name = "Wallet", balance = BigDecimal("1500.00"), id = 1L ),
+        Account(name = "Savings Bank Account", balance = BigDecimal("39560.83"), id = 2L),
+        Account(name = "CA Account", balance = BigDecimal("150362.00"), id = 3L)
     ) }
     var uiState by  remember { mutableStateOf(AccountListUiState(isLoading = true)) }
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
-        scope.launch {
-            delay(5000)
-            uiState = uiState.copy(
-                isLoading = false,
-                allAccounts = allAccount
-            )
-        }
+        delay(5000)
+        uiState = uiState.copy(
+            isLoading = false,
+            allAccounts = allAccount
+        )
     }
 
     ExpenseTrackerTheme {

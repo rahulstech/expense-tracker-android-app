@@ -14,13 +14,13 @@ import rahulstech.android.expensetracker.domain.model.HistoryType
 import javax.inject.Inject
 
 @HiltViewModel
-class CreditDebitViewModel @Inject constructor(
+class TransferViewModel @Inject constructor(
     private val savedState: SavedStateHandle,
     private val repoComposition: RepositoryComposition
 ): ViewModel() {
 
     private val _uiComposition = UiComposition(
-        initialType = HistoryType.DEBIT,
+        initialType = HistoryType.TRANSFER,
         scope = viewModelScope,
         onSaveHistory = { repoComposition.saveHistory(it, mode is HistoryInputMode.Edit) }
     )
@@ -29,8 +29,8 @@ class CreditDebitViewModel @Inject constructor(
 
     val uiEffect: Flow<HistoryInputUiEffect> = _uiComposition.uiEffect
 
-    private val route = runCatching { savedState.toRoute<AppDestination.AddCreditDebit>() }
-        .getOrElse { savedState.toRoute<AppDestination.EditCreditDebit>() }
+    private val route = runCatching { savedState.toRoute<AppDestination.AddTransfer>() }
+        .getOrElse { savedState.toRoute<AppDestination.EditTransfer>() }
 
     private val mode = HistoryInputMode.fromRoute(route)
 
@@ -40,11 +40,6 @@ class CreditDebitViewModel @Inject constructor(
                 viewModelScope.launch {
                     repoComposition.loadAccounts()
                         .collectLatest(_uiComposition::updateAccountState)
-                }
-
-                viewModelScope.launch {
-                    repoComposition.loadGroups()
-                        .collectLatest(_uiComposition::updateGroupState)
                 }
             }
 

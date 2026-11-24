@@ -1,6 +1,5 @@
 package dreammaker.android.expensetracker.ui.account.inputaccount
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,18 +7,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -28,11 +23,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -43,8 +36,12 @@ import dreammaker.android.expensetracker.core.ui.component.NavigationUpIcon
 import dreammaker.android.expensetracker.core.ui.component.ScreenScaffold
 import dreammaker.android.expensetracker.core.ui.component.TopBarIconAction
 import dreammaker.android.expensetracker.core.ui.component.TopBarTitle
+import dreammaker.android.expensetracker.ui.component.AmountTextField
+import dreammaker.android.expensetracker.ui.component.FullScreenLoading
 import dreammaker.android.expensetracker.ui.component.MessageDialog
 import dreammaker.android.expensetracker.ui.component.ProgressDialog
+import dreammaker.android.expensetracker.ui.component.SnackBarCallback
+import dreammaker.android.expensetracker.ui.component.SnackBarVisualsImpl
 import dreammaker.android.expensetracker.ui.component.YesNoDialog
 import dreammaker.android.expensetracker.ui.navigation.NavigationEvent
 import kotlinx.coroutines.delay
@@ -53,7 +50,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun AccountInputRoute(
-    snackBarHostState: SnackbarHostState,
+    snackBarCallback: SnackBarCallback,
     onNavigate: (NavigationEvent)-> Unit,
     viewModel: AccountInputViewModel = hiltViewModel()
 ) {
@@ -64,26 +61,37 @@ fun AccountInputRoute(
         viewModel.uiEffect.collect { effect ->
             when(effect) {
                 is AccountInputUiEffect.ShowAccountLoadErrorAndExit -> {
-                    snackBarHostState.showSnackbar(
-                        message = context.getString(R.string.message_load_error),
-                        withDismissAction = true,
-                        duration = SnackbarDuration.Long
+                    snackBarCallback(
+                        SnackBarVisualsImpl(
+                            message = context.getString(R.string.message_load_error),
+                            withDismissAction = true,
+                            duration = SnackbarDuration.Long
+                        ),
+                        null,null
                     )
+                    onNavigate(NavigationEvent.Exit)
                 }
 
                 is AccountInputUiEffect.ShowAccountNotFoundAndExit -> {
-                    snackBarHostState.showSnackbar(
-                        message = context.getString(R.string.message_account_not_found),
-                        withDismissAction = true,
-                        duration = SnackbarDuration.Long
+                    snackBarCallback(
+                        SnackBarVisualsImpl(
+                            message = context.getString(R.string.message_account_not_found),
+                            withDismissAction = true,
+                            duration = SnackbarDuration.Long
+                        ),
+                        null,null
                     )
+
                 }
 
                 is AccountInputUiEffect.ShowSaveSuccessful -> {
-                    snackBarHostState.showSnackbar(
-                        message = context.getString(R.string.message_save_successful),
-                        duration = SnackbarDuration.Short
+                    snackBarCallback(
+                        SnackBarVisualsImpl(context.getString(R.string.message_save_successful)),
+                        null,null
                     )
+                    if (effect.exit) {
+                        onNavigate(NavigationEvent.Exit)
+                    }
                 }
             }
         }
@@ -129,20 +137,14 @@ fun AccountInputScreen(
         },
     ) {
         if (uiState.isLoading) {
-            FullScreenLoadingComponent()
+            FullScreenLoading(
+                stringResource(R.string.loading_account)
+            )
         }
         else {
             AccountInputFormComponent(
-                name = uiState.name,
-                onNameChange = { name ->
-                    onUiEvent(AccountInputUiEvent.NameChange(name))
-                },
-                nameError = uiState.nameError?.let { stringResource(it) },
-                balance = uiState.balance,
-                onBalanceChange = { balance ->
-                    onUiEvent(AccountInputUiEvent.BalanceChange(balance))
-                },
-                balanceError = uiState.balanceError?.let { stringResource(it) },
+                uiState = uiState,
+                onUiEvent = onUiEvent
             )
         }
 
@@ -162,7 +164,11 @@ fun AccountInputScreen(
             is AccountInputDialog.AddMore -> {
                 AddMoreDialogComponent(
                     onAddMore = { onUiEvent(AccountInputUiEvent.AddMoreAccount) },
-                    onDiscard = { onExit() }
+                    onDiscard = {
+                        // TODO: dismiss then exit
+                        onUiEvent(AccountInputUiEvent.DismissDialog)
+                        onExit()
+                    }
                 )
             }
 
@@ -171,61 +177,31 @@ fun AccountInputScreen(
     }
 }
 
-
-@Composable
-fun FullScreenLoadingComponent() {
-    Box(
-        modifier = Modifier.fillMaxSize()
-            .padding(16.dp),
-        contentAlignment = Alignment.TopCenter,
-    ) {
-        Column(
-            modifier = Modifier.fillMaxWidth(.85f),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = stringResource(R.string.loading_account),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            LinearProgressIndicator(
-                modifier = Modifier.fillMaxWidth(),
-                trackColor = MaterialTheme.colorScheme.primaryContainer
-            )
-        }
-    }
-}
-
-
 @Composable
 fun AccountInputFormComponent(
-    name: String,
-    onNameChange: (String)-> Unit,
-    balance: String,
-    onBalanceChange: (String)-> Unit,
-    nameError: String? = null,
-    balanceError: String? = null,
+    uiState: AccountInputUiState,
+    onUiEvent: (AccountInputUiEvent)-> Unit
 ) {
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
             .padding(16.dp)
             .verticalScroll(rememberScrollState())
     ) {
         OutlinedTextField(
-            value = name,
-            onValueChange = onNameChange,
+            value = uiState.name,
+            onValueChange = {
+                onUiEvent(AccountInputUiEvent.NameChange(it))
+            },
             label = {
                 Text(stringResource(R.string.account_name))
             },
             modifier = Modifier.fillMaxWidth(),
-            isError = !nameError.isNullOrBlank(),
-            supportingText = nameError?.let { { Text(it) } },
+            isError = uiState.nameError != null,
+            supportingText = uiState.nameError?.let { { Text(stringResource(it)) } },
             trailingIcon = {
-                if (name.isNotEmpty()) {
-                    IconButton(onClick = { onNameChange("") }) {
+                if (uiState.name.isNotEmpty()) {
+                    IconButton(onClick = { onUiEvent(AccountInputUiEvent.NameChange("")) }) {
                         Icon(imageVector = Icons.Default.Clear, contentDescription = "Clear")
                     }
                 }
@@ -235,17 +211,14 @@ fun AccountInputFormComponent(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        OutlinedTextField(
-            value = balance,
-            onValueChange = onBalanceChange,
-            label = {
-                Text(stringResource(R.string.balance))
+        AmountTextField(
+            labelText = stringResource(R.string.balance),
+            value = uiState.balance,
+            onValueChange = {
+                onUiEvent(AccountInputUiEvent.BalanceChange(it))
             },
-            modifier = Modifier.fillMaxWidth(),
-            isError = balanceError != null,
-            supportingText = balanceError?.let { { Text(it) } },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-            singleLine = true
+            errorText = uiState.balanceError?.let { stringResource(it) },
+            modifier = Modifier.fillMaxWidth()
         )
     }
 }

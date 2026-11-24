@@ -1,4 +1,4 @@
-package dreammaker.android.expensetracker.ui.history.historieslist
+package dreammaker.android.expensetracker.ui.component
 
 import android.content.Context
 import android.content.DialogInterface

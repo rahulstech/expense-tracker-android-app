@@ -24,14 +24,12 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,17 +52,19 @@ import dreammaker.android.expensetracker.core.ui.helper.shimmer
 import dreammaker.android.expensetracker.ui.component.ETOutlinedIconButton
 import dreammaker.android.expensetracker.ui.component.MessageDialog
 import dreammaker.android.expensetracker.ui.component.ProgressDialog
+import dreammaker.android.expensetracker.ui.component.SnackBarCallback
+import dreammaker.android.expensetracker.ui.component.SnackBarVisualsImpl
 import dreammaker.android.expensetracker.ui.component.YesNoDialog
 import dreammaker.android.expensetracker.ui.navigation.AppDestination
 import dreammaker.android.expensetracker.ui.navigation.NavigationEvent
 import dreammaker.android.expensetracker.util.toCurrencyString
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import rahulstech.android.expensetracker.domain.model.Account
+import java.math.BigDecimal
 
 @Composable
 fun ViewAccountRoute(
-    snackBarHostState: SnackbarHostState,
+    snackBarCallback: SnackBarCallback,
     onNavigate: (NavigationEvent)-> Unit,
     viewModel: ViewAccountViewModel = hiltViewModel()
 ) {
@@ -75,31 +75,38 @@ fun ViewAccountRoute(
         viewModel.uiEffect.collect { effect ->
             when(effect) {
                 is ViewAccountUiEffect.ShowAccountLoadErrorAndExit -> {
-                    onNavigate(NavigationEvent.Exit)
-                    snackBarHostState.showSnackbar(
-                        message = context.getString(R.string.message_load_error),
-                        duration = SnackbarDuration.Long
+                    snackBarCallback(
+                        SnackBarVisualsImpl(
+                            message = context.getString(R.string.message_load_error),
+                            withDismissAction = true,
+                            duration = SnackbarDuration.Long
+                        ),
+                        null,null
                     )
+                    onNavigate(NavigationEvent.Exit)
                 }
 
                 is ViewAccountUiEffect.ShowAccountNotFoundAndExit -> {
-                    onNavigate(NavigationEvent.Exit)
-                    snackBarHostState.showSnackbar(
-                        message = context.getString(R.string.message_account_not_found),
-                        duration = SnackbarDuration.Long
+                    snackBarCallback(
+                        SnackBarVisualsImpl(
+                            message = context.getString(R.string.message_account_not_found),
+                            duration = SnackbarDuration.Long,
+                            withDismissAction = true
+                        ),
+                        null,null
                     )
+                    onNavigate(NavigationEvent.Exit)
                 }
 
                 is ViewAccountUiEffect.ShowAccountDeleteSuccessfulAndExit -> {
-                    onNavigate(NavigationEvent.Exit)
-                    snackBarHostState.showSnackbar(
-                        message = context.resources.getQuantityString(
-                            R.plurals.message_account_delete_successful, 1,
-                            effect.account.name
-                        ),
-                        withDismissAction = true,
-                        duration = SnackbarDuration.Long
+                    snackBarCallback(
+                        SnackBarVisualsImpl(context.resources.getQuantityString(
+                                R.plurals.message_account_delete_successful, 1,
+                                effect.account.name
+                            )),
+                        null,null
                     )
+                    onNavigate(NavigationEvent.Exit)
                 }
             }
         }
@@ -115,10 +122,10 @@ fun ViewAccountRoute(
             onNavigate(NavigationEvent.To(AppDestination.ViewAccountHistory(it.id)))
         },
         onSendMoney = {
-            onNavigate(NavigationEvent.To(AppDestination.SendMoney(it.id)))
+            onNavigate(NavigationEvent.To(AppDestination.AddTransfer(it.id)))
         },
         onAddHistory = {
-            onNavigate(NavigationEvent.To(AppDestination.AddAccountHistory(it.id)))
+            onNavigate(NavigationEvent.To(AppDestination.AddCreditDebit(it.id)))
         },
         onUiEvent = { event ->
             viewModel.handleUiEvent(event)
@@ -306,13 +313,13 @@ fun AccountDetailsComponent(
 
 
 @Composable
-fun ConfirmDeleteDialogComponent(
+private fun ConfirmDeleteDialogComponent(
     account: Account,
     onDelete: ()-> Unit,
     onDiscard: ()-> Unit
 ) {
     YesNoDialog(
-        header = pluralStringResource(R.plurals.message_warning_delete_account, 1, account.name),
+        body = pluralStringResource(R.plurals.message_warning_delete_account, 1, account.name),
         yesText = stringResource(R.string.label_no),
         onYes = onDiscard,
         noText = stringResource(R.string.label_yes),
@@ -322,7 +329,7 @@ fun ConfirmDeleteDialogComponent(
 }
 
 @Composable
-fun PendingDeleteDialogComponent() {
+private fun PendingDeleteDialogComponent() {
     ProgressDialog(
         body = pluralStringResource(R.plurals.message_group_delete_progress, 1),
         dismissOnBackPress = false,
@@ -331,7 +338,7 @@ fun PendingDeleteDialogComponent() {
 }
 
 @Composable
-fun DeleteErrorDialogComponent(
+private fun DeleteErrorDialogComponent(
     cause: Throwable,
     onDismiss: () -> Unit
 ) {
@@ -347,13 +354,10 @@ fun DeleteErrorDialogComponent(
 fun ViewAccountScreenPreview() {
 
     var uiState by remember{ mutableStateOf(ViewAccountUiState(isLoading = true)) }
-    val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
-        scope.launch {
-            delay(2000)
-            uiState = uiState.copy(isLoading = false, account = Account("Wallet", 2000000.00, 1))
-        }
+        delay(2000)
+        uiState = uiState.copy(isLoading = false, account = Account("Wallet", BigDecimal("2000000.00"), 1))
     }
 
     ExpenseTrackerTheme {

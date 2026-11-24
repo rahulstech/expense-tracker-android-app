@@ -7,7 +7,7 @@ import androidx.compose.ui.graphics.Color
 // Day Colors
 val DayColorCredit: Color = Color(0xFF4B7831)
 val DayColorOnCredit: Color = Color(0xFFFFFFFF)
-val DayColorDebit:  Color = Color(0xFFCC2929)
+val DayColorDebit:  Color = Color(0xFFC05621)
 val DayColorOnDebit:  Color = Color(0xFFFFFFFF)
 val DayColorTransfer: Color = Color(0xFF7842C6)
 val DayColorOnTransfer:  Color = Color(0xFFFFFFFF)
@@ -15,8 +15,8 @@ val DayColorOnTransfer:  Color = Color(0xFFFFFFFF)
 // Night Colors
 val NightColorCredit: Color = Color(0xFF4B7831)
 val NightColorOnCredit: Color = Color(0xFFFFFFFF)
-val NightColorDebit: Color = Color(0xFFCC2929)
-val NightColorOnDebit: Color = Color(0xFFFFFFFF)
+val NightColorDebit: Color = Color(0xFFED8936)
+val NightColorOnDebit: Color = Color(0xFF3D1A00)
 val NightColorTransfer: Color = Color(0xFF7842C6)
 val NightColorOnTransfer:  Color = Color(0xFFFFFFFF)
 

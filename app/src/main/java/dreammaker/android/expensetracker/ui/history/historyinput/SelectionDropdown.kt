@@ -65,7 +65,7 @@ fun <T> SelectionDropdown(
     labelProvider: (T) -> String,
     modifier: Modifier = Modifier,
     error: String? = null,
-    addNewOptionContent: (@Composable () -> Unit)? = null,
+    addNewOptionText: String? = null,
     onAddNewOption: (() -> Unit)? = null
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -201,40 +201,45 @@ fun <T> SelectionDropdown(
             }
             else {
                 data.quickOptions.forEach { option ->
-                    SuggestionChip(
-                        onClick = { onOptionSelected(option) },
-                        label = {
-                            Text(
-                                text = labelProvider(option),
-                                style = MaterialTheme.typography.labelSmall,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        },
-                        shape = MaterialTheme.shapes.extraLarge,
-                        colors = SuggestionChipDefaults.suggestionChipColors(
-                            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                            labelColor = MaterialTheme.colorScheme.onTertiaryContainer
-                        ),
-                        border = null,
-                        modifier = Modifier.widthIn(max = 120.dp)
-                    )
+                    QuickOptionChip(labelProvider(option)) {
+                        onOptionSelected(option)
+                    }
                 }
 
-                addNewOptionContent?.let { content ->
-                    SuggestionChip(
-                        onClick = { onAddNewOption?.invoke() },
-                        label = { content() },
-                        shape = MaterialTheme.shapes.extraLarge,
-                        colors = SuggestionChipDefaults.suggestionChipColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant
-                        ),
-                        border = null
-                    )
+                addNewOptionText?.let { text ->
+                    QuickOptionChip(text) {
+                        onAddNewOption?.invoke()
+                    }
                 }
             }
         }
     }
+}
+
+
+@Composable
+private fun QuickOptionChip(
+    labelText: String,
+    onClick: ()-> Unit,
+) {
+    SuggestionChip(
+        onClick = onClick,
+        label = {
+            Text(
+                labelText,
+                style = MaterialTheme.typography.labelSmall,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        },
+        shape = MaterialTheme.shapes.extraLarge,
+        colors = SuggestionChipDefaults.suggestionChipColors(
+            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+            labelColor = MaterialTheme.colorScheme.onTertiaryContainer
+        ),
+        border = null,
+        modifier = Modifier.widthIn(max = 120.dp)
+    )
 }
 
 @PreviewLightDark
@@ -287,7 +292,7 @@ private fun SelectionDropdownNoSelectionPreview() {
                     quickOptions = listOf("State Bank Of India", "Cash"),
                 ),
                 labelProvider = { it },
-                addNewOptionContent = { Text("+ Add New Account") }
+                addNewOptionText = "+ Add New Account"
             )
         }
     }

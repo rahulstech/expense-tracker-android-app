@@ -10,7 +10,6 @@ import androidx.navigation.toRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dreammaker.android.expensetracker.R
 import dreammaker.android.expensetracker.ui.navigation.AppDestination
-import dreammaker.android.expensetracker.util.isNumber
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -24,6 +23,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import rahulstech.android.expensetracker.domain.GroupRepository
 import rahulstech.android.expensetracker.domain.model.Group
+import java.math.BigDecimal
 import javax.inject.Inject
 
 sealed interface GroupInputDialogType {
@@ -48,6 +48,17 @@ data class GroupInputUiState(
     @param:StringRes val balanceError: Int? = null,
     val isSaving: Boolean = false,
     val showDialog: GroupInputDialogType = GroupInputDialogType.None
+) {
+
+    fun toGroup(): Group {
+        val balance = balance.toBigDecimalOrNull() ?: BigDecimal.ZERO
+        return Group(id=id,name=name,balance=balance)
+    }
+}
+
+private data class ValidationErrorResult(
+    @param:StringRes val nameError: Int? = null,
+    @param:StringRes val balanceError: Int? = null
 )
 
 
@@ -154,57 +165,55 @@ class GroupInputViewModel @Inject constructor(
     }
 
     private fun saveGroup() {
-        val state = _uiState.value
-        val id = state.id
-        val nameInput = state.name
-        val balanceInput = state.balance
-        var nameError: Int? = null
-        var balanceError: Int? = null
-
-        if (nameInput.isBlank()) {
-            nameError = R.string.error_empty_group_name
-        }
-        if (balanceInput.isNotBlank() && !balanceInput.isNumber()) {
-            balanceError = R.string.error_non_numeric_balance_input
-        }
-        if (arrayOf(nameError,balanceError).any { it != null }) {
-            _uiState.update {
-                it.copy(
-                    nameError = nameError, balanceError = balanceError
-                )
-            }
-            return
-        }
-
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.update { it.copy(isSaving = true, showDialog = GroupInputDialogType.PendingSave) }
-
-            try {
-                Group(
-                    id = id,
-                    name = nameInput,
-                    balance = balanceInput.toDoubleOrNull() ?: 0.0,
-                ).also {
+            val state = _uiState.value
+            val result = validateInput(state)
+            if (result == null) {
+                val group = state.toGroup()
+                runCatching {
                     if (state.isEditing) {
-                        groupRepo.editGroup(it)
-                    } else {
-                        groupRepo.createGroup(it)
+                        groupRepo.editGroup(group)
+                    }
+                    else {
+                        groupRepo.createGroup(group)
                     }
                 }
-
+                    .onSuccess {
+                        _uiState.update {
+                            it.copy(
+                                isSaving = false,
+                                showDialog = if (it.isEditing) GroupInputDialogType.None else GroupInputDialogType.AddMoreGroup)
+                        }
+                        _uiEffect.send(GroupInputUiEffect.ShowGroupSaveSuccessful(state.isEditing))
+                    }
+                    .onFailure { cause ->
+                        Log.e(TAG, "save group error ", cause)
+                        _uiState.update {
+                            it.copy(isSaving = false, showDialog = GroupInputDialogType.SaveError(cause))
+                        }
+                    }
+            }
+            else {
                 _uiState.update {
                     it.copy(
                         isSaving = false,
-                        showDialog = if (it.isEditing) GroupInputDialogType.None else GroupInputDialogType.AddMoreGroup)
-                }
-                _uiEffect.send(GroupInputUiEffect.ShowGroupSaveSuccessful(state.isEditing))
-
-            } catch (cause: Throwable) {
-                Log.e(TAG, "save group error ", cause)
-                _uiState.update {
-                    it.copy(isSaving = false, showDialog = GroupInputDialogType.SaveError(cause))
+                        nameError = result.nameError,
+                        balanceError = result.balanceError,
+                        showDialog = GroupInputDialogType.None
+                    )
                 }
             }
         }
+    }
+
+    private fun validateInput(state: GroupInputUiState): ValidationErrorResult? {
+        val balance = state.balance.toBigDecimalOrNull()
+        val nameError: Int? = if (state.name.isBlank()) R.string.error_empty_input else null
+        val balanceError: Int? = if (state.balance.isNotBlank() && balance == null) R.string.error_non_numeric_input else null
+        if (nameError == null && balanceError == null) {
+            return null
+        }
+        return ValidationErrorResult(nameError,balanceError)
     }
 }

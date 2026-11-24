@@ -21,12 +21,6 @@ sealed interface AppDestination {
     data class ViewAccount(val accountId: Long): AppDestination
 
     @Serializable
-    data class AddAccountHistory(val accountId: Long) : AppDestination
-
-    @Serializable
-    data class SendMoney(val sourceAccountId: Long) : AppDestination
-
-    @Serializable
     data object AddGroup: AppDestination
 
     @Serializable
@@ -39,21 +33,34 @@ sealed interface AppDestination {
     data class ViewGroup(val groupId: Long): AppDestination
 
     @Serializable
-    data class AddGroupHistory(val groupId: Long) : AppDestination
-
-    @Serializable
     data class ViewAccountHistory(val accountId: Long): AppDestination
 
     @Serializable
     data class ViewGroupHistory(val groupId: Long): AppDestination
 
     @Serializable
-    data object AddHistory: AppDestination
-
-    @Serializable
-    data class EditHistory(val historyId: Long): AppDestination
-
-
-    @Serializable
     data class ViewHistoryDetails(val historyId: Long): AppDestination
+
+
+    @Serializable
+    sealed class HistoryInput: AppDestination
+
+
+    @Serializable
+    data class AddCreditDebit(val accountId: Long? = null, val groupId: Long? = null): HistoryInput()
+
+    @Serializable
+    data class EditCreditDebit(val historyId: Long): HistoryInput()
+
+    @Serializable
+    data class AddTransfer(val sourceAccountId: Long): HistoryInput()
+
+    @Serializable
+    data class EditTransfer(val historyId: Long): HistoryInput()
+
+    @Serializable
+    data class AddIncomeExpense(val accountId: Long? = null): HistoryInput()
+
+    @Serializable
+    data class EditIncomeExpense(val historyId: Long): HistoryInput()
 }

@@ -28,8 +28,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import rahulstech.android.expensetracker.domain.HistoryFilterParameters
 import rahulstech.android.expensetracker.domain.HistoryRepository
-import rahulstech.android.expensetracker.domain.model.History
 import rahulstech.android.expensetracker.domain.model.HistoryTotalCreditTotalDebit
+import rahulstech.android.expensetracker.domain.model.HistoryType
 import java.time.LocalDate
 import java.util.Objects
 import javax.inject.Inject
@@ -46,7 +46,7 @@ class LoadHistoryParameters {
 
     fun withHeaders(showHeaders: Boolean) { this.showHeaders = showHeaders }
 
-    fun withTypes(types: List<History.Type>) {
+    fun withTypes(types: List<HistoryType>) {
         filterParams.types = types
     }
 

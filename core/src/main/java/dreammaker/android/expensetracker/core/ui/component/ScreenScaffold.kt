@@ -2,7 +2,6 @@ package dreammaker.android.expensetracker.core.ui.component
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -23,7 +22,6 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
-import androidx.compose.ui.unit.dp
 import dreammaker.android.expensetracker.core.ui.ExpenseTrackerTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,7 +36,6 @@ fun ScreenScaffold(
     content: @Composable ()-> Unit,
 ) {
     Scaffold(
-        contentWindowInsets = WindowInsets(0.dp, 0.dp, 0.dp, 0.dp),
         topBar = {
             TopAppBar(
                 title = title,
@@ -55,7 +52,7 @@ fun ScreenScaffold(
         },
         floatingActionButton = floatingActionButton,
         floatingActionButtonPosition = floatingActionButtonPosition,
-        modifier = modifier,
+        modifier = modifier
     ) { innerPadding ->
         Box(
             modifier = Modifier.padding(innerPadding),
@@ -119,7 +116,7 @@ fun TopBarIconAction(
 
 @PreviewLightDark
 @Composable
-fun ScreenScaffoldPreview() {
+private fun ScreenScaffoldPreview() {
     ExpenseTrackerTheme {
         ScreenScaffold(
             title = { TopBarTitle("Example Title") },

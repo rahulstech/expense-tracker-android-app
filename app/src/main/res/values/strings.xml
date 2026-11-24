@@ -28,7 +28,7 @@
     <string name="error_empty_group_name">add a group name</string>
     <string name="error_invalid_amount">invalid amount</string>
     <string name="error_negative_amount">negative amount not allowed</string>
-    <string name="error_same_account_money_transfer">can not transfer money between same accounts</string>
+    <string name="error_same_account_money_transfer">can not send money to same account</string>
 
     <!-- menu title -->
     <string name="menu_title_edit">Edit</string>
@@ -56,8 +56,8 @@
     <string name="label_view_history">View History</string>
     <string name="label_add_account">Create Account</string>
     <string name="label_add_history">Add History</string>
-    <string name="label_history_input_source_account">From</string>
-    <string name="label_history_input_destination_account">In</string>
+    <string name="label_from_account">From Account</string>
+    <string name="label_in_account">In Account</string>
     <string name="label_add_group">Create Group</string>
     <string name="label_empty_group_list">No Group</string>
     <string name="label_yes">Yes</string>
@@ -116,17 +116,13 @@
 
     <string name="loading_account">Loading Account</string>
 
-
-
-
     <string name="placeholder_zero">0.00</string>
-
 
     <string name="loading_group">Loading Group</string>
     <string name="loading_history">Loading History</string>
     <string name="loading_transfer">Loading Transfer</string>
 
-    <string name="error_non_numeric_balance_input">it must be a decimal number</string>
+    <string name="error_non_numeric_balance_input">balance must be a decimal number</string>
     <string name="error_empty_account_name_input">name must not empty</string>
     <string name="message_account_not_found">account not found</string>
     <string name="message_group_not_found">group not found</string>
@@ -166,7 +162,7 @@
     </plurals>
     <string name="message_load_error">error in loading</string>
     <string name="message_saving_progress">Saving...</string>
-    <string name="message_add_more_group">Want to add group?</string>
+    <string name="message_add_more_group">Want to add more group?</string>
     <string name="message_add_more_account">Want to add more account?</string>
     <plurals name="message_account_delete_progress">
         <item quantity="one">Deleting account</item>
@@ -197,4 +193,27 @@
             Do you still want to proceed?
         </item>
     </plurals>
+
+    <plurals name="message_warning_delete_group">
+        <item quantity="one">
+            Group %1$s will be deleted permanently.
+            Once deleted you can never restore this group and its histories.
+            Do you still want to proceed?
+        </item>
+        <item quantity="many">
+            %1$d group(s) will be deleted permanently. You can never restore any of these group or its histories.
+            Do you still want to proceed?
+        </item>
+    </plurals>
+
+
+    <string name="error_empty_input">value is required</string>
+    <string name="error_non_numeric_input">value must be a number</string>
+    <string name="error_negative_numeric_input">negative value not allowed</string>
+
+    <string name="label_add_more">Add More</string>
+    <string name="label_loading">Loading...</string>
+
+    <string name="symbol_rupee">\u20B9</string>
+
 </resources>

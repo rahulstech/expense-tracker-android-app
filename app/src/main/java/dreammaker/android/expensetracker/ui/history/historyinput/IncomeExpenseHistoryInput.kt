@@ -32,23 +32,20 @@ import dreammaker.android.expensetracker.ui.component.DatePicker
 import dreammaker.android.expensetracker.ui.component.FullScreenLoading
 import dreammaker.android.expensetracker.ui.component.HistoryTypeChooser
 import dreammaker.android.expensetracker.ui.component.HistoryTypeChooserItem
-import dreammaker.android.expensetracker.ui.component.MessageDialog
 import dreammaker.android.expensetracker.ui.component.SnackBarCallback
 import dreammaker.android.expensetracker.ui.component.SnackBarVisualsImpl
-import dreammaker.android.expensetracker.ui.component.YesNoDialog
 import dreammaker.android.expensetracker.ui.navigation.AppDestination
 import dreammaker.android.expensetracker.ui.navigation.NavigationEvent
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import rahulstech.android.expensetracker.domain.model.Account
-import rahulstech.android.expensetracker.domain.model.Group
 import rahulstech.android.expensetracker.domain.model.HistoryType
 import java.time.LocalDate
 
 
 @Composable
-fun CreditDebitInputRoute(
+fun IncomeExpenseInputRoute(
     snackBarCallback: SnackBarCallback,
     onNavigation: (NavigationEvent)-> Unit,
     viewModel: CreditDebitViewModel = hiltViewModel()
@@ -86,23 +83,21 @@ fun CreditDebitInputRoute(
         }
     }
 
-    CreditDebitInputScreen(
+    IncomeExpenseInputScreen(
         uiState = uiState,
         onNavUp = { onNavigation(NavigationEvent.Up) },
         onExit = { onNavigation(NavigationEvent.Exit) },
         onAddNewAccount = { onNavigation(NavigationEvent.To(AppDestination.AddAccount)) },
-        onAddNewGroup = { onNavigation(NavigationEvent.To(AppDestination.AddGroup)) },
         onUiEvent = { viewModel.handleUiEvent(it) }
     )
 }
 
 @Composable
-private fun CreditDebitInputScreen(
+private fun IncomeExpenseInputScreen(
     uiState: HistoryInputUiState,
     onNavUp: ()-> Unit,
     onExit: ()-> Unit,
     onAddNewAccount: () -> Unit,
-    onAddNewGroup: () -> Unit,
     onUiEvent: (HistoryInputUiEvent)-> Unit,
 ) {
     ScreenScaffold(
@@ -127,48 +122,32 @@ private fun CreditDebitInputScreen(
                     .padding(24.dp)
             )
         } else {
-            CreditDebitInputForm(
+            IncomeExpenseInputForm(
                 uiState = uiState,
                 onUiEvent = onUiEvent,
                 onAddNewAccount = onAddNewAccount,
-                onAddNewGroup = onAddNewGroup
             )
         }
 
-        when(uiState.dialog) {
-
-            is HistoryInputDialog.SaveError -> {
-                MessageDialog(
-                    body = stringResource(R.string.message_error_save_history),
-                    onDismiss = { onUiEvent(HistoryInputUiEvent.DismissDialog) }
-                )
+        HistoryInputDialogComponent(
+            dialog = uiState.dialog,
+            onDismiss =  { exit ->
+                onUiEvent(HistoryInputUiEvent.DismissDialog)
+                if (exit) onExit()
+            },
+            onAddMore = {
+                onUiEvent(HistoryInputUiEvent.AddMore)
             }
-
-            is HistoryInputDialog.AddMore -> {
-                YesNoDialog(
-                    header = stringResource(R.string.label_add_more),
-                    onYes = {
-                        onUiEvent(HistoryInputUiEvent.AddMore)
-                    },
-                    onNo = {
-                        onUiEvent(HistoryInputUiEvent.DismissDialog)
-                        onExit()
-                    },
-                )
-            }
-
-            else -> {}
-        }
+        )
     }
 }
 
 
 @Composable
-private fun CreditDebitInputForm(
+private fun IncomeExpenseInputForm(
     uiState: HistoryInputUiState,
     onUiEvent: (HistoryInputUiEvent) -> Unit,
     onAddNewAccount: () -> Unit,
-    onAddNewGroup: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
@@ -241,19 +220,6 @@ private fun CreditDebitInputForm(
                 errorText = uiState.sourceAccountError?.let { stringResource(it) }
             )
         }
-
-        item {
-            GroupSelectionSection(
-                data = SelectionDropdownData(
-                    isLoading = uiState.isLoading,
-                    options = uiState.allGroups,
-                    quickOptions = uiState.recentGroups
-                ),
-                selectedGroup = uiState.group,
-                onGroupSelected = { onUiEvent(HistoryInputUiEvent.GroupChange(it)) },
-                onAddNewGroup = onAddNewGroup
-            )
-        }
     }
 }
 
@@ -264,16 +230,11 @@ private fun CreditDebitInputForm(
 
 @PreviewScreen
 @Composable
-fun CreditDebitInputScreenPreview() {
+private fun IncomeExpenseInputScreenPreview() {
     val accounts = listOf(
         Account(name = "Main Checking (***4920)", id = 1),
         Account(name = "Savings", id = 2),
         Account(name = "Credit Card", id = 3)
-    )
-    val groups = listOf(
-        Group(name = "Shopping", id = 1),
-        Group(name = "Groceries", id = 2),
-        Group(name = "Dining", id = 3)
     )
 
     var uiState by remember {
@@ -283,7 +244,6 @@ fun CreditDebitInputScreenPreview() {
                 isLoading = true,
                 id = 0L,
                 date = LocalDate.now(),
-                group = null,
                 sourceAccount = null,
                 amount = "",
                 type = HistoryType.DEBIT,
@@ -299,7 +259,6 @@ fun CreditDebitInputScreenPreview() {
                 isLoading = false,
                 id = 1L,
                 date = LocalDate.now(),
-                group = groups[0],
                 sourceAccount = accounts[0],
                 amount = "125.50",
                 type = HistoryType.DEBIT,
@@ -315,19 +274,10 @@ fun CreditDebitInputScreenPreview() {
                 allAccounts = accounts
             )
         }
-
-        launch {
-            delay(3500)
-            uiState = uiState.copy(
-                isLoading = false,
-                recentGroups = listOf(groups[1],groups[2]),
-                allGroups = groups
-            )
-        }
     }
 
     ExpenseTrackerTheme {
-        CreditDebitInputScreen(
+        IncomeExpenseInputScreen(
             uiState = uiState,
             onNavUp = {},
             onExit = {},
@@ -342,12 +292,6 @@ fun CreditDebitInputScreenPreview() {
                     is HistoryInputUiEvent.SourceAccountChange -> {
                         uiState = uiState.copy(sourceAccount = it.account)
                     }
-                    is HistoryInputUiEvent.DestinationAccountChange -> {
-                        uiState = uiState.copy(destinationAccount = it.account)
-                    }
-                    is HistoryInputUiEvent.GroupChange -> {
-                        uiState = uiState.copy(group = it.group)
-                    }
                     is HistoryInputUiEvent.NoteChange -> {
                         uiState = uiState.copy(note = it.note)
                     }
@@ -355,7 +299,6 @@ fun CreditDebitInputScreenPreview() {
                 }
             },
             onAddNewAccount = {},
-            onAddNewGroup = {}
         )
     }
 }

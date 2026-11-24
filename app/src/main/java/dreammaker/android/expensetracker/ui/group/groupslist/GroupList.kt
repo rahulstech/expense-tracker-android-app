@@ -24,7 +24,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -53,6 +52,8 @@ import dreammaker.android.expensetracker.core.ui.helper.shimmer
 import dreammaker.android.expensetracker.ui.component.ETSearchField
 import dreammaker.android.expensetracker.ui.component.MessageDialog
 import dreammaker.android.expensetracker.ui.component.ProgressDialog
+import dreammaker.android.expensetracker.ui.component.SnackBarCallback
+import dreammaker.android.expensetracker.ui.component.SnackBarVisualsImpl
 import dreammaker.android.expensetracker.ui.component.YesNoDialog
 import dreammaker.android.expensetracker.ui.navigation.AppDestination
 import dreammaker.android.expensetracker.ui.navigation.NavigationEvent
@@ -60,10 +61,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import rahulstech.android.expensetracker.domain.model.Group
+import java.math.BigDecimal
 
 @Composable
 fun GroupListRoute(
-    snackBarHostState: SnackbarHostState,
+    snackBarCallback: SnackBarCallback,
     onNavigation: (NavigationEvent)-> Unit,
     viewModel: GroupListViewModel = hiltViewModel()
 ) {
@@ -74,12 +76,15 @@ fun GroupListRoute(
         viewModel.uiEffect.collect { effect ->
             when(effect) {
                 is GroupListUiEffect.ShowDeleteGroupsSuccessful -> {
-                    snackBarHostState.showSnackbar(
-                        message = context.resources.getQuantityString(
-                            R.plurals.message_group_delete_successful, Int.MAX_VALUE
+                    snackBarCallback(
+                        SnackBarVisualsImpl(
+                            message = context.resources.getQuantityString(
+                                R.plurals.message_group_delete_successful, Int.MAX_VALUE
+                            ),
+                            withDismissAction = true,
+                            duration = SnackbarDuration.Long
                         ),
-                        withDismissAction = true,
-                        duration = SnackbarDuration.Long
+                        null, null
                     )
                 }
             }
@@ -328,13 +333,13 @@ fun GroupItemComponent(
 }
 
 @Composable
-fun ConfirmDeleteDialogComponent(
+private fun ConfirmDeleteDialogComponent(
     selectionCount: Int,
     onDelete: ()-> Unit,
     onCancel: ()-> Unit
 ) {
     YesNoDialog(
-        body = stringResource(R.string.message_warning_delete_multiple, selectionCount),
+        body = pluralStringResource(R.plurals.message_warning_delete_group, Int.MAX_VALUE, selectionCount),
         yesText = stringResource(R.string.cancel),
         onYes = onCancel,
         noText = stringResource(R.string.delete),
@@ -343,7 +348,7 @@ fun ConfirmDeleteDialogComponent(
 }
 
 @Composable
-fun PendingDeleteDialogComponent() {
+private fun PendingDeleteDialogComponent() {
     ProgressDialog(
         body = pluralStringResource(R.plurals.message_group_delete_progress, Int.MAX_VALUE),
         dismissOnBackPress = false,
@@ -352,7 +357,7 @@ fun PendingDeleteDialogComponent() {
 }
 
 @Composable
-fun DeleteErrorDialogComponent(
+private fun DeleteErrorDialogComponent(
     cause: Throwable,
     onDismiss: ()-> Unit,
 ) {
@@ -367,21 +372,19 @@ fun DeleteErrorDialogComponent(
 fun GroupListScreenPreview() {
 
     val allGroups = remember { listOf(
-        Group(name = "Grocery", balance = 5500.00, id = 1L ),
-        Group(name = "Medicine", balance = 3000.83, id = 2L),
-        Group(name = "EMI", balance = 12500.00, id = 3L)
+        Group(name = "Grocery", balance = BigDecimal("5500.00"), id = 1L ),
+        Group(name = "Medicine", balance = BigDecimal("3000.83"), id = 2L),
+        Group(name = "EMI", balance = BigDecimal("12500.00"), id = 3L)
     ) }
     var uiState by  remember { mutableStateOf(GroupListUiState(isLoading = true)) }
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
-        scope.launch {
-            delay(5000)
-            uiState = uiState.copy(
-                isLoading = false,
-                allGroups = allGroups
-            )
-        }
+        delay(5000)
+        uiState = uiState.copy(
+            isLoading = false,
+            allGroups = allGroups
+        )
     }
 
     ExpenseTrackerTheme {

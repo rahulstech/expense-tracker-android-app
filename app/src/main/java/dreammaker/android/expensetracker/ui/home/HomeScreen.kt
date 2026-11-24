@@ -66,6 +66,7 @@ import dreammaker.android.expensetracker.util.toCurrencyString
 import kotlinx.coroutines.delay
 import rahulstech.android.expensetracker.domain.model.Account
 import rahulstech.android.expensetracker.domain.model.Group
+import java.math.BigDecimal
 
 
 @Composable
@@ -96,7 +97,7 @@ fun HomeScreen(
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                onClick = { onNavigateTo(AppDestination.AddHistory) },
+                onClick = { onNavigateTo(AppDestination.AddCreditDebit()) },
                 icon = { Icon(Icons.Default.Add, contentDescription = null) },
                 text = { Text(text = stringResource(R.string.label_add_history)) },
                 shape = MaterialTheme.shapes.extraLarge
@@ -524,24 +525,24 @@ fun HomeScreenPreview() {
         uiState = uiState.copy(
             isAccountsLoading = false,
             accounts = listOf(
-                Account(id = 1, name = "Savings Bank Account", balance = 5000.0),
-                Account(id = 2, name = "Checking", balance = 1200.0)
+                Account(id = 1, name = "Savings Bank Account", balance = BigDecimal("5000.00")),
+                Account(id = 2, name = "Checking", balance = BigDecimal("1200.00"))
             )
         )
 
         delay(1500)
         uiState = uiState.copy(
             isTotalAccountBalanceLoading = false,
-            totalAccountBalance = 350005.00
+            totalAccountBalance = BigDecimal("350005.00")
         )
 
         delay(1500)
         uiState = uiState.copy(
             isGroupsLoading = false,
             groups = listOf(
-                Group(id = 1, name = "Household", balance = 450.0),
-                Group(id = 2, name = "Medical", balance = 530.0),
-                Group(id = 3, name = "Grocery", balance = 1500.0)
+                Group(id = 1, name = "Household", balance = BigDecimal("450.00")),
+                Group(id = 2, name = "Medical", balance = BigDecimal("530.00")),
+                Group(id = 3, name = "Grocery", balance = BigDecimal("1500.00"))
             )
         )
     }
